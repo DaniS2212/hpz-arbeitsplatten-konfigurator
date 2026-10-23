@@ -1,0 +1,18 @@
+case_id,geometry,L1_mm,L2_mm,L3_mm,B1_mm,B2_mm,B3_mm,material,decor,edge_mm,supplier_net_eur,source,engine_test_status
+straight_2000_700_175,straight,2000,,,700,,,APL17.5,W980 Platinweiss,1.5,165.80,user_confirmed_all_edges,local_reference_test_passed_not_sale_approved
+u1_250_170_180_175_b60,U1,2500,1700,1800,600,600,600,APL17.5,W980 Platinweiss,1.5,528.76,user_confirmed,local_reference_test_passed_not_sale_approved
+u1_250_170_180_175_b70,U1,2500,1700,1800,700,600,600,APL17.5,W980 Platinweiss,1.5,539.90,user_confirmed,local_reference_test_passed_not_sale_approved
+u1_250_170_180_38_b60,U1,2500,1700,1800,600,600,600,APL38,W980 Platinweiss,1.5,785.69,user_reconfirmed,local_reference_test_passed_not_sale_approved
+u1_250_170_180_38_b70,U1,2500,1700,1800,700,600,600,APL38,W980 Platinweiss,1.5,767.12,user_reconfirmed,local_reference_test_passed_not_sale_approved
+straight_2000_600_175,straight,2000,,,600,,,APL17.5,W980 Platinweiss,1.5,144.99,user_reference,local_reference_test_passed_not_sale_approved
+straight_2000_600_38,straight,2000,,,600,,,APL38,W980 Platinweiss,1.5,243.11,user_reference,local_reference_test_passed_not_sale_approved
+l1_200_120_175,L1,2000,1200,,600,600,,APL17.5,W980 Platinweiss,1.5,307.67,user_reference,local_reference_test_passed_not_sale_approved
+l1_200_120_38,L1,2000,1200,,600,600,,APL38,W980 Platinweiss,1.5,464.45,user_reference,local_reference_test_passed_not_sale_approved
+l1_250_120_175,L1,2500,1200,,600,600,,APL17.5,W980 Platinweiss,1.5,342.41,user_confirmed,local_reference_test_passed_not_sale_approved
+l1_250_120_38,L1,2500,1200,,600,600,,APL38,W980 Platinweiss,1.5,511.56,user_confirmed,local_reference_test_passed_not_sale_approved
+u1_200_120_180_175,U1,2000,1200,1800,600,600,600,APL17.5,W980 Platinweiss,1.5,459.29,user_reference,local_reference_test_passed_not_sale_approved
+u1_200_120_180_38,U1,2000,1200,1800,600,600,600,APL38,W980 Platinweiss,1.5,691.49,user_confirmed_explicit_thick_edge,local_reference_test_passed_not_sale_approved
+u1_250_120_180_175,U1,2500,1200,1800,600,600,600,APL17.5,W980 Platinweiss,1.5,494.03,user_confirmed,local_reference_test_passed_not_sale_approved
+u1_250_120_180_38,U1,2500,1200,1800,600,600,600,APL38,W980 Platinweiss,1.5,738.59,user_confirmed,local_reference_test_passed_not_sale_approved
+straight_250_60_38_w980,straight,2500,,,600,,,APL38,W980 ST7,1.5,290.70,user_reference_net_assumed_from_context,local_reference_test_passed_not_sale_approved
+straight_250_60_38_h1145,straight,2500,,,600,,,APL38,H1145 ST10 Bardolino Eiche,1.5,298.96,user_reference_net_assumed_from_context,local_reference_test_passed_not_sale_approved

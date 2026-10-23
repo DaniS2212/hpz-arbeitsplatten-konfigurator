@@ -1,0 +1,46 @@
+✔ decimal comma and point produce exact integer millimetres (1.5414ms)
+✔ invalid precision, types and numeric formats are rejected rather than rounded (0.4762ms)
+✔ normalization ignores client prices and approval flags, but rejects wrong family and dimensions (1.3084ms)
+✔ unsupported material, decor, edge or corner cannot silently fall back (0.3123ms)
+✔ all nine named geometries remain represented without invented supplier approval (1.0554ms)
+✔ straight contour, dimensions, area and all four matching edges derive from the same mm data (0.9813ms)
+✔ L/U family sketches use asymmetric dimensions but do not invent Speedmaster joints or parts (0.1756ms)
+✔ impossible inner clearance and overflowing corner treatments are rejected (0.1367ms)
+✔ round and chamfer preview remove the correct area; unverified treatment never becomes supplier geometry (0.2194ms)
+✔ corner edge descriptors terminate at actual tangent points instead of the removed corner (0.4606ms)
+✔ every named variant and material renders, with unverified status and no invented joints (2.3222ms)
+✔ SVG dimensions change with input, active measure is highlighted and untrusted labels are escaped (0.2076ms)
+✔ supplier reference straight/APL17.5/200,60 (0.117ms)
+✔ supplier reference straight/APL38/200,60 (0.031ms)
+✔ supplier reference straight/APL17.5/200,70 (0.0411ms)
+✔ supplier reference L1/APL17.5/200,120,60,60 (0.0327ms)
+✔ supplier reference L1/APL38/200,120,60,60 (0.0449ms)
+✔ supplier reference L1/APL17.5/250,120,60,60 (0.0232ms)
+✔ supplier reference L1/APL38/250,120,60,60 (0.0192ms)
+✔ supplier reference U1/APL17.5/200,120,180,60,60,60 (0.0216ms)
+✔ supplier reference U1/APL38/200,120,180,60,60,60 (0.0264ms)
+✔ supplier reference U1/APL17.5/250,120,180,60,60,60 (0.0366ms)
+✔ supplier reference U1/APL38/250,120,180,60,60,60 (0.0359ms)
+✔ supplier reference U1/APL17.5/250,170,180,60,60,60 (0.0301ms)
+✔ supplier reference U1/APL17.5/250,170,180,70,60,60 (0.025ms)
+✔ supplier reference U1/APL38/250,170,180,60,60,60 (0.0196ms)
+✔ supplier reference U1/APL38/250,170,180,70,60,60 (0.0183ms)
+✔ unknown adjacent prices, corners and tier ranges are not interpolated (0.0782ms)
+✔ APL38 tier changes at 881 mm, not 880 or 900 (0.054ms)
+✔ exact markup excludes inbound costs, retains four decimals and calculates quantity before rounding (0.6893ms)
+✔ inbound surcharge uses actual individual shipping parts, once per unit (0.1585ms)
+✔ pricing rejects invalid money and quantities (0.1009ms)
+✔ public quote never exposes supplier cost or makes incomplete cases purchasable (0.0966ms)
+✔ local HTTP preview validates on server and exposes no supplier prices (58.0659ms)
+✔ only explicitly allowed files are served; private costs, test fixtures and traversal remain inaccessible (15.975ms)
+✔ foreign origins and hosts, oversize payloads and wrong content types are rejected (11.6647ms)
+✔ configuration hashes distinguish dimensions but ignore untrusted prices (8.7369ms)
+✔ late responses cannot overwrite newer dimensions and new input clears prior results immediately (0.6714ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 308.9062

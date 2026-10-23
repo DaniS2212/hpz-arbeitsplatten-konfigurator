@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arbeitsplatten · lokale Entwicklung</title><link rel="stylesheet" href="/style.css"></head>
+<body><header><span class="brand">HOLZ-LIEBLING <span>/ WERKSTATT</span></span><span class="badge">Lokal · kein Shopzugriff</span></header>
+<main><p class="eyebrow">KÜCHENARBEITSPLATTEN</p><h1>Deine Platte. Dein Maß.</h1>
+<p class="intro">Form und Maße erkunden. Diese Entwicklungsansicht ist nicht bestellbar.</p>
+<div class="layout"><section class="controls" aria-label="Arbeitsplatte konfigurieren">
+<div class="product-tabs" id="products" role="group" aria-label="Produkt"></div>
+<nav id="steps" aria-label="Konfigurationsschritte"></nav>
+<form id="config" novalidate>
+<section data-step="0"><h2>01 / Form & Ecke</h2><label for="geometry">Geometrie</label><select id="geometry" name="geometry"></select>
+<label for="corner">Eckausführung</label><select id="corner" name="corner"></select>
+<p class="hint">Die Zuordnung der Speedmaster-Varianten wird anhand der Originalzeichnungen ergänzt. L/U zeigen vorerst eine gemeinsame Familienskizze.</p></section>
+<section data-step="1" hidden><h2>02 / Maße</h2><p class="hint">Eingabe in cm · 0,1 cm entspricht 1 mm. Komma und Punkt sind möglich.</p><div id="dimensions" class="dimension-grid"></div>
+<div id="special-wrap" hidden><label for="special">Eckmaß oben links (cm)</label><input id="special" type="text" inputmode="decimal" value="10"><p class="hint">Radius bzw. gleiche Schrägenabschnitte: nur technisches Eckmuster.</p></div></section>
+<section data-step="2" hidden><h2>03 / Material & Kanten</h2><label for="material">Material</label><select id="material" name="material"></select>
+<div class="fixed"><strong>Dickkante 1,5 mm dekorgleich</strong><p>Sichtbare Außenkanten; bei gerader Platte auch hinten. Stoßkanten werden später anhand der bestätigten Teilezerlegung getrennt behandelt.</p></div></section>
+<section data-step="3" hidden><h2>04 / Dekor</h2><label for="decor">Referenzdekor</label><select id="decor"><option value="W980">W980 Platinweiß</option></select>
+<p class="hint">Dekorbilder, Verfügbarkeitsmatrix und zwölf Favoriten werden nach belegter Zuordnung ergänzt. W980 ist hier ein Referenzfall, keine Lieferfreigabe.</p>
+<label for="quantity">Anzahl konfigurierter Einheiten</label><input id="quantity" type="number" min="1" max="1000" step="1" value="1"></section>
+<div class="navigation"><button id="back" type="button">Zurück</button><button id="next" type="button" class="primary">Weiter</button></div>
+</form></section>
+<section class="preview" aria-label="Technische Vorschau"><div class="preview-heading"><h2>Maßzeichnung</h2><span>Maße in mm</span></div>
+<div id="drawing"></div><p id="error" role="alert"></p><p id="warnings" class="hint"></p>
+<div class="quote" aria-live="polite"><strong id="price">Preis auf Anfrage</strong><p id="price-note"></p><p>Zusätzliche Kundenversandkosten werden später im WooCommerce-Checkout berechnet.</p><button type="button" disabled>Bestellung noch nicht freigegeben</button></div>
+</section></div><footer>Lokale Entwicklung · Keine Verbindung zum Liveshop · Keine Fertigungsfreigabe</footer></main>
+<script type="module" src="/app.mjs"></script></body></html>

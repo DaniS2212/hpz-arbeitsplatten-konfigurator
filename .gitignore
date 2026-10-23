@@ -1,0 +1,49 @@
+# Dependencies and disposable build/test caches. Bundled plugin assets, archives,
+# evidence and versioned ZIP packages are intentionally tracked.
+node_modules/
+vendor/
+.cache/
+.npm/
+.pnpm-store/
+.vite/
+.turbo/
+.next/
+.parcel-cache/
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Credentials and local environment settings.
+.env
+.env.*
+!.env.example
+!.env.sample
+.git-credentials
+.gitconfig
+.netrc
+.npmrc
+.ssh/
+auth.json
+wp-config.php
+.htpasswd
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Temporary files and machine-specific clutter.
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+*.pid
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.worktrees/
