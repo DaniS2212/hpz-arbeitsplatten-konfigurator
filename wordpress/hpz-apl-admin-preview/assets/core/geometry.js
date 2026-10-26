@@ -1,5 +1,5 @@
-import {straightGeometry} from './straight-geometry.js?v=0.6.0';
-import {mmToCmText} from './customer-measures.js?v=0.6.0';
+import {straightGeometry} from './straight-geometry.js?v=0.6.1';
+import {mmToCmText} from './customer-measures.js?v=0.6.1';
 // L/U are explicitly generic family sketches. They are not Speedmaster L1–L4/U1–U4 definitions.
 export function geometry(config) {
   if(config.product==='straight'&&config.straightCorner)return straightGeometry(config);
@@ -66,31 +66,31 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
     const vertical=d.from[0]===d.to[0], offset=pad*(g.cornerDimensions?.length&&d.id==='B1'?.95:.45)*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
-    const color=d.id===active?'#ad8667':'#365861';
+    const selected=d.id===active,color=selected?'#a34f1c':'#365861';
     const textX=(a[0]+b[0])/2, textY=(a[1]+b[1])/2-font*0.5;
     return `<g class="apl-measure" data-field="${escapeXml(d.id)}" data-active="${d.id===active}" stroke="${color}" fill="${color}">
-      <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-dasharray="${font/4} ${font/4}"/>
-      <path d="M ${a} L ${b}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
-      <text x="${textX}" y="${textY}" text-anchor="middle" stroke="none" font-size="${font}" ${vertical?`transform="rotate(-90 ${textX} ${(a[1]+b[1])/2})"`:''}>${escapeXml(d.id)}: ${measure(d.mm)}</text></g>`;
+      <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
+      <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
+      <text x="${textX}" y="${textY}" text-anchor="middle" stroke="${selected?'#fffefb':'none'}" stroke-width="${selected?font*.22:0}" paint-order="stroke" font-weight="${selected?800:400}" font-size="${font*(selected?1.16:1)}" ${vertical?`transform="rotate(-90 ${textX} ${(a[1]+b[1])/2})"`:''}>${escapeXml(d.id)}: ${measure(d.mm)}</text></g>`;
   }).join('');
   const radii=(g.cornerArcs??[]).filter(a=>!detail||a.side===detail).map(a=>{
-    const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#ad8667':'#365861';
+    const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
     const x=a.side==='left'?g.width*.18:g.width*.82,y=g.height+pad*.65;
     const tx=a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.sqrt(2),ty=a.center[1]+a.radiusMm/Math.sqrt(2);
-    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/><text x="${x}" y="${y}" fill="${color}" text-anchor="middle" font-size="${font}">${a.id}: ${measure(a.radiusMm)}</text></g>`:''}</g>`;
+    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/><text x="${x}" y="${y}" fill="${color}" text-anchor="middle" stroke="${selected?'#fffefb':'none'}" stroke-width="${selected?font*.22:0}" paint-order="stroke" font-weight="${selected?800:400}" font-size="${font*(selected?1.16:1)}">${a.id}: ${measure(a.radiusMm)}</text></g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
-    const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#ad8667':'#365861';
+    const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
     const len=Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1]),t=Math.min(trim,len*.24);
     const a=c.from.map((v,i)=>v+(c.to[i]-v)*t/len),b=c.to.map((v,i)=>v+(c.from[i]-v)*t/len);
     return `<g data-cut="${c.side}" data-active="${selected}"><path d="M ${a} L ${b}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/></g>`;
   }).join('');
   const cornerMeasures=(g.cornerDimensions??[]).filter(d=>!detail||d.side===detail).map(d=>{
-    const vertical=d.axis==='vertical',selected=d.id===active,color=selected?'#ad8667':'#365861';
+    const vertical=d.axis==='vertical',selected=d.id===active,color=selected?'#a34f1c':'#365861';
     const offset=vertical?(d.side==='left'?-pad*.42:pad*.40):pad*.60;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const x=vertical?a[0]-font*.35:Math.max(font*2.8,Math.min(g.width-font*2.8,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.35;
-    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" stroke="none" font-size="${font}" ${vertical?`transform="rotate(-90 ${x} ${y})"`:''}>${d.id}: ${measure(d.mm)}</text></g>`;
+    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" stroke="${selected?'#fffefb':'none'}" stroke-width="${selected?font*.22:0}" paint-order="stroke" font-weight="${selected?800:400}" font-size="${font*(selected?1.16:1)}" ${vertical?`transform="rotate(-90 ${x} ${y})"`:''}>${d.id}: ${measure(d.mm)}</text></g>`;
   }).join('');
   let viewBox=`${-pad} ${-pad} ${g.width+pad*2.3} ${g.height+pad*2}`;
   let frontX=g.width/2;

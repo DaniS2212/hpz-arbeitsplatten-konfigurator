@@ -1,0 +1,39 @@
+name: WordPress Plugin Test-ZIP
+on:
+  pull_request:
+    paths:
+      - 'local/**'
+      - 'design/**'
+      - 'wordpress/hpz-apl-admin-preview/**'
+      - 'build-plugin.mjs'
+      - '.github/workflows/plugin-test-zip.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-test-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate installable WordPress assets from source
+        run: node build-plugin.mjs
+      - name: Verify generated assets match reviewed GitHub files
+        run: git diff --exit-code -- wordpress/hpz-apl-admin-preview
+      - name: Create and validate plugin-only ZIP
+        run: |
+          mkdir -p dist
+          version=$(sed -n 's/^ \* Version: \([0-9.]*\)/\1/p' wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php)
+          test -n "$version"
+          cd wordpress
+          zip -qr "../dist/hpz-apl-admin-preview-$version.zip" hpz-apl-admin-preview
+          cd ..
+          unzip -t "dist/hpz-apl-admin-preview-$version.zip" | tail -n 1
+          sha256sum "dist/hpz-apl-admin-preview-$version.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hpz-apl-admin-preview-test-zip
+          path: dist/hpz-apl-admin-preview-*.zip
+          retention-days: 7

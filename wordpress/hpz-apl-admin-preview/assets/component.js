@@ -1,11 +1,11 @@
-import {catalog} from './core/config.js?v=0.6.0';
-import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=0.6.0';
-import {svg} from './core/geometry.js?v=0.6.0';
-import {createPreviewController} from './latest.js?v=0.6.0';
-import {template} from './component-template.js?v=0.6.0';
-import {resolveProduct} from './core/products.js?v=0.6.0';
-import {decorImageUrl} from './decor-images.js?v=0.6.0';
-import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.6.0';
+import {catalog} from './core/config.js?v=0.6.1';
+import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=0.6.1';
+import {svg} from './core/geometry.js?v=0.6.1';
+import {createPreviewController} from './latest.js?v=0.6.1';
+import {template} from './component-template.js?v=0.6.1';
+import {resolveProduct} from './core/products.js?v=0.6.1';
+import {decorImageUrl} from './decor-images.js?v=0.6.1';
+import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.6.1';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -15,8 +15,8 @@ export function mountConfigurator(root,context={},adapters={}){
  mounts.get(root)?.destroy();
  const shadow=root.shadowRoot||root.attachShadow({mode:'open'});
  const shell=document.createElement('div');shell.className='hpz-apl';shell.dataset.mode=embedded?'embedded':'demo';
- const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.6.0',import.meta.url).href;
- const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=0.6.0',import.meta.url).href;
+ const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.6.1',import.meta.url).href;
+ const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=0.6.1',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,studioLink,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
  function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}
@@ -147,12 +147,27 @@ function summary(config){
   $('summary-shape').textContent=names[product];$('preview-family').textContent='Vorschau';
   const decorName=c.decors.find(d=>d.id===decor).label;
   $('preview-material').textContent=`${material==='APL38'?'38':'17,5'} mm · ${decorName}`;
-  const measures=config?Object.entries(config.dimensions).map(([k,v])=>`${k}: ${mmToCmText(v)} cm`).join(' · '):'Maße werden geprüft';
-  $('summary').replaceChildren(...[['Maße',measures],['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName],['Außenkante','1,5 mm dekorgleich']].map(([k,v])=>{const row=element('div');row.append(element('dt','',k),element('dd','',v));return row;}));
+  const rows=[];
+  if(!config)rows.push(['Maße','Wird geprüft …']);
+  else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
+  else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
+  rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
   if(product==='straight'){
-    const row=element('div'),radii=config?.straightCorner?.parameters;
-    row.append(element('dt','','Ecken'),element('dd','',`${sides[straightSide]}${straightTreatment?' · '+treatments[straightTreatment]:''}${radii&&Object.keys(radii).length?' · '+Object.entries(radii).map(([k,v])=>`${k}: ${mmToCmText(v)} cm`).join(' / '):''}`));$('summary').append(row);
+    const location={none:'Ohne Bearbeitung',left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
+    const finish={round:'Abgerundet',chamfer_square:'Eckig abgeschrägt',chamfer_continuous:'Vorderkante durchlaufend'}[straightTreatment];
+    rows.push(['Ecken',straightSide==='none'?location:`${location} · ${finish}`]);
+    const p=config?.straightCorner?.parameters;
+    if(p&&straightSide!=='none'){
+      if(straightTreatment==='round'){
+        if(p.R1!==undefined)rows.push(['Links',`Radius ${mmToCmText(p.R1)} cm`]);
+        if(p.R2!==undefined)rows.push(['Rechts',`Radius ${mmToCmText(p.R2)} cm`]);
+      }else{
+        if(p.L2!==undefined&&p.B2!==undefined)rows.push(['Links',`${mmToCmText(p.L2)} × ${mmToCmText(p.B2)} cm`]);
+        if(p.L3!==undefined&&p.B3!==undefined)rows.push(['Rechts',`${mmToCmText(p.L3)} × ${mmToCmText(p.B3)} cm`]);
+      }
+    }
   }
+  $('summary').replaceChildren(...rows.map(([key,value])=>{const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;}));
 }
 function priceDisplay(value,label){$('price').textContent=value;$('price-label').textContent=label;$('mobile-price').textContent=value;$('mobile-price-label').textContent=label;}
 function updateCornerBounds(){
@@ -180,7 +195,7 @@ const controller=createPreviewController({request:async body=>{if(adapters.previ
       $('price-note').textContent=customerMeasureError(result.quote.message||'Für diese Kombination liegt noch keine Preisvorschau vor.');
     }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Rechenbeispiel zum belegten Referenzpreis, unter der Annahme einer ungeteilten Platte. Noch kein verbindliches Angebot.';}
     else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
-  },onError:error=>{if(disposed)return;valid=false;lastGeometry=null;$('drawing').replaceChildren();$('drawing').setAttribute('aria-busy','false');$('large-drawing').replaceChildren();$('error').textContent=customerMeasureError(error);$('error').hidden=false;$('shape-note').textContent='Bitte korrigiere die markierten Maße. Die letzte Kontur wird bei ungültigen Werten entfernt.';priceDisplay('Noch offen','Bitte Maße prüfen');$('price-note').textContent='Für diese Eingabe ist keine gültige Vorschau verfügbar.';}
+  },onError:error=>{if(disposed)return;valid=false;lastGeometry=null;summary(null);$('drawing').replaceChildren();$('drawing').setAttribute('aria-busy','false');$('large-drawing').replaceChildren();$('error').textContent=customerMeasureError(error);$('error').hidden=false;$('shape-note').textContent='Bitte korrigiere die markierten Maße. Die letzte Kontur wird bei ungültigen Werten entfernt.';priceDisplay('Noch offen','Bitte Maße prüfen');$('price-note').textContent='Für diese Eingabe ist keine gültige Vorschau verfügbar.';}
 });
 function refresh(){
   shell.style.setProperty('--hpz-decor-image',`url("${decorImageUrl(decor)}")`);
