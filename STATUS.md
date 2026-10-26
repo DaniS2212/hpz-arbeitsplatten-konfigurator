@@ -1,6 +1,17 @@
 # Status – 26.10.2026
 
-## Aktuell: Zwischenversion 0.5.0 – geschützte V3-Preisvorschau
+## Aktuell: Zwischenversion 0.6.0 – Küchenstudio-Oberfläche
+
+- Gemergte Version 0.5.0 (PR #7) als Basis. Designschicht aus PR #6 in die vorhandene Shadow-DOM-Komponente und das WordPress-Testplugin übernommen; keine Neuentwicklung der Preisregel.
+- Gerade: erster Schritt „Ecken“, keine Ansicht „Teile & Stöße“. L/U: „Grundriss“ und unverbindliche „Aufteilung“. Texte und Zusammenfassung gekürzt, 16 Dekore und alle bisherigen Vorschaufunktionen erhalten.
+- Sichtbare Kundenmaße in cm mit einer optionalen Nachkommastelle. Exakte Übergabe als Integer-mm an unveränderten V2-Vertrag und PHP-V3-Preisregel. Material- und Kantenstärke bleiben mm.
+- Stand der Prüfung: 101 Node-Tests, 379 V3-PHP-Assertions (72 historische EK-Fälle), 97 Preisnormalisierungs- und 18 WordPress-Testmodus-Assertions bestanden. Browser: 46 Ecken-, 12 A1.1-Layout-, 65 Dekor-, 12 Dekor-Layout-, 4 allgemeine Layout- und 12 Komponententests bestanden. WordPress-PHP-Testmodus mit `250,1 cm` und ungültigem `250,12 cm` manuell geprüft; Preis/Kaufsperre korrekt. Desktop- und 390-px-Mobil-Screenshots unter `docs/060-*.png`.
+- [PR #8 zur Prüfung](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/8) geöffnet, nicht gemergt. Beide GitHub-Prüfläufe („Konfigurator Vorschau CI“ und „Price V3 Regression“) erfolgreich. Plugin-ZIP: `dist/hpz-apl-admin-preview-0.6.0.zip`, 60 Dateien bytegleich geprüft.
+- Keine Live-Installation, Produktveröffentlichung, Warenkorbaktivierung oder Änderung an Möbelsockel und vorhandenen WCPA-Formularen. Weitere echte Integrationsprüfungen in `docs/phase-060.md`.
+
+Die folgenden Abschnitte dokumentieren frühere Versionen.
+
+## Zwischenversion 0.5.0 – geschützte V3-Preisvorschau
 
 - Auf dem gemergten Stand von PR #4 aufgebaut. Die unveränderte PHP-Preisregel
   V3 aus PR #3 ist in das bestehende Plugin eingebunden; PR #1 und #3 wurden

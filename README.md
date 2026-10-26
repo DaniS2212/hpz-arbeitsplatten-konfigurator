@@ -4,7 +4,7 @@ Privates Entwicklungsprojekt von **DaniS2212** für holzplatten-zuschnitt.de.
 
 Repository: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
 
-Aktueller Plugin-Stand: **0.4.0 / 16 echte Dekorbilder, Admin-Testvorschau**. Die vollständige
+Aktueller Plugin-Stand: **0.6.0 / Küchenstudio-Oberfläche, Zentimetermaße und geschützte V3-Preisvorschau**. Die vollständige
 Entwicklung einschließlich früherer Stände und Pakete wird hier erhalten.
 Der Import ändert weder WordPress noch WooCommerce-Produkte.
 
@@ -21,7 +21,7 @@ Der Import ändert weder WordPress noch WooCommerce-Produkte.
 | `docs/` | Bestandsaufnahme, Einbettungsvertrag, technische Nachweise und Testbelege |
 | `docs/superpowers/specs/` | Freigegebene Spezifikation, aus dem bisherigen übergeordneten Projekt übernommen |
 | `docs/superpowers/plans/` | Freigegebener Implementierungsplan, aus dem bisherigen übergeordneten Projekt übernommen |
-| `dist/` | Installierbare ZIP 0.4.0 und unveränderte ZIPs 0.1.0/0.2.0/0.3.0 |
+| `dist/` | Installierbare ZIP 0.6.0 und unveränderte ältere Pakete |
 | `archive/` | Frühere Entwicklungsstände |
 | `STATUS.md` | Aktueller Stand und verbleibende Arbeiten |
 
@@ -34,6 +34,7 @@ aktuellen Stand gilt `STATUS.md`.
 
 Voraussetzung: Node.js **22 oder neuer**, für die ZIP-Erstellung PowerShell 7.
 Für die vorhandenen Node-Tests sind keine Paketinstallationen nötig.
+Für die PHP-Preisregression ist zusätzlich PHP erforderlich; das Projekt installiert es nicht automatisch.
 
 ```sh
 node --test local/test/*.test.mjs wordpress/*.test.mjs
@@ -79,12 +80,14 @@ nicht neu gebaut. Installationshinweise liegen im Pluginordner.
 - Warenkorb und Bestellungen bleiben technisch gesperrt. Kein Produktionsmodus.
 - Gerade: alle zehn Zustände als Vorschau, einschließlich unabhängiger Radien
   und Abschrägungen links/rechts. Durchlaufende Abschrägung bleibt schematisch
-  und vorerst auf 2000 × 600 mm / Sondermaße L=60–500, B=60–300 mm begrenzt.
+  und vorerst auf 200 × 60 cm / Sondermaße L=6–50, B=6–30 cm begrenzt.
   Weitere konservative Grenzen und Nachweise: `docs/phase-a1-1-evidence.md`.
-- Sichtbare Maße durchgehend in mm; Version/Einheit ausdrücklich getrennt vom
-  erhaltenen Legacy-cm-Vertrag. Siehe `docs/input-contract-v2.md`.
+- Sichtbare Kundenmaße in cm mit optionaler Zehntelstelle; intern exakt ganze mm
+  im unveränderten V2-Vertrag. Material- und Kantenstärken bleiben mm. Siehe
+  `docs/phase-060.md` und `docs/input-contract-v2.md`.
 - L/U bleiben schematische, nicht freigegebene Lieferantengeometrien.
-- Preisregel V2 ist dokumentiert, nicht aktiviert. Kundenversand bleibt separat.
+- Preisregel V3 liefert nur für Gerade im Admin-Testmodus einen unverbindlichen
+  Bruttopreis; Verkauf bleibt gesperrt. Kundenversand bleibt separat.
 - Alle 16 vereinbarten Dekore mit echten, lokal gebündelten Bildern und kurzen
   Kundennamen. Katalogpräsenz bedeutet keine bestätigte Lieferbarkeit.
   Zuordnung, Bildherkunft und Tests: `docs/040-decor-integration.md`.

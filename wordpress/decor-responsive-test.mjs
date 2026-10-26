@@ -6,6 +6,7 @@ try{
   const doc=frame.contentDocument;let s;
   for(let i=0;i<80;i++){s=doc.querySelector('[data-hpz-apl-preview]')?.shadowRoot;if(s?.querySelector('#drawing svg'))break;await wait();}
   await Promise.all([...s.querySelectorAll('link')].map(l=>l.sheet?Promise.resolve():new Promise(r=>l.addEventListener('load',r,{once:true}))));
+  check('Küchenstudio-Designschicht fehlt',getComputedStyle(s.querySelector('.hpz-apl')).getPropertyValue('--studio-petrol-dark').trim()==='#153f48');
   s.querySelector('#steps button:nth-child(3)').click();await wait();
   const cards=[...s.querySelectorAll('.decor-card')];check('16 Karten fehlen',cards.length===16);
   await Promise.all(cards.map(async c=>{const img=c.querySelector('img');img.loading='eager';await img.decode();check('Dekorbild nicht geladen',img.naturalWidth>0);}));

@@ -39,6 +39,10 @@ test('plugin update versions bootstrap and all component module imports consiste
  const component=await readFile(new URL('assets/component.js',dir),'utf8');
  for(const [,path] of component.matchAll(/from ['"]([^'"]+)['"]/g))assert.ok(path.endsWith(`?v=${version}`));
  assert.ok(component.includes(`component.css?v=${version}`));
+ assert.ok(component.includes(`kuechenstudio-060.css?v=${version}`));
+ const studio=await readFile(new URL('assets/kuechenstudio-060.css',dir),'utf8');
+ const source=await readFile(new URL('../../design/kuechenstudio-060.css',dir),'utf8');
+ assert.equal(studio,source,'installed design layer matches reviewed source');
 });
 test('bundled import graph complete, relative and only the price adapter may fetch',async()=>{
  async function scan(path){for(const file of await readdir(path,{withFileTypes:true})) {
