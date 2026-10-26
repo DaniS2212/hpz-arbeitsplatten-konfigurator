@@ -1,4 +1,4 @@
-import {cmToMm} from './config.js?v=0.6.4';
+import {cmToMm} from './config.js?v=0.6.5';
 
 // Only the presentation boundary uses centimetres. The V2 request and price
 // engine continue to receive integer millimetres.

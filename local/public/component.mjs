@@ -30,6 +30,7 @@ let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,show
 let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null;
 let radiusValues={},drawingDetail=null;
+const fieldErrors=new Map();
 const cornerTitle=$('corners').previousElementSibling;
 const sideWrap=element('fieldset','a1-sides');
 const sideLegend=element('legend','','Welche Seite?'),cornerHelp=element('button','a11-info','i');
@@ -38,6 +39,9 @@ sideWrap.append(sideLegend,element('div','a1-side-options'));
 cornerTitle.before(sideWrap);
 const radiusWrap=element('fieldset','a1-radii');
 $('dimensions').after(radiusWrap);
+const formError=element('p','measurement-error');
+formError.id='measurement-error';formError.hidden=true;formError.setAttribute('role','alert');
+radiusWrap.after(formError);
 const infoDialog=element('dialog');infoDialog.id='corner-help';
 infoDialog.innerHTML='<button class="dialog-close" type="button" aria-label="Eckhinweise schließen">×</button><h2>Deine vorderen Ecken</h2><p>Du siehst die Platte von oben; die Vorderkante liegt unten. Längen und Tiefen kannst du auf 0,1 cm genau eingeben, Eckmaße in 1-cm-Schritten. Beim Wechsel der Bearbeitung werden nur die Eckmaße zurückgesetzt.</p><p>R1 ist vorne links, R2 vorne rechts. Bei Schrägen bezeichnet L2/L3 die Länge entlang der Vorderkante, B2/B3 die Tiefe entlang der Seite.</p><p>Bei der eckigen Abschrägung entsteht eine gerade Diagonale. Die durchlaufende Vorderkante zeigen wir mit schematischen Übergängen ohne Fertigungsradien; derzeit nur bei 200 × 60 cm, mit Schrägenlänge 6–50 cm und Tiefe 6–30 cm.</p><p>Die Vorschaugrenzen sind konservativ. Fertigung und Preisfreigabe bleiben getrennt; Bestellungen sind gesperrt.</p>';
 shell.append(infoDialog);cornerHelp.addEventListener('click',()=>infoDialog.showModal());
@@ -53,7 +57,25 @@ function treatmentIcon(kind){
   const path=kind==='round'?'M10 5H88V39H26A16 16 0 0 1 10 23Z':kind==='chamfer_square'?'M10 5H88V39H27L10 22Z':'M10 5H88V39H29Q27 39 25 37L12 24Q10 22 10 20Z';
   return `<svg viewBox="0 0 98 46" aria-hidden="true"><path d="${path}" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M35 39H80" stroke="#146178" stroke-width="3"/></svg>`;
 }
+function setFieldError(key,message=''){
+  const input=$(`dim-${key}`),note=$(`field-error-${key}`);
+  if(!input||!note){fieldErrors.delete(key);return;}
+  const wrapper=input.closest('.a1-radius-field')??input.parentElement.parentElement;
+  if(message){
+    fieldErrors.set(key,message);
+    input.setAttribute('aria-invalid','true');
+    wrapper.classList.add('has-measure-error');
+    note.textContent=message;note.hidden=false;
+  }else{
+    fieldErrors.delete(key);
+    input.removeAttribute('aria-invalid');
+    wrapper.classList.remove('has-measure-error');
+    note.textContent='';note.hidden=true;
+  }
+}
+function clearFieldErrors(){for(const key of [...fieldErrors.keys()])setFieldError(key);}
 function renderRadiusInputs(){
+  for(const key of ['R1','R2','L2','B2','L3','B3'])fieldErrors.delete(key);
   radiusWrap.replaceChildren();radiusWrap.hidden=product!=='straight'||straightSide==='none';
   if(radiusWrap.hidden)return;
   radiusWrap.append(element('legend','',straightTreatment==='round'?'Deine Rundungen':'Deine Abschrägungen'));
@@ -71,12 +93,13 @@ function renderRadiusInputs(){
     const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
     const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':'Tiefe';
     label.htmlFor=`dim-${key}`;label.textContent=property;label.append(element('span','',key));
-    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} error`);
+    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} field-error-${key}`);
     input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{radiusValues[key]=input.value;refresh();});
     input.addEventListener('focus',()=>{active=key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
     const hint=element('p','microcopy');hint.id=`hint-${key}`;
-    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint);grids.get(side).append(wrap);
+    const inline=element('p','field-error');inline.id=`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
+    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
   }
   radiusWrap.append(element('p','a1-limit-note','Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
 }
@@ -153,9 +176,10 @@ function rebuild(){
   for(const id of c.families[product].fields){
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
     label.htmlFor=`dim-${id}`;label.append(document.createTextNode(product==='straight'?(id==='L1'?'Länge':'Tiefe'):fieldNames[id]),element('span','',id));
-    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=currentDimensions()[id];input.setAttribute('aria-describedby','error');
+    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=currentDimensions()[id];input.setAttribute('aria-describedby',`field-error-${id}`);
     input.addEventListener('input',()=>{currentDimensions()[id]=input.value;refresh();});input.addEventListener('focus',()=>{active=id;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
-    unit.append(input,element('span','','cm'));wrap.append(label,unit);$('dimensions').append(wrap);
+    const inline=element('p','field-error');inline.id=`field-error-${id}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
+    unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);$('dimensions').append(wrap);
   }
   renderRadiusInputs();
 }
@@ -165,14 +189,14 @@ function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
   if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:true,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
-function summary(config){
+function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];$('preview-family').textContent='Vorschau';
   const decorName=c.decors.find(d=>d.id===decor).label;
   $('preview-material').textContent=`${material==='APL38'?'38':'17,5'} mm · ${decorName}`;
   $('selected-surface-name').textContent=decorName;
   $('selected-surface-thickness').textContent=`${material==='APL38'?'38':'17,5'} mm · Schichtstoff`;
   const rows=[];
-  if(!config)rows.push(['Maße','Wird geprüft …']);
+  if(!config)rows.push(['Maße',invalid?'Bitte korrigieren':'Wird geprüft …']);
   else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
   else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
   rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
@@ -196,20 +220,38 @@ function summary(config){
 function priceDisplay(value,label){$('price').textContent=value;$('price-label').textContent=label;$('mobile-price').textContent=value;$('mobile-price-label').textContent=label;}
 function updateCornerBounds(){
   if(product!=='straight'||straightSide==='none')return;
-  let dims;try{dims=Object.fromEntries(Object.entries(straightDimensionValues).map(([key,value])=>[key,Number(cmInputToMmText(value))]));}catch{return;}
+  let dims;
+  try{dims=Object.fromEntries(Object.entries(straightDimensionValues).map(([key,value])=>[key,Number(cmInputToMmText(value))]));}catch{return;}
   const parameters=Object.fromEntries(Object.entries(radiusValues).map(([key,value])=>{try{return [key,Number(cmInputToMmText(value))];}catch{return [key,NaN];}}));
   const limits=cornerLimits(straightSide,straightTreatment,dims,parameters);
   for(const [key,limit] of Object.entries(limits.fields)){
     const input=$(`dim-${key}`);if(!input)continue;
-    input.setAttribute('aria-invalid',String(!limits.enabled||!Number.isInteger(parameters[key])||parameters[key]<limit.min||parameters[key]>limit.max||parameters[key]%limit.step!==0));
-    $(`hint-${key}`).textContent=limit.max>=limit.min?cmRange(limit.min,limit.max,limit.step):'Dafür bleibt zu wenig Platz. Andere Eckmaße oder Plattenmaße anpassen.';
+    const value=parameters[key];
+    let issue='';
+    if(!Number.isInteger(value))issue='Bitte in cm eingeben, z. B. 15.';
+    else if(limits.enabled){
+      if(limit.max<limit.min)issue='Diese Ecke ist mit den gewählten Maßen nicht möglich.';
+      else if(value<limit.min)issue=`Mindestens ${mmToCmText(limit.min)} cm möglich.`;
+      else if(value>limit.max)issue=`Maximal ${mmToCmText(limit.max)} cm möglich.`;
+      else if(value%limit.step!==0)issue='Bitte ganze Zentimeter eingeben.';
+    }
+    setFieldError(key,issue);
+    $(`hint-${key}`).textContent=limit.max>=limit.min
+      ?cmRange(limit.min,limit.max,limit.step)
+      :'Dafür bleibt zu wenig Platz. Andere Eckmaße oder Plattenmaße anpassen.';
   }
-  radiusWrap.querySelector('.a1-limit-note').textContent=limits.enabled?'Konservative Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.':customerMeasureError(limits.reason);
+  radiusWrap.querySelector('.a1-limit-note').textContent=limits.enabled
+    ?'Konservative Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'
+    :customerMeasureError(limits.reason);
 }
 function applyVisual(result){
   if(disposed)return;
   valid=true;
   lastGeometry=result.geometry;
+  clearFieldErrors();
+  $('drawing-status').hidden=true;
+  formError.hidden=true;
+  $('error').hidden=true;
   $('drawing').setAttribute('aria-busy','false');
   renderDrawing();
   summary(result.config);
@@ -240,7 +282,31 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       $('price-note').textContent=product==='straight'?'Im lokalen Test nicht verfügbar. Der echte V3-Preis wird im geschützten WordPress-Admin-Test berechnet.':'L-/U-Formen haben noch keine freigegebene Preisvorschau.';
     }
     else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
-  },onError:error=>{if(disposed)return;valid=false;lastGeometry=null;summary(null);$('drawing').replaceChildren();$('drawing').setAttribute('aria-busy','false');$('large-drawing').replaceChildren();$('error').textContent=customerMeasureError(error);$('error').hidden=false;$('shape-note').textContent='Bitte korrigiere die markierten Maße. Die letzte Kontur wird bei ungültigen Werten entfernt.';priceDisplay('Noch offen','Bitte Maße prüfen');$('price-note').textContent='Für diese Eingabe ist keine gültige Vorschau verfügbar.';}
+  },onError:error=>{
+    if(disposed)return;
+    valid=false;
+    const message=customerMeasureError(error);
+    const match=message.match(/^(L[123]|B[123]|R[12]):\s*/);
+    if(match&&!fieldErrors.has(match[1]))setFieldError(match[1],message.slice(match[0].length));
+    formError.textContent=message;formError.hidden=false;
+    $('drawing').setAttribute('aria-busy','false');
+    if(lastGeometry){
+      renderDrawing();
+      $('drawing-status').textContent='Letzter gültiger Stand – bitte die markierte Eingabe korrigieren.';
+      $('drawing-status').hidden=false;
+    }else{
+      $('drawing').replaceChildren();$('large-drawing').replaceChildren();
+      $('drawing-status').hidden=true;
+    }
+    summary(null,true);
+    $('error').textContent=message;$('error').hidden=fieldErrors.size>0;
+    $('shape-note').textContent=lastGeometry
+      ?'Die Skizze zeigt die zuletzt gültigen Maße, nicht die aktuelle ungültige Eingabe.'
+      :'Bitte gültige Maße eingeben, damit die Skizze angezeigt werden kann.';
+    priceDisplay('–','Maße prüfen');$('tax-note').textContent='';
+    $('price-note').textContent='Bitte Maße korrigieren. Für diese Eingabe wird kein Preis berechnet.';
+    $('next').disabled=true;
+  }
 });
 function refresh(){
   shell.style.setProperty('--hpz-decor-image',`url("${decorImageUrl(decor)}")`);
@@ -253,7 +319,11 @@ function refresh(){
     $('corner-note').textContent=v.id==='none'?'Vorderkante unten. Ohne Eckbearbeitung.':v.treatment==='round'?'Rundungen im nächsten Schritt einstellen.':v.treatment==='chamfer_square'?'Gerade Diagonalen. Länge und Tiefe im nächsten Schritt einstellen.':'Weichere Übergänge, schematisch dargestellt. Vorschau vorerst bei 200 × 60 cm.';
     $('summary-shape').textContent=`Gerade · ${sides[v.side]}`;
   }
-  for(const id of c.families[product].fields){const input=$(`dim-${id}`);try{cmInputToMmText(input.value);input.removeAttribute('aria-invalid');}catch{input.setAttribute('aria-invalid','true');}}
+  for(const id of c.families[product].fields){
+    const input=$(`dim-${id}`);
+    try{cmInputToMmText(input.value);setFieldError(id);}
+    catch{setFieldError(id,'Bitte ein gültiges Maß in cm eingeben (z. B. 200 oder 200,1).');}
+  }
   updateCornerBounds();
   return controller.refresh(()=>payload());
 }
