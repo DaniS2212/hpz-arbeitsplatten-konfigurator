@@ -1,0 +1,171 @@
+Plugin 0.4.0 – lokale Browserprüfung, 26.10.2026
+Keine WordPress-Laufzeit, kein physischer Smartphone-Test.
+
+decor
+PASS 1000083: 16 Dekorkarten, kurze Namen
+PASS 1000083 / Platinweiß: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Schwarz: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Bardolino Eiche: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Arlington Eiche: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Terrazzo grau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Marmor grau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Metall anthrazit: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Granit schwarz: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Beton hellgrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Schiefer natur: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Bronze: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Metall gold: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Sandbeige: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Marmor weiß: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Perlgrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083 / Schiefergrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000083: keine sichtbaren Lieferanten-/Artikelnummern
+PASS 1000083: genau eine Zusammenfassung und ein gesperrter Kaufbutton
+PASS 1000083: Schrittwechsel erhält Dekor und Zusammenfassung
+PASS 1000083: Materialwechsel erhält gewähltes Dekor
+PASS 1000080: 16 Dekorkarten, kurze Namen
+PASS 1000080 / Platinweiß: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Schwarz: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Bardolino Eiche: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Arlington Eiche: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Terrazzo grau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Marmor grau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Metall anthrazit: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Granit schwarz: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Beton hellgrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Schiefer natur: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Bronze: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Metall gold: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Sandbeige: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Marmor weiß: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Perlgrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080 / Schiefergrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000080: keine sichtbaren Lieferanten-/Artikelnummern
+PASS 1000080: genau eine Zusammenfassung und ein gesperrter Kaufbutton
+PASS 1000080: Schrittwechsel erhält Dekor und Zusammenfassung
+PASS 1000080: Materialwechsel erhält gewähltes Dekor
+PASS 1000081: 16 Dekorkarten, kurze Namen
+PASS 1000081 / Platinweiß: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Schwarz: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Bardolino Eiche: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Arlington Eiche: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Terrazzo grau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Marmor grau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Metall anthrazit: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Granit schwarz: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Beton hellgrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Schiefer natur: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Bronze: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Metall gold: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Sandbeige: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Marmor weiß: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Perlgrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081 / Schiefergrau: echtes passendes Bild, Kontur erhalten, Kauf gesperrt
+PASS 1000081: keine sichtbaren Lieferanten-/Artikelnummern
+PASS 1000081: genau eine Zusammenfassung und ein gesperrter Kaufbutton
+PASS 1000081: Schrittwechsel erhält Dekor und Zusammenfassung
+PASS 1000081: Materialwechsel erhält gewähltes Dekor
+PASS Unbekanntes Startdekor wird abgelehnt
+PASS Hauptüberschrift in Du-Ansprache
+FERTIG: 65 Dekor-Browserprüfungen bestanden.
+
+decorLayout
+PASS 1000083 / 360 px: 16 Bilder, große Kacheln, 2 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000083 / 390 px: 16 Bilder, große Kacheln, 2 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000083 / 1366 px: 16 Bilder, große Kacheln, 3 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000083 / 1440 px: 16 Bilder, große Kacheln, 3 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000080 / 360 px: 16 Bilder, große Kacheln, 2 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000080 / 390 px: 16 Bilder, große Kacheln, 2 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000080 / 1366 px: 16 Bilder, große Kacheln, 3 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000080 / 1440 px: 16 Bilder, große Kacheln, 3 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000081 / 360 px: 16 Bilder, große Kacheln, 2 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000081 / 390 px: 16 Bilder, große Kacheln, 2 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000081 / 1366 px: 16 Bilder, große Kacheln, 3 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+PASS 1000081 / 1440 px: 16 Bilder, große Kacheln, 3 Spalten, kein Überlauf, Auswahl und kompakte Zusammenfassung, Kauf gesperrt.
+FERTIG: 12 Dekor-Layoutfälle bestanden.
+
+corners
+PASS Unbearbeitet: Rechteck und Vorderkante unten
+PASS left / round
+PASS left / round Einkauf gesperrt
+PASS left / chamfer_square
+PASS left eckige Diagonalen
+PASS left / chamfer_square Einkauf gesperrt
+PASS left / chamfer_continuous
+PASS left weiche Vorschau, keine scharfe Kontur
+PASS left / chamfer_continuous Einkauf gesperrt
+PASS right / round
+PASS right / round Einkauf gesperrt
+PASS right / chamfer_square
+PASS right eckige Diagonalen
+PASS right / chamfer_square Einkauf gesperrt
+PASS right / chamfer_continuous
+PASS right weiche Vorschau, keine scharfe Kontur
+PASS right / chamfer_continuous Einkauf gesperrt
+PASS both / round
+PASS both / round Einkauf gesperrt
+PASS both / chamfer_square
+PASS both eckige Diagonalen
+PASS both / chamfer_square Einkauf gesperrt
+PASS both / chamfer_continuous
+PASS both weiche Vorschau, keine scharfe Kontur
+PASS both / chamfer_continuous Einkauf gesperrt
+PASS Unabhängige Radien 100 und 200 mm
+PASS Fokus hebt die richtige Ecke hervor
+PASS Ein Millimeter ändert Kontur ohne Umrechnung
+PASS Ungültiger Radius löscht alte Kontur
+PASS Wechsel entfernt R2 und setzt Maße zurück
+PASS Linke Schräge unabhängig von rechts
+PASS Dynamische Grenze sichtbar
+PASS Unzulässige Länge nach Tiefenänderung gesperrt
+PASS Nach Korrektur wieder Vorschau
+PASS Fokus hebt rechte Schräge hervor
+PASS Bearbeitungswechsel setzt Schrägenmaße zurück
+PASS Durchlaufende Referenz 200/300 sichtbar
+PASS Unbestätigte durchlaufende Plattengröße bleibt gesperrt
+PASS Rückkehr zur Referenzgröße stellt Vorschau her
+PASS Wechsel entfernt alte Abschrägungsfelder
+PASS Eckmaße akzeptieren keine verdeckte Rundung
+PASS Keine Bearbeitung entfernt Sondermaße
+PASS Keine zweite H1
+PASS Komponentenbutton isoliert
+PASS Sichtbare Hilfe und Zusammenfassung ohne cm
+PASS Eingabeversion ausdrücklich mm
+FERTIG: 46 Prüfungen bestanden.
+
+cornerLayout
+PASS 360px / round: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 360px / chamfer_square: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 360px / chamfer_continuous: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 390px / round: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 390px / chamfer_square: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 390px / chamfer_continuous: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 1366px / round: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 1366px / chamfer_square: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 1366px / chamfer_continuous: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 1440px / round: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 1440px / chamfer_square: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+PASS 1440px / chamfer_continuous: Überlauf, Beschriftungen, 16px-Eingabe, Sticky Header, Detailansicht, Kaufsperre.
+FERTIG: 12 A1.1-Layoutfälle bestanden.
+
+baselineLayout
+PASS 360px: kein Überlauf, kein Textüberlappen, R2 oberhalb Header (150 ≥ 110 px), Kauf gesperrt.
+PASS 390px: kein Überlauf, kein Textüberlappen, R2 oberhalb Header (150 ≥ 110 px), Kauf gesperrt.
+PASS 1366px: kein Überlauf, kein Textüberlappen, R2 oberhalb Header (150 ≥ 110 px), Kauf gesperrt.
+PASS 1440px: kein Überlauf, kein Textüberlappen, R2 oberhalb Header (150 ≥ 110 px), Kauf gesperrt.
+FERTIG: 4 Ansichtsbreiten bestanden.
+
+lifecycle
+PASS Shadow DOM und kein globales drawing-ID
+PASS Host-Styles unverändert
+PASS Komponentenbutton isoliert
+PASS Kein sichtbarer zweiter Titel
+PASS Form gebunden
+PASS Warenkorb nativ disabled
+PASS SVG IDs pro Instanz und Dialog eindeutig
+PASS updateContext setzt U-Familie
+PASS destroy entfernt eigene Oberfläche
+PASS destroy bricht ausstehende Anfrage ab
+PASS Doppeltes Mount erzeugt genau eine Oberfläche
+PASS Unbekanntes Produkt verweigert
+FERTIG: 12 Prüfungen bestanden.

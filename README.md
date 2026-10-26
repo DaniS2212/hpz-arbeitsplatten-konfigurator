@@ -4,7 +4,7 @@ Privates Entwicklungsprojekt von **DaniS2212** für holzplatten-zuschnitt.de.
 
 Repository: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
 
-Aktueller Plugin-Stand: **0.3.0 / Phase A1.1, Admin-Testvorschau**. Die vollständige
+Aktueller Plugin-Stand: **0.4.0 / 16 echte Dekorbilder, Admin-Testvorschau**. Die vollständige
 Entwicklung einschließlich früherer Stände und Pakete wird hier erhalten.
 Der Import ändert weder WordPress noch WooCommerce-Produkte.
 
@@ -21,7 +21,7 @@ Der Import ändert weder WordPress noch WooCommerce-Produkte.
 | `docs/` | Bestandsaufnahme, Einbettungsvertrag, technische Nachweise und Testbelege |
 | `docs/superpowers/specs/` | Freigegebene Spezifikation, aus dem bisherigen übergeordneten Projekt übernommen |
 | `docs/superpowers/plans/` | Freigegebener Implementierungsplan, aus dem bisherigen übergeordneten Projekt übernommen |
-| `dist/` | Installierbare ZIP 0.3.0 und unveränderte ZIPs 0.1.0/0.2.0 |
+| `dist/` | Installierbare ZIP 0.4.0 und unveränderte ZIPs 0.1.0/0.2.0/0.3.0 |
 | `archive/` | Frühere Entwicklungsstände |
 | `STATUS.md` | Aktueller Stand und verbleibende Arbeiten |
 
@@ -36,7 +36,7 @@ Voraussetzung: Node.js **22 oder neuer**, für die ZIP-Erstellung PowerShell 7.
 Für die vorhandenen Node-Tests sind keine Paketinstallationen nötig.
 
 ```sh
-node --test local/test/*.test.mjs wordpress/plugin.test.mjs
+node --test local/test/*.test.mjs wordpress/*.test.mjs
 node local/server.mjs
 ```
 
@@ -52,6 +52,9 @@ node wordpress/serve-package-test.mjs
 http://127.0.0.1:4174/ zeigt die gebündelten Plugin-Assets ohne Entwicklungs-API.
 Unter `/a1-test`, `/responsive-test` und `/a1-1-responsive-test` laufen die
 Browserprüfungen. `/review?width=390` zeigt eine unskalierte mobile Paketansicht.
+Unter `/decor-test` und `/decor-responsive-test` laufen zusätzlich die Dekor-
+und Layoutprüfungen. Der reine PHP-Katalogtest kann auf einer PHP-Installation
+mit `php wordpress/decor-catalog.test.php` ausgeführt werden.
 
 ## Plugin-Paket erstellen
 
@@ -82,6 +85,9 @@ nicht neu gebaut. Installationshinweise liegen im Pluginordner.
   erhaltenen Legacy-cm-Vertrag. Siehe `docs/input-contract-v2.md`.
 - L/U bleiben schematische, nicht freigegebene Lieferantengeometrien.
 - Preisregel V2 ist dokumentiert, nicht aktiviert. Kundenversand bleibt separat.
+- Alle 16 vereinbarten Dekore mit echten, lokal gebündelten Bildern und kurzen
+  Kundennamen. Katalogpräsenz bedeutet keine bestätigte Lieferbarkeit.
+  Zuordnung, Bildherkunft und Tests: `docs/040-decor-integration.md`.
 - PHP-/WooCommerce-/Flatsome-Laufzeitprüfungen der neuen Version sind weiterhin
   auf einer freigegebenen Testinstallation erforderlich.
 - Keine automatische Veröffentlichung, Installation oder Shop-Verbindung.

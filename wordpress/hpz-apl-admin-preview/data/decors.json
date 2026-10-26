@@ -1,0 +1,85 @@
+{
+  "version": "1.1",
+  "items": [
+    {
+      "id": "W980",
+      "supplierCode": "W980 ST7",
+      "displayName": "Platinweiß"
+    },
+    {
+      "id": "U999",
+      "supplierCode": "U999 ST76",
+      "displayName": "Schwarz"
+    },
+    {
+      "id": "H1145",
+      "supplierCode": "H1145 ST10",
+      "displayName": "Bardolino Eiche"
+    },
+    {
+      "id": "H3303",
+      "supplierCode": "H3303 ST10",
+      "displayName": "Arlington Eiche"
+    },
+    {
+      "id": "F021",
+      "supplierCode": "F021 ST75",
+      "displayName": "Terrazzo grau"
+    },
+    {
+      "id": "F095",
+      "supplierCode": "F095 ST87",
+      "displayName": "Marmor grau"
+    },
+    {
+      "id": "F121",
+      "supplierCode": "F121 ST87",
+      "displayName": "Metall anthrazit"
+    },
+    {
+      "id": "F128",
+      "supplierCode": "F128 PA",
+      "displayName": "Granit schwarz"
+    },
+    {
+      "id": "F186",
+      "supplierCode": "F186 ST9",
+      "displayName": "Beton hellgrau"
+    },
+    {
+      "id": "F235",
+      "supplierCode": "F235 ST76",
+      "displayName": "Schiefer natur"
+    },
+    {
+      "id": "F302",
+      "supplierCode": "F302 ST87",
+      "displayName": "Bronze"
+    },
+    {
+      "id": "F629",
+      "supplierCode": "F629 ST16",
+      "displayName": "Metall gold"
+    },
+    {
+      "id": "F661",
+      "supplierCode": "F661 ST76",
+      "displayName": "Sandbeige"
+    },
+    {
+      "id": "F812",
+      "supplierCode": "F812 ST9",
+      "displayName": "Marmor weiß"
+    },
+    {
+      "id": "44375",
+      "supplierCode": "44375 DP",
+      "displayName": "Perlgrau"
+    },
+    {
+      "id": "44405",
+      "supplierCode": "44405 DP",
+      "displayName": "Schiefergrau"
+    }
+  ]
+}

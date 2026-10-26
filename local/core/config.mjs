@@ -1,4 +1,5 @@
 import {validateStraightCorner} from './straight-corners.mjs';
+import {DECOR_CATALOG,decorById} from './decor-catalog.mjs';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
   l: { label: 'Arbeitsplatte L-Form', geometries: ['L1','L2','L3','L4'], fields: ['L1','L2','B1','B2'] },
@@ -9,7 +10,7 @@ const materials = [{id:'APL17.5',label:'APL 17,5 mm · beidseitig Schichtstoff',
 const corners = [{id:'square',label:'Eckig'}, {id:'continuous',label:'Kante durchlaufend · Zuordnung offen'},
   {id:'round',label:'Abrundung · Eckmuster'}, {id:'chamfer',label:'Abschrägung · Eckmuster'}];
 export function catalog() {
-  return structuredClone({families,materials,corners,decors:[{id:'W980',label:'Platinweiß',surface:'W980 · ST7'}, {id:'H1145',label:'Bardolino Eiche',surface:'H1145 · ST10'}],
+  return structuredClone({families,materials,corners,decors:DECOR_CATALOG.map(({id,displayName,imageFilename,thumbnailFilename})=>({id,label:displayName,imageFilename,thumbnailFilename})),
     geometries:Object.values(families).flatMap(f=>f.geometries.map(id=>({id,status:'unverified'})))});
 }
 function object(value) { return value!==null && typeof value==='object' && !Array.isArray(value); }
@@ -40,7 +41,8 @@ export function normalize(raw) {
   }
   if(!family.geometries.includes(raw.geometry)) throw new Error('Geometrie gehört nicht zu diesem Produkt.');
   if(!materials.some(m=>m.id===raw.material)) throw new Error('Material nicht unterstützt.');
-  if(!['W980','H1145'].includes(raw.decor)) throw new Error('Dekor noch nicht hinterlegt.');
+  const decor=decorById(raw.decor);
+  if(!decor) throw new Error('Dekor noch nicht hinterlegt.');
   if(raw.edge!==undefined && raw.edge!=='matching-1.5') throw new Error('Nur Dickkante 1,5 mm dekorgleich vorgesehen.');
   if(!corners.some(c=>c.id===raw.corner)) throw new Error('Unbekannte Eckausführung.');
   if(!object(raw.dimensions) || Object.keys(raw.dimensions).some(k=>!family.fields.includes(k)))
@@ -58,5 +60,5 @@ export function normalize(raw) {
   const corner=straightCorner?.treatment?{round:'round',chamfer_square:'chamfer',chamfer_continuous:'continuous'}[straightCorner.treatment]:raw.corner;
   return {schemaVersion:millimetres?2:1,...(millimetres?{unit:'mm'}:{}),product:raw.product,geometry:raw.geometry,corner,dimensions,
     ...(straightCorner?{straightCorner}:{}),
-    special,material:raw.material,decor:raw.decor,edge:'matching-1.5',quantity};
+    special,material:raw.material,decor:decor.id,decorSupplierCode:decor.supplierCode,edge:'matching-1.5',quantity};
 }

@@ -1,0 +1,8 @@
+Plugin ZIP 0.4.0: PASS
+Path: C:\Users\danie\.codex\.chatgpt-projects\g-p-6aac18b04a3c81919dc8a72f0f3d53e3\implementation\apl\dist\hpz-apl-admin-preview-0.4.0.zip
+SHA256: EB8B6B05557A9CB9EEAC81312287C94631AC08A6002E9BDBA1E4C3A5C53575C6
+Bytes: 3014137
+Entries byte-identical to plugin source: 54
+Bundled WebP assets: 32
+Required PHP, JSON and documentation entries: present
+Previous 0.2.0 and 0.3.0 ZIP hashes: unchanged
