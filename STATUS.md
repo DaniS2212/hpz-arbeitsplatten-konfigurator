@@ -27,7 +27,9 @@
   `docs/050-mobile-preis.png`.
 - ZIP: `dist/hpz-apl-admin-preview-0.5.0.zip`, 57 Einträge bytegleich geprüft,
   SHA-256 `227C356BA9FDCFF16C9A853E1C0480E9D0BEF0374CEC92CA2014A926C07D5B15`.
-  PR zur Prüfung wird in diesem Meilenstein erstellt; kein Merge.
+  [PR #7 zur Prüfung](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/7)
+  geöffnet, kein Merge. Implementierungscommit `1b868d3`; beide GitHub-
+  Prüfläufe „Konfigurator Vorschau CI“ und „Price V3 Regression“ erfolgreich.
 
 Die folgenden Abschnitte dokumentieren frühere Versionen.
 
