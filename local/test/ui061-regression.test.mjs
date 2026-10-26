@@ -42,7 +42,7 @@ test('customer summary is concise, not supplier-coded, and keeps cart disabled',
   assert.match(template,/id="cart"[^>]+disabled/);
   const component=await read('public/component.mjs');
   for(const required of [
-    'function summary(config){',
+    'function summary(config,invalid=false){',
     "['Maße',",
     "['Material',",
     "['Dekor',",
@@ -73,7 +73,7 @@ test('WordPress assets are cache-busted at 0.6.5 and retain the protected price 
   const js=await readFile(new URL('assets/component.js',wp),'utf8');
   assert.match(js,/component\.css\?v=0\.6\.5/);
   assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.5/);
-  assert.match(js,/Deine Konfiguration|function summary\(config\)/);
+  assert.match(js,/function summary\(config,invalid=false\)/);
   assert.match(php,/woocommerce_is_purchasable/);
   assert.match(php,/woocommerce_store_api_cart_errors/);
   const ajax=await readFile(new URL('assets/preview.js',wp),'utf8');
