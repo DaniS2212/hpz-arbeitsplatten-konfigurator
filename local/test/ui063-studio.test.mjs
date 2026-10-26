@@ -6,7 +6,7 @@ import {normalize} from '../core/config.mjs';
 import {geometry,svg} from '../core/geometry.mjs';
 
 const get=path=>readFile(new URL(path,import.meta.url),'utf8');
-test('0.6.3 summary follows all choices and keeps single guarded cart',async()=>{
+test('0.6.4 summary follows all choices and keeps single guarded cart',async()=>{
  assert.match(template,/class="summary-details"/);
  assert.match(template,/class="summary-purchase"/);
  assert.match(template,/class="summary-swatch"/);
@@ -51,7 +51,7 @@ test('Vertical dimension labels isolate text from inherited SVG stroke',()=>{
  assert.match(match[0],/fill="#fffaf3"/);
  assert.equal(g.supplierMappingVerified,false);
 });
-test('0.6.3 WP host still restricts to admins/drafts and cart+Store API remain locked',async()=>{
+test('0.6.4 WP host still restricts to admins/drafts and cart+Store API remain locked',async()=>{
  const php=await get('../../wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php');
  assert.match(php,/Version: 0\.6\.3/);
  assert.match(php,/current_user_can\('manage_options'\)/);
