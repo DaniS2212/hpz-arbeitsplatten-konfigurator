@@ -1,6 +1,6 @@
-# Installation – Admin-Test 0.6.0 (Küchenstudio-Vorschau)
+# Installation – Admin-Test 0.6.1 (Küchenstudio-Vorschau)
 
-Neu in 0.6.0: integrierte Küchenstudio-Oberfläche mit heller Zeichenfläche und Petrol-Akzenten. Kundenmaße stehen in Eingaben und Zeichnungen in cm mit optionaler Zehntelstelle; intern bleiben alle Maße ganze Millimeter. Die V3-Preisregel aus 0.5.0 und die Kaufsperren sind unverändert. Details: **KUECHENSTUDIO-0.6.0.md**.
+Neu in 0.6.1: Verbesserte Hervorhebung des aktiven Maßes im Eingabefeld und in der Zeichnung; kompakte, kundenverständliche Zusammenfassung (Maße, Material, Dekor, Eckbearbeitung links/rechts). Preisregel, technische Geometrie, Kauf- und Rollensperren sind unverändert.\n\nNeu in 0.6.0: integrierte Küchenstudio-Oberfläche mit heller Zeichenfläche und Petrol-Akzenten. Kundenmaße stehen in Eingaben und Zeichnungen in cm mit optionaler Zehntelstelle; intern bleiben alle Maße ganze Millimeter. Die V3-Preisregel aus 0.5.0 und die Kaufsperren sind unverändert. Details: **KUECHENSTUDIO-0.6.0.md**.
 
 Neu in 0.5.0: Auf dem geraden Produktentwurf 1000083 fragt die vorhandene
 Konfigurator-Komponente den Bruttopreis beim geschützten WordPress-Endpunkt ab.
@@ -33,7 +33,7 @@ Kein Produkt erhält eine Fertigungs- oder Verkaufsfreigabe.
 Die frühere 0.1.0-Adminansicht wurde laut Nutzer auf Flatsome bestätigt;
 diese neue Version wurde bisher lokal geprüft.
 
-Für ein Update nach Sichtfreigabe die neue 0.6.0-ZIP über „Plugin hochladen“
+Für ein Update nach Sichtfreigabe die neue 0.6.1-ZIP über „Plugin hochladen“
 wählen und WordPress die vorhandene Version ersetzen lassen. Keine zweite Kopie
 parallel installieren. Bestehende Plugin-Einstellungen bleiben unter demselben
 Optionsnamen erhalten. Die ZIPs 0.1.0, 0.2.0 und 0.3.0 sind unverändert verfügbar.
@@ -62,3 +62,19 @@ Dieses Paket ist eine geschlossene Vorschau, kein verkaufsfähiger Konfigurator.
 Aktivierung und WordPress-Sicherheitsgates in echter Laufzeit; installierte WooCommerce-/Flatsome-Version und Standard-Hook; Shortcodeposition; Admin-/Kunden-/Gastansicht; Cache darf keine Admin-Vorschau ausliefern; WP-Rocket-JS-Verzögerung/Minifizierung und CSP mit dynamischen Modulen; native Preis-/Kaufbereiche; Mobile/Tastatur; direkte klassische und Store-API-Kaufversuche; vorhandene Warenkörbe; Sockel-Regression. Die PHP-Syntax wurde lokal geprüft; ein echter WordPress-Test fehlt noch. Für einen JavaScript-Optimierungskonflikt nur dieses Plugin gezielt von Optimierung ausnehmen, keine globalen Einstellungen ungeprüft ändern.
 
 Erst später: WCPA-Feldadapter, verbindlich bestätigte Geometrien/Teile, serverseitiger **Bestell**preis-/Geometrievalidator, Steuern für Lieferländer, Gewicht, Kundenversand, Bestellmetadaten und gesonderte Verkaufsfreigabe. Browser-Vorschau ist keine serverseitige Fertigungsprüfung.
+
+
+## Kontrollierter Admin-Praxistest auf dem Liveshop (nur nach Freigabe)
+
+Da derzeit keine Staging-Installation existiert und die Geschäftsführung einen Admin-Test auf dem Liveshop freigegeben hat, ist ausschließlich folgender **nicht verkaufsfähiger** Prüfablauf vorgesehen:
+
+1. Vollständige aktuelle Sicherung, vorheriges Plugin-ZIP und Rollback-Zugang sicherstellen. Prüfen, dass **alle drei Zielprodukte** unverändert Entwürfe sind (1000083, 1000080, 1000081) und die erwarteten SKUs besitzen. Nicht veröffentlichen.
+2. Beim Update von 0.6.0 auf 0.6.1 wird die bestehende Plugin-Instanz ersetzt. Kein zweites Plugin und **keine** Shop-/WCPA-/WP-Rocket-Gesamteinstellungen verändern. Vorschau-Optionen: aktiviert, Testmodus aktiv, Platzierung automatisch.
+3. Nur als eingeloggter Administrator die Vorschau jedes Entwurfs prüfen: eine einzige Konfiguratorinstanz, korrektes Flatsome-Layout, cm-Eingaben und betonte Bemaßung, 16 Dekore, kompakte Zusammenfassung. Bei Gerade muss die geschützte V3-Preisvorschau über denselben WordPress-Server antworten.
+4. Als Gast in privatem Browserfenster die Entwurfs-URLs und gewöhnliche Produktseiten prüfen: **keine** Admin-Vorschau, keine geschützten Nonces. Zusätzlich als normaler Kunde testen, falls eigenes Testkonto verfügbar.
+5. Vorher/nachher mindestens ein bestehendes veröffentlichtes Produkt auf Layout, Preis, Warenkorb und Ladeverhalten **nur lesend** vergleichen. Den Control-Sockel 999985 nur prüfen, wenn er auf dieser Installation wirklich existiert.
+6. Cache/WP Rocket: keine generellen Ausschlüsse. Falls im Admin-JavaScript ein echter Fehler auftritt, zuerst Network/Console dokumentieren und nur nach Freigabe einen eng begrenzten Modul-/Delay-Ausschluss einsetzen.
+7. Direktes Add-to-Cart, Store-API-POST, simulierte Alt-Warenkörbe und Checkout-/Zahlungsversuche gehören **nicht** zum risikoarmen Live-Admin-Test. Diese Fälle bleiben trotz automatisierter Tests offen, bis eine isolierte Testumgebung/Sitzung ausdrücklich dafür freigegeben ist.
+8. Bei Problemen Plugin-Vorversion wiederherstellen oder auf den vorherigen Stand zurücksetzen. Entwürfe bleiben Entwürfe. Beim Deaktivieren fallen **die Plugin-basierten** Kaufsperren weg, daher keinesfalls veröffentlichen.
+
+Eine Admin-Vorschau auf einer unveröffentlichten Seite ist weder eine öffentliche Produktintegration noch eine Verkaufsfreigabe. Exakte Tests und offene Gates stehen unter `wordpress/real-site-tests/TESTPLAN.md`.
