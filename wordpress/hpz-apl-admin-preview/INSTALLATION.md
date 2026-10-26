@@ -1,6 +1,6 @@
-# Installation – Admin-Test 0.6.1 (Küchenstudio-Vorschau)
+# Installation – Admin-Test 0.6.2 (Küchenstudio-Vorschau)
 
-Neu in 0.6.1: Verbesserte Hervorhebung des aktiven Maßes im Eingabefeld und in der Zeichnung; kompakte, kundenverständliche Zusammenfassung (Maße, Material, Dekor, Eckbearbeitung links/rechts). Preisregel, technische Geometrie, Kauf- und Rollensperren sind unverändert.\n\nNeu in 0.6.0: integrierte Küchenstudio-Oberfläche mit heller Zeichenfläche und Petrol-Akzenten. Kundenmaße stehen in Eingaben und Zeichnungen in cm mit optionaler Zehntelstelle; intern bleiben alle Maße ganze Millimeter. Die V3-Preisregel aus 0.5.0 und die Kaufsperren sind unverändert. Details: **KUECHENSTUDIO-0.6.0.md**.
+Neu in 0.6.2: Verbesserte Hervorhebung des aktiven Maßes im Eingabefeld und in der Zeichnung; kompakte, kundenverständliche Zusammenfassung (Maße, Material, Dekor, Eckbearbeitung links/rechts). Preisregel, technische Geometrie, Kauf- und Rollensperren sind unverändert.\n\nNeu in 0.6.0: integrierte Küchenstudio-Oberfläche mit heller Zeichenfläche und Petrol-Akzenten. Kundenmaße stehen in Eingaben und Zeichnungen in cm mit optionaler Zehntelstelle; intern bleiben alle Maße ganze Millimeter. Die V3-Preisregel aus 0.5.0 und die Kaufsperren sind unverändert. Details: **KUECHENSTUDIO-0.6.0.md**.
 
 Neu in 0.5.0: Auf dem geraden Produktentwurf 1000083 fragt die vorhandene
 Konfigurator-Komponente den Bruttopreis beim geschützten WordPress-Endpunkt ab.
@@ -33,7 +33,7 @@ Kein Produkt erhält eine Fertigungs- oder Verkaufsfreigabe.
 Die frühere 0.1.0-Adminansicht wurde laut Nutzer auf Flatsome bestätigt;
 diese neue Version wurde bisher lokal geprüft.
 
-Für ein Update nach Sichtfreigabe die neue 0.6.1-ZIP über „Plugin hochladen“
+Für ein Update nach Sichtfreigabe die neue 0.6.2-ZIP über „Plugin hochladen“
 wählen und WordPress die vorhandene Version ersetzen lassen. Keine zweite Kopie
 parallel installieren. Bestehende Plugin-Einstellungen bleiben unter demselben
 Optionsnamen erhalten. Die ZIPs 0.1.0, 0.2.0 und 0.3.0 sind unverändert verfügbar.
@@ -69,7 +69,7 @@ Erst später: WCPA-Feldadapter, verbindlich bestätigte Geometrien/Teile, server
 Da derzeit keine Staging-Installation existiert und die Geschäftsführung einen Admin-Test auf dem Liveshop freigegeben hat, ist ausschließlich folgender **nicht verkaufsfähiger** Prüfablauf vorgesehen:
 
 1. Vollständige aktuelle Sicherung, vorheriges Plugin-ZIP und Rollback-Zugang sicherstellen. Prüfen, dass **alle drei Zielprodukte** unverändert Entwürfe sind (1000083, 1000080, 1000081) und die erwarteten SKUs besitzen. Nicht veröffentlichen.
-2. Beim Update von 0.6.0 auf 0.6.1 wird die bestehende Plugin-Instanz ersetzt. Kein zweites Plugin und **keine** Shop-/WCPA-/WP-Rocket-Gesamteinstellungen verändern. Vorschau-Optionen: aktiviert, Testmodus aktiv, Platzierung automatisch.
+2. Beim Update von 0.6.0 auf 0.6.2 wird die bestehende Plugin-Instanz ersetzt. Kein zweites Plugin und **keine** Shop-/WCPA-/WP-Rocket-Gesamteinstellungen verändern. Vorschau-Optionen: aktiviert, Testmodus aktiv, Platzierung automatisch.
 3. Nur als eingeloggter Administrator die Vorschau jedes Entwurfs prüfen: eine einzige Konfiguratorinstanz, korrektes Flatsome-Layout, cm-Eingaben und betonte Bemaßung, 16 Dekore, kompakte Zusammenfassung. Bei Gerade muss die geschützte V3-Preisvorschau über denselben WordPress-Server antworten.
 4. Als Gast in privatem Browserfenster die Entwurfs-URLs und gewöhnliche Produktseiten prüfen: **keine** Admin-Vorschau, keine geschützten Nonces. Zusätzlich als normaler Kunde testen, falls eigenes Testkonto verfügbar.
 5. Vorher/nachher mindestens ein bestehendes veröffentlichtes Produkt auf Layout, Preis, Warenkorb und Ladeverhalten **nur lesend** vergleichen. Den Control-Sockel 999985 nur prüfen, wenn er auf dieser Installation wirklich existiert.

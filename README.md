@@ -4,7 +4,7 @@ Privates Entwicklungsprojekt von **DaniS2212** für holzplatten-zuschnitt.de.
 
 Repository: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
 
-Aktueller Plugin-Stand: **0.6.0 / Küchenstudio-Oberfläche, Zentimetermaße und geschützte V3-Preisvorschau**. Die vollständige
+Aktueller Plugin-Stand: **0.6.2 / stabilisierte Küchenstudio-Vorschau, kompakte Eckfelder und geschützte V3-Preisvorschau**. Die vollständige
 Entwicklung einschließlich früherer Stände und Pakete wird hier erhalten.
 Der Import ändert weder WordPress noch WooCommerce-Produkte.
 
@@ -21,7 +21,7 @@ Der Import ändert weder WordPress noch WooCommerce-Produkte.
 | `docs/` | Bestandsaufnahme, Einbettungsvertrag, technische Nachweise und Testbelege |
 | `docs/superpowers/specs/` | Freigegebene Spezifikation, aus dem bisherigen übergeordneten Projekt übernommen |
 | `docs/superpowers/plans/` | Freigegebener Implementierungsplan, aus dem bisherigen übergeordneten Projekt übernommen |
-| `dist/` | Installierbare ZIP 0.6.0 und unveränderte ältere Pakete |
+| `dist/` | Installierbare historische Plugin-ZIPs; neueste Test-ZIP aus GitHub Actions |
 | `archive/` | Frühere Entwicklungsstände |
 | `STATUS.md` | Aktueller Stand und verbleibende Arbeiten |
 

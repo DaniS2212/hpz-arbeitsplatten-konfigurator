@@ -1,11 +1,11 @@
-import {catalog} from './core/config.js?v=0.6.1';
-import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=0.6.1';
-import {svg} from './core/geometry.js?v=0.6.1';
-import {createPreviewController} from './latest.js?v=0.6.1';
-import {template} from './component-template.js?v=0.6.1';
-import {resolveProduct} from './core/products.js?v=0.6.1';
-import {decorImageUrl} from './decor-images.js?v=0.6.1';
-import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.6.1';
+import {catalog} from './core/config.js?v=0.6.2';
+import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=0.6.2';
+import {svg} from './core/geometry.js?v=0.6.2';
+import {createPreviewController} from './latest.js?v=0.6.2';
+import {template} from './component-template.js?v=0.6.2';
+import {resolveProduct} from './core/products.js?v=0.6.2';
+import {decorImageUrl} from './decor-images.js?v=0.6.2';
+import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.6.2';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -15,8 +15,8 @@ export function mountConfigurator(root,context={},adapters={}){
  mounts.get(root)?.destroy();
  const shadow=root.shadowRoot||root.attachShadow({mode:'open'});
  const shell=document.createElement('div');shell.className='hpz-apl';shell.dataset.mode=embedded?'embedded':'demo';
- const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.6.1',import.meta.url).href;
- const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=0.6.1',import.meta.url).href;
+ const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.6.2',import.meta.url).href;
+ const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=0.6.2',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,studioLink,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
  function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}
@@ -58,15 +58,25 @@ function renderRadiusInputs(){
   if(radiusWrap.hidden)return;
   radiusWrap.append(element('legend','',straightTreatment==='round'?'Deine Rundungen':'Deine Abschrägungen'));
   const keys=straightCorner(straightSide,straightTreatment).parameters;
+  const grids=new Map();
   for(const key of keys){
+    const side=['R1','L2','B2'].includes(key)?'left':'right';
+    const place=side==='left'?'vorne links':'vorne rechts';
+    if(!grids.has(side)){
+      const group=element('div','a1-corner-group');
+      group.setAttribute('role','group');group.setAttribute('aria-label',`Ecke ${place}`);
+      group.append(element('p','a1-corner-heading',side==='left'?'Linke Ecke':'Rechte Ecke'));
+      const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(side,grid);
+    }
     const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    const place=['R1','L2','B2'].includes(key)?'vorne links':'vorne rechts';
-    label.htmlFor=`dim-${key}`;label.textContent=key.startsWith('R')?`Radius ${place}`:`Abschrägung ${place} – ${key.startsWith('L')?'Länge':'Tiefe'}`;label.append(element('span','',key));
+    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':'Tiefe';
+    label.htmlFor=`dim-${key}`;label.textContent=property;label.append(element('span','',key));
     input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} error`);
+    input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{radiusValues[key]=input.value;refresh();});
     input.addEventListener('focus',()=>{active=key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
     const hint=element('p','microcopy');hint.id=`hint-${key}`;
-    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint);radiusWrap.append(wrap);
+    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint);grids.get(side).append(wrap);
   }
   radiusWrap.append(element('p','a1-limit-note','Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
 }
@@ -93,10 +103,15 @@ function element(tag,className,text){const e=document.createElement(tag);if(clas
 function choice(group,value,html,selected,callback,extraClass){const label=element('label',`choice ${extraClass}`),input=element('input');
   input.type='radio';input.name=group;input.value=value;input.checked=selected;input.addEventListener('change',()=>{if(input.checked)callback(value);});
   label.innerHTML=html;label.prepend(input);return label;}
-function showStep(index){step=index;shell.dataset.currentStep=String(index);shadow.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);
-  // In the surface step the existing summary fills the area below the preview.
-  // Mobile order stays preview → configuration → summary; no duplicate controls.
-  (step===2?shadow.querySelector('.workspace'):shadow.querySelector('.configuration')).append(shadow.querySelector('.order-summary'));
+function placeSummary(){
+  // Desktop: use the free space below the drawing at EVERY step. On mobile
+  // the summary stays below the configuration, preserving reading order.
+  const dest=window.matchMedia('(min-width: 761px)').matches?shadow.querySelector('.workspace'):shadow.querySelector('.configuration');
+  if(dest&&shadow.querySelector('.order-summary')?.parentElement!==dest)dest.append(shadow.querySelector('.order-summary'));
+ }
+ window.addEventListener('resize',placeSummary,{signal:abort.signal});
+ function showStep(index){step=index;shell.dataset.currentStep=String(index);shadow.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);
+  placeSummary();
   [...$('steps').children].forEach((e,i)=>{if(i===step)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
   $('back').disabled=step===0;$('back').style.visibility=step===0?'hidden':'visible';
   $('next').innerHTML=step===0?'Weiter zu den Maßen <span>→</span>':step===1?'Weiter zur Oberfläche <span>→</span>':'Zusammenfassung ansehen <span>↓</span>';
@@ -120,7 +135,14 @@ function renderChoices(){
   renderStraightChoices();
   updateFamilyCopy();
   $('materials').replaceChildren(...c.materials.map(item=>choice('material',item.id,`<span class="slab ${item.id==='APL17.5'?'slim':''}" aria-hidden="true"></span><strong>${item.id==='APL17.5'?'17,5':'38'} mm</strong><small>${item.id==='APL17.5'?'Schlank & leicht in der Optik':'Klassisch & präsent'}</small>`,material===item.id,()=>{material=item.id;refresh();},'material-card')));
-  $('decors').replaceChildren(...c.decors.map(item=>choice('decor',item.id,`<img class="decor-photo" src="${decorImageUrl(item.id,{thumbnail:true})}" alt="" width="480" height="480" loading="lazy" decoding="async"><strong>${item.label}</strong>`,decor===item.id,()=>{decor=item.id;refresh();},'decor-card')));
+  // Reuse image elements across corner/side changes: recreating 16 lazy-loaded
+  // photos on every choice causes unnecessary requests and can blank the grid
+  // if a local preview request fails during rapid interaction.
+  if($('decors').children.length!==c.decors.length){
+    $('decors').replaceChildren(...c.decors.map(item=>choice('decor',item.id,`<img class="decor-photo" src="${decorImageUrl(item.id,{thumbnail:true})}" alt="" width="480" height="480" loading="lazy" decoding="async"><strong>${item.label}</strong>`,decor===item.id,()=>{decor=item.id;refresh();},'decor-card')));
+  }else{
+    for(const radio of $('decors').querySelectorAll('input[name="decor"]'))radio.checked=radio.value===decor;
+  }
 }
 function rebuild(){
   shell.dataset.product=product;
