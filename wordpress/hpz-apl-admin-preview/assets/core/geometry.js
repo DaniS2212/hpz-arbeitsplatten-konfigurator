@@ -1,5 +1,5 @@
-import {straightGeometry} from './straight-geometry.js?v=0.6.2';
-import {mmToCmText} from './customer-measures.js?v=0.6.2';
+import {straightGeometry} from './straight-geometry.js?v=0.6.3';
+import {mmToCmText} from './customer-measures.js?v=0.6.3';
 // L/U are explicitly generic family sketches. They are not Speedmaster L1–L4/U1–U4 definitions.
 export function geometry(config) {
   if(config.product==='straight'&&config.straightCorner)return straightGeometry(config);
@@ -67,7 +67,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
   const label=(text,x,y,{vertical=false,selected=false,corner=false}={})=>{
     const size=font*(corner?.86:1)*(selected?1.12:1);
     const width=(text.length*.57+.60)*size,height=size*1.40;
-    return `<g class="apl-measure-label" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
+    return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
   const measures=(detail?[]:g.dimensions).map(d=>{
     const vertical=d.from[0]===d.to[0], offset=pad*(g.cornerDimensions?.length&&d.id==='B1'?.95:.45)*d.side;

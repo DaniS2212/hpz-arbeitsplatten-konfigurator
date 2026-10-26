@@ -250,3 +250,244 @@
   .hpz-apl .a1-corner-grid {gap: 8px}
   .hpz-apl .a1-corner-group {padding: 8px}
 }
+
+/* 0.6.3 – Küchenstudio-Finale: clear strength/decor selection and one
+ * full-width, readable final configuration. Applies only inside Shadow DOM. */
+.hpz-apl .surface-intro {
+  color:var(--studio-muted);
+  font-size:13px;line-height:1.5;
+  margin:1px 0 18px;
+}
+.hpz-apl .surface-choice-block {margin:0 0 24px}
+.hpz-apl .surface-stepheading {
+  display:flex;align-items:center;gap:12px;
+  margin:0 0 13px;min-width:0;
+}
+.hpz-apl .surface-number {
+  width:33px;height:33px;flex:0 0 33px;
+  display:grid;place-items:center;border-radius:50%;
+  background:#e8f1f1;border:1px solid #cbddde;
+  color:var(--studio-petrol-dark);font-weight:750;font-size:13px;
+}
+.hpz-apl .surface-stepheading>div{min-width:0;flex:1}
+.hpz-apl .surface-stepheading small,
+.hpz-apl .surface-selected small {
+  display:block;font-weight:750;font-size:10px;
+  letter-spacing:.075em;color:#687d7e;margin-bottom:2px;
+}
+.hpz-apl .surface-stepheading h3 {
+  margin:0;font:600 17px/1.35 Inter,ui-sans-serif,system-ui,sans-serif;
+  color:var(--studio-ink);letter-spacing:-.015em;
+}
+.hpz-apl .surface-stepheading .decor-count {
+  font-size:11px;border:1px solid #dbe5e4;border-radius:100px;
+  background:#f5f8f7;padding:6px 10px;white-space:nowrap;
+  color:#50686c;align-self:center;
+}
+.hpz-apl .surface-materials .material-card {
+  align-items:flex-start;justify-content:center;
+  min-height:106px;padding:17px 18px;
+  border-radius:13px;gap:6px;
+}
+.hpz-apl .surface-materials .material-card .slab {width:76px;margin:2px 0 10px}
+.hpz-apl .surface-materials .material-card strong {font-size:21px;font-weight:750}
+.hpz-apl .surface-materials .material-card small {font-size:12px}
+.hpz-apl .surface-decors .decor-cards{gap:12px}
+.hpz-apl .surface-decors .decor-card {
+  border-radius:12px;padding:0;
+  min-width:0;transition:transform .18s ease,box-shadow .18s ease;
+}
+.hpz-apl .surface-decors .decor-card:hover{transform:translateY(-2px)}
+.hpz-apl .surface-decors .decor-photo {
+  display:block;aspect-ratio:5/4;width:100%;height:auto;
+  object-fit:cover;
+}
+.hpz-apl .surface-decors .decor-card strong {
+  display:flex;align-items:center;font-size:12px;
+  min-height:44px;padding:9px 10px;
+  line-height:1.3;overflow-wrap:anywhere;
+}
+.hpz-apl .surface-decors .decor-card:has(input:checked)::after {
+  top:9px;right:9px;width:22px;height:22px;font-size:12px;
+  box-shadow:0 0 0 3px #ffffffbc;
+}
+.hpz-apl .surface-selected {
+  background:#eef5f4;border:1px solid #c8dcda;
+  padding:12px;display:flex;align-items:center;gap:14px;
+  border-radius:14px;margin:8px 0 12px;
+}
+.hpz-apl .surface-selected-swatch {
+  flex:0 0 62px;width:62px;height:62px;border-radius:9px;
+  border:1px solid #cad9d6;background:#e9eeec var(--hpz-decor-image) center/cover;
+  box-shadow:0 2px 5px #183e420d;
+}
+.hpz-apl .surface-selected-description {display:flex;flex:1;flex-direction:column;min-width:0;gap:2px}
+.hpz-apl .surface-selected-description strong {
+  font-size:17px;color:var(--studio-ink);line-height:1.3;
+}
+.hpz-apl .surface-selected-description>span {font-size:12px;color:var(--studio-muted)}
+.hpz-apl .surface-selected-check {
+  display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
+  background:var(--studio-petrol-dark);color:#fff;font-size:14px;
+}
+.hpz-apl[data-current-step="2"] .edge-card {
+  padding:12px 14px;margin-top:0;align-items:center;
+}
+.hpz-apl[data-current-step="2"] .edge-card strong {font-size:12px}
+.hpz-apl[data-current-step="2"] .edge-card p {font-size:11px;margin:3px 0 0}
+.hpz-apl[data-current-step="2"] #next{font-size:13px;padding:14px 20px}
+
+/* Full-width summary for Ecken, Maße AND Oberfläche; the checkout information
+ * stays logically ordered for keyboard and screen-reader navigation. */
+.hpz-apl .workspace > .order-summary {
+  grid-column:1 / -1;min-width:0;width:100%;margin:0;padding:0;
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,.75fr);
+  border:1px solid var(--studio-border);border-radius:18px;
+  background:#fff;overflow:hidden;
+  box-shadow:0 16px 42px #1c414113;
+}
+.hpz-apl .order-summary .summary-details{padding:27px 30px;min-width:0}
+.hpz-apl .order-summary .summary-heading {
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:17px;gap:18px;
+}
+.hpz-apl .order-summary .summary-overline,
+.hpz-apl .order-summary .summary-purchase-head>span {
+  display:block;margin-bottom:6px;font-size:10px;font-weight:750;
+  letter-spacing:.10em;color:#718184;
+}
+.hpz-apl .order-summary .summary-heading h3 {
+  font:650 23px/1.2 Inter,ui-sans-serif,system-ui,sans-serif;
+  color:var(--studio-ink);letter-spacing:-.03em;margin:0;
+}
+.hpz-apl .order-summary #summary-shape {
+  border:1px solid #d9e5e3;background:#f1f6f5;border-radius:100px;
+  padding:6px 10px;font-size:12px;color:#376068;
+}
+.hpz-apl .order-summary .summary-details-body {
+  display:grid;grid-template-columns:94px minmax(0,1fr);
+  gap:19px;align-items:start;
+}
+.hpz-apl .order-summary .summary-swatch {
+  width:94px;aspect-ratio:1;border-radius:12px;
+  background:#e9eeec var(--hpz-decor-image) center/cover;
+  border:1px solid #d0ddda;
+  box-shadow:inset 0 1px 0 #ffffffa6,0 8px 15px #1a454514;
+}
+.hpz-apl .order-summary dl {
+  margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px 22px;
+}
+.hpz-apl .order-summary dl > div {
+  display:flex;flex-direction:column;align-items:flex-start;
+  min-width:0;gap:4px;margin:0;padding:0 0 9px;
+  border-bottom:1px solid #e5eceb;
+}
+.hpz-apl .order-summary dl dt {
+  flex:none;color:#64797b;font-size:10px;font-weight:600;
+}
+.hpz-apl .order-summary dl dd {
+  flex:none;max-width:none;text-align:left;line-height:1.3;
+  overflow-wrap:anywhere;color:var(--studio-ink);
+  font-size:13px;font-weight:700;
+}
+.hpz-apl .order-summary .summary-purchase {
+  min-width:0;background:linear-gradient(150deg,#f1f7f5 0%,#e8f1ef 100%);
+  border-left:1px solid #d5e4e1;padding:27px 26px;
+  display:flex;flex-direction:column;
+}
+.hpz-apl .order-summary .summary-purchase-head h3 {
+  font:650 17px/1.35 Inter,ui-sans-serif,system-ui,sans-serif;
+  margin:0;color:var(--studio-ink);letter-spacing:-.02em;
+}
+.hpz-apl .order-summary .quantity-row {
+  margin:15px 0;min-height:44px;font-size:12px;color:var(--studio-ink);
+}
+.hpz-apl .order-summary .price-block {
+  border-top:1px solid #cddedb;padding-top:15px;
+  grid-template-columns:minmax(0,1fr);gap:6px;
+}
+.hpz-apl .order-summary .price-block>span:first-child {
+  color:#52696b;font-size:12px;font-weight:650;
+}
+.hpz-apl .order-summary .price-block strong {
+  font:750 clamp(23px,2.6vw,34px)/1.12 Inter,ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:-.055em;color:var(--studio-ink);
+  overflow-wrap:anywhere;
+}
+.hpz-apl .order-summary .price-block>span:last-child {
+  grid-column:1;text-align:left;font-size:11px;
+}
+.hpz-apl .order-summary .price-note {font-size:11px;margin:10px 0}
+.hpz-apl .order-summary .cart-button {
+  min-height:51px;justify-content:center;
+  border-radius:10px;font-size:13px;font-weight:700;
+  margin-top:auto;gap:12px;
+}
+.hpz-apl .order-summary .cart-reason {margin:9px 0 0;font-size:10px}
+.hpz-apl[data-current-step="2"] .order-summary {
+  border-color:#a9c5c0;box-shadow:0 20px 55px #214a491a;
+}
+/* Override the previous split grid template which kept the summary below
+ * the small left preview while all 16 decor choices filled the right side. */
+@media(min-width:761px){
+  .hpz-apl[data-current-step="2"] .workspace,
+  .hpz-apl[data-product="straight"][data-current-step="2"] .workspace {
+    grid-template-columns:minmax(280px,.84fr) minmax(0,1.42fr);
+    grid-template-areas:"visual configuration" "summary summary";
+    grid-template-rows:auto auto;
+    gap:22px;
+  }
+  .hpz-apl[data-current-step="2"] .visual-column{grid-area:visual}
+  .hpz-apl[data-current-step="2"] .configuration{grid-area:configuration}
+  .hpz-apl[data-current-step="2"] .workspace > .order-summary {
+    grid-area:summary;grid-column:1 / -1;
+  }
+  .hpz-apl[data-current-step="2"] .decor-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(min-width:1190px){
+  .hpz-apl[data-current-step="2"] .decor-cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(min-width:761px) and (max-width:1060px){
+  .hpz-apl .workspace > .order-summary{grid-template-columns:minmax(0,1fr) 280px}
+  .hpz-apl .order-summary .summary-details{padding:22px}
+  .hpz-apl .order-summary .summary-purchase{padding:22px}
+  .hpz-apl .order-summary .summary-details-body{grid-template-columns:72px minmax(0,1fr);gap:12px}
+  .hpz-apl .order-summary .summary-swatch{width:72px}
+  .hpz-apl[data-current-step="2"] .workspace,
+  .hpz-apl[data-product="straight"][data-current-step="2"] .workspace{
+    grid-template-columns:minmax(280px,.82fr) minmax(0,1.3fr);
+  }
+}
+@media(max-width:760px){
+  .hpz-apl .surface-intro{font-size:12px}
+  .hpz-apl .surface-stepheading{gap:9px}
+  .hpz-apl .surface-stepheading h3{font-size:14px}
+  .hpz-apl .surface-number{width:29px;height:29px;flex-basis:29px}
+  .hpz-apl .surface-stepheading .decor-count{font-size:9px;padding:4px 7px}
+  .hpz-apl .surface-materials .material-card{min-height:94px;padding:12px}
+  .hpz-apl .surface-materials .material-card strong{font-size:18px}
+  .hpz-apl .surface-materials .material-card small{font-size:10px}
+  .hpz-apl .surface-decors .decor-card strong{font-size:12px;min-height:40px}
+  .hpz-apl .surface-selected-swatch{flex-basis:52px;width:52px;height:52px}
+  .hpz-apl .configuration > .order-summary{
+    display:block;overflow:hidden;border:1px solid #cfdedd;
+    margin-top:22px;padding:0;border-radius:15px;background:#fff;
+  }
+  .hpz-apl .order-summary .summary-details{padding:20px 16px}
+  .hpz-apl .order-summary .summary-heading h3{font-size:20px}
+  .hpz-apl .order-summary .summary-details-body{grid-template-columns:64px minmax(0,1fr);gap:12px}
+  .hpz-apl .order-summary .summary-swatch{width:64px;border-radius:9px}
+  .hpz-apl .order-summary dl{grid-template-columns:minmax(0,1fr);gap:8px}
+  .hpz-apl .order-summary dl > div{padding:0 0 7px}
+  .hpz-apl .order-summary dl dt{font-size:10px}
+  .hpz-apl .order-summary dl dd{font-size:12px}
+  .hpz-apl .order-summary .summary-purchase{
+    border-left:0;border-top:1px solid #d5e4e1;padding:20px 16px;
+  }
+  .hpz-apl .order-summary .price-block strong{font-size:27px}
+  .hpz-apl .order-summary .cart-button{margin-top:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .hpz-apl .surface-decors .decor-card{transition:none;transform:none!important}
+}
