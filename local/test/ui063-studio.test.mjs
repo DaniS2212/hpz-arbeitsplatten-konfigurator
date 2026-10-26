@@ -53,13 +53,13 @@ test('Vertical dimension labels isolate text from inherited SVG stroke',()=>{
 });
 test('0.6.4 WP host still restricts to admins/drafts and cart+Store API remain locked',async()=>{
  const php=await get('../../wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php');
- assert.match(php,/Version: 0\.6\.3/);
+ assert.match(php,/Version: 0\.6\.4/);
  assert.match(php,/current_user_can\('manage_options'\)/);
  assert.match(php,/get_post_status\(\$id\)==='draft'/);
  assert.match(php,/woocommerce_is_purchasable/);
  assert.match(php,/woocommerce_store_api_cart_errors/);
  const preview=await get('../../wordpress/hpz-apl-admin-preview/assets/preview.js');
- assert.match(preview,/v=0\.6\.3/);
+ assert.match(preview,/v=0\.6\.4/);
  assert.match(preview,/endpoint\.origin!==location\.origin/);
  assert.match(preview,/purchasable:false/);
  const bundled=await get('../../wordpress/hpz-apl-admin-preview/assets/component-template.js');
