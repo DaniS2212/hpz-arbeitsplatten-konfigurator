@@ -55,15 +55,15 @@ test('customer summary is concise, not supplier-coded, and keeps cart disabled',
   assert.doesNotMatch(component,/supplierCode.*summary\(/);
 });
 test('the strong input highlight is identical in source and bundled WordPress styles',async()=>{
-  const source=await readFile(new URL('../../design/kuechenstudio-060.css',root),'utf8');
-  const bundled=await readFile(new URL('../../wordpress/hpz-apl-admin-preview/assets/kuechenstudio-060.css',root),'utf8');
+  const source=await readFile(new URL('../design/kuechenstudio-060.css',root),'utf8');
+  const bundled=await readFile(new URL('../wordpress/hpz-apl-admin-preview/assets/kuechenstudio-060.css',root),'utf8');
   assert.equal(source,bundled);
   assert.match(source,/\.dimension-grid > div\.active-dimension/);
   assert.match(source,/\.a1-radius-field\.active-dimension/);
   assert.match(source,/border:2px solid #146178/);
 });
 test('WordPress assets are cache-busted at 0.6.1 and retain the protected price adapter',async()=>{
-  const wp=new URL('../../wordpress/hpz-apl-admin-preview/',root);
+  const wp=new URL('../wordpress/hpz-apl-admin-preview/',root);
   const php=await readFile(new URL('hpz-apl-admin-preview.php',wp),'utf8');
   assert.match(php,/Version: 0\.6\.1/);
   const bootstrap=await readFile(new URL('assets/bootstrap.js',wp),'utf8');
