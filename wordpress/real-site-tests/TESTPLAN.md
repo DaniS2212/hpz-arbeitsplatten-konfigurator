@@ -96,6 +96,10 @@ Die Session- und Store-API-Tests dürfen **nur** in einer isolierten Testumgebun
 - Für Admin-Praxistest-Abnahme: Rollen-/Nonce-/Cache-Sicherheit, korrektes WP-Ajax-Rendering, cm→mm-Preisgrenzen, alle 16 Dekore, keine Store-API-/klassischen Warenkorb-Bypässe, übrige Produkte unverändert.
 - Für spätere Verkaufsfähigkeit fehlen gesondert: Lieferanten-/Fertigungsfreigaben je Form/Eckmaß, verbindliche EK-/Margensicherung nach Rabatten, Steuer nach Zielland, Paketgewicht/Kundenversand, bestellungsfeste Konfigurationsdaten und autorisierter Warenkorb-/Checkout-Adapter. L/U zusätzlich Teile-/Stoßplanung. Keiner dieser Punkte gilt durch 0.6.0 als freigegeben.
 
+## Achtung: alte Versand-/Steuer-Testdatei
+
+Die historische Datei docs/shipping-tax-test-cases.md enthält noch Preisbeispiele aus einer älteren Kalkulationsphase (z. B. 295,70 EUR brutto). Diese Beträge sind **keine** Sollwerte für die hier freigegebene V3-Preisregel. Für 0.6.0 gelten ausschließlich die V3-Beispiele oben (z. B. W980 17,5 mm, 200 × 60 cm = 450,00 EUR). Versand-/Steuerfälle vor Verkaufsfreigabe auf die aktuelle V3-Engine umstellen und gesondert validieren.
+
 ## Ergebnisprotokoll
 
 Je Test: Umgebung/Domain, WP/Woo/Flatsome/PHP-Version, Plugin-Version/ZIP-SHA, Produkt-ID, Rolle, Gerät, Eingabe, erwartetes Ergebnis, beobachtetes Ergebnis, PASS/FAIL/SKIP, Screenshot oder Browser-Netzwerkbeleg. **Nicht ausgeführte Tests bleiben OFFEN.** Keine Personen-, Zahlungs- oder echten Bestelldaten in Belegen.
