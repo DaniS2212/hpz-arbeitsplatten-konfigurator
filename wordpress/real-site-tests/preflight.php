@@ -104,7 +104,12 @@ $present = class_exists('HPZ_APL_Admin_Preview');
 $record('preview-plugin-loaded', $present ? 'PASS' : ($runMode === 'installed' ? 'FAIL' : 'INFO'), $present ? 'Plugin loaded in WordPress' : 'Plugin not loaded; valid for baseline before installation');
 
 if ($present) {
-    $record('preview-plugin-version', HPZ_APL_Admin_Preview::VERSION === '0.6.0' ? 'PASS' : 'FAIL', HPZ_APL_Admin_Preview::VERSION);
+    $pluginVersion = defined('HPZ_APL_Admin_Preview::VERSION') ? constant('HPZ_APL_Admin_Preview::VERSION') : 'unknown';
+    $currentVersion = $pluginVersion === '0.6.0';
+    $record('preview-plugin-version', $currentVersion ? 'PASS' : ($runMode === 'installed' ? 'FAIL' : 'INFO'), $pluginVersion);
+    if (!$currentVersion) {
+        $record('preview-current-version-hooks', 'SKIP', 'Baseline of older plugin; 0.6.0-only checks run after update');
+    } else {
     $opts = HPZ_APL_Admin_Preview::options();
     $active = !empty($opts['enabled']) && !empty($opts['test_mode']);
     $record('preview-admin-test-flags', $active ? 'PASS' : ($runMode === 'installed' ? 'WARN' : 'INFO'),
@@ -155,6 +160,7 @@ if ($present) {
     } else {
         $record('real-wp-v3-quote', 'FAIL', 'Required server-side price classes missing');
     }
+    } // 0.6.0-only checks
 }
 
 // Intentional limits: HTTP security, login roles, cache and Store API are tested
