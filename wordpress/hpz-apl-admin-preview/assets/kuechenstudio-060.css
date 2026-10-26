@@ -130,3 +130,60 @@
  .hpz-apl .mobile-purchase button{white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){.hpz-apl *{transition:none!important}}
+
+/* 0.6.1: the currently edited measure is unmistakable without changing any measurements. */
+.hpz-apl .dimension-grid > div.active-dimension {
+  position:relative;
+  margin:-9px;
+  padding:9px;
+  border-radius:12px;
+  background:#e8f3f2;
+  box-shadow:inset 4px 0 0 #146178,0 3px 12px #143f4815;
+}
+.hpz-apl .a1-radius-field.active-dimension,
+.hpz-apl[data-product="straight"] .a1-radius-field.active-dimension {
+  background:#e8f3f2;
+  border:2px solid #146178;
+  box-shadow:0 0 0 4px #1461782e,0 5px 16px #143f481c;
+}
+.hpz-apl .active-dimension .unit-input,
+.hpz-apl[data-product="straight"] .active-dimension .unit-input {
+  background:#fff;
+  border:2px solid #146178;
+  box-shadow:0 0 0 4px #14617825;
+}
+.hpz-apl .active-dimension .dimension-label,
+.hpz-apl[data-product="straight"] .active-dimension .dimension-label {
+  color:#123f4c;
+  font-weight:800;
+}
+.hpz-apl .active-dimension .dimension-label span,
+.hpz-apl[data-product="straight"] .active-dimension .dimension-label span {
+  background:#146178;
+  color:#fff;
+}
+.hpz-apl .order-summary dl {
+  margin:14px 0 18px;
+}
+.hpz-apl .order-summary dl > div {
+  align-items:baseline;
+  gap:12px;
+  margin:0;
+  padding:5px 0;
+}
+.hpz-apl .order-summary dl dt {
+  flex:0 0 66px;
+  color:#61777b;
+}
+.hpz-apl .order-summary dl dd {
+  flex:1;
+  max-width:none;
+  text-align:right;
+  line-height:1.45;
+  overflow-wrap:break-word;
+  font-weight:550;
+}
+@media(max-width:760px){
+  .hpz-apl .order-summary dl > div{gap:10px}
+  .hpz-apl .order-summary dl dt{flex-basis:62px}
+}
