@@ -9,6 +9,8 @@ import {quote} from './private/pricing.mjs';
 const files=new Map([
  ['/core/straight-corners.mjs',['core/straight-corners.mjs','text/javascript']],
  ['/core/straight-geometry.mjs',['core/straight-geometry.mjs','text/javascript']],
+ ['/core/decor-catalog.mjs',['core/decor-catalog.mjs','text/javascript']],
+ ['/decor-images.mjs',['public/decor-images.mjs','text/javascript']],
  ['/component-test',['public/component-test.html','text/html']],['/component-test.mjs',['public/component-test.mjs','text/javascript']],
  ['/embed',['public/embed.html','text/html']],['/embed.mjs',['public/embed.mjs','text/javascript']],
  ['/component.mjs',['public/component.mjs','text/javascript']],['/component-template.mjs',['public/component-template.mjs','text/javascript']],['/component.css',['public/component.css','text/css']],['/core/products.mjs',['core/products.mjs','text/javascript']],
@@ -17,6 +19,7 @@ const files=new Map([
   ['/mobile',['public/review.html','text/html']], ['/review.mjs',['public/review.mjs','text/javascript']],
   ['/core/config.mjs',['core/config.mjs','text/javascript']], ['/core/geometry.mjs',['core/geometry.mjs','text/javascript']]
 ]);
+for(const decor of catalog().decors)for(const filename of [decor.imageFilename,decor.thumbnailFilename])files.set('/decors/'+filename,['public/decors/'+filename,'image/webp']);
 export function createServer() {
   const server=httpServer(async(req,res)=>{
     res.setHeader('Cache-Control','no-store');
@@ -48,7 +51,7 @@ export function createServer() {
       if(req.method==='GET' && files.has(path)) {
         const [file,type]=files.get(path);
         const content=await readFile(new URL(file,import.meta.url));
-        res.writeHead(200,{'Content-Type':`${type}; charset=utf-8`});return res.end(content);
+        res.writeHead(200,{'Content-Type':type.startsWith('image/')?type:`${type}; charset=utf-8`});return res.end(content);
       }
       return json(404,{error:'Nicht vorhanden.'});
     } catch {if(!res.headersSent)json(500,{error:'Lokale Vorschau nicht verfügbar.'});else res.end();}

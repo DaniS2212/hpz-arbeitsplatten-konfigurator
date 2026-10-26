@@ -1,5 +1,46 @@
 # Status – 26.10.2026
 
+## Aktuell: Zwischenversion 0.4.0 – 16 echte Dekorbilder
+
+- Basis: PR #2 vom Nutzer gemergt (`4f24337`). Neuer Featurebranch
+  `feature/dekorbilder-040`. Vorbereitete Zuordnungen aus PR #1 / `8064a5a`
+  übernommen; PR #1 nicht gemergt oder verändert. [PR #4 zur Prüfung](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/4)
+  geöffnet, kein Merge. Implementierungscommit `a9050ca`.
+- Alle 16 vereinbarten Dekore mit kurzen Kundennamen und großen echten Bildkacheln
+  integriert. Keine Hersteller-/Artikelnummern in der Kundenanzeige, keine Filter.
+  Ausgewähltes Bild auch in SVG-Planung, Vergrößerung und Eckdetails.
+- Unveränderte 16 Originale und Manifest unter `docs/references/decor-images/`;
+  32 WebPs bytegleich übernommen und im Plugin gebündelt. Keine externen Dienste.
+- Interne ID, Kundennamen und Lieferantencodes getrennt. Lokaler HTTP-Server
+  validiert alle IDs und leitet den Lieferantencode selbst ab; manipulierte Codes,
+  Namen oder Bild-URLs bestimmen keine Zuordnung. PHP-Katalogresolver mit aus
+  derselben Quelle generierter Zuordnung vorbereitet; keine neue Bestell-API.
+- Durchgehende Du-Ansprache, „Deine Arbeitsplatte konfigurieren“. Desktop: drei
+  Bildspalten und vorhandene Zusammenfassung unter der Vorschau im Oberflächenschritt;
+  mobil zwei Bildspalten, Reihenfolge Vorschau/Auswahl/Zusammenfassung. Normale
+  Form-/Maßansicht und Desktop-Breite erhalten. Keine doppelten Kauf-/Formbereiche.
+- Tests: 95 Node-Tests bestanden (bisherige 85 erhalten), ein reiner PHP-
+  Laufzeittest mangels PHP ausdrücklich übersprungen. 65 neue Dekor-Browserprüfungen
+  (alle Dekore auf allen drei Produktseiten) und zwölf neue Dekor-Layoutfälle
+  (Gerade/L/U × 360/390/1366/1440 px) bestanden. Ebenso alle bisherigen
+  46 A1-Funktions-, zwölf Eck-Layout-, vier Basis-Layout- und zwölf Lebenszyklus-
+  Prüfungen. Belege: `docs/040-node-results.txt`, `docs/040-browser-results.txt`.
+- Screenshots: `docs/040-desktop-dekore.jpg`, `040-desktop-granit.jpg`,
+  `040-mobile-dekore.jpg`, `040-mobile-vorschau.jpg`, `040-mobile-eckdetail.jpg`.
+  Lokale Paketansicht; Mobil unskalierter 390×844-iframe, kein physisches Gerät.
+- Paket: `dist/hpz-apl-admin-preview-0.4.0.zip` mit INSTALLATION.md und
+  DEKORE-0.4.0.md. 54 Einträge mit den Plugin-Dateien bytegleich geprüft,
+  darunter 32 WebPs; SHA256 `EB8B6B05557A9CB9EEAC81312287C94631AC08A6002E9BDBA1E4C3A5C53575C6`.
+  Beleg: `docs/040-package-results.txt`. Alte ZIPs 0.2.0 und 0.3.0
+  per SHA256 unverändert bestätigt.
+- Unverändert: mm-Vertrag, zehn Eckzustände samt technischen Grenzen, L/U-
+  Konstruktion, Preisengine/Preisregel V2, Kundenversand, Admin-/Entwurfs- und
+  Kaufsperren. Kein Liveshop-Zugriff, keine Installation oder Produktveröffentlichung.
+- Offen für spätere Integration: PHP-/WordPress-/Flatsome-/WCPA-Laufzeit, Rollen,
+  Cache/CSP, direkte Kaufsperren/Sockel-Regression, echte Smartphones; Verfügbarkeit
+  je Material/Form sowie Fertigungs-/Preisfreigabe. Fotos sind keine Zusage zu
+  physischem Rapport oder fortlaufender Maserung. Details: `docs/040-decor-integration.md`.
+
 ## Phase A1.1 – Plugin-Zwischenversion 0.3.0
 
 - Bestehendes Projekt von `main` / `16b2056` auf Featurebranch

@@ -1,11 +1,19 @@
-# Küchenarbeitsplatten – lokale Entwicklungsfassung 0.3.0
+# Küchenarbeitsplatten – lokale Entwicklungsfassung 0.4.0
 
 Eigenständig lauffähig, ohne WordPress, Hosting-Zugang oder externe Pakete.
 Dies ist die lokale Demo derselben gekapselten Komponente, die separat als
 Admin-Vorschau-Plugin unter `../wordpress/` und `../dist/` bereitsteht.
 Es existiert keine Verbindung zum Liveshop.
 
-## Aktuell: Phase A1.1 (26.10.2026)
+## Aktuell: 16 echte Dekorbilder (26.10.2026)
+
+Alle 16 Dekore aus PR #1 sind mit echten WebPs integriert. Die kurzen Kundennamen
+werden in Kacheln und Zusammenfassung angezeigt, Lieferantencodes separat
+validiert. Fotos in Vorschau und Eckdetails; drei Kachelspalten am großen Desktop,
+zwei mobil. Preisengine, Maße/Geometrien und Kaufsperren bleiben erhalten.
+Siehe `../docs/040-decor-integration.md` und den aktuellen `../STATUS.md`.
+
+## Erhalten: Phase A1.1 (26.10.2026)
 
 Alle zehn geraden Eckzustände sind als Vorschau nutzbar. Eckig zeigt gerade
 Diagonalen; durchlaufend zeigt sichtbar weichere schematische Übergänge und

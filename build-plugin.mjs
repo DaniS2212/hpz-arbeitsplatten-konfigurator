@@ -1,13 +1,15 @@
 import {mkdir,readFile,writeFile,copyFile} from 'node:fs/promises';
+import {DECOR_CATALOG,DECOR_CATALOG_VERSION} from './local/core/decor-catalog.mjs';
 const base=new URL('./',import.meta.url), out=new URL('wordpress/hpz-apl-admin-preview/assets/',base);
 const version=(await readFile(new URL('wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php',base),'utf8')).match(/Version: ([\d.]+)/)[1];
 const versionImports=code=>code.replace(/(from\s+['"]\.\.?\/[^'"]+\.js)(?:\?v=[^'"]+)?(['"])/g,`$1?v=${version}$2`);
 await mkdir(new URL('core/',out),{recursive:true});
-for(const name of ['config','geometry','products','straight-corners','straight-geometry']) {
-  const code=await readFile(new URL(`local/core/${name}.mjs`,base),'utf8');
+for(const name of ['config','geometry','products','straight-corners','straight-geometry','decor-catalog']) {
+  let code=await readFile(new URL(`local/core/${name}.mjs`,base),'utf8');
+  if(name==='decor-catalog')code=code.replace(/^\/\*\*[\s\S]*?\*\/\s*/,'// Local decor mapping; provenance is retained in the source catalog.\n');
   await writeFile(new URL(`core/${name}.js`,out),versionImports(code.replaceAll('.mjs\'','.js\'')));
 }
-for(const name of ['component','component-template','latest']) {
+for(const name of ['component','component-template','latest','decor-images']) {
   let code=await readFile(new URL(`local/public/${name}.mjs`,base),'utf8');
   code=code.replaceAll("'/core/","'./core/").replaceAll("'../core/","'./core/").replaceAll("'/latest.mjs'","'./latest.mjs'").replaceAll('.mjs\'','.js\'');
   if(name==='component-template')code=code.replaceAll('Zuzüglich Kundenversand. Interne Anlieferung bereits im Preisbeispiel berücksichtigt.','Kundenversand wird später separat im Checkout berechnet. Noch keine Preisfreigabe.');
@@ -29,4 +31,9 @@ await copyFile(new URL('local/public/component.css',base),new URL('component.css
 await copyFile(new URL('docs/phase-a1-evidence.md',base),new URL('../A1-NACHWEISE.md',out));
 await copyFile(new URL('docs/phase-a1-1-evidence.md',base),new URL('../A1.1-NACHWEISE.md',out));
 await copyFile(new URL('docs/input-contract-v2.md',base),new URL('../MILLIMETER-VERTRAG.md',out));
+await copyFile(new URL('docs/040-decor-integration.md',base),new URL('../DEKORE-0.4.0.md',out));
+await mkdir(new URL('decors/',out),{recursive:true});
+for(const decor of DECOR_CATALOG)for(const file of [decor.imageFilename,decor.thumbnailFilename])await copyFile(new URL('local/public/decors/'+file,base),new URL('decors/'+file,out));
+await mkdir(new URL('../data/',out),{recursive:true});
+await writeFile(new URL('../data/decors.json',out),JSON.stringify({version:DECOR_CATALOG_VERSION,items:DECOR_CATALOG.map(({id,supplierCode,displayName})=>({id,supplierCode,displayName}))},null,2)+'\n');
 console.log('Plugin assets bundled; original demo and pricing unchanged.');

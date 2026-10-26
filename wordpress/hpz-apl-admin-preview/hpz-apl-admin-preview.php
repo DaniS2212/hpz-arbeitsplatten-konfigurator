@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Holz-Liebling Arbeitsplatten – Admin-Vorschau
  * Description: Isolierter Konfigurator für drei bestehende Produktentwürfe. Ausschließlich Admin-Test; kein Verkauf.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -11,9 +11,10 @@
  * Text Domain: hpz-apl-admin-preview
  */
 defined('ABSPATH') || exit;
+require_once __DIR__.'/includes/decor-catalog.php';
 
 final class HPZ_APL_Admin_Preview {
-    const VERSION = '0.3.0';
+    const VERSION = '0.4.0';
     const OPTION = 'hpz_apl_admin_preview';
     const PRODUCTS = array(1000083 => 'straight', 1000080 => 'l', 1000081 => 'u');
     private static $rendered = false;
@@ -61,13 +62,15 @@ final class HPZ_APL_Admin_Preview {
     }
     public static function render() {
         if (!self::allowed() || self::$rendered) return '';
+        $decor = HPZ_APL_Decor_Catalog::resolve('H1145');
+        if (!$decor) return ''; // Invalid/missing bundled mapping never gets a fallback.
         self::$rendered=true;
         $url=plugin_dir_url(__FILE__).'assets/';
         // Render can run after wp_head. Print the narrowly scoped stylesheet at this location.
         wp_register_style('hpz-apl-preview-host', $url.'host.css', array(), self::VERSION);
         ob_start(); wp_print_styles('hpz-apl-preview-host'); $css=ob_get_clean();
         wp_enqueue_script('hpz-apl-preview', $url.'bootstrap.js', array(), self::VERSION, true);
-        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren"><p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p><div data-hpz-apl-preview data-product-id="'.esc_attr(get_queried_object_id()).'">Konfigurator wird geladen …</div></section>';
+        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren"><p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p><div data-hpz-apl-preview data-product-id="'.esc_attr(get_queried_object_id()).'" data-decor-id="'.esc_attr($decor['id']).'">Konfigurator wird geladen …</div></section>';
     }
     public static function purchasable($allowed, $product) {
         return self::target($product->get_id()) ? false : $allowed;

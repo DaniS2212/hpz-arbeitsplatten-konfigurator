@@ -1,0 +1,262 @@
+{
+  "version": "1.0",
+  "notes": "Originale aus Nutzerupload; Shopnamen kundennah, interne Bestellcodes separat; nur Vorbereitungsstand ohne Live-Freigabe.",
+  "items": [
+    {
+      "id": "W980",
+      "supplierCode": "W980 ST7",
+      "displayName": "Platinweiß",
+      "sourceFile": "3002-Weiss.jpg",
+      "imagePath": "assets/decors/W980.webp",
+      "thumbPath": "assets/decors/W980-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "d4473d286517f10384625460267d313b07eb5892ee6b7a326ba48f582d68bc40",
+      "thumbSha256": "0f7ee98c6097d36c9e6366506a296c0f9bcd1333948a6b9d5c8d02232d647673",
+      "imageBytes": 11792,
+      "thumbBytes": 1330
+    },
+    {
+      "id": "U999",
+      "supplierCode": "U999 ST76",
+      "displayName": "Schwarz",
+      "sourceFile": "U999-ST76-Schwarz.jpg",
+      "imagePath": "assets/decors/U999.webp",
+      "thumbPath": "assets/decors/U999-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "79d7670255382be669e5f664d73d9e9c797f25107780f16318094c28bf8662a5",
+      "thumbSha256": "cdd2b13e67a42e55d7c6d069d00e123ee7754ba46ff003be445d5c6a9db39ba9",
+      "imageBytes": 1868,
+      "thumbBytes": 472
+    },
+    {
+      "id": "H1145",
+      "supplierCode": "H1145 ST10",
+      "displayName": "Bardolino Eiche",
+      "sourceFile": "1010-Bardolino-Eiche.jpg",
+      "imagePath": "assets/decors/H1145.webp",
+      "thumbPath": "assets/decors/H1145-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "5393b829971337c8c4c27ff24d9faece523533f04fc2b039b00f2e259becbab2",
+      "thumbSha256": "93257eb2b5f114d26f5bead8ed9d356d506a0ff0d65fa9e22be8d4e74d18d33f",
+      "imageBytes": 213686,
+      "thumbBytes": 46490
+    },
+    {
+      "id": "H3303",
+      "supplierCode": "H3303 ST10",
+      "displayName": "Arlington Eiche",
+      "sourceFile": "1008-Eiche-Arlington.jpg",
+      "imagePath": "assets/decors/H3303.webp",
+      "thumbPath": "assets/decors/H3303-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "4b29c817d8c37c314fcf37b379a7a585c1495beba2e1758d2a95dd50f8c83da5",
+      "thumbSha256": "4733480b8b8b952bbd117c66cb1475f55c0fac8a4d8f45780e88d8c829a29f8b",
+      "imageBytes": 154886,
+      "thumbBytes": 23874
+    },
+    {
+      "id": "F021",
+      "supplierCode": "F021 ST75",
+      "displayName": "Terrazzo grau",
+      "sourceFile": "F021-ST75-Triestino-Terrazzo-grau.jpg",
+      "imagePath": "assets/decors/F021.webp",
+      "thumbPath": "assets/decors/F021-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "f03f5c7497b508bc764069629cc22d79fd124cba3cb9fd78e4e8b989170c49c3",
+      "thumbSha256": "30cc7716c566639d225eeb246d6e1c8e804f4b3946732374c5e0ed97cc20cfa7",
+      "imageBytes": 299650,
+      "thumbBytes": 68302
+    },
+    {
+      "id": "F095",
+      "supplierCode": "F095 ST87",
+      "displayName": "Marmor grau",
+      "sourceFile": "2025-Lucano.jpg",
+      "imagePath": "assets/decors/F095.webp",
+      "thumbPath": "assets/decors/F095-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "db6a6ec8c3a2d6130b16b74cd56531a69b4de2a4a08939a432f3c43e8da340b4",
+      "thumbSha256": "c61e535aa50f2c7838b428845f2150a72886808b54d976122daa4bbc653cb42e",
+      "imageBytes": 240220,
+      "thumbBytes": 59180
+    },
+    {
+      "id": "F121",
+      "supplierCode": "F121 ST87",
+      "displayName": "Metall anthrazit",
+      "sourceFile": "F121-ST87-Metal-Rock-anthrazit.jpg",
+      "imagePath": "assets/decors/F121.webp",
+      "thumbPath": "assets/decors/F121-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "01a993b35cacaac9b57b835f0fe281fe928e65093a8511be8bc36e3be678e13e",
+      "thumbSha256": "5324964f5c8cac28526948762655ddb1a7d6d54c18659e6c7f2179d498dcf0d5",
+      "imageBytes": 237298,
+      "thumbBytes": 37634
+    },
+    {
+      "id": "F128",
+      "supplierCode": "F128 PA",
+      "displayName": "Granit schwarz",
+      "sourceFile": "F128-PA-Ambiance-Granite-schwarz.jpg",
+      "imagePath": "assets/decors/F128.webp",
+      "thumbPath": "assets/decors/F128-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "61e2b0910c0b373feca818d86016d82c7d830165d28a9b5409c33517e12f6537",
+      "thumbSha256": "d3fa567f2bff0454501097f1c9618d11061b8466aede63b88f09c41ca10a20d7",
+      "imageBytes": 247350,
+      "thumbBytes": 58742
+    },
+    {
+      "id": "F186",
+      "supplierCode": "F186 ST9",
+      "displayName": "Beton hellgrau",
+      "sourceFile": "F186-ST9-Chicago-Concrete-hellgrau.jpg",
+      "imagePath": "assets/decors/F186.webp",
+      "thumbPath": "assets/decors/F186-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "62d597e84541f56548bba6dc653a18ec2f5209f16fab86ea38f191a716affa68",
+      "thumbSha256": "410b2f825e278b14c60d99e276c04310fffc616378da42022348836f11a4905f",
+      "imageBytes": 124970,
+      "thumbBytes": 20478
+    },
+    {
+      "id": "F235",
+      "supplierCode": "F235 ST76",
+      "displayName": "Schiefer natur",
+      "sourceFile": "2021-Natural-slate.jpg",
+      "imagePath": "assets/decors/F235.webp",
+      "thumbPath": "assets/decors/F235-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "eab7740bd5acb71d09565cfe62677d7b805cad0d8cac2483021bab9e7534a2d2",
+      "thumbSha256": "7111f58b2c310a292225d5f855363ed4dcadca28230f3f18a81b4c39cfb4e7aa",
+      "imageBytes": 296190,
+      "thumbBytes": 57544
+    },
+    {
+      "id": "F302",
+      "supplierCode": "F302 ST87",
+      "displayName": "Bronze",
+      "sourceFile": "F302-ST87-Ferro-bronze.jpg",
+      "imagePath": "assets/decors/F302.webp",
+      "thumbPath": "assets/decors/F302-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "de4a88b6c56e9eeb331569364cf5d591fff53cb20311ad95bd65145c17089f56",
+      "thumbSha256": "c16fedcb3023a67dcb2ab3e0b6348acb39336fb80bf72cc4afa4056ed1d2d023",
+      "imageBytes": 242692,
+      "thumbBytes": 52626
+    },
+    {
+      "id": "F629",
+      "supplierCode": "F629 ST16",
+      "displayName": "Metall gold",
+      "sourceFile": "2016-Dark-gold-Metal.jpg",
+      "imagePath": "assets/decors/F629.webp",
+      "thumbPath": "assets/decors/F629-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "632bcbc13f560bf52193d754c44985479bea3a86fc2870f242b40c293531e2ab",
+      "thumbSha256": "4cfd6e2a1d2ac9b3cb3d25afb762263eb857857a1d03ce0897adc83ea7075348",
+      "imageBytes": 120292,
+      "thumbBytes": 8098
+    },
+    {
+      "id": "F661",
+      "supplierCode": "F661 ST76",
+      "displayName": "Sandbeige",
+      "sourceFile": "F661-ST76-Calcit-Stone-sandbeige-1.jpg",
+      "imagePath": "assets/decors/F661.webp",
+      "thumbPath": "assets/decors/F661-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "e3b888c690aae450ed591ae48c9d99f77d0b1cc19732abee9f3182b8cc659e35",
+      "thumbSha256": "1aaaf52db032f6fd0869ea1202d86786a527f2fec4d1c15cfc9d4f29e9a577e0",
+      "imageBytes": 80572,
+      "thumbBytes": 9040
+    },
+    {
+      "id": "F812",
+      "supplierCode": "F812 ST9",
+      "displayName": "Marmor weiß",
+      "sourceFile": "F812-ST9-Levanto-Marmor-weiss.jpg",
+      "imagePath": "assets/decors/F812.webp",
+      "thumbPath": "assets/decors/F812-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "f0f760668c477d5c94d4cf7ee9f9108c02338dd815dd1c7b9ecd7f6cdb0b36a7",
+      "thumbSha256": "3ef7019d79706f6b174b8f7765ffb9024a861d2f1c6c7a8f8a7d3fc6c7abc835",
+      "imageBytes": 46016,
+      "thumbBytes": 4806
+    },
+    {
+      "id": "44375",
+      "supplierCode": "44375 DP",
+      "displayName": "Perlgrau",
+      "sourceFile": "44375-DP-BetonArtPerlgrau_Ganzformatplatte.jpg",
+      "imagePath": "assets/decors/44375.webp",
+      "thumbPath": "assets/decors/44375-thumb.webp",
+      "sourcePixels": [
+        500,
+        500
+      ],
+      "imageSha256": "2ff56c8d951cf1def32a8397939acf71517e579c22f83261199075ab465c747b",
+      "thumbSha256": "81d4bcab6c5454c93b90e824aae249a6f72bdf4f57f252de50f139ad8a070526",
+      "imageBytes": 47574,
+      "thumbBytes": 36206
+    },
+    {
+      "id": "44405",
+      "supplierCode": "44405 DP",
+      "displayName": "Schiefergrau",
+      "sourceFile": "44405-DP-Beton-Art-Schiefergrau.jpg",
+      "imagePath": "assets/decors/44405.webp",
+      "thumbPath": "assets/decors/44405-thumb.webp",
+      "sourcePixels": [
+        1000,
+        1000
+      ],
+      "imageSha256": "c245faa8030d5a180584695db4d6dcb4daf88c4f727d3ca0e83dbdbef7df6ce6",
+      "thumbSha256": "0f4d330b9c614286d9746d8b3c54a921d2044ef8b4d367b2a22bbb58ae3d96d5",
+      "imageBytes": 98128,
+      "thumbBytes": 8176
+    }
+  ]
+}

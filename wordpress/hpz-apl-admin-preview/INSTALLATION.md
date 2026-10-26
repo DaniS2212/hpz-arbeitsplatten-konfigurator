@@ -1,6 +1,13 @@
-# Installation – Admin-Test 0.3.0 (Phase A1.1, Zwischenversion)
+# Installation – Admin-Test 0.4.0 (16 echte Dekorbilder)
 
-Neu: alle zehn geraden Eckzustände als Vorschau, einschließlich unabhängiger
+Neu in 0.4.0: alle 16 vereinbarten Dekore mit unveränderten WebP-Bildern,
+kurzen Kundennamen und echtem gewähltem Dekor in Vorschau/Eckdetails. Große
+Bildkacheln ohne Filter; mobil zwei Spalten. Desktop-Zusammenfassung im Schritt
+„Oberfläche“ unter der Vorschau. Lieferantencodes bleiben von der Anzeige
+getrennt; es gibt weiterhin keine Preis-/Verkaufsfreigabe. Technische Hinweise
+und Testumfang stehen in **DEKORE-0.4.0.md**.
+
+Erhalten aus 0.3.0: alle zehn geraden Eckzustände als Vorschau, einschließlich unabhängiger
 eckiger und durchlaufender Abschrägungen vorne links/rechts. Sämtliche sichtbaren
 Maße in mm; Länge/Tiefe in 1-mm-, Ecken in 10-mm-Schritten. Die durchlaufende
 Ausführung ist schematisch und vorerst nur bei 2000 × 600 mm mit Schrägenlänge
@@ -11,10 +18,10 @@ Kein Produkt erhält eine Fertigungs- oder Verkaufsfreigabe.
 Die frühere 0.1.0-Adminansicht wurde laut Nutzer auf Flatsome bestätigt;
 diese neue Version wurde bisher lokal geprüft.
 
-Für ein Update nach Sichtfreigabe die neue 0.3.0-ZIP über „Plugin hochladen“
+Für ein Update nach Sichtfreigabe die neue 0.4.0-ZIP über „Plugin hochladen“
 wählen und WordPress die vorhandene Version ersetzen lassen. Keine zweite Kopie
 parallel installieren. Bestehende Plugin-Einstellungen bleiben unter demselben
-Optionsnamen erhalten. Die ZIPs 0.1.0 und 0.2.0 sind unverändert verfügbar.
+Optionsnamen erhalten. Die ZIPs 0.1.0, 0.2.0 und 0.3.0 sind unverändert verfügbar.
 Installation und Aktivierung erfolgen ausschließlich durch den Nutzer.
 
 Dieses Paket ist eine geschlossene Vorschau, kein verkaufsfähiger Konfigurator. Kein Node-Server erforderlich. Bestehende Produkte, Texte, Galerien, WCPA-Formulare und Versandregeln werden nicht gespeichert oder verändert. Die lokale Demo bleibt erhalten.
@@ -32,7 +39,7 @@ Dieses Paket ist eine geschlossene Vorschau, kein verkaufsfähiger Konfigurator.
 - Nur Administratorberechtigung `manage_options` plus Bearbeitungsrecht, nur Status `draft`, nur drei feste IDs. Eine veröffentlichte Produktseite erhält keine Vorschau.
 - Solange das Plugin aktiv ist, sind diese drei IDs zusätzlich serverseitig nicht kaufbar, unabhängig von beiden Schaltern. Direkte Warenkorbversuche sowie vorhandene Zielpositionen im klassischen/Store-API-Warenkorb werden gesperrt. Andere Produkte bleiben unverändert.
 - Plugin deaktivieren entfernt Einbettung UND dessen Kaufsperren. Deshalb Produkte weiterhin als Entwurf belassen. Keine automatische Veröffentlichung, Migration oder Rückübertragung.
-- Keine Preisengine, Lieferanten-EK, Kundendaten oder externen Bild-/Fontdienste im Paket. Bestehende Dekore bleiben schematische SVG/CSS-Muster, keine Originaldekorfotos.
+- Keine Preisengine, Lieferanten-EK, Kundendaten oder externen Bild-/Fontdienste im Paket. Die 16 Dekorbilder werden lokal mitgeliefert. Bildausschnitt, Rapport und Maserungsverlauf der Zeichnung sind unverbindlich. Katalogzugehörigkeit ist keine Bestätigung der Lieferbarkeit je Material oder Form.
 - WCPA muss für diese rein visuelle Testphase nichts importieren. Vorhandene Formulare und globale Einstellungen unverändert lassen.
 
 ## Noch vor Bestellintegration prüfen

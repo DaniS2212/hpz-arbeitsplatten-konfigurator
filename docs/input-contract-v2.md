@@ -57,3 +57,12 @@ Quellvertrag prüfen und dann ausdrücklich konvertieren.
 Lokaler HTTP-Endpunkt prüft erneut; das Plugin enthält nur die lokale visuelle
 JS-Prüfung. Beide bleiben nicht kaufbar. Die spätere PHP-Prüfung muss diesen
 Vertrag unabhängig implementieren und gegen dieselben Sollwerte testen.
+
+## Ergänzung 0.4.0: Dekorzuordnung
+
+`decor` bleibt eine interne string-ID, nun aus dem Katalog mit 16 Dekoren.
+Die Normalisierung ergänzt `decorSupplierCode` aus der vertrauenswürdigen
+Zuordnung. Ein gleichnamiges Eingabefeld wird nicht übernommen. Kundenlabels
+und Bild-URLs sind keine alternativen Identifikatoren. Die Oberfläche zeigt
+ausschließlich den kurzen Kundennamen. Der PHP-Katalogresolver ist vorbereitet;
+eine serverseitige Bestellprüfung existiert weiterhin nicht.
