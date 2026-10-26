@@ -1,0 +1,22 @@
+name: Real WordPress Test Kit – Syntax
+on:
+  pull_request:
+    paths:
+      - 'wordpress/real-site-tests/**'
+      - '.github/workflows/real-site-kit-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: Read-only staging test kit syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: PHP syntax (WP-CLI runtime not simulated)
+        run: php -l wordpress/real-site-tests/preflight.php
+      - name: Node syntax (no HTTP requests in CI)
+        run: node --check wordpress/real-site-tests/guest-smoke.mjs
