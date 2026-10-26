@@ -1,6 +1,6 @@
 <?php
 /**
- * Real WordPress / WooCommerce read-only preflight for HPZ APL v0.6.3.
+ * Real WordPress / WooCommerce read-only preflight for HPZ APL v0.6.4.
  *
  * Run from an authorized WP-CLI shell:
  *   wp eval-file /path/to/preflight.php baseline
@@ -105,10 +105,10 @@ $record('preview-plugin-loaded', $present ? 'PASS' : ($runMode === 'installed' ?
 
 if ($present) {
     $pluginVersion = defined('HPZ_APL_Admin_Preview::VERSION') ? constant('HPZ_APL_Admin_Preview::VERSION') : 'unknown';
-    $currentVersion = $pluginVersion === '0.6.3';
+    $currentVersion = $pluginVersion === '0.6.4';
     $record('preview-plugin-version', $currentVersion ? 'PASS' : ($runMode === 'installed' ? 'FAIL' : 'INFO'), $pluginVersion);
     if (!$currentVersion) {
-        $record('preview-current-version-hooks', 'SKIP', 'Baseline of older plugin; 0.6.3-only checks run after update');
+        $record('preview-current-version-hooks', 'SKIP', 'Baseline of older plugin; 0.6.4-only checks run after update');
     } else {
     $opts = HPZ_APL_Admin_Preview::options();
     $active = !empty($opts['enabled']) && !empty($opts['test_mode']);
