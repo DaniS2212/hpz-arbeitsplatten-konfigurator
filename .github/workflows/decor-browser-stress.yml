@@ -15,15 +15,15 @@ permissions:
 jobs:
   decor-stress:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install temporary Chromium test runtime
-        run: |
-          npm install --no-save --no-package-lock playwright@1.55.1
-          npx playwright install --with-deps chromium
+      - name: Use preinstalled Chromium in matching official Playwright container
+        run: npm install --no-save --no-package-lock playwright@1.55.1
       - name: Browser stress at desktop/mobile widths
         run: node wordpress/stability-ci-runner.mjs
