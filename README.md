@@ -4,7 +4,7 @@ Privates Entwicklungsprojekt von **DaniS2212** für holzplatten-zuschnitt.de.
 
 Repository: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
 
-Aktueller Plugin-Stand: **0.2.0 / Phase A1, Admin-Testvorschau**. Die vollständige
+Aktueller Plugin-Stand: **0.3.0 / Phase A1.1, Admin-Testvorschau**. Die vollständige
 Entwicklung einschließlich früherer Stände und Pakete wird hier erhalten.
 Der Import ändert weder WordPress noch WooCommerce-Produkte.
 
@@ -21,7 +21,7 @@ Der Import ändert weder WordPress noch WooCommerce-Produkte.
 | `docs/` | Bestandsaufnahme, Einbettungsvertrag, technische Nachweise und Testbelege |
 | `docs/superpowers/specs/` | Freigegebene Spezifikation, aus dem bisherigen übergeordneten Projekt übernommen |
 | `docs/superpowers/plans/` | Freigegebener Implementierungsplan, aus dem bisherigen übergeordneten Projekt übernommen |
-| `dist/` | Erhaltene installierbare ZIPs 0.1.0 und 0.2.0 |
+| `dist/` | Installierbare ZIP 0.3.0 und unveränderte ZIPs 0.1.0/0.2.0 |
 | `archive/` | Frühere Entwicklungsstände |
 | `STATUS.md` | Aktueller Stand und verbleibende Arbeiten |
 
@@ -50,7 +50,8 @@ node wordpress/serve-package-test.mjs
 ```
 
 http://127.0.0.1:4174/ zeigt die gebündelten Plugin-Assets ohne Entwicklungs-API.
-Unter `/a1-test` und `/responsive-test` laufen die Browserprüfungen.
+Unter `/a1-test`, `/responsive-test` und `/a1-1-responsive-test` laufen die
+Browserprüfungen. `/review?width=390` zeigt eine unskalierte mobile Paketansicht.
 
 ## Plugin-Paket erstellen
 
@@ -73,9 +74,12 @@ nicht neu gebaut. Installationshinweise liegen im Pluginordner.
 - Nur eingeloggte Administratoren auf den drei Produktentwürfen: Gerade
   **1000083**, L **1000080**, U **1000081**.
 - Warenkorb und Bestellungen bleiben technisch gesperrt. Kein Produktionsmodus.
-- Gerade: Vorschau ohne Eckbearbeitung und mit Rundungen vorne links/rechts/
-  beidseitig, einschließlich unabhängiger R1/R2. Sechs Abschrägungen warten auf
-  eindeutige Konturbelege. Siehe `docs/phase-a1-evidence.md`.
+- Gerade: alle zehn Zustände als Vorschau, einschließlich unabhängiger Radien
+  und Abschrägungen links/rechts. Durchlaufende Abschrägung bleibt schematisch
+  und vorerst auf 2000 × 600 mm / Sondermaße L=60–500, B=60–300 mm begrenzt.
+  Weitere konservative Grenzen und Nachweise: `docs/phase-a1-1-evidence.md`.
+- Sichtbare Maße durchgehend in mm; Version/Einheit ausdrücklich getrennt vom
+  erhaltenen Legacy-cm-Vertrag. Siehe `docs/input-contract-v2.md`.
 - L/U bleiben schematische, nicht freigegebene Lieferantengeometrien.
 - Preisregel V2 ist dokumentiert, nicht aktiviert. Kundenversand bleibt separat.
 - PHP-/WooCommerce-/Flatsome-Laufzeitprüfungen der neuen Version sind weiterhin

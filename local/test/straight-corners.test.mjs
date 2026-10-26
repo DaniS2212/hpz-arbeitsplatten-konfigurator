@@ -5,7 +5,7 @@ import {geometry,svg} from '../core/geometry.mjs';
 import {straightCorners,straightCorner} from '../core/straight-corners.mjs';
 import {quote} from '../private/pricing.mjs';
 const input=(side='left',parameters={R1:'10'},treatment='round',dimensions={L1:'200',B1:'60'})=>({product:'straight',geometry:'straight',corner:'square',material:'APL38',decor:'W980',dimensions,straightCorner:{side,treatment:side==='none'?null:treatment,parameters}});
-test('A1 registry has exactly ten distinct variants; chamfer types remain distinct and closed',()=>{
+test('legacy cm registry keeps ten variants distinct; new chamfers require explicit v2 mm',()=>{
  assert.equal(straightCorners.length,10);assert.equal(new Set(straightCorners.map(v=>v.id)).size,10);
  for(const v of straightCorners){assert.equal(straightCorner(v.side,v.treatment).id,v.id);if(v.treatment?.startsWith('chamfer'))assert.throws(()=>normalize(input(v.side,{},v.treatment)),/Kontur/);}
 });

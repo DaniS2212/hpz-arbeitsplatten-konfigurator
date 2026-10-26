@@ -7,7 +7,7 @@
       root.dataset.hpzMounted='loading';
       try{
         const [{mountConfigurator},{preview}]=await Promise.all([
-          import(new URL('./component.js?v=0.2.0',source).href),import(new URL('./preview.js?v=0.2.0',source).href)
+          import(new URL('./component.js?v=0.3.0',source).href),import(new URL('./preview.js?v=0.3.0',source).href)
         ]);
         mountConfigurator(root,{productId:Number(root.dataset.productId),presentationMode:'embedded'},{preview});
         root.dataset.hpzMounted='ready';

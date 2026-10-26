@@ -1,8 +1,21 @@
-# Installation – Admin-Test 0.2.0 (Phase A1, Zwischenversion)
+# Installation – Admin-Test 0.3.0 (Phase A1.1, Zwischenversion)
 
-Neu: echte Vorschau für Rundung vorne links/rechts/beidseitig mit unabhängigen R1/R2. Die sechs Abschrägungen bleiben bis zur Konturklärung gesperrt. Alle zehn Varianten und die gezielt fehlenden Nachweise stehen in A1-NACHWEISE.md. Kein Produkt erhält eine Fertigungs- oder Verkaufsfreigabe. Die frühere 0.1.0-Adminansicht wurde laut Nutzer auf Flatsome bestätigt; diese neue Version wurde bisher lokal geprüft.
+Neu: alle zehn geraden Eckzustände als Vorschau, einschließlich unabhängiger
+eckiger und durchlaufender Abschrägungen vorne links/rechts. Sämtliche sichtbaren
+Maße in mm; Länge/Tiefe in 1-mm-, Ecken in 10-mm-Schritten. Die durchlaufende
+Ausführung ist schematisch und vorerst nur bei 2000 × 600 mm mit Schrägenlänge
+60–500 und Schrägentiefe 60–300 mm nutzbar. Grenzen und fehlende Nachweise:
+**A1.1-NACHWEISE.md**, Eingabeformat: **MILLIMETER-VERTRAG.md**.
+A1-NACHWEISE.md dokumentiert den historischen 0.2.0-Stand.
+Kein Produkt erhält eine Fertigungs- oder Verkaufsfreigabe.
+Die frühere 0.1.0-Adminansicht wurde laut Nutzer auf Flatsome bestätigt;
+diese neue Version wurde bisher lokal geprüft.
 
-Für ein Update nach Sichtfreigabe dieselbe Plugin-ZIP über „Plugin hochladen“ wählen und WordPress die vorhandene Version ersetzen lassen. Keine zweite Kopie parallel installieren. Bestehende Plugin-Einstellungen bleiben unter demselben Optionsnamen erhalten. 0.1.0-ZIP ist im Projekt weiterhin verfügbar. Installation und Aktivierung erfolgen ausschließlich durch den Nutzer.
+Für ein Update nach Sichtfreigabe die neue 0.3.0-ZIP über „Plugin hochladen“
+wählen und WordPress die vorhandene Version ersetzen lassen. Keine zweite Kopie
+parallel installieren. Bestehende Plugin-Einstellungen bleiben unter demselben
+Optionsnamen erhalten. Die ZIPs 0.1.0 und 0.2.0 sind unverändert verfügbar.
+Installation und Aktivierung erfolgen ausschließlich durch den Nutzer.
 
 Dieses Paket ist eine geschlossene Vorschau, kein verkaufsfähiger Konfigurator. Kein Node-Server erforderlich. Bestehende Produkte, Texte, Galerien, WCPA-Formulare und Versandregeln werden nicht gespeichert oder verändert. Die lokale Demo bleibt erhalten.
 

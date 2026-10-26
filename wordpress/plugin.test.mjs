@@ -17,10 +17,21 @@ test('client price and permission flags ignored',async()=>{
  const result=await preview({...raw,price:1,purchasable:true,quote:{purchasable:true}});
  assert.equal(result.quote.purchasable,false);assert.equal(result.quote.price,undefined);
 });
-test('packaged A1 radii stay independent, front down, and unpurchasable',async()=>{
+test('packaged legacy cm radii stay independent, front down, and unpurchasable',async()=>{
  const result=await preview({...raw,straightCorner:{side:'both',treatment:'round',parameters:{R1:'10,1',R2:'20,2'}}});
  assert.deepEqual(result.geometry.cornerArcs.map(a=>a.radiusMm),[101,202]);assert.equal(result.geometry.front.from[1],600);assert.equal(result.quote.purchasable,false);
  await assert.rejects(preview({...raw,straightCorner:{side:'left',treatment:'chamfer_continuous',parameters:{}}}),/Kontur/);
+});
+
+test('packaged v2 mm adapter previews all ten corner states without a price or purchase',async()=>{
+ const {straightCorners,defaultCornerParameters}=await import('./hpz-apl-admin-preview/assets/core/straight-corners.js');
+ for(const variant of straightCorners){
+  const result=await preview({...raw,schemaVersion:2,inputUnit:'mm',dimensions:{L1:'2000',B1:'600'},straightCorner:{side:variant.side,treatment:variant.treatment,parameters:defaultCornerParameters(variant.side,variant.treatment)}});
+  assert.equal(result.config.dimensions.L1,2000);assert.equal(result.config.schemaVersion,2);
+  assert.equal(result.config.straightCorner.id,variant.id);assert.ok(result.geometry.path);
+  assert.equal(result.quote.purchasable,false);assert.equal(result.quote.price,undefined);assert.equal(result.quote.illustration,undefined);
+ }
+ await assert.rejects(preview({...raw,schemaVersion:2,dimensions:{L1:'2000',B1:'600'}}),/Einheit|Version/);
 });
 test('plugin update versions bootstrap and all component module imports consistently',async()=>{
  const php=await readFile(new URL('hpz-apl-admin-preview.php',dir),'utf8'),version=php.match(/Version: ([\d.]+)/)[1];

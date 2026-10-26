@@ -1,4 +1,4 @@
-import {validateStraightCorner} from './straight-corners.js?v=0.2.0';
+import {validateStraightCorner} from './straight-corners.js?v=0.3.0';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
   l: { label: 'Arbeitsplatte L-Form', geometries: ['L1','L2','L3','L4'], fields: ['L1','L2','B1','B2'] },
@@ -22,8 +22,17 @@ export function cmToMm(value) {
   if(mm<1 || mm>100000) throw new Error('Maß außerhalb des lokalen Prüfbereichs (1–100000 mm).');
   return mm;
 }
+export function mmTextToMm(value){
+  if(typeof value!=='string'||!/^\d{1,6}$/.test(value.trim()))throw new Error('Maß bitte als ganze Millimeter eingeben, zum Beispiel 2000.');
+  const mm=Number(value.trim());
+  if(mm<1||mm>100000)throw new Error('Maß außerhalb des Vorschau-Prüfbereichs (1–100000 mm).');
+  return mm;
+}
 export function normalize(raw) {
   if(!object(raw) || !Object.hasOwn(families,raw.product)) throw new Error('Unbekanntes Arbeitsplattenprodukt.');
+  const millimetres=raw.schemaVersion===2;
+  if(millimetres?raw.inputUnit!=='mm':(raw.schemaVersion!==undefined&&raw.schemaVersion!==1)||(raw.inputUnit!==undefined&&raw.inputUnit!=='cm'))throw new Error('Eingabe-Version und Einheit passen nicht zusammen. Version 2 benötigt ausdrücklich Millimeter (mm).');
+  const convert=millimetres?mmTextToMm:cmToMm;
   const family=families[raw.product];
   if(raw.straightCorner!==undefined){
     if(raw.product!=='straight')throw new Error('Gerade Eckauswahl gehört nicht zu L/U.');
@@ -36,16 +45,18 @@ export function normalize(raw) {
   if(!corners.some(c=>c.id===raw.corner)) throw new Error('Unbekannte Eckausführung.');
   if(!object(raw.dimensions) || Object.keys(raw.dimensions).some(k=>!family.fields.includes(k)))
     throw new Error('Unzulässige Maßfelder.');
-  const dimensions=Object.fromEntries(family.fields.map(k=>[k,cmToMm(raw.dimensions[k])]));
-  const straightCorner=raw.straightCorner===undefined?undefined:validateStraightCorner(raw.straightCorner,cmToMm,dimensions);
+  const dimensions=Object.fromEntries(family.fields.map(k=>[k,convert(raw.dimensions[k])]));
+  const straightCorner=raw.straightCorner===undefined?undefined:validateStraightCorner(raw.straightCorner,convert,dimensions,{millimetres});
   let special={};
   if(['round','chamfer'].includes(raw.corner)) {
     if(!object(raw.special) || Object.keys(raw.special).some(k=>k!=='size')) throw new Error('Eckmaß fehlt oder ist unzulässig.');
-    special={size:cmToMm(raw.special.size)};
+    special={size:convert(raw.special.size)};
+    if(millimetres&&special.size%10)throw new Error('Eckmaß bitte in 10-mm-Schritten eingeben.');
   } else if(raw.special!==undefined && (!object(raw.special) || Object.keys(raw.special).length)) throw new Error('Eckmaß ist hier nicht zulässig.');
   const quantity=raw.quantity??1;
   if(!Number.isSafeInteger(quantity) || quantity<1 || quantity>1000) throw new Error('Menge muss eine ganze Zahl von 1 bis 1000 sein.');
-  return {schemaVersion:1,product:raw.product,geometry:raw.geometry,corner:straightCorner?.treatment==='round'?'round':raw.corner,dimensions,
+  const corner=straightCorner?.treatment?{round:'round',chamfer_square:'chamfer',chamfer_continuous:'continuous'}[straightCorner.treatment]:raw.corner;
+  return {schemaVersion:millimetres?2:1,...(millimetres?{unit:'mm'}:{}),product:raw.product,geometry:raw.geometry,corner,dimensions,
     ...(straightCorner?{straightCorner}:{}),
     special,material:raw.material,decor:raw.decor,edge:'matching-1.5',quantity};
 }

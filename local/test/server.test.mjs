@@ -35,6 +35,16 @@ test('only explicitly allowed files are served; private costs, test fixtures and
   assert.match(home.headers.get('content-security-policy'),/default-src 'self'/);
   assert.equal(home.headers.get('cache-control'),'no-store');
 });
+test('HTTP mm contract preserves physical size, blocks invalid corners and has no purchase endpoint',async t=>{
+ const {url,post}=await withServer(t);
+ const modern={...input,schemaVersion:2,inputUnit:'mm',productId:1000083,dimensions:{L1:'2000',B1:'600'},straightCorner:{side:'both',treatment:'chamfer_square',parameters:{L2:'200',B2:'150',L3:'280',B3:'200'}}};
+ const response=await post(modern);assert.equal(response.status,200);
+ const result=await response.json();assert.equal(result.config.dimensions.L1,2000);
+ assert.deepEqual(result.geometry.front,{from:[200,600],to:[1720,600]});
+ assert.equal(result.quote.purchasable,false);assert.equal(result.quote.price,null);assert.equal(result.quote.referenceMatched,false);
+ for(const patch of [{inputUnit:undefined},{schemaVersion:undefined},{productId:999985},{straightCorner:{...modern.straightCorner,parameters:{...modern.straightCorner.parameters,L3:'290'}}}])assert.equal((await post({...modern,...patch})).status,422);
+ for(const endpoint of ['/api/cart','/api/checkout'])assert.equal((await fetch(url+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...modern,purchasable:true,price:1})})).status,404);
+});
 test('foreign origins and hosts, oversize payloads and wrong content types are rejected',async t=>{
   const {url,post}=await withServer(t);
   assert.equal((await post(input,{Origin:'https://example.com'})).status,403);
