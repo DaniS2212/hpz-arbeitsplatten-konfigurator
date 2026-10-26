@@ -206,11 +206,26 @@ function updateCornerBounds(){
   }
   radiusWrap.querySelector('.a1-limit-note').textContent=limits.enabled?'Konservative Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.':customerMeasureError(limits.reason);
 }
-const controller=createPreviewController({request:async body=>{if(adapters.preview)return adapters.preview(body,{signal:abort.signal});throw new Error('Vorschauadapter fehlt. Kauf bleibt gesperrt.');},
-  onPending:()=>{if(disposed)return;valid=false;$('next').disabled=true;$('drawing').setAttribute('aria-busy','true');$('error').hidden=true;priceDisplay('Wird berechnet …','Deine Konfiguration');$('tax-note').textContent='';$('price-note').textContent='';summary(null);},
-  onResult:result=>{if(disposed)return;valid=true;lastGeometry=result.geometry;$('drawing').setAttribute('aria-busy','false');renderDrawing();summary(result.config);$('next').disabled=false;$('warnings').textContent=customerMeasureError(result.geometry.warnings.join(' '));
-    $('shape-note').textContent=product==='straight'?(straightTreatment==='chamfer_continuous'?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.':'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.'):`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`;
-    if(result.quote.status==='calculated-not-sale-approved'){
+function applyVisual(result){
+  if(disposed)return;
+  valid=true;
+  lastGeometry=result.geometry;
+  $('drawing').setAttribute('aria-busy','false');
+  renderDrawing();
+  summary(result.config);
+  $('next').disabled=false;
+  $('warnings').textContent=customerMeasureError(result.geometry.warnings.join(' '));
+  $('shape-note').textContent=product==='straight'
+    ?(straightTreatment==='chamfer_continuous'
+       ?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.'
+       :'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.')
+    :`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`;
+}
+const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});throw new Error('Vorschauadapter fehlt. Kauf bleibt gesperrt.');},
+  onPending:()=>{if(disposed)return;valid=false;$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
+   onVisual:applyVisual,
+  onResult:result=>{if(disposed)return;applyVisual(result);
+     if(result.quote.status==='calculated-not-sale-approved'){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Unverbindlicher Bruttopreis${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);
       $('tax-note').textContent=result.quote.taxNote;
       $('price-note').textContent=customerMeasureError(result.quote.availabilityNote);
@@ -259,6 +274,6 @@ if(embedded){
  shell.querySelector('#products').hidden=true;
  if(product==='straight')$('cart').textContent='Bestellung gesperrt · Admin-Test';
 }
-const handle={destroy(){if(disposed)return;disposed=true;abort.abort();for(const d of shadow.querySelectorAll('dialog'))if(d.open)d.close();shadow.replaceChildren();mounts.delete(root);},updateContext(next){return mountConfigurator(root,{...context,...next},adapters);}};
+const handle={destroy(){if(disposed)return;disposed=true;controller.cancel();abort.abort();for(const d of shadow.querySelectorAll('dialog'))if(d.open)d.close();shadow.replaceChildren();mounts.delete(root);},updateContext(next){return mountConfigurator(root,{...context,...next},adapters);}};
 mounts.set(root,handle);return handle;
 }
