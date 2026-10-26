@@ -66,13 +66,13 @@ test('the strong input highlight is identical in source and bundled WordPress st
 test('WordPress assets are cache-busted at 0.6.3 and retain the protected price adapter',async()=>{
   const wp=new URL('../wordpress/hpz-apl-admin-preview/',root);
   const php=await readFile(new URL('hpz-apl-admin-preview.php',wp),'utf8');
-  assert.match(php,/Version: 0\.6\.2/);
+  assert.match(php,/Version: 0\.6\.3/);
   const bootstrap=await readFile(new URL('assets/bootstrap.js',wp),'utf8');
-  assert.match(bootstrap,/component\.js\?v=0\.6\.2/);
-  assert.match(bootstrap,/preview\.js\?v=0\.6\.2/);
+  assert.match(bootstrap,/component\.js\?v=0\.6\.3/);
+  assert.match(bootstrap,/preview\.js\?v=0\.6\.3/);
   const js=await readFile(new URL('assets/component.js',wp),'utf8');
-  assert.match(js,/component\.css\?v=0\.6\.2/);
-  assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.2/);
+  assert.match(js,/component\.css\?v=0\.6\.3/);
+  assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.3/);
   assert.match(js,/Deine Konfiguration|function summary\(config\)/);
   assert.match(php,/woocommerce_is_purchasable/);
   assert.match(php,/woocommerce_store_api_cart_errors/);
