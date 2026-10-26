@@ -1,6 +1,6 @@
-import {mountConfigurator} from './hpz-apl-admin-preview/assets/component.js';
-import {preview} from './hpz-apl-admin-preview/assets/preview.js';
-import {DECOR_CATALOG} from './hpz-apl-admin-preview/assets/core/decor-catalog.js';
+import {mountConfigurator} from './assets/component.js';
+import {preview} from './assets/preview.js';
+import {DECOR_CATALOG} from './assets/core/decor-catalog.js';
 
 const result=document.getElementById('results'),root=document.getElementById('test-root');
 const failures=[],notes=[];const pause=ms=>new Promise(r=>setTimeout(r,ms));
