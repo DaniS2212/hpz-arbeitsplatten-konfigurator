@@ -8,6 +8,7 @@ on:
       - 'wordpress/serve-package-test.mjs'
       - 'wordpress/stability-browser-test.mjs'
       - 'wordpress/stability-ci-runner.mjs'
+      - 'wordpress/ui063-browser-runner.mjs'
       - '.github/workflows/decor-browser-stress.yml'
   workflow_dispatch:
 permissions:
@@ -27,3 +28,12 @@ jobs:
         run: npm install --no-save --no-package-lock playwright@1.55.1
       - name: Browser stress at desktop/mobile widths
         run: node wordpress/stability-ci-runner.mjs
+      - name: Küchenstudio 0.6.3 checkout summary, vertical labels, responsive finish
+        run: node wordpress/ui063-browser-runner.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hpz-studio-063-browser-screenshots
+          path: wordpress/ci-artifacts/*.png
+          if-no-files-found: ignore
+          retention-days: 7
