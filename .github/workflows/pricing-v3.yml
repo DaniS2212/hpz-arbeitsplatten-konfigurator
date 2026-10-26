@@ -1,0 +1,19 @@
+name: Price V3 Regression
+on:
+  pull_request:
+    paths:
+      - 'pricing-v3/**'
+      - 'docs/price-v3-reference-checks.csv'
+      - '.github/workflows/pricing-v3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php-price:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax
+        run: php -l pricing-v3/HPZ_APL_Price_V3.php && php -l pricing-v3/tests/run.php
+      - name: Price and margin regression
+        run: php pricing-v3/tests/run.php
