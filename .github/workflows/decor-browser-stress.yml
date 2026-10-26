@@ -1,0 +1,29 @@
+name: Dekor-Browser-Belastungstest
+on:
+  pull_request:
+    paths:
+      - 'local/**'
+      - 'design/**'
+      - 'wordpress/hpz-apl-admin-preview/**'
+      - 'wordpress/serve-package-test.mjs'
+      - 'wordpress/stability-browser-test.mjs'
+      - 'wordpress/stability-ci-runner.mjs'
+      - '.github/workflows/decor-browser-stress.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  decor-stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install temporary Chromium test runtime
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.1
+          npx playwright install --with-deps chromium
+      - name: Browser stress at desktop/mobile widths
+        run: node wordpress/stability-ci-runner.mjs
