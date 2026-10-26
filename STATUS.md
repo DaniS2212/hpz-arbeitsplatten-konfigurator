@@ -3,8 +3,9 @@
 ## Phase A1.1 – Plugin-Zwischenversion 0.3.0
 
 - Bestehendes Projekt von `main` / `16b2056` auf Featurebranch
-  `feature/a1-1-corners-mm-ux` fortgeführt. Pull Request zur Prüfung vorgesehen,
-  kein Merge. Alte Stände und ZIP 0.2.0 unverändert erhalten.
+  `feature/a1-1-corners-mm-ux` fortgeführt. [Pull Request #2](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/2)
+  zur Prüfung geöffnet, kein Merge. Implementierungscommit `1c43e94`.
+  Alte Stände und ZIP 0.2.0 unverändert erhalten.
 - Alle zehn geraden Eckzustände als Vorschau funktionsfähig: keine, links/rechts/
   beidseitig abgerundet, eckig abgeschrägt oder mit durchlaufender Vorderkante.
   Diagonalen und linke/rechte Sondermaße unabhängig. Durchlaufend sichtbar weich,
