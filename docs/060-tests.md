@@ -16,6 +16,7 @@ Stand 26.10.2026. Alle Prüfungen gegen das lokale Projekt und das lokal gebaute
 | Browser: Basis-Layout und Komponenten-Isolation | 4 Ansichtsbreiten + 12 Komponententests bestanden |
 | PHP-Preisvorschau im Browser | `250,1 cm` neu bepreist; `250,12 cm` zeigt Validierungsfehler, entfernt alten Preis und sperrt den nächsten Schritt; Kaufbutton bleibt deaktiviert |
 | Paket | 60 ZIP-Einträge bytegleich zu den Plugin-Dateien, inklusive neuer CSS-/cm-Assets und Dokumentation |
+| GitHub Actions auf PR #8 | „Konfigurator Vorschau CI“ und „Price V3 Regression“ erfolgreich, einschließlich PHP- und Node-Laufzeittests |
 
 Die automatisierten Tests führen `250,0→250,1 cm`, `278,0→278,1 cm` und `88,0→88,1 cm` als exakte mm-Übergaben zur unveränderten PHP-V3-Engine aus. Der WordPress-Testadapter prüft weiterhin alle 16 Dekore in beiden Stärken sowie Rollen, Nonce, Manipulation und fehlende Lieferbarkeit. L/U werden nur visuell dargestellt und erhalten keine V3-Verkaufspreise.
 
