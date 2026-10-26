@@ -1,5 +1,38 @@
 # Status – 26.10.2026
 
+## Aktuell: Zwischenversion 0.5.0 – geschützte V3-Preisvorschau
+
+- Auf dem gemergten Stand von PR #4 aufgebaut. Die unveränderte PHP-Preisregel
+  V3 aus PR #3 ist in das bestehende Plugin eingebunden; PR #1 und #3 wurden
+  nicht pauschal gemergt. Keine neue Kalkulationsformel.
+- Gerade 1000083: dynamischer, **unverbindlicher** Brutto-Referenzpreis für 16
+  Dekore und beide Stärken innerhalb der V3-Grenzen. Maße, Material, Dekor,
+  Ecken und Menge lösen die serverseitige Neuberechnung aus. Alte Antworten
+  dürfen neue Eingaben nicht überholen. L/U bleiben ohne V3-Preis.
+- Geschützter WordPress-AJAX-Endpunkt nur für Administratoren mit Bearbeitungsrecht,
+  aktiven Testmodus und Entwurf 1000083 samt korrekter SKU und Nonce. Antwort
+  enthält keine Lieferanten-EK oder Margen. Unbestätigte Lieferbarkeit und
+  Fertigungsmaße sind ausdrücklich gekennzeichnet. Keine Bestell-API.
+- Kauf- und Checkout-Sperren aus 0.4.0 bleiben wirksam; keine Produkte,
+  WCPA-Formulare oder Versandregeln geändert. Kein Liveshop-Zugriff oder
+  produktive Installation. UI-Anpassungen außerhalb der Preisanzeige sind für
+  0.6.0 (GitHub-Issue #5) zurückgestellt.
+- Vollständige lokale Prüfung: V3 **379 Assertions/72 historische EK-Fälle**,
+  Preisnormalisierung **97 PHP-Assertions**, WordPress-Testmodus **18 PHP-
+  Assertions**, Komponenten-/Paket-/HTTP-Regression **100 Node-Tests**; alle
+  bestanden. PHP-Testharness ist keine echte WordPress-/Flatsome-Installation.
+  Browser: Preiswechsel bei Maß, Menge und Dekor, gesperrter Kaufbutton,
+  Desktop- und 390-px-Mobilansicht geprüft. Nachweise in `docs/phase-050.md`,
+  `docs/050-tests.md`, `docs/050-desktop-preis.png` und
+  `docs/050-mobile-preis.png`.
+- ZIP: `dist/hpz-apl-admin-preview-0.5.0.zip`, 57 Einträge bytegleich geprüft,
+  SHA-256 `227C356BA9FDCFF16C9A853E1C0480E9D0BEF0374CEC92CA2014A926C07D5B15`.
+  [PR #7 zur Prüfung](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/7)
+  geöffnet, kein Merge. Implementierungscommit `1b868d3`; beide GitHub-
+  Prüfläufe „Konfigurator Vorschau CI“ und „Price V3 Regression“ erfolgreich.
+
+Die folgenden Abschnitte dokumentieren frühere Versionen.
+
 ## Aktuell: Zwischenversion 0.4.0 – 16 echte Dekorbilder
 
 - Basis: PR #2 vom Nutzer gemergt (`4f24337`). Neuer Featurebranch

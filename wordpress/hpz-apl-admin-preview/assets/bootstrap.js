@@ -7,9 +7,12 @@
       root.dataset.hpzMounted='loading';
       try{
         const [{mountConfigurator},{preview}]=await Promise.all([
-          import(new URL('./component.js?v=0.4.0',source).href),import(new URL('./preview.js?v=0.4.0',source).href)
+          import(new URL('./component.js?v=0.5.0',source).href),import(new URL('./preview.js?v=0.5.0',source).href)
         ]);
-        mountConfigurator(root,{productId:Number(root.dataset.productId),decorId:root.dataset.decorId??'H1145',presentationMode:'embedded'},{preview});
+        const pricePreview=root.dataset.priceEndpoint&&root.dataset.priceNonce
+          ? {url:root.dataset.priceEndpoint,nonce:root.dataset.priceNonce}:null;
+        mountConfigurator(root,{productId:Number(root.dataset.productId),decorId:root.dataset.decorId??'H1145',presentationMode:'embedded'},
+          {preview:(raw,{signal})=>preview(raw,{signal,pricePreview})});
         root.dataset.hpzMounted='ready';
       }catch(error){root.textContent='Die Testvorschau konnte nicht geladen werden. Kaufen bleibt gesperrt.';root.dataset.hpzMounted='error';console.error('HPZ APL Vorschau:',error);}
     }

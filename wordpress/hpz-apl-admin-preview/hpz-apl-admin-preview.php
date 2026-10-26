@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Holz-Liebling Arbeitsplatten – Admin-Vorschau
  * Description: Isolierter Konfigurator für drei bestehende Produktentwürfe. Ausschließlich Admin-Test; kein Verkauf.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -12,9 +12,11 @@
  */
 defined('ABSPATH') || exit;
 require_once __DIR__.'/includes/decor-catalog.php';
+require_once __DIR__.'/includes/price-v3.php';
+require_once __DIR__.'/includes/price-preview.php';
 
 final class HPZ_APL_Admin_Preview {
-    const VERSION = '0.4.0';
+    const VERSION = '0.5.0';
     const OPTION = 'hpz_apl_admin_preview';
     const PRODUCTS = array(1000083 => 'straight', 1000080 => 'l', 1000081 => 'u');
     private static $rendered = false;
@@ -25,6 +27,7 @@ final class HPZ_APL_Admin_Preview {
         add_action('template_redirect', array(__CLASS__, 'no_cache'));
         add_action('woocommerce_after_single_product_summary', array(__CLASS__, 'automatic'), 5);
         add_shortcode('hpz_apl_configurator', array(__CLASS__, 'shortcode'));
+        add_action('wp_ajax_hpz_apl_price_preview', array(__CLASS__, 'price_preview'));
         // Always closed for the three targets, independent of settings or draft status.
         add_filter('woocommerce_is_purchasable', array(__CLASS__, 'purchasable'), PHP_INT_MAX, 2);
         add_filter('woocommerce_variation_is_purchasable', array(__CLASS__, 'purchasable'), PHP_INT_MAX, 2);
@@ -62,6 +65,7 @@ final class HPZ_APL_Admin_Preview {
     }
     public static function render() {
         if (!self::allowed() || self::$rendered) return '';
+        $id=(int)get_queried_object_id();
         $decor = HPZ_APL_Decor_Catalog::resolve('H1145');
         if (!$decor) return ''; // Invalid/missing bundled mapping never gets a fallback.
         self::$rendered=true;
@@ -70,7 +74,47 @@ final class HPZ_APL_Admin_Preview {
         wp_register_style('hpz-apl-preview-host', $url.'host.css', array(), self::VERSION);
         ob_start(); wp_print_styles('hpz-apl-preview-host'); $css=ob_get_clean();
         wp_enqueue_script('hpz-apl-preview', $url.'bootstrap.js', array(), self::VERSION, true);
-        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren"><p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p><div data-hpz-apl-preview data-product-id="'.esc_attr(get_queried_object_id()).'" data-decor-id="'.esc_attr($decor['id']).'">Konfigurator wird geladen …</div></section>';
+        $priceAttrs=$id===1000083
+            ? ' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_price_preview')).'" data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_price_'.$id)).'"'
+            : '';
+        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren"><p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p><div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
+    }
+    public static function price_preview_allowed($id, $nonce) {
+        $o=self::options();
+        if (!is_int($id) || $id!==1000083 || !is_string($nonce) || $nonce===''
+            || !$o['enabled'] || !$o['test_mode'] || !is_user_logged_in()
+            || !current_user_can('manage_options') || !current_user_can('edit_post',$id)
+            || get_post_status($id)!=='draft' || get_post_type($id)!=='product'
+            || !function_exists('wc_get_product') || !wp_verify_nonce($nonce,'hpz_apl_price_'.$id)) return false;
+        $product=wc_get_product($id);
+        return $product && $product->get_sku()==='HPZ-APL-GERADE-2026';
+    }
+    public static function price_preview() {
+        if (($_SERVER['REQUEST_METHOD'] ?? '')!=='POST'
+            || strtolower(trim(explode(';',$_SERVER['CONTENT_TYPE'] ?? '')[0]))!=='application/json') {
+            wp_send_json_error(array('message'=>'JSON-Anfrage erforderlich.'),415);
+        }
+        $body=file_get_contents('php://input',false,null,0,16385);
+        if ($body===false || strlen($body)>16384) wp_send_json_error(array('message'=>'Anfrage zu groß.'),413);
+        $raw=json_decode($body,true);
+        if (!is_array($raw) || array_values($raw)===$raw) wp_send_json_error(array('message'=>'Ungültige Konfiguration.'),400);
+        $id=$raw['productId'] ?? null;
+        if (!self::price_preview_allowed($id,$_SERVER['HTTP_X_WP_NONCE'] ?? null)) {
+            wp_send_json_error(array('message'=>'Preisvorschau nur im freigegebenen Admin-Test.'),403);
+        }
+        try {
+            $country='';
+            if (function_exists('WC') && WC() && WC()->customer) $country=(string)WC()->customer->get_shipping_country();
+            $quote=HPZ_APL_Price_Preview::publicQuote($raw,$country);
+            wp_send_json_success(array('quote'=>$quote),200);
+        } catch (InvalidArgumentException $error) {
+            $message=$error->getMessage();
+            if (strpos($message,'Dimensions outside price V3')!==false) $message='Für diese Maße liegt noch keine V3-Preisvorschau vor.';
+            elseif (strpos($message,'corner')!==false || strpos($message,'Chamfer')!==false || strpos($message,'Round')!==false) $message='Bitte Eckmaße und Bearbeitung prüfen.';
+            wp_send_json_error(array('message'=>$message),422);
+        } catch (Throwable $error) {
+            wp_send_json_error(array('message'=>'Preisvorschau derzeit nicht verfügbar.'),500);
+        }
     }
     public static function purchasable($allowed, $product) {
         return self::target($product->get_id()) ? false : $allowed;

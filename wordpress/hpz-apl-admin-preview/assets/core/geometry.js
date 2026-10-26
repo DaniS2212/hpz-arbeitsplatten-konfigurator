@@ -1,4 +1,4 @@
-import {straightGeometry} from './straight-geometry.js?v=0.4.0';
+import {straightGeometry} from './straight-geometry.js?v=0.5.0';
 // L/U are explicitly generic family sketches. They are not Speedmaster L1–L4/U1–U4 definitions.
 export function geometry(config) {
   if(config.product==='straight'&&config.straightCorner)return straightGeometry(config);

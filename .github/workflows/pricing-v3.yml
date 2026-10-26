@@ -1,0 +1,36 @@
+name: Price V3 Regression
+on:
+  pull_request:
+    paths:
+      - 'pricing-v3/**'
+      - 'docs/price-v3-reference-checks.csv'
+      - 'wordpress/**'
+      - 'local/**'
+      - 'build-plugin.mjs'
+      - '.github/workflows/pricing-v3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php-price:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax
+        run: php -l pricing-v3/HPZ_APL_Price_V3.php && php -l pricing-v3/tests/run.php
+      - name: Price and margin regression
+        run: php pricing-v3/tests/run.php
+      - name: PHP preview syntax and security
+        run: |
+          php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
+          php -l wordpress/hpz-apl-admin-preview/includes/price-v3.php
+          php -l wordpress/hpz-apl-admin-preview/includes/price-preview.php
+          php wordpress/price-preview.test.php
+          php wordpress/price-ajax.test.php
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Component and HTTP integration regression
+        env:
+          HPZ_PHP_BIN: php
+        run: node --test local/test/*.test.mjs wordpress/*.test.mjs
