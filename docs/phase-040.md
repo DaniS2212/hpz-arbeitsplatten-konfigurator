@@ -50,5 +50,6 @@ ausdrücklich beauftragt. Keine Unteragenten.
 - Plugin-ZIP 0.4.0 erzeugt: 54 Einträge bytegleich zur Pluginquelle, darunter
   32 WebPs. SHA256 `EB8B6B05557A9CB9EEAC81312287C94631AC08A6002E9BDBA1E4C3A5C53575C6`.
   Alte ZIPs 0.2.0/0.3.0 unverändert; `docs/040-package-results.txt`.
-- Aufgabe 5: Screenshots, Protokolle und ZIP liegen vor. Neuer Pull Request
-  noch ausstehend, kein Merge.
+- Aufgabe 5 abgeschlossen: Screenshots, Protokolle und ZIP liegen vor;
+  [PR #4](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/4)
+  ist offen zur Prüfung, nicht gemergt. Implementierungscommit `a9050ca`.

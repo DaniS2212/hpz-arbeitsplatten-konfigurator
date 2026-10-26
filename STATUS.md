@@ -4,7 +4,8 @@
 
 - Basis: PR #2 vom Nutzer gemergt (`4f24337`). Neuer Featurebranch
   `feature/dekorbilder-040`. Vorbereitete Zuordnungen aus PR #1 / `8064a5a`
-  übernommen; PR #1 nicht gemergt oder verändert. Neuer PR zur Prüfung vorgesehen.
+  übernommen; PR #1 nicht gemergt oder verändert. [PR #4 zur Prüfung](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/4)
+  geöffnet, kein Merge. Implementierungscommit `a9050ca`.
 - Alle 16 vereinbarten Dekore mit kurzen Kundennamen und großen echten Bildkacheln
   integriert. Keine Hersteller-/Artikelnummern in der Kundenanzeige, keine Filter.
   Ausgewähltes Bild auch in SVG-Planung, Vergrößerung und Eckdetails.
