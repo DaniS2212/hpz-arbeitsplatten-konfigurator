@@ -22,7 +22,8 @@ test('active chamfer dimension is stronger in main drawing, while units and geom
   assert.match(active,/L3: 15 cm/);
   assert.match(active,/font-weight="800"/);
   assert.match(active,/#a34f1c/);
-  assert.match(active,/paint-order="stroke"/);
+  assert.match(active,/class="apl-measure-label"/);
+  assert.match(active,/fill="#fffaf3"/);
   assert.match(plain,/L3: 15 cm/);
   assert.doesNotMatch(plain,/data-field="L3" data-active="true"/);
   assert.equal(g.supplierMappingVerified,false,'UI emphasis must not approve fabrication');
@@ -65,13 +66,13 @@ test('the strong input highlight is identical in source and bundled WordPress st
 test('WordPress assets are cache-busted at 0.6.2 and retain the protected price adapter',async()=>{
   const wp=new URL('../wordpress/hpz-apl-admin-preview/',root);
   const php=await readFile(new URL('hpz-apl-admin-preview.php',wp),'utf8');
-  assert.match(php,/Version: 0\.6\.1/);
+  assert.match(php,/Version: 0\.6\.2/);
   const bootstrap=await readFile(new URL('assets/bootstrap.js',wp),'utf8');
-  assert.match(bootstrap,/component\.js\?v=0\.6\.1/);
-  assert.match(bootstrap,/preview\.js\?v=0\.6\.1/);
+  assert.match(bootstrap,/component\.js\?v=0\.6\.2/);
+  assert.match(bootstrap,/preview\.js\?v=0\.6\.2/);
   const js=await readFile(new URL('assets/component.js',wp),'utf8');
-  assert.match(js,/component\.css\?v=0\.6\.1/);
-  assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.1/);
+  assert.match(js,/component\.css\?v=0\.6\.2/);
+  assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.2/);
   assert.match(js,/Deine Konfiguration|function summary\(config\)/);
   assert.match(php,/woocommerce_is_purchasable/);
   assert.match(php,/woocommerce_store_api_cart_errors/);
