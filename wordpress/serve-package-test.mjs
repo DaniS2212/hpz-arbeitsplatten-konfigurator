@@ -14,6 +14,8 @@ export function createPackageTestServer({loadFile=readFile}={}){
 
  const url=new URL(req.url,'http://127.0.0.1:4174');
  if(url.pathname==='/__health'){res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify({ok:true,kind:'local-package-preview',decors:images.size,imageFailures}));return;}
+ if(url.pathname==='/stability-test.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(new URL('./stability-browser-test.mjs',import.meta.url)));return;}
+ if(url.pathname==='/stability-test'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html lang="de"><meta name="viewport" content="width=device-width"><h1>Dekor-Stabilitätstest</h1><pre id="results">Läuft …</pre><div id="test-root"></div><script type="module" src="/stability-test.js"></script></html>');return;}
  if(url.pathname==='/decor-test.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(new URL('./decor-browser-test.mjs',import.meta.url)));return;}
  if(url.pathname==='/decor-responsive-test.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(new URL('./decor-responsive-test.mjs',import.meta.url)));return;}
  if(url.pathname==='/decor-test'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html lang="de"><meta name="viewport" content="width=device-width"><h1>Dekor-Browserprüfungen</h1><pre id="results">Läuft …</pre><div id="test-root"></div><script type="module" src="/decor-test.js"></script></html>');return;}
