@@ -58,15 +58,25 @@ function renderRadiusInputs(){
   if(radiusWrap.hidden)return;
   radiusWrap.append(element('legend','',straightTreatment==='round'?'Deine Rundungen':'Deine Abschrägungen'));
   const keys=straightCorner(straightSide,straightTreatment).parameters;
+  const grids=new Map();
   for(const key of keys){
+    const side=['R1','L2','B2'].includes(key)?'left':'right';
+    const place=side==='left'?'vorne links':'vorne rechts';
+    if(!grids.has(side)){
+      const group=element('div','a1-corner-group');
+      group.setAttribute('role','group');group.setAttribute('aria-label',`Ecke ${place}`);
+      group.append(element('p','a1-corner-heading',side==='left'?'Linke Ecke':'Rechte Ecke'));
+      const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(side,grid);
+    }
     const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    const place=['R1','L2','B2'].includes(key)?'vorne links':'vorne rechts';
-    label.htmlFor=`dim-${key}`;label.textContent=key.startsWith('R')?`Radius ${place}`:`Abschrägung ${place} – ${key.startsWith('L')?'Länge':'Tiefe'}`;label.append(element('span','',key));
+    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':'Tiefe';
+    label.htmlFor=`dim-${key}`;label.textContent=property;label.append(element('span','',key));
     input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} error`);
+    input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{radiusValues[key]=input.value;refresh();});
     input.addEventListener('focus',()=>{active=key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
     const hint=element('p','microcopy');hint.id=`hint-${key}`;
-    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint);radiusWrap.append(wrap);
+    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint);grids.get(side).append(wrap);
   }
   radiusWrap.append(element('p','a1-limit-note','Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
 }
