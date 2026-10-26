@@ -1,6 +1,6 @@
-import {normalize} from './core/config.js?v=0.6.1';
-import {geometry} from './core/geometry.js?v=0.6.1';
-import {resolveProduct} from './core/products.js?v=0.6.1';
+import {normalize} from './core/config.js?v=0.6.2';
+import {geometry} from './core/geometry.js?v=0.6.2';
+import {resolveProduct} from './core/products.js?v=0.6.2';
 // Geometry remains visual. Only the PHP endpoint may supply a V3 gross reference.
 export async function preview(raw,{signal,pricePreview}={}) {
   const product=resolveProduct(raw);
