@@ -1,0 +1,25 @@
+name: Konfigurator Vorschau CI
+on:
+  pull_request:
+    paths:
+      - 'local/**'
+      - 'wordpress/**'
+      - 'build-plugin.mjs'
+      - '.github/workflows/configurator-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  module-and-php-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Node modules and bundled-asset regression
+        run: node --test local/test/*.test.mjs wordpress/*.test.mjs
+      - name: PHP syntax
+        run: php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php && php -l wordpress/hpz-apl-admin-preview/includes/decor-catalog.php && php -l wordpress/decor-catalog.test.php
+      - name: Execute previously skipped PHP resolver test
+        run: php wordpress/decor-catalog.test.php
