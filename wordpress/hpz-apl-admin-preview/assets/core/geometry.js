@@ -62,22 +62,29 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
   const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
   const trim=g.contourStatus==='schematic'?Math.min(font*.4,(g.front.to[0]-g.front.from[0])*.2):0;
+  // Put opaque, calm label plates in front of guide lines so dense corner
+  // dimensions remain readable on both textured and light surfaces.
+  const label=(text,x,y,{vertical=false,selected=false,corner=false}={})=>{
+    const size=font*(corner?.86:1)*(selected?1.12:1);
+    const width=(text.length*.57+.60)*size,height=size*1.40;
+    return `<g class="apl-measure-label" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
+  };
   const measures=(detail?[]:g.dimensions).map(d=>{
     const vertical=d.from[0]===d.to[0], offset=pad*(g.cornerDimensions?.length&&d.id==='B1'?.95:.45)*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const selected=d.id===active,color=selected?'#a34f1c':'#365861';
-    const textX=(a[0]+b[0])/2, textY=(a[1]+b[1])/2-font*0.5;
+    const textX=(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0), textY=(a[1]+b[1])/2-(vertical?0:font*.75);
     return `<g class="apl-measure" data-field="${escapeXml(d.id)}" data-active="${d.id===active}" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
-      <text x="${textX}" y="${textY}" text-anchor="middle" stroke="${selected?'#fffefb':'none'}" stroke-width="${selected?font*.22:0}" paint-order="stroke" font-weight="${selected?800:400}" font-size="${font*(selected?1.16:1)}" ${vertical?`transform="rotate(-90 ${textX} ${(a[1]+b[1])/2})"`:''}>${escapeXml(d.id)}: ${measure(d.mm)}</text></g>`;
+      ${label(`${d.id}: ${measure(d.mm)}`,textX,textY,{vertical,selected})}</g>`;
   }).join('');
   const radii=(g.cornerArcs??[]).filter(a=>!detail||a.side===detail).map(a=>{
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
     const x=a.side==='left'?g.width*.18:g.width*.82,y=g.height+pad*.65;
     const tx=a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.sqrt(2),ty=a.center[1]+a.radiusMm/Math.sqrt(2);
-    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/><text x="${x}" y="${y}" fill="${color}" text-anchor="middle" stroke="${selected?'#fffefb':'none'}" stroke-width="${selected?font*.22:0}" paint-order="stroke" font-weight="${selected?800:400}" font-size="${font*(selected?1.16:1)}">${a.id}: ${measure(a.radiusMm)}</text></g>`:''}</g>`;
+    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(`${a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
     const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
@@ -89,8 +96,8 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
     const vertical=d.axis==='vertical',selected=d.id===active,color=selected?'#a34f1c':'#365861';
     const offset=vertical?(d.side==='left'?-pad*.42:pad*.40):pad*.60;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
-    const x=vertical?a[0]-font*.35:Math.max(font*2.8,Math.min(g.width-font*2.8,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.35;
-    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" stroke="${selected?'#fffefb':'none'}" stroke-width="${selected?font*.22:0}" paint-order="stroke" font-weight="${selected?800:400}" font-size="${font*(selected?1.16:1)}" ${vertical?`transform="rotate(-90 ${x} ${y})"`:''}>${d.id}: ${measure(d.mm)}</text></g>`;
+    const x=vertical?a[0]+(d.side==='left'?-font*.9:font*.9):Math.max(font*3,Math.min(g.width-font*3,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
+    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
   let viewBox=`${-pad} ${-pad} ${g.width+pad*2.3} ${g.height+pad*2}`;
   let frontX=g.width/2;
@@ -102,13 +109,13 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
     frontX=detail==='left'?extent*.5:g.width-extent*.5;
   }
   const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.25}" text-anchor="middle" fill="#146178" font-size="${font*.8}">Vorderkante</text></g>`:'';
-  const schematicNote=g.contourStatus==='schematic'?`<text class="schematic-label" x="${frontX}" y="${g.height+pad*.92}" text-anchor="middle" fill="#596252" font-size="${font*.62}">Übergänge schematisch</text>`:'';
+  const schematicNote=''; // the adjacent shape-note provides the non-manufacturing disclaimer
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${escapeXml(g.title+(detail?' · Detail '+(detail==='left'?'vorne links':'vorne rechts'):''))}" style="width:100%;height:auto;max-height:560px">
     <title>${escapeXml(g.title)}</title><desc>Maße in ${unit==='cm'?'Zentimetern':'Millimetern'}. Ungeprüfte Vorschau, keine Fertigungszeichnung.</desc>
     <defs><marker id="apl-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 10 0 L 0 5 L 10 10" fill="#354b46"/></marker>
     <linearGradient id="apl-white" x2=".2" y2="1"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#e8e7df"/></linearGradient>
     <pattern id="apl-oak" width="360" height="160" patternUnits="userSpaceOnUse"><rect width="360" height="160" fill="#c49b68"/>
     <path d="M-40 20 Q100 1 400 18 M-40 44 Q190 68 400 34 M-40 86 Q150 55 400 94 M-40 121 Q150 143 400 116 M-40 150 Q150 129 400 152" fill="none" stroke="#a77b4d" stroke-width="5" opacity=".46"/>
-    <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}</defs>
+    <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><rect width="${g.width}" height="${g.height}" fill="#e9eeec"/><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}</defs>
     <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" stroke="#8c887a" stroke-width="${font/12}"/>${front}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
 }
