@@ -153,7 +153,7 @@ function summary(config){
   else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
   rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
   if(product==='straight'){
-    const location={none:'Ohne Bearbeitung',left:'Vorne links',right:'Vorne rechts',both:'Vorne links & rechts'}[straightSide];
+    const location={none:'Ohne Bearbeitung',left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
     const finish={round:'Abgerundet',chamfer_square:'Eckig abgeschrägt',chamfer_continuous:'Vorderkante durchlaufend'}[straightTreatment];
     rows.push(['Ecken',straightSide==='none'?location:`${location} · ${finish}`]);
     const p=config?.straightCorner?.parameters;
