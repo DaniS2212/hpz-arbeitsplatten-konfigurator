@@ -3,7 +3,7 @@ export function createPreviewController({request,onPending,onResult,onError}) {
   return {async refresh(payload) {
     const current=++serial;
     onPending();
-    try {const result=await request(payload);if(current===serial)onResult(result);}
+    try {const result=await request(typeof payload==='function'?payload():payload);if(current===serial)onResult(result);}
     catch(error) {if(current===serial)onError(error);}
   }};
 }

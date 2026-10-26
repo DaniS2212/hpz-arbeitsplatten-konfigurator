@@ -77,9 +77,10 @@ test('shared L/U mm inputs preserve their v1 contours and physical dimensions',(
   assert.deepEqual(modern.dimensions,legacy.dimensions);assert.equal(geometry(modern).path,geometry(legacy).path);
  }
 });
-test('current visible template consistently uses mm; legacy cm API is not exposed as UI',()=>{
- assert.doesNotMatch(template,/\bcm\b|Zentimeter|einer Nachkommastelle/);
- assert.match(template,/Alle Maße in mm/);assert.match(template,/1-mm-Schritte/);assert.match(template,/10-mm-Schritte/);
+test('customer template uses centimetres for lengths while slab and edging thickness stay in mm',()=>{
+ assert.match(template,/Maße in cm/);assert.match(template,/inputmode="decimal" value="10"><span>cm/);
+ assert.match(template,/0,1 cm/);assert.match(template,/1,5 mm im gleichen Dekor/);
+ assert.doesNotMatch(template,/Trage deine Maße in Millimetern|Alle Maße in mm/);
 });
 test('mobile corner details omit unrelated measures and disclose schematic transitions',()=>{
  const g=geometry(normalize(input('both','chamfer_continuous'))),left=svg(g,'L2',{detail:'left'}),right=svg(g,'B3',{detail:'right'});

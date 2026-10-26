@@ -1,4 +1,6 @@
-# Installation – Admin-Test 0.5.0 (V3-Preisvorschau)
+# Installation – Admin-Test 0.6.0 (Küchenstudio-Vorschau)
+
+Neu in 0.6.0: integrierte Küchenstudio-Oberfläche mit heller Zeichenfläche und Petrol-Akzenten. Kundenmaße stehen in Eingaben und Zeichnungen in cm mit optionaler Zehntelstelle; intern bleiben alle Maße ganze Millimeter. Die V3-Preisregel aus 0.5.0 und die Kaufsperren sind unverändert. Details: **KUECHENSTUDIO-0.6.0.md**.
 
 Neu in 0.5.0: Auf dem geraden Produktentwurf 1000083 fragt die vorhandene
 Konfigurator-Komponente den Bruttopreis beim geschützten WordPress-Endpunkt ab.
@@ -21,8 +23,8 @@ getrennt; es gibt weiterhin keine Verkaufsfreigabe. Technische Hinweise
 und Testumfang stehen in **DEKORE-0.4.0.md**.
 
 Erhalten aus 0.3.0: alle zehn geraden Eckzustände als Vorschau, einschließlich unabhängiger
-eckiger und durchlaufender Abschrägungen vorne links/rechts. Sämtliche sichtbaren
-Maße in mm; Länge/Tiefe in 1-mm-, Ecken in 10-mm-Schritten. Die durchlaufende
+eckiger und durchlaufender Abschrägungen vorne links/rechts. Der technische
+V2-Eingabevertrag bleibt in mm; sichtbar sind die Maße seit 0.6.0 in cm. Die durchlaufende
 Ausführung ist schematisch und vorerst nur bei 2000 × 600 mm mit Schrägenlänge
 60–500 und Schrägentiefe 60–300 mm nutzbar. Grenzen und fehlende Nachweise:
 **A1.1-NACHWEISE.md**, Eingabeformat: **MILLIMETER-VERTRAG.md**.
@@ -31,7 +33,7 @@ Kein Produkt erhält eine Fertigungs- oder Verkaufsfreigabe.
 Die frühere 0.1.0-Adminansicht wurde laut Nutzer auf Flatsome bestätigt;
 diese neue Version wurde bisher lokal geprüft.
 
-Für ein Update nach Sichtfreigabe die neue 0.5.0-ZIP über „Plugin hochladen“
+Für ein Update nach Sichtfreigabe die neue 0.6.0-ZIP über „Plugin hochladen“
 wählen und WordPress die vorhandene Version ersetzen lassen. Keine zweite Kopie
 parallel installieren. Bestehende Plugin-Einstellungen bleiben unter demselben
 Optionsnamen erhalten. Die ZIPs 0.1.0, 0.2.0 und 0.3.0 sind unverändert verfügbar.

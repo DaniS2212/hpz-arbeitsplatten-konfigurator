@@ -24,6 +24,6 @@ try{
   s.querySelector('#materials input[value="APL17.5"]').checked=true;s.querySelector('#materials input[value="APL17.5"]').dispatchEvent(new Event('change',{bubbles:true}));await ready(s);check(productId+': Materialwechsel erhält gewähltes Dekor',s.querySelector('input[name="decor"]:checked').value==='44405'&&s.querySelector('#summary').innerText.includes('17,5 mm'));
  }
  check('Unbekanntes Startdekor wird abgelehnt',(()=>{try{mountConfigurator(root,{presentationMode:'embedded',productId:1000083,decorId:'WRONG'},{preview});return false;}catch{return true;}})());
- check('Hauptüberschrift in Du-Ansprache',root.shadowRoot.querySelector('[data-step="0"] h2').textContent==='Deine Arbeitsplatte konfigurieren');
+ check('U-Form bleibt bei Grundriss ohne doppelten Produkttitel',root.shadowRoot.querySelector('[data-step="0"] h2').textContent==='Grundriss wählen'&&root.shadowRoot.querySelector('#steps .step-label').textContent==='Grundriss');
  result.textContent+='\nFERTIG: '+lines.length+' Dekor-Browserprüfungen bestanden.';
 }catch(error){result.textContent=lines.join('\n')+'\nFEHLER: '+error.message;}

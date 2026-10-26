@@ -19,13 +19,15 @@ createServer(async(req,res)=>{
  if(url.pathname==='/a1-test'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html lang="de"><meta name="viewport" content="width=device-width"><h1>A1 Browserprüfungen</h1><pre id="results">Läuft …</pre><div id="test-root"></div><script type="module" src="/a1-test.js"></script></html>');return;}
  if(url.pathname==='/review'){
   const width=['360','390','1366','1440'].includes(url.searchParams.get('width'))?url.searchParams.get('width'):'1366';
-  res.setHeader('Content-Type','text/html; charset=utf-8');res.end(`<!doctype html><html lang="de"><title>A1.1 ${width}px Layoutprobe</title><style>body{margin:0;background:#ddd}iframe{display:block;width:${width}px;height:844px;border:0}</style><iframe title="A1 Layoutprobe" src="/?sticky=1"></iframe></html>`);return;
+  const step=url.searchParams.get('step')==='2'?2:0;
+  const scroll=Math.max(0,Math.min(1000,Number(url.searchParams.get('scroll'))||0));
+  res.setHeader('Content-Type','text/html; charset=utf-8');res.end(`<!doctype html><html lang="de"><title>0.6.0 ${width}px Layoutprobe</title><style>body{margin:0;background:#ddd}iframe{display:block;width:${width}px;height:844px;border:0}</style><iframe title="Arbeitsplatten-Layoutprobe" src="/?sticky=1"></iframe><script>if(${step}===2||${scroll}>0){const frame=document.querySelector('iframe');frame.addEventListener('load',()=>{const run=()=>{const s=frame.contentDocument.querySelector('[data-hpz-apl-preview]')?.shadowRoot;if(!s?.querySelector('#drawing svg'))return setTimeout(run,50);if(${step}===2)s.querySelector('#steps button:nth-child(3)').click();frame.contentWindow.scrollTo(0,${scroll});};run();});}</script></html>`);return;
  }
  if(url.pathname==='/'){
   res.setHeader('Content-Type','text/html; charset=utf-8');
   res.end(`<!doctype html><html lang="de"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plugin-Pakettest</title><style>body{margin:20px;font-family:system-ui}main{max-width:1350px;margin:auto}button{background:magenta}h1{font-size:24px}.test-header{position:sticky;top:0;background:#17677a;color:white;height:80px;z-index:50;display:flex;align-items:center;padding:15px}</style><link rel="stylesheet" href="/assets/host.css">${url.searchParams.get('sticky')==='1'?'<header class="test-header">Shopheader · Testhöhe 80 px</header>':''}<main><h1>Plugin-Pakettest – vorhandener Produktkopf</h1><section class="hpz-apl-admin-preview"><p class="hpz-apl-test-notice">Admin-Test · Kein Verkauf</p><div data-hpz-apl-preview data-product-id="${['1000083','1000080','1000081'].includes(url.searchParams.get('productId'))?url.searchParams.get('productId'):'1000083'}"></div></section><h2>Vorhandene Beschreibung</h2></main><script src="/assets/bootstrap.js"></script></html>`);return;
  }
  if(url.pathname.startsWith('/assets/decors/')&&images.has(url.pathname.slice('/assets/decors/'.length))){res.setHeader('Content-Type','image/webp');res.end(await readFile(new URL(url.pathname.slice(1),root)));return;}
- if(!/^\/assets\/(?:core\/)?[a-z-]+\.(js|css)$/.test(url.pathname)){res.writeHead(404);res.end();return;}
+ if(!/^\/assets\/(?:core\/)?[a-z0-9-]+\.(js|css)$/.test(url.pathname)){res.writeHead(404);res.end();return;}
  try{const data=await readFile(new URL(url.pathname.slice(1),root));res.setHeader('Content-Type',url.pathname.endsWith('.css')?'text/css':'text/javascript');res.end(data);}catch{res.writeHead(404);res.end();}
 }).listen(port,'127.0.0.1',()=>console.log('Package-only browser test http://127.0.0.1:'+port));

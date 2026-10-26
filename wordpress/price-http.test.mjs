@@ -4,6 +4,7 @@ import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
 import {once} from 'node:events';
 import {fileURLToPath} from 'node:url';
+import {cmInputToMmText} from '../local/core/customer-measures.mjs';
 
 const cwd=fileURLToPath(new URL('../',import.meta.url));
 const plugin=fileURLToPath(new URL('./hpz-apl-admin-preview/',import.meta.url));
@@ -34,6 +35,12 @@ test('actual PHP WordPress-test adapter: admin gate, V3 prices and no internal d
   assert.equal((await send(input('W980','APL17.5','2501','880'))).data.data.quote.unitGrossReferenceCents,74000);
   assert.equal((await send(input('W980','APL38','2781','600'))).data.data.quote.unitGrossReferenceCents,89000);
   assert.equal((await send(input('W980','APL38','2500','881'))).data.data.quote.unitGrossReferenceCents,149000);
+  for(const [material,one,two,depth] of [['APL17.5','250','250,1','60'],['APL38','278','278,1','60'],['APL38','250','250','88']]){
+    const before=input('W980',material,cmInputToMmText(one),cmInputToMmText(depth));
+    const after=input('W980',material,cmInputToMmText(two),cmInputToMmText(depth==='88'?'88,1':depth));
+    const a=(await send(before)).data.data.quote.unitGrossReferenceCents,b=(await send(after)).data.data.quote.unitGrossReferenceCents;
+    assert.notEqual(a,b,`${material}: ${one}→${two} cm, ${depth} cm`);
+  }
   const two=input('W980','APL17.5','2000','600',2);assert.equal((await send(two)).data.data.quote.totalGrossReferenceCents,90000);
   for(const mode of ['visitor','no-test','disabled','published','wrong-sku'])assert.equal((await send(input(),mode)).status,403,mode);
   assert.equal((await send(input(),'','bad')).status,403,'bad nonce');

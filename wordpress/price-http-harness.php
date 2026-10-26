@@ -35,7 +35,7 @@ if ($path==='/admin-ajax.php' && ($_GET['action']??'')==='hpz_apl_price_preview'
 }
 if ($path==='/') {
     header('Content-Type: text/html; charset=utf-8');
-    echo '<!doctype html><html lang="de"><meta name="viewport" content="width=device-width,initial-scale=1"><title>0.5.0 – WordPress-Testmodus</title><style>body{margin:20px;font-family:system-ui;background:#fff}main{max-width:1350px;margin:auto}.fixture{margin-bottom:18px;color:#17677a;font-weight:600}</style><main><p class="fixture">Lokaler WordPress-Testmodus · bestehender Produktkopf</p>';
+    echo '<!doctype html><html lang="de"><meta name="viewport" content="width=device-width,initial-scale=1"><title>0.6.0 – WordPress-Testmodus</title><style>body{margin:20px;font-family:system-ui;background:#f7f8f6}main{max-width:1350px;margin:auto}.fixture{margin-bottom:18px;color:#153f48;font-weight:600}</style><main><p class="fixture">Lokaler WordPress-Testmodus · bestehender Produktkopf</p>';
     echo HPZ_APL_Admin_Preview::render();
     echo '<p class="fixture">Bestehende ausführliche Produktbeschreibung</p></main><script src="/assets/bootstrap.js"></script></html>';
     exit;
