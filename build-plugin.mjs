@@ -32,8 +32,11 @@ await copyFile(new URL('docs/phase-a1-evidence.md',base),new URL('../A1-NACHWEIS
 await copyFile(new URL('docs/phase-a1-1-evidence.md',base),new URL('../A1.1-NACHWEISE.md',out));
 await copyFile(new URL('docs/input-contract-v2.md',base),new URL('../MILLIMETER-VERTRAG.md',out));
 await copyFile(new URL('docs/040-decor-integration.md',base),new URL('../DEKORE-0.4.0.md',out));
+await copyFile(new URL('docs/phase-050.md',base),new URL('../PREISVORSCHAU-0.5.0.md',out));
+await mkdir(new URL('../includes/',out),{recursive:true});
+await copyFile(new URL('pricing-v3/HPZ_APL_Price_V3.php',base),new URL('../includes/price-v3.php',out));
 await mkdir(new URL('decors/',out),{recursive:true});
 for(const decor of DECOR_CATALOG)for(const file of [decor.imageFilename,decor.thumbnailFilename])await copyFile(new URL('local/public/decors/'+file,base),new URL('decors/'+file,out));
 await mkdir(new URL('../data/',out),{recursive:true});
 await writeFile(new URL('../data/decors.json',out),JSON.stringify({version:DECOR_CATALOG_VERSION,items:DECOR_CATALOG.map(({id,supplierCode,displayName})=>({id,supplierCode,displayName}))},null,2)+'\n');
-console.log('Plugin assets bundled; original demo and pricing unchanged.');
+console.log('Plugin assets and unchanged PHP V3 engine bundled; local demo pricing unchanged.');

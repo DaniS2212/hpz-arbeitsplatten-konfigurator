@@ -1,10 +1,10 @@
-import {catalog,mmTextToMm} from './core/config.js?v=0.4.0';
-import {svg} from './core/geometry.js?v=0.4.0';
-import {createPreviewController} from './latest.js?v=0.4.0';
-import {template} from './component-template.js?v=0.4.0';
-import {resolveProduct} from './core/products.js?v=0.4.0';
-import {decorImageUrl} from './decor-images.js?v=0.4.0';
-import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.4.0';
+import {catalog,mmTextToMm} from './core/config.js?v=0.5.0';
+import {svg} from './core/geometry.js?v=0.5.0';
+import {createPreviewController} from './latest.js?v=0.5.0';
+import {template} from './component-template.js?v=0.5.0';
+import {resolveProduct} from './core/products.js?v=0.5.0';
+import {decorImageUrl} from './decor-images.js?v=0.5.0';
+import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.5.0';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -14,7 +14,7 @@ export function mountConfigurator(root,context={},adapters={}){
  mounts.get(root)?.destroy();
  const shadow=root.shadowRoot||root.attachShadow({mode:'open'});
  const shell=document.createElement('div');shell.className='hpz-apl';shell.dataset.mode=embedded?'embedded':'demo';
- const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.4.0',import.meta.url).href;
+ const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.5.0',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
  function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}
@@ -159,10 +159,17 @@ function updateCornerBounds(){
   radiusWrap.querySelector('.a1-limit-note').textContent=limits.enabled?'Konservative Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.':limits.reason;
 }
 const controller=createPreviewController({request:async body=>{if(adapters.preview)return adapters.preview(body,{signal:abort.signal});throw new Error('Vorschauadapter fehlt. Kauf bleibt gesperrt.');},
-  onPending:()=>{if(disposed)return;valid=false;$('next').disabled=true;$('drawing').setAttribute('aria-busy','true');$('error').hidden=true;priceDisplay('Wird geprüft …','Deine Konfiguration');$('tax-note').textContent='';$('price-note').textContent='';summary(null);},
+  onPending:()=>{if(disposed)return;valid=false;$('next').disabled=true;$('drawing').setAttribute('aria-busy','true');$('error').hidden=true;priceDisplay('Wird berechnet …','Deine Konfiguration');$('tax-note').textContent='';$('price-note').textContent='';summary(null);},
   onResult:result=>{if(disposed)return;valid=true;lastGeometry=result.geometry;$('drawing').setAttribute('aria-busy','false');renderDrawing();summary(result.config);$('next').disabled=false;$('warnings').textContent=result.geometry.warnings.join(' ');
     $('shape-note').textContent=product==='straight'?(straightTreatment==='chamfer_continuous'?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.':'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.'):`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`;
-    if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Rechenbeispiel zum belegten Referenzpreis, unter der Annahme einer ungeteilten Platte. Noch kein verbindliches Angebot.';}
+    if(result.quote.status==='calculated-not-sale-approved'){
+      priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Unverbindlicher Bruttopreis${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);
+      $('tax-note').textContent=result.quote.taxNote;
+      $('price-note').textContent=result.quote.availabilityNote;
+    }else if(['unpriced','unavailable'].includes(result.quote.status)){
+      priceDisplay('Preis offen','Unverbindliche Vorschau');$('tax-note').textContent='Kundenversand separat';
+      $('price-note').textContent=result.quote.message||'Für diese Kombination liegt noch keine Preisvorschau vor.';
+    }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Rechenbeispiel zum belegten Referenzpreis, unter der Annahme einer ungeteilten Platte. Noch kein verbindliches Angebot.';}
     else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
   },onError:error=>{if(disposed)return;valid=false;lastGeometry=null;$('drawing').replaceChildren();$('drawing').setAttribute('aria-busy','false');$('large-drawing').replaceChildren();$('error').textContent=error.message;$('error').hidden=false;$('shape-note').textContent='Bitte korrigiere die markierten Maße. Die letzte Kontur wird bei ungültigen Werten entfernt.';priceDisplay('Noch offen','Bitte Maße prüfen');$('price-note').textContent='Für diese Eingabe ist keine gültige Vorschau verfügbar.';}
 });

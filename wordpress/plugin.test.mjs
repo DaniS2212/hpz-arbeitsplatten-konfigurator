@@ -40,13 +40,19 @@ test('plugin update versions bootstrap and all component module imports consiste
  for(const [,path] of component.matchAll(/from ['"]([^'"]+)['"]/g))assert.ok(path.endsWith(`?v=${version}`));
  assert.ok(component.includes(`component.css?v=${version}`));
 });
-test('bundled import graph complete, relative and has no fetch or external assets',async()=>{
+test('bundled import graph complete, relative and only the price adapter may fetch',async()=>{
  async function scan(path){for(const file of await readdir(path,{withFileTypes:true})) {
   const url=new URL(file.name+(file.isDirectory()?'/':''),path);
   if(file.isDirectory()){await scan(url);continue;}
   if(!/\.(js|css)$/.test(file.name))continue;
   const code=await readFile(url,'utf8');
-  assert.doesNotMatch(code.replaceAll('http://www.w3.org/2000/svg',''),/localhost|127\.0\.0\.1|fetch\(|\/api\/|https?:\/\//);
+  const local=code.replaceAll('http://www.w3.org/2000/svg','');
+  assert.doesNotMatch(local,/localhost|127\.0\.0\.1|\/api\//);
+  if(file.name==='preview.js'){
+   assert.match(local,/fetch\(endpoint\.href/);
+   assert.match(local,/endpoint\.origin!==location\.origin/);
+   assert.doesNotMatch(local,/https?:\/\//);
+  }else assert.doesNotMatch(local,/fetch\(|https?:\/\//);
   for(const match of code.matchAll(/from ['"]([^'"]+)['"]/g)){assert.ok(match[1].startsWith('.'));await readFile(new URL(match[1],url));}
  }}
  await scan(new URL('assets/',dir));
