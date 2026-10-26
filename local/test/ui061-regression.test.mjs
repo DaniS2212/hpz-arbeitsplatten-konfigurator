@@ -62,7 +62,7 @@ test('the strong input highlight is identical in source and bundled WordPress st
   assert.match(source,/\.a1-radius-field\.active-dimension/);
   assert.match(source,/border:2px solid #146178/);
 });
-test('WordPress assets are cache-busted at 0.6.1 and retain the protected price adapter',async()=>{
+test('WordPress assets are cache-busted at 0.6.2 and retain the protected price adapter',async()=>{
   const wp=new URL('../wordpress/hpz-apl-admin-preview/',root);
   const php=await readFile(new URL('hpz-apl-admin-preview.php',wp),'utf8');
   assert.match(php,/Version: 0\.6\.1/);
