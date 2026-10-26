@@ -1,0 +1,22 @@
+A1.1 Paketprüfung – 26.10.2026
+
+Plugin 0.3.0 erfolgreich mit build-plugin.mjs und package-plugin.ps1 gebaut.
+ZIP: dist/hpz-apl-admin-preview-0.3.0.zip
+SHA256: CE4F0E052C79163613384F4A6EA22F936CE6131BD96042F671C80BECE51D5629
+Größe: 45360 Bytes
+17 ZIP-Dateieinträge entsprechen vollständig und bytegenau dem Plugin-Quellordner.
+ZIP-Pfade verwenden den einzelnen Plugin-Wurzelordner hpz-apl-admin-preview/.
+
+Unverändertes ZIP 0.2.0:
+SHA256: A639376FB19032F3C8749604AD14ACA618BF9918073B77CC49E09C1E086E0A9D
+
+85 Node-Tests bestanden, einschließlich aller zehn Zustände über den gebündelten
+mm-Adapter, vollständigem relativem Modulgraph und statischen PHP-Schutzverträgen.
+Keine lokalen Server-, fetch-, API- oder externen Asset-Abhängigkeiten im Bundle.
+Preisengine/Preisregel V2/Produktzuordnung ohne Diff; PHP nur Version geändert.
+Diff-Whitespace mit CRLF-Unterstützung geprüft; kein Treffer im Scan auf typische
+Token-/Private-Key-Muster und keine ausgeschlossenen Zugangsdaten-Dateinamen.
+Das ist eine begrenzte lokale Prüfung, kein unabhängiger Sicherheitsaudit.
+
+Keine PHP-Laufzeit vorhanden: Aktivierung und WordPress-/Flatsome-Laufzeitprüfung
+der neuen Version weiterhin offen. Keine automatische Installation/Veröffentlichung.

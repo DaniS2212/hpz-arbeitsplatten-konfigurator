@@ -1,4 +1,55 @@
-# Status – 22.10.2026
+# Status – 26.10.2026
+
+## Phase A1.1 – Plugin-Zwischenversion 0.3.0
+
+- Bestehendes Projekt von `main` / `16b2056` auf Featurebranch
+  `feature/a1-1-corners-mm-ux` fortgeführt. Pull Request zur Prüfung vorgesehen,
+  kein Merge. Alte Stände und ZIP 0.2.0 unverändert erhalten.
+- Alle zehn geraden Eckzustände als Vorschau funktionsfähig: keine, links/rechts/
+  beidseitig abgerundet, eckig abgeschrägt oder mit durchlaufender Vorderkante.
+  Diagonalen und linke/rechte Sondermaße unabhängig. Durchlaufend sichtbar weich,
+  ausdrücklich schematisch ohne erfundene Fertigungsradien oder Flächenangabe.
+- Vier neue Speedmaster-Screenshots unverändert als Quellen unter
+  `docs/references/speedmaster-a1-1/` gesichert und ausgewertet.
+  Nachweise und gezielt offene technische Fragen: `docs/phase-a1-1-evidence.md`.
+- Eigene konservative Vorschaupolitik: eckig `L ≤ 1,40 × B`, Abrundung auf
+  10-mm-Grenzen, mindestens 50 mm Restfront/Hinterkante bei Schrägen;
+  durchlaufend vorerst nur 2000 × 600 mm und Sondermaße L 60–500/B 60–300 mm.
+  Keine allgemeine Lieferantenfreigabe. Grenzen erscheinen dynamisch am Feld.
+- Durchgehend sichtbare mm, Plattenmaße in 1-mm-/Eckmaße in 10-mm-Schritten.
+  Expliziter Eingabevertrag Version 2 + mm; unveränderte Legacy-cm-Eingabe separat
+  erhalten, kein stiller Faktor 10. Gemeinsame L/U-Felder umgestellt, deren
+  Konstruktion/Teilungen nicht verändert. Vertrag: `docs/input-contract-v2.md`.
+- Kundenfreundliche Seitenauswahl mit Minizeichnungen, direkte Hervorhebung,
+  Bearbeitungsvergleich, kurze Infodialoge, verständliche Sonderfelder.
+  Vergrößerte mobile Zeichnung öffnet bei aktiver Ecke deren Detail;
+  Gesamt-/Links-/Rechtsansicht wählbar. ≥16-px-Eingaben, 44-px-Auswahlziele,
+  Sticky-Header-Abstand, normale Desktop-Breite erhalten.
+- Tests: 85 Node-Prüfungen bestanden (61 vorhandene + 24 neue),
+  46 Browser-Funktionsprüfungen, 12 bestehende Isolations-/Lebenszyklusprüfungen,
+  vier bestehende Layoutfälle und zwölf neue Layoutfälle bei 360/390/1366/1440 px.
+  Keine Fehler in den geprüften Fällen. Belege:
+  `docs/a1-1-node-results.txt`, `docs/a1-1-browser-results.txt`.
+- Ansichten: `docs/a1-1-desktop-auswahl.jpg`, `a1-1-desktop-eckig.jpg`,
+  `a1-1-desktop-durchlaufend.jpg`, `a1-1-mobile-auswahl.jpg`,
+  `a1-1-mobile-masse.jpg`, `a1-1-mobile-eckig-detail.jpg`,
+  `a1-1-mobile-durchlaufend-detail.jpg`.
+  Mobile Belege aus unskaliertem 390 × 844 px iframe, kein physischer Gerätetest.
+- Neues Installationspaket: `dist/hpz-apl-admin-preview-0.3.0.zip`;
+  Anleitung im Plugin unter `INSTALLATION.md`. Paket unabhängig von Node/localhost,
+  enthält nur visuelle Prüfung, keine Preisengine und keinen Bestelladapter.
+  PHP-Schutzlogik unverändert, nur Versionsangaben aktualisiert.
+- Preisengine/Preisregel V2, Dekorkatalog, WooCommerce-Kauf-/Versandlogik und
+  Produktinhalte unverändert. Alle Kaufwege weiterhin gesperrt. Kein Zugriff
+  auf Liveshop, keine Installation/Aktivierung/Veröffentlichung durch Agenten.
+- Für Abnahme bereit: ZIP, Originalnachweise, Desktop-/Mobilbilder, Tests und
+  Featurebranch/PR. Danach Nutzer/Marco: echte PHP-/WordPress-/Flatsome-/WCPA-
+  Laufzeit, Cache/Rollen/Kaufsperren, Sockel-Regression und physische Smartphones
+  prüfen. Hier keine PHP-Laufzeit vorhanden; neue WordPress-Version nicht
+  laufzeitgeprüft. Fertigungsfreigabe benötigt die gezielt gelisteten Nachweise.
+
+Die folgenden Abschnitte dokumentieren frühere Meilensteine. Für aktuellen
+Umfang, Einheiten und Maßgrenzen gilt der A1.1-Abschnitt oben.
 
 ## Phase A1 – Rundungen und geprüfte Zwischenversion 0.2.0 (23.10.2026)
 

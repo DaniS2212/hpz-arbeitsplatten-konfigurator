@@ -1,6 +1,21 @@
-# Küchenarbeitsplatten – lokale Entwicklungsfassung 0.2.0
+# Küchenarbeitsplatten – lokale Entwicklungsfassung 0.3.0
 
-Eigenständig lauffähig, ohne WordPress, Hosting-Zugang oder externe Pakete. Kein installierbares WooCommerce-Plugin und kein öffentliches Deployment. Alle Dateien liegen außerhalb der schreibgeschützten Projektquellen. Es existiert keine Verbindung zum Liveshop.
+Eigenständig lauffähig, ohne WordPress, Hosting-Zugang oder externe Pakete.
+Dies ist die lokale Demo derselben gekapselten Komponente, die separat als
+Admin-Vorschau-Plugin unter `../wordpress/` und `../dist/` bereitsteht.
+Es existiert keine Verbindung zum Liveshop.
+
+## Aktuell: Phase A1.1 (26.10.2026)
+
+Alle zehn geraden Eckzustände sind als Vorschau nutzbar. Eckig zeigt gerade
+Diagonalen; durchlaufend zeigt sichtbar weichere schematische Übergänge und
+bleibt auf 2000 × 600 mm sowie konservative Sondermaße begrenzt. Eingabefelder,
+Zusammenfassung und Zeichnung durchgehend in mm. Neue Payloads verwenden
+ausdrücklich Version 2 / mm, bestehende cm-Tests behalten ihren Legacy-Vertrag.
+Details und Grenzen: `../docs/phase-a1-1-evidence.md`,
+`../docs/input-contract-v2.md`. Preisengine und L/U-Konstruktion unverändert.
+Kein Kaufweg. Der folgende Erststand beschreibt auch historische Funktionen;
+bei abweichenden Einheiten/Eckgrenzen gelten diese aktuellen Dokumente.
 
 ## Start und Tests
 
@@ -15,7 +30,7 @@ node server.mjs
 Danach `http://127.0.0.1:4173` öffnen. Der Server lauscht ausschließlich auf dem eigenen Rechner. Beenden mit Strg+C im gestarteten Terminal. Bei belegtem Port keinen fremden Prozess beenden; den eigenen laufenden Server verwenden oder dessen Start beenden.
 
 ```powershell
-node --test
+node --test test/*.test.mjs
 ```
 
 Keine Installation mit npm erforderlich. Keine Shop-Zugangsdaten erforderlich. Nicht auf einen öffentlich erreichbaren Server kopieren. Der Ordner `private/` enthält interne Preisreferenzen; der lokale Server stellt ausschließlich ausdrücklich erlaubte Oberflächendateien bereit.

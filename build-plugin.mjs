@@ -23,6 +23,10 @@ for(const name of ['component','component-template','latest']) {
 // Static WordPress adapters also need versioned module imports after a plugin update.
 const previewFile=new URL('preview.js',out);
 await writeFile(previewFile,versionImports(await readFile(previewFile,'utf8')));
+const bootstrapFile=new URL('bootstrap.js',out);
+await writeFile(bootstrapFile,(await readFile(bootstrapFile,'utf8')).replace(/(\.js\?v=)[\d.]+/g,`$1${version}`));
 await copyFile(new URL('local/public/component.css',base),new URL('component.css',out));
 await copyFile(new URL('docs/phase-a1-evidence.md',base),new URL('../A1-NACHWEISE.md',out));
+await copyFile(new URL('docs/phase-a1-1-evidence.md',base),new URL('../A1.1-NACHWEISE.md',out));
+await copyFile(new URL('docs/input-contract-v2.md',base),new URL('../MILLIMETER-VERTRAG.md',out));
 console.log('Plugin assets bundled; original demo and pricing unchanged.');

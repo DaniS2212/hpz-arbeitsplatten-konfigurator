@@ -11,7 +11,7 @@ try{
   for(let i=0;i<60;i++){s=doc.querySelector('[data-hpz-apl-preview]')?.shadowRoot;if(s?.querySelector('#drawing svg'))break;await wait();}
   const select=s.querySelector('input[name="straight-side"][value="both"]');select.checked=true;select.dispatchEvent(new Event('change',{bubbles:true}));await wait();
   s.querySelector('#steps button:nth-child(2)').click();
-  for(const [id,value] of [['R1','10,1'],['R2','20,2']]){const field=s.getElementById('dim-'+id);field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));await wait();}
+  for(const [id,value] of [['R1','100'],['R2','200']]){const field=s.getElementById('dim-'+id);field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));await wait();}
   const input=s.getElementById('dim-R2');input.scrollIntoView({block:'start'});input.focus();await wait();
   const fieldTop=input.getBoundingClientRect().top,headerBottom=doc.querySelector('.test-header').getBoundingClientRect().bottom;
   if(doc.documentElement.scrollWidth>doc.documentElement.clientWidth)throw new Error(width+'px horizontal overflow');

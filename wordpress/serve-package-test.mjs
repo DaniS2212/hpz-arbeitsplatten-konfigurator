@@ -7,11 +7,13 @@ createServer(async(req,res)=>{
  const url=new URL(req.url,'http://127.0.0.1:4174');
  if(url.pathname==='/a1-test.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(new URL('./a1-browser-test.mjs',import.meta.url)));return;}
  if(url.pathname==='/responsive-test.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(new URL('./a1-responsive-test.mjs',import.meta.url)));return;}
+ if(url.pathname==='/a1-1-responsive-test.js'){res.setHeader('Content-Type','text/javascript');res.end(await readFile(new URL('./a1-1-responsive-test.mjs',import.meta.url)));return;}
+ if(url.pathname==='/a1-1-responsive-test'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html><h1>A1.1 Responsive-Prüfung</h1><pre id="results">Läuft …</pre><iframe title="Testansicht"></iframe><script type="module" src="/a1-1-responsive-test.js"></script></html>');return;}
  if(url.pathname==='/responsive-test'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html><h1>A1 Responsive-Prüfung</h1><pre id="results">Läuft …</pre><iframe title="Testansicht"></iframe><script type="module" src="/responsive-test.js"></script></html>');return;}
  if(url.pathname==='/a1-test'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end('<!doctype html><html lang="de"><meta name="viewport" content="width=device-width"><h1>A1 Browserprüfungen</h1><pre id="results">Läuft …</pre><div id="test-root"></div><script type="module" src="/a1-test.js"></script></html>');return;}
  if(url.pathname==='/review'){
   const width=['360','390','1366','1440'].includes(url.searchParams.get('width'))?url.searchParams.get('width'):'1366';
-  res.setHeader('Content-Type','text/html; charset=utf-8');res.end(`<!doctype html><html lang="de"><title>A1 ${width}px Layoutprobe</title><style>body{margin:0;background:#ddd}iframe{display:block;width:${width}px;height:900px;border:0;transform:scale(.72);transform-origin:top left}</style><iframe title="A1 Layoutprobe" src="/?sticky=1"></iframe></html>`);return;
+  res.setHeader('Content-Type','text/html; charset=utf-8');res.end(`<!doctype html><html lang="de"><title>A1.1 ${width}px Layoutprobe</title><style>body{margin:0;background:#ddd}iframe{display:block;width:${width}px;height:844px;border:0}</style><iframe title="A1 Layoutprobe" src="/?sticky=1"></iframe></html>`);return;
  }
  if(url.pathname==='/'){
   res.setHeader('Content-Type','text/html; charset=utf-8');
