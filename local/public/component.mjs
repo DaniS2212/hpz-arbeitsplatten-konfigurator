@@ -103,10 +103,15 @@ function element(tag,className,text){const e=document.createElement(tag);if(clas
 function choice(group,value,html,selected,callback,extraClass){const label=element('label',`choice ${extraClass}`),input=element('input');
   input.type='radio';input.name=group;input.value=value;input.checked=selected;input.addEventListener('change',()=>{if(input.checked)callback(value);});
   label.innerHTML=html;label.prepend(input);return label;}
-function showStep(index){step=index;shell.dataset.currentStep=String(index);shadow.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);
-  // In the surface step the existing summary fills the area below the preview.
-  // Mobile order stays preview → configuration → summary; no duplicate controls.
-  (step===2?shadow.querySelector('.workspace'):shadow.querySelector('.configuration')).append(shadow.querySelector('.order-summary'));
+function placeSummary(){
+  // Desktop: use the free space below the drawing at EVERY step. On mobile
+  // the summary stays below the configuration, preserving reading order.
+  const dest=window.matchMedia('(min-width: 761px)').matches?shadow.querySelector('.workspace'):shadow.querySelector('.configuration');
+  if(dest&&shadow.querySelector('.order-summary')?.parentElement!==dest)dest.append(shadow.querySelector('.order-summary'));
+ }
+ window.addEventListener('resize',placeSummary,{signal:abort.signal});
+ function showStep(index){step=index;shell.dataset.currentStep=String(index);shadow.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);
+  placeSummary();
   [...$('steps').children].forEach((e,i)=>{if(i===step)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
   $('back').disabled=step===0;$('back').style.visibility=step===0?'hidden':'visible';
   $('next').innerHTML=step===0?'Weiter zu den Maßen <span>→</span>':step===1?'Weiter zur Oberfläche <span>→</span>':'Zusammenfassung ansehen <span>↓</span>';
