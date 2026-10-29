@@ -22,7 +22,7 @@ require_once __DIR__.'/includes/woo-hooks.php';
 require_once __DIR__.'/includes/supplier-proofs.php';
 require_once __DIR__.'/includes/woo-context.php';
 require_once __DIR__.'/includes/straight-runtime.php';
-require_once __DIR__.'/includes/proof-admin.php';
+// Exact supplier approval UI disabled.
 
 final class HPZ_APL_Admin_Preview {
     const VERSION = '1.0.0';
@@ -34,7 +34,7 @@ final class HPZ_APL_Admin_Preview {
         // Safe by default: self-registers no public route or Woo hooks without
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
-        HPZ_APL_WP_Proof_Admin_10::init();
+        // No individual supplier approvals.
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_init', array(__CLASS__, 'settings'));
         add_action('template_redirect', array(__CLASS__, 'no_cache'));

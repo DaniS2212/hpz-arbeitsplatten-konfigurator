@@ -222,18 +222,9 @@ final class HPZ_APL_WC_Dormant_Hooks_08
                     function_exists('wc_prices_include_tax') && wc_prices_include_tax(),
                     'DE'
                 );
-                $package=HPZ_APL_WC_Cart_Bridge_08::packageForWoo($checked);
-                if (!function_exists('wc_get_weight') || !function_exists('wc_get_dimension')) {
-                    throw new LogicException('WooCommerce Versandumrechnung fehlt.');
-                }
+                // Existing WooCommerce product shipping setup stays unchanged.
                 $copy=clone $product;
                 $copy->set_price($unit);
-                $copy->set_weight((string)wc_get_weight($package['packedWeightKg'],get_option('woocommerce_weight_unit','kg'),'kg'));
-                foreach (['lengthMm'=>'length','widthMm'=>'width','heightMm'=>'height'] as $from=>$to) {
-                    $value=(string)wc_get_dimension($package[$from],get_option('woocommerce_dimension_unit','cm'),'mm');
-                    $setter='set_'.$to;
-                    $copy->{$setter}($value);
-                }
                 // set on transient cart line only, never product database.
                 $cart->cart_contents[$key]['data']=$copy;
                 unset(self::$pendingErrors['price_'.$key]);
