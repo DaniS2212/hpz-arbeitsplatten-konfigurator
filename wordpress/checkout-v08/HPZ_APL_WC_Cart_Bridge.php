@@ -248,7 +248,7 @@ final class HPZ_APL_WC_Cart_Bridge_08
         return [
             'schemaVersion'=>2, 'inputUnit'=>'mm',
             'productId'=>self::PRODUCT_ID, 'sku'=>self::SKU,
-            'product'=>'straight', 'geometry'=>'straight', 'corner'=>$c['corner'] ?? null,
+            'product'=>'straight', 'geometry'=>'straight', 'corner'=>'square',
             'straightCorner'=>[
                 'side'=>$c['straightCorner']['side'] ?? null,
                 'treatment'=>$c['straightCorner']['treatment'] ?? null,
