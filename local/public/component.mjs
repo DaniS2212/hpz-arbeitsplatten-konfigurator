@@ -355,6 +355,24 @@ $('cart').addEventListener('click',async ()=>{
     purchaseState(false);
   }
 });
+if(embedded&&product==='straight'&&!adapters.purchase){
+ const copyButton=document.createElement('button');
+ copyButton.type='button';copyButton.textContent='Prüfkonfiguration kopieren';
+ copyButton.className='hpz-copy-proof';
+ copyButton.style.cssText='display:block;margin:12px auto;padding:8px 14px;border:1px solid currentColor;border-radius:8px;background:transparent;font:inherit;cursor:pointer';
+ $('cart').after(copyButton);
+ copyButton.addEventListener('click',async()=>{
+  if(!valid){$('price-note').textContent='Bitte erst gültige Maße eingeben.';return;}
+  try {
+   const json=JSON.stringify(payload());
+   if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+   await navigator.clipboard.writeText(json);
+   copyButton.textContent='Kopiert – im Backend einfügen';
+  }catch{
+   copyButton.textContent='Kopieren nicht möglich – Browserberechtigung prüfen';
+  }
+ });
+}
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
 $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));

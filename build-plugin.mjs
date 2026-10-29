@@ -46,6 +46,7 @@ for(const [source,target] of [
  ['wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php','supplier-proofs.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Woo_Context.php','woo-context.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Straight_Runtime.php','straight-runtime.php'],
+ ['wordpress/sale-launch-100/HPZ_APL_WP_Proof_Admin.php','proof-admin.php'],
 ])await copyFile(new URL(source,base),new URL('../includes/'+target,out));
 await mkdir(new URL('decors/',out),{recursive:true});
 for(const decor of DECOR_CATALOG)for(const file of [decor.imageFilename,decor.thumbnailFilename])await copyFile(new URL('local/public/decors/'+file,base),new URL('decors/'+file,out));

@@ -88,6 +88,8 @@ final class HPZ_APL_WP_Supplier_Proofs_09 {
         if (!isset($current[$key]) && count($current)>=self::LIMIT) {
             throw new InvalidArgumentException('Maximale Anzahl an Einzelfreigaben erreicht.');
         }
+        $decor=HPZ_APL_Decor_Catalog::resolve($normalized['decor']);
+        $proof['reviewMeta']=['decorName'=>(string)($decor['displayName']??$normalized['decor']), 'lengthMm'=>$normalized['dimensions']['L1'], 'depthMm'=>$normalized['dimensions']['B1'], 'thicknessMm'=>$normalized['material']==='APL38'?38:17.5];
         $current[$key]=$proof;
         if (!update_option(self::OPTION,$current,false)) {
             // WP update_option returns false when the new value is identical.

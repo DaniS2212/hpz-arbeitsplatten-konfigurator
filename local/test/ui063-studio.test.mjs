@@ -6,7 +6,7 @@ import {normalize} from '../core/config.mjs';
 import {geometry,svg} from '../core/geometry.mjs';
 
 const get=path=>readFile(new URL(path,import.meta.url),'utf8');
-test('0.6.5 summary follows all choices and keeps single guarded cart',async()=>{
+test('1.0.0 summary follows all choices and keeps single guarded cart',async()=>{
  assert.match(template,/class="summary-details"/);
  assert.match(template,/class="summary-purchase"/);
  assert.match(template,/class="summary-swatch"/);
@@ -51,15 +51,15 @@ test('Vertical dimension labels isolate text from inherited SVG stroke',()=>{
  assert.match(match[0],/fill="#fffaf3"/);
  assert.equal(g.supplierMappingVerified,false);
 });
-test('0.6.5 WP host still restricts to admins/drafts and cart+Store API remain locked',async()=>{
+test('1.0.0 WP host still restricts to admins/drafts and cart+Store API remain locked',async()=>{
  const php=await get('../../wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php');
- assert.match(php,/Version: 0\.6\.5/);
+ assert.match(php,/Version: 1\.0\.0/);
  assert.match(php,/current_user_can\('manage_options'\)/);
  assert.match(php,/get_post_status\(\$id\)==='draft'/);
  assert.match(php,/woocommerce_is_purchasable/);
  assert.match(php,/woocommerce_store_api_cart_errors/);
  const preview=await get('../../wordpress/hpz-apl-admin-preview/assets/preview.js');
- assert.match(preview,/v=0\.6\.5/);
+ assert.match(preview,/v=1\.0\.0/);
  assert.match(preview,/endpoint\.origin!==location\.origin/);
  assert.match(preview,/purchasable:false/);
  const bundled=await get('../../wordpress/hpz-apl-admin-preview/assets/component-template.js');
