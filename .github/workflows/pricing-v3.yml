@@ -20,6 +20,8 @@ jobs:
         run: php -l pricing-v3/HPZ_APL_Price_V3.php && php -l pricing-v3/tests/run.php
       - name: Price and margin regression
         run: php pricing-v3/tests/run.php
+      - name: Straight sale readiness, price integrity, supplier and shipping proof checks
+        run: php -l pricing-v3/HPZ_APL_Straight_Sale_Readiness.php && php pricing-v3/tests/sale-readiness.php
       - name: PHP preview syntax and security
         run: |
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
