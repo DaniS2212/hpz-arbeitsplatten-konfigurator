@@ -39,6 +39,14 @@ await copyFile(new URL('docs/phase-050.md',base),new URL('../PREISVORSCHAU-0.5.0
 await copyFile(new URL('docs/phase-060.md',base),new URL('../KUECHENSTUDIO-0.6.0.md',out));
 await mkdir(new URL('../includes/',out),{recursive:true});
 await copyFile(new URL('pricing-v3/HPZ_APL_Price_V3.php',base),new URL('../includes/price-v3.php',out));
+for(const [source,target] of [
+ ['pricing-v3/HPZ_APL_Straight_Sale_Readiness.php','sale-readiness.php'],
+ ['wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php','cart-bridge.php'],
+ ['wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php','woo-hooks.php'],
+ ['wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php','supplier-proofs.php'],
+ ['wordpress/sale-launch-090/HPZ_APL_WP_Woo_Context.php','woo-context.php'],
+ ['wordpress/sale-launch-090/HPZ_APL_WP_Straight_Runtime.php','straight-runtime.php'],
+])await copyFile(new URL(source,base),new URL('../includes/'+target,out));
 await mkdir(new URL('decors/',out),{recursive:true});
 for(const decor of DECOR_CATALOG)for(const file of [decor.imageFilename,decor.thumbnailFilename])await copyFile(new URL('local/public/decors/'+file,base),new URL('decors/'+file,out));
 await mkdir(new URL('../data/',out),{recursive:true});

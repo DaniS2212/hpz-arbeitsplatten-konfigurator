@@ -14,6 +14,14 @@ defined('ABSPATH') || exit;
 require_once __DIR__.'/includes/decor-catalog.php';
 require_once __DIR__.'/includes/price-v3.php';
 require_once __DIR__.'/includes/price-preview.php';
+// 0.9 sale components: physically bundled but completely dormant unless a
+// separate audited release flag, operator option and published exact SKU agree.
+require_once __DIR__.'/includes/sale-readiness.php';
+require_once __DIR__.'/includes/cart-bridge.php';
+require_once __DIR__.'/includes/woo-hooks.php';
+require_once __DIR__.'/includes/supplier-proofs.php';
+require_once __DIR__.'/includes/woo-context.php';
+require_once __DIR__.'/includes/straight-runtime.php';
 
 final class HPZ_APL_Admin_Preview {
     const VERSION = '0.6.5';
@@ -22,6 +30,9 @@ final class HPZ_APL_Admin_Preview {
     private static $rendered = false;
 
     public static function init() {
+        // Safe by default: self-registers no public route or Woo hooks without
+        // the external 0.9 audited-release constant AND saved operator flag.
+        add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_init', array(__CLASS__, 'settings'));
         add_action('template_redirect', array(__CLASS__, 'no_cache'));
@@ -53,7 +64,7 @@ final class HPZ_APL_Admin_Preview {
             && get_post_status($id)==='draft' && current_user_can('edit_post', $id);
     }
     public static function no_cache() {
-        if (!self::allowed()) return;
+        if (!self::allowed() && !HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
         if (!defined('DONOTCACHEPAGE')) define('DONOTCACHEPAGE', true);
         nocache_headers();
     }
@@ -64,7 +75,9 @@ final class HPZ_APL_Admin_Preview {
         return self::options()['placement']==='shortcode' ? self::render() : '';
     }
     public static function render() {
-        if (!self::allowed() || self::$rendered) return '';
+        $adminTest=self::allowed();
+        $publicSale=HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id());
+        if ((!$adminTest && !$publicSale) || self::$rendered) return '';
         $id=(int)get_queried_object_id();
         $decor = HPZ_APL_Decor_Catalog::resolve('H1145');
         if (!$decor) return ''; // Invalid/missing bundled mapping never gets a fallback.
@@ -74,10 +87,18 @@ final class HPZ_APL_Admin_Preview {
         wp_register_style('hpz-apl-preview-host', $url.'host.css', array(), self::VERSION);
         ob_start(); wp_print_styles('hpz-apl-preview-host'); $css=ob_get_clean();
         wp_enqueue_script('hpz-apl-preview', $url.'bootstrap.js', array(), self::VERSION, true);
-        $priceAttrs=$id===1000083
+        $priceAttrs=$adminTest && $id===1000083
             ? ' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_price_preview')).'" data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_price_'.$id)).'"'
             : '';
-        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren"><p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p><div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
+        if($publicSale){
+            $priceAttrs=' data-public-sale="true"'
+                .' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_public_quote')).'"'
+                .' data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_public_quote_'.$id)).'"'
+                .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_add_configured')).'"'
+                .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_add_configured_'.$id)).'"';
+        }
+        $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p>':'';
+        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
     public static function price_preview_allowed($id, $nonce) {
         $o=self::options();
@@ -117,18 +138,25 @@ final class HPZ_APL_Admin_Preview {
         }
     }
     public static function purchasable($allowed, $product) {
-        return self::target($product->get_id()) ? false : $allowed;
+        if (!self::target($product->get_id())) return $allowed;
+        if ((int)$product->get_id()===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()
+            && HPZ_APL_WP_Straight_Runtime_09::validPublishedProduct($product)) return true;
+        return false;
     }
     public static function message() { return 'Diese Arbeitsplatte ist noch in Prüfung und kann nicht bestellt werden.'; }
     public static function add_to_cart($passed, $product_id, $quantity) {
         if (!self::target($product_id)) return $passed;
+        // Earlier 0.9 server-verification hook (priority 50) is responsible
+        // for all signed straight-product validation if sale is ever released.
+        if ((int)$product_id===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()) return $passed;
         wc_add_notice(self::message(), 'error');
         return false;
     }
     private static function contains_target($cart) {
         if (!$cart) return false;
         foreach ($cart->get_cart() as $item) {
-            if (self::target($item['product_id'])) return true;
+            if (self::target($item['product_id'])
+                && !(HPZ_APL_WP_Straight_Runtime_09::canSell() && (int)$item['product_id']===1000083)) return true;
         }
         return false;
     }
