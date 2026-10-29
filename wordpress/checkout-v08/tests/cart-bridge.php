@@ -138,7 +138,7 @@ foreach(HPZ_APL_Decor_Catalog::all() as $decorId=>$item){
   storeProof($s);
   $one=HPZ_APL_WC_Cart_Bridge_08::issue($s,'lookup',$secret,$now);
   $c=HPZ_APL_WC_Cart_Bridge_08::inspect($one,1,'lookup',$secret,$now);
-  ok($c['production']['decorId']===$decorId&&$c['production']['materialCode']===$material,'16 decors x 2 thicknesses '.$decorId.'/'.$material);
+  ok($c['production']['decorId']===(string)$decorId&&$c['production']['materialCode']===$material,'16 decors x 2 thicknesses '.$decorId.'/'.$material);
   ok($c['quote']['unitGrossReferenceCents']>0,'V3 gross for all 32');
  }
 }
