@@ -93,7 +93,7 @@ HPZ_APL_WC_Dormant_Hooks_08::beforeTotals($cart);
 $cloned=$cart->cart_contents['test']['data'];
 yes($cloned!==$p&&$p->price==='100.00','do not mutate shared product price');
 yes($cloned->price==='563.025210','V3 unit net price');
-yes($cloned->weight==='30'&&$cloned->length==='207','actual approved packed shipping size');
+yes((float)$cloned->weight===30.0&&(float)$cloned->length===207.0,'actual approved packed shipping size');
 yes(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)===[],'final server context passes synthetic review');
 $customer=HPZ_APL_WC_Dormant_Hooks_08::cartDisplayData([],$cart->cart_contents['test']);
 yes(count($customer)>=5&&$customer[0]['value']==='2000 × 600 mm','cart displays complete dimensions');
