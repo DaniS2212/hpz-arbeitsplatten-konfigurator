@@ -1,6 +1,6 @@
 <?php
 define('ABSPATH',__DIR__);
-require_once __DIR__.'/../sale-launch-100/HPZ_APL_WP_Proof_Admin.php';
+require_once __DIR__.'/../HPZ_APL_WP_Proof_Admin.php';
 $checks=0;
 function ok($v,$name){global $checks;$checks++;if(!$v)throw new RuntimeException($name);}
 ok(HPZ_APL_WP_Proof_Admin_10::scaled('148,43',2)===14843,'EK cents');
