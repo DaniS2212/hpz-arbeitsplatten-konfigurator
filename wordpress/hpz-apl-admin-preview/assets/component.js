@@ -1,11 +1,11 @@
-import {catalog} from './core/config.js?v=1.0.0';
-import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.0';
-import {svg} from './core/geometry.js?v=1.0.0';
-import {createPreviewController} from './latest.js?v=1.0.0';
-import {template} from './component-template.js?v=1.0.0';
-import {resolveProduct} from './core/products.js?v=1.0.0';
-import {decorImageUrl} from './decor-images.js?v=1.0.0';
-import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=1.0.0';
+import {catalog} from './core/config.js?v=1.0.1';
+import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.1';
+import {svg} from './core/geometry.js?v=1.0.1';
+import {createPreviewController} from './latest.js?v=1.0.1';
+import {template} from './component-template.js?v=1.0.1';
+import {resolveProduct} from './core/products.js?v=1.0.1';
+import {decorImageUrl} from './decor-images.js?v=1.0.1';
+import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=1.0.1';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -15,8 +15,8 @@ export function mountConfigurator(root,context={},adapters={}){
  mounts.get(root)?.destroy();
  const shadow=root.shadowRoot||root.attachShadow({mode:'open'});
  const shell=document.createElement('div');shell.className='hpz-apl';shell.dataset.mode=embedded?'embedded':'demo';
- const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=1.0.0',import.meta.url).href;
- const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=1.0.0',import.meta.url).href;
+ const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=1.0.1',import.meta.url).href;
+ const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=1.0.1',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,studioLink,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
  function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}

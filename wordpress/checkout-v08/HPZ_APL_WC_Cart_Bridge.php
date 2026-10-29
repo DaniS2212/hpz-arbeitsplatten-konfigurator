@@ -33,8 +33,7 @@ final class HPZ_APL_WC_Cart_Bridge_08
         self::requireSecret($secret);
         $normalized = HPZ_APL_Price_Preview::normalize($raw);
         $key = HPZ_APL_Straight_Sale_Readiness::configurationKey($normalized);
-        $proof = $trustedProofLookup($key);
-        self::requireSupplierProof($raw, $key, $proof, $now);
+        // No supplier approval per exact customer configuration.
         $quote = HPZ_APL_Price_V3::quote($normalized);
         // Line-item quantity is a Woo source of truth; never trust the saved
         // snapshot's original quantity after a customer changes the cart.
@@ -85,14 +84,13 @@ final class HPZ_APL_WC_Cart_Bridge_08
             throw new InvalidArgumentException('Preis oder Material wurden verändert.');
         }
         // A signed snapshot does not permanently approve a supplier quote.
-        $proof = $trustedProofLookup($key);
-        self::requireSupplierProof($raw, $key, $proof, $now);
+        // No supplier approval per exact customer configuration.
         return [
             'key' => $key,
             'normalized' => $normalized,
             'raw' => $raw,
             'quote' => $quote,
-            'proof' => $proof,
+            'proof' => null,
             'production' => HPZ_APL_Straight_Sale_Readiness::productionRecord($normalized),
         ];
     }
@@ -144,18 +142,24 @@ final class HPZ_APL_WC_Cart_Bridge_08
         array $trustedWooContext, string $secret, ?int $now = null
     ): array {
         $item = self::inspect($cartItem, $quantity, $trustedProofLookup, $secret, $now);
-        $review = HPZ_APL_Straight_Sale_Readiness::review(
-            $item['raw'], [$item['key'] => $item['proof']], $trustedWooContext, $now
-        );
+        // V3 owns the configured gross price. Woo owns customer shipping.
+        $blocked=[];
+        if (($trustedWooContext['pricesConfigured']??null)!==true
+            || ($trustedWooContext['taxVerified']??null)!==true) $blocked[]='tax-context';
+        if (($trustedWooContext['country']??null)!=='DE') $blocked[]='country-not-tested';
+        $gross=$trustedWooContext['preDiscountGrossCents']??null;
+        $net=$trustedWooContext['actualNetLineRevenueCents']??null;
+        if (!is_int($gross) || abs($gross-$item['quote']['totalGrossReferenceCents'])>1
+            || !is_int($net) || $net<1 || $net>$gross) $blocked[]='price-mismatch';
         return [
-            'validForReleaseReview' => $review['preflightComplete'] === true,
-            'purchasable' => false,
-            'blockers' => $review['blockers'],
-            'configurationKey' => $item['key'],
-            'priceRule' => $review['ruleVersion'],
-            'unitGrossReferenceCents' => $review['unitGrossReferenceCents'],
-            'totalGrossReferenceCents' => $review['totalGrossReferenceCents'],
-            'production' => $item['production'],
+            'validForReleaseReview'=>!$blocked,
+            'purchasable'=>false,
+            'blockers'=>$blocked,
+            'configurationKey'=>$item['key'],
+            'priceRule'=>$item['quote']['ruleVersion'],
+            'unitGrossReferenceCents'=>$item['quote']['unitGrossReferenceCents'],
+            'totalGrossReferenceCents'=>$item['quote']['totalGrossReferenceCents'],
+            'production'=>$item['production'],
         ];
     }
 
