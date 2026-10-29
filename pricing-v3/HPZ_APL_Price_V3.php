@@ -109,7 +109,9 @@ final class HPZ_APL_Price_V3
         // Shop caps below the visible supplier maximum. Outside the historic
         // 2000–3000 mm V3 sample, pricing is extrapolated and requires a
         // Speedmaster spot-check before the public product goes live.
-        if ($l < 1000 || $l > 4000 || $b < 300 || $b > 900) {
+        $through = ($c['straightCorner']['treatment'] ?? null) === 'chamfer_continuous';
+        $maxDepth = ($through || $thick) ? 900 : 1200;
+        if ($l < 1000 || $l > 4000 || $b < 300 || $b > $maxDepth) {
             throw new InvalidArgumentException('Dimensions outside price V3 reference envelope.');
         }
         if (!is_int($c['quantity'] ?? null) || $c['quantity'] < 1 || $c['quantity'] > 1000) {

@@ -51,8 +51,9 @@ export function normalize(raw) {
   if(millimetres&&raw.product==='straight'){
     if(dimensions.L1<straightShopLimits.L1.min||dimensions.L1>straightShopLimits.L1.max)
       throw new Error('L1: Länge zwischen 100 und 400 cm eingeben.');
-    if(dimensions.B1<straightShopLimits.B1.min||dimensions.B1>straightShopLimits.B1.max)
-      throw new Error('B1: Tiefe zwischen 30 und 90 cm eingeben.');
+    const depthMax=raw.straightCorner?.treatment==='chamfer_continuous'||raw.material==='APL38'?900:straightShopLimits.B1.max;
+    if(dimensions.B1<straightShopLimits.B1.min||dimensions.B1>depthMax)
+      throw new Error(`B1: Tiefe zwischen 30 und ${depthMax/10} cm eingeben.`);
   }
   const straightCorner=raw.straightCorner===undefined?undefined:validateStraightCorner(raw.straightCorner,convert,dimensions,{millimetres});
   let special={};

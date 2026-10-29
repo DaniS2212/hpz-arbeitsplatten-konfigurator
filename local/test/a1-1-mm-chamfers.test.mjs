@@ -47,14 +47,16 @@ test('square shop cap 1.40 × depth rounds down to 10 mm, stays below confirmed 
  assert.throws(()=>normalize(input('right','chamfer_square',{L3:'290',B3:'200'})),/L3/);
 });
 test('overlaps, too short front, back clearance, wrong fields and non-10mm corner input rejected',()=>{
- for(const data of [input('both','chamfer_square',{L2:'280',B2:'200',L3:'280',B3:'200'},{L1:'600',B1:'600'}),input('left','chamfer_square',{L2:'100',B2:'560'}),input('left','chamfer_square',{L2:'151',B2:'150'}),input('left','chamfer_square',{L2:'150',B2:'150',R1:'100'}),input('both','round',{R1:'300',R2:'300'},{L1:'600',B1:'600'}),input('left','round',{R1:'101'})])assert.throws(()=>normalize(data));
- assert.doesNotThrow(()=>normalize(input('both','chamfer_square',{L2:'280',B2:'200',L3:'270',B3:'200'},{L1:'600',B1:'600'})));
+ for(const data of [input('both','chamfer_square',{L2:'480',B2:'350',L3:'480',B3:'350'},{L1:'1000',B1:'600'}),input('left','chamfer_square',{L2:'100',B2:'560'}),input('left','chamfer_square',{L2:'151',B2:'150'}),input('left','chamfer_square',{L2:'150',B2:'150',R1:'100'}),input('both','round',{R1:'500',R2:'500'},{L1:'1000',B1:'600'}),input('left','round',{R1:'101'})])assert.throws(()=>normalize(data));
+ assert.doesNotThrow(()=>normalize(input('both','chamfer_square',{L2:'440',B2:'350',L3:'450',B3:'350'},{L1:'1000',B1:'600'})));
 });
-test('continuous reference envelope is explicit and not generalised to other plate sizes',()=>{
- for(const side of ['left','right','both'])assert.doesNotThrow(()=>normalize(input(side,'chamfer_continuous')));
- assert.doesNotThrow(()=>normalize(input('left','chamfer_continuous',{L2:'200',B2:'300'})));
- assert.throws(()=>normalize(input('left','chamfer_continuous',{L2:'1950',B2:'550'})),/L2|B2|Bereich/);
- assert.throws(()=>normalize(input('left','chamfer_continuous',undefined,{L1:'2100',B1:'600'})),/2000.*600/);
+test('continuous chamfer is valid for all supplier-safe plate sizes, but not larger',()=>{
+ for(const side of ['left','right','both'])for(const dimensions of [{L1:'2000',B1:'600'},{L1:'2500',B1:'800'},{L1:'4000',B1:'900'}])
+   assert.doesNotThrow(()=>normalize(input(side,'chamfer_continuous',undefined,dimensions)));
+ assert.doesNotThrow(()=>normalize(input('left','chamfer_continuous',{L2:'1500',B2:'500'},{L1:'2500',B1:'800'})));
+ assert.throws(()=>normalize(input('left','chamfer_continuous',{L2:'1810',B2:'150'},{L1:'2500',B1:'800'})),/L2/);
+ assert.throws(()=>normalize(input('left','chamfer_continuous',{L2:'150',B2:'510'},{L1:'2500',B1:'800'})),/B2/);
+ assert.throws(()=>normalize(input('both','chamfer_continuous',{L2:'1000',B2:'200',L3:'1000',B3:'200'},{L1:'2000',B1:'600'})),/L2|L3/);
 });
 test('continuous outline visibly softens transitions but never invents a manufacturing radius or area',()=>{
  const square=geometry(normalize(input())),continuous=geometry(normalize(input('left','chamfer_continuous')));

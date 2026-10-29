@@ -27,15 +27,15 @@ export function defaultCornerParameters(side,treatment){
 }
 // Conservative caps inside the pictured Speedmaster range:
  // supplier L1 200–4050, B1 200–900, L2/L3 60–1950, B2/B3 60–550 mm.
-export const straightShopLimits=Object.freeze({L1:{min:1000,max:4000},B1:{min:300,max:900}});
+export const straightShopLimits=Object.freeze({L1:{min:1000,max:4000},B1:{min:300,max:1200}});
 export const continuousShopLimits=Object.freeze({lengthMin:60,lengthMax:1800,depthMin:60,depthMax:500,frontMin:100,backMin:100});
 // Square cuts retain the previously observed 1.40 slope cap.
 export function cornerLimits(side,treatment,dimensions,parameters={}){
   const variant=straightCorner(side,treatment),{L1:w,B1:d}=dimensions,fields={};
   let enabled=true,reason='';
   const value=key=>Number.isFinite(Number(parameters[key]))?Number(parameters[key]):0;
-  if(w<straightShopLimits.L1.min||w>straightShopLimits.L1.max||d<straightShopLimits.B1.min||d>straightShopLimits.B1.max){
-    enabled=false;reason='Für die Gerade sind 100–400 cm Länge und 30–90 cm Tiefe vorgesehen.';
+  if(w<straightShopLimits.L1.min||w>straightShopLimits.L1.max||d<straightShopLimits.B1.min||d>(treatment==='chamfer_continuous'?900:straightShopLimits.B1.max)){
+    enabled=false;reason='Für diese Variante: Länge 100–400 cm, Tiefe mindestens 30 cm; durchlaufend maximal 90 cm.';
   }
   for(const key of variant.parameters){
     const left=['R1','L2','B2'].includes(key),opposite=left?'L3':'L2';

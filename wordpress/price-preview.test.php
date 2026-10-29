@@ -47,10 +47,14 @@ foreach ([
     ['straightCorner'=>['side'=>'none','treatment'=>null,'parameters'=>['R1'=>'100']]],
     ['straightCorner'=>['side'=>'both','treatment'=>'round','parameters'=>['R1'=>'150']]],
 ] as $i=>$patch) fails(static function()use($patch):void{HPZ_APL_Price_Preview::publicQuote(array_replace(sample(),$patch));},'reject forged/invalid '. $i);
-fails(static function():void{HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','1999','600'));},'outside V3 envelope');
-fails(static function():void{HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2500','882'));},'thick outside V3 depth');
+fails(static function():void{HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','999','600'));},'outside V3 envelope');
+fails(static function():void{HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2500','901'));},'thick outside V3 depth');
 $continuous=sample();$continuous['straightCorner']=['side'=>'left','treatment'=>'chamfer_continuous','parameters'=>['L2'=>'150','B2'=>'150']];
 ensure(HPZ_APL_Price_Preview::publicQuote($continuous)['purchasable']===false,'continuous remains non-sale despite price');
-$continuous['dimensions']['L1']='2001';
-fails(static function()use($continuous):void{HPZ_APL_Price_Preview::publicQuote($continuous);},'continuous unconfirmed dimensions blocked');
+$continuous['dimensions']['L1']='2500';$continuous['dimensions']['B1']='800';
+ensure(HPZ_APL_Price_Preview::publicQuote($continuous)['unitGrossReferenceCents']>0,'continuous 250x80 server-priced');
+$continuous['dimensions']['L1']='4000';$continuous['dimensions']['B1']='900';
+ensure(HPZ_APL_Price_Preview::publicQuote($continuous)['unitGrossReferenceCents']>0,'continuous 400x90 server-priced');
+$continuous['dimensions']['L1']='4001';
+fails(static function()use($continuous):void{HPZ_APL_Price_Preview::publicQuote($continuous);},'length 400.1 cm rejected');
 printf("PASS %d PHP preview assertions\n",$checks);
