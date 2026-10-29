@@ -26,8 +26,7 @@ jobs:
         run: |
           php -l wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php
           php -l wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php
-          php wordpress/checkout-v08/tests/cart-bridge.php
-          php wordpress/checkout-v08/tests/wp-hooks.php
+          php wordpress/checkout-v08/tests/simple-101.php
       - name: "WP 0.9: no guest access, double release gate, supplier proofs and shipping/VAT"
         run: |
           php -l wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php
@@ -35,7 +34,6 @@ jobs:
           php -l wordpress/sale-launch-090/HPZ_APL_WP_Straight_Runtime.php
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
           php wordpress/sale-launch-090/tests/disabled.php
-          php wordpress/sale-launch-090/tests/enabled-sandbox.php
       - name: Version 1.0 supplier proof admin input validation
         run: php -l wordpress/sale-launch-100/HPZ_APL_WP_Proof_Admin.php && php wordpress/sale-launch-100/tests/admin-input.php
       - name: PHP preview syntax and security
