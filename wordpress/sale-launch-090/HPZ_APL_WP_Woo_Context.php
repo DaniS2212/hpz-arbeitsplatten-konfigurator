@@ -44,7 +44,7 @@ final class HPZ_APL_WP_Woo_Context_09 {
             $rate=reset($rates);
             if (!is_array($rate) || !is_numeric($rate['rate'] ?? null)
                 || (int)round((float)$rate['rate']*100)!==1900
-                || !empty($rate['compound'])) return $blocked;
+                || !in_array($rate['compound'] ?? 'no',['no','0',0,false],true)) return $blocked;
             $blocked['baseTaxRateBasisPoints']=1900;
             $blocked['taxVerified']=true;
             $blocked['pricesConfigured']=in_array(get_option('woocommerce_prices_include_tax',''),['yes','no'],true)
