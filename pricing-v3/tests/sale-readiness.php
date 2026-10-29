@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 define('ABSPATH', __DIR__);
-require_once __DIR__.'/../wordpress/hpz-apl-admin-preview/includes/decor-catalog.php';
-require_once __DIR__.'/../pricing-v3/HPZ_APL_Price_V3.php';
-require_once __DIR__.'/../wordpress/hpz-apl-admin-preview/includes/price-preview.php';
-require_once __DIR__.'/../pricing-v3/HPZ_APL_Straight_Sale_Readiness.php';
+require_once __DIR__.'/../../wordpress/hpz-apl-admin-preview/includes/decor-catalog.php';
+require_once __DIR__.'/../HPZ_APL_Price_V3.php';
+require_once __DIR__.'/../../wordpress/hpz-apl-admin-preview/includes/price-preview.php';
+require_once __DIR__.'/../HPZ_APL_Straight_Sale_Readiness.php';
 
 $count=0;
 function ck($ok,string $name):void{global $count;++$count;if(!$ok)throw new RuntimeException($name);}
@@ -46,7 +46,7 @@ ck(in_array('weight-and-customer-shipping-unverified',$absent['blockers'],true),
 ck(in_array('woocommerce-tax-context-unverified',$absent['blockers'],true),'missing real tax');
 ck(in_array('woocommerce-checkout-integration-not-verified',$absent['blockers'],true),'missing checkout verification');
 ck($absent['unitGrossReferenceCents']===67000,'V3 quote reused unchanged');
-ck(!str_contains(json_encode($absent),'supplierNetCents'),'no private cost in public result');
+ck(strpos(json_encode($absent),'supplierNetCents')===false,'no private cost in public result');
 $proof=verifiedProof($raw);
 $contexts=checkContext();
 $now=strtotime('2026-10-29 12:00:00 UTC');
