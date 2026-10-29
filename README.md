@@ -1,5 +1,7 @@
 # Küchenarbeitsplatten-Konfigurator
 
+**Entwicklung 0.7:** Die serverseitige Gerade-Verkaufsprüfung ist vorbereitet; aktuell bleiben sämtliche Kundenbestellungen gesperrt. Details und offene echte Liefer-/Versandnachweise: [docs/phase-070-gerade-bestellfaehig.md](docs/phase-070-gerade-bestellfaehig.md).
+
 Privates Entwicklungsprojekt von **DaniS2212** für holzplatten-zuschnitt.de.
 
 Repository: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
