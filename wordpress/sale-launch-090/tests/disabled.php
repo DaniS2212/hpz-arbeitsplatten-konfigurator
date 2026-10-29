@@ -18,7 +18,7 @@ function wc_has_notice($text,$type){return false;}
 function WC(){return null;}
 require_once __DIR__.'/../../hpz-apl-admin-preview/hpz-apl-admin-preview.php';
 $checks=0;function ck($yes,$msg){global $checks;$checks++;if(!$yes)throw new RuntimeException($msg);}
-ck(!HPZ_APL_WP_Straight_Runtime_09::canSell(),'no constant => no public sale');
+ck(!HPZ_APL_WP_Straight_Runtime_09::canSell(),'public sale option disabled by default');
 HPZ_APL_WP_Straight_Runtime_09::register();
 ck(!isset($actions['wp_ajax_nopriv_hpz_apl_public_quote']),'no guest quote endpoint');
 ck(!isset($actions['wp_ajax_nopriv_hpz_apl_add_configured']),'no guest cart endpoint');

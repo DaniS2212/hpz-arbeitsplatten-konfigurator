@@ -49,11 +49,11 @@ final class HPZ_APL_Admin_Preview {
         add_action('woocommerce_store_api_cart_errors', array(__CLASS__, 'store_errors'), 10, 2);
     }
     public static function options() {
-        return wp_parse_args((array)get_option(self::OPTION, array()), array('enabled'=>false, 'test_mode'=>true, 'placement'=>'automatic'));
+        return wp_parse_args((array)get_option(self::OPTION, array()), array('enabled'=>false, 'test_mode'=>true, 'sale_enabled'=>false, 'placement'=>'automatic'));
     }
     public static function sanitize($input) {
         $input = is_array($input) ? $input : array();
-        return array('enabled'=>!empty($input['enabled']), 'test_mode'=>!empty($input['test_mode']), 'placement'=>isset($input['placement']) && $input['placement']==='shortcode' ? 'shortcode' : 'automatic');
+        return array('enabled'=>!empty($input['enabled']), 'test_mode'=>!empty($input['test_mode']), 'sale_enabled'=>!empty($input['sale_enabled']) && current_user_can('manage_options'), 'placement'=>isset($input['placement']) && $input['placement']==='shortcode' ? 'shortcode' : 'automatic');
     }
     public static function target($id) {
         return isset(self::PRODUCTS[(int)$id]) || isset(self::PRODUCTS[(int)wp_get_post_parent_id($id)]);
@@ -182,6 +182,9 @@ final class HPZ_APL_Admin_Preview {
         echo '<p><label><input type="checkbox" name="'.esc_attr(self::OPTION).'[enabled]" value="1" '.checked($o['enabled'], true, false).'> Vorschau aktivieren</label></p>';
         echo '<p><label><input type="checkbox" name="'.esc_attr(self::OPTION).'[test_mode]" value="1" '.checked($o['test_mode'], true, false).'> Testmodus (erforderlich; ohne Testmodus bleibt die Vorschau aus)</label></p>';
         echo '<p><label>Einbauort <select name="'.esc_attr(self::OPTION).'[placement]"><option value="automatic" '.selected($o['placement'], 'automatic', false).'>Automatisch vor der Beschreibung</option><option value="shortcode" '.selected($o['placement'], 'shortcode', false).'>Nur Shortcode</option></select></label></p><p>Fallback: <code>[hpz_apl_configurator]</code> in einem eigenen Bereich zwischen Produktkopf und Beschreibung. Kein Produktionsmodus vorhanden.</p>';
+        echo '<hr><h2>Gerade Arbeitsplatte verkaufen</h2>';
+        echo '<p>Erst nach dem Warenkorb- und Checkout-Test einschalten. Voraussetzung: Produkt 1000083 ist veröffentlicht. Es sind keine einzelnen Speedmaster-Freigaben nötig.</p>';
+        echo '<p><label><input type="checkbox" name="'.esc_attr(self::OPTION).'[sale_enabled]" value="1" '.checked($o['sale_enabled'], true, false).'> Verkauf der geraden Arbeitsplatte aktivieren</label></p>';
         submit_button(); echo '</form></div>';
     }
 }

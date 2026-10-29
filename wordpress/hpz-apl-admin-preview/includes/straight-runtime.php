@@ -15,9 +15,8 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
     const RELEASE_OPTION='hpz_apl_straight_sale_090';
 
     public static function canSell(): bool {
-        return defined('HPZ_APL_09_RELEASE_AUDITED')
-            && HPZ_APL_09_RELEASE_AUDITED === true
-            && get_option(self::RELEASE_OPTION,'disabled') === 'enabled'
+        $settings=get_option('hpz_apl_admin_preview',[]);
+        return is_array($settings) && !empty($settings['sale_enabled'])
             && function_exists('WC') && WC() && function_exists('wc_get_product')
             && self::validPublishedProduct(wc_get_product(self::PRODUCT_ID));
     }
