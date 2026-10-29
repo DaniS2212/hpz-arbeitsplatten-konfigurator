@@ -143,13 +143,13 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
     public static function storeQuantity($allowed,$quantity,$product,$cartItem) {
         if (!is_object($product) || !method_exists($product,'get_id')
             || (int)$product->get_id()!==self::PRODUCT_ID) return $allowed;
-        if (!$allowed || !self::canSell() || !is_int($quantity) || !is_array($cartItem)) return false;
+        if (!$allowed || !self::canSell() || !is_int($quantity) || !is_array($cartItem)) return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);
         try {
             HPZ_APL_WC_Cart_Bridge_08::inspect(
                 $cartItem,$quantity,function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},self::secret()
             );
             return true;
-        }catch(Throwable $error){return false;}
+        }catch(Throwable $error){return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);}
     }
 
     public static function classicQuantity($allowed,$cartKey,$values,$quantity) {
