@@ -491,3 +491,39 @@
 @media (prefers-reduced-motion:reduce){
   .hpz-apl .surface-decors .decor-card{transition:none;transform:none!important}
 }
+/* 0.6.5 – Last valid contour and direct, accessible input errors. */
+.hpz-apl .drawing-status{
+  margin:0 18px 14px;padding:12px 14px;
+  border:1px solid #e7c4b4;border-left:4px solid #b65032;
+  border-radius:9px;background:#fff4ee;
+  font-size:12px;line-height:1.5;font-weight:650;color:#8a361f;
+}
+.hpz-apl .field-error{
+  display:block;margin:8px 0 0;padding:8px 10px;
+  border-radius:7px;background:#fff0eb;color:#973b27;
+  font-size:11px;font-weight:650;line-height:1.4;
+}
+.hpz-apl .a1-radius-field.has-measure-error,
+.hpz-apl .dimension-grid > div.has-measure-error,
+.hpz-apl[data-product="straight"] .a1-radius-field.has-measure-error {
+  background:#fff8f5;border-color:#bd573b;box-shadow:0 0 0 2px #b94e3225;
+}
+.hpz-apl .has-measure-error .dimension-label{color:#8a361f;font-weight:750}
+.hpz-apl .has-measure-error .dimension-label span{background:#ac4127;color:#fff}
+.hpz-apl .has-measure-error .unit-input,
+.hpz-apl .has-measure-error .unit-input:focus-within,
+.hpz-apl .has-measure-error.active-dimension .unit-input,
+.hpz-apl[data-product="straight"] .has-measure-error .unit-input {
+  border:2px solid #b65032;background:#fff;box-shadow:0 0 0 3px #b6503224;
+}
+.hpz-apl .measurement-error{
+  margin:13px 0 4px;padding:12px 14px;
+  border:1px solid #e7b7a7;border-left:4px solid #b65032;
+  border-radius:9px;background:#fff3ed;color:#8a361f;
+  font-weight:650;font-size:12px;line-height:1.5;
+}
+@media(max-width:760px){
+  .hpz-apl .drawing-status{margin:0 10px 12px;font-size:11px}
+  .hpz-apl .measurement-error{font-size:11px}
+  .hpz-apl .field-error{font-size:10px}
+}

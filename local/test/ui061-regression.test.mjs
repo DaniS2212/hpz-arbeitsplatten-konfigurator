@@ -42,7 +42,7 @@ test('customer summary is concise, not supplier-coded, and keeps cart disabled',
   assert.match(template,/id="cart"[^>]+disabled/);
   const component=await read('public/component.mjs');
   for(const required of [
-    'function summary(config){',
+    'function summary(config,invalid=false){',
     "['Maße',",
     "['Material',",
     "['Dekor',",
@@ -63,17 +63,17 @@ test('the strong input highlight is identical in source and bundled WordPress st
   assert.match(source,/\.a1-radius-field\.active-dimension/);
   assert.match(source,/border:2px solid #146178/);
 });
-test('WordPress assets are cache-busted at 0.6.4 and retain the protected price adapter',async()=>{
+test('WordPress assets are cache-busted at 0.6.5 and retain the protected price adapter',async()=>{
   const wp=new URL('../wordpress/hpz-apl-admin-preview/',root);
   const php=await readFile(new URL('hpz-apl-admin-preview.php',wp),'utf8');
-  assert.match(php,/Version: 0\.6\.4/);
+  assert.match(php,/Version: 0\.6\.5/);
   const bootstrap=await readFile(new URL('assets/bootstrap.js',wp),'utf8');
-  assert.match(bootstrap,/component\.js\?v=0\.6\.4/);
-  assert.match(bootstrap,/preview\.js\?v=0\.6\.4/);
+  assert.match(bootstrap,/component\.js\?v=0\.6\.5/);
+  assert.match(bootstrap,/preview\.js\?v=0\.6\.5/);
   const js=await readFile(new URL('assets/component.js',wp),'utf8');
-  assert.match(js,/component\.css\?v=0\.6\.4/);
-  assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.4/);
-  assert.match(js,/Deine Konfiguration|function summary\(config\)/);
+  assert.match(js,/component\.css\?v=0\.6\.5/);
+  assert.match(js,/kuechenstudio-060\.css\?v=0\.6\.5/);
+  assert.match(js,/function summary\(config,invalid=false\)/);
   assert.match(php,/woocommerce_is_purchasable/);
   assert.match(php,/woocommerce_store_api_cart_errors/);
   const ajax=await readFile(new URL('assets/preview.js',wp),'utf8');

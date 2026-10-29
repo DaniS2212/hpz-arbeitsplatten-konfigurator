@@ -1,6 +1,6 @@
-import {normalize} from './core/config.js?v=0.6.4';
-import {geometry} from './core/geometry.js?v=0.6.4';
-import {resolveProduct} from './core/products.js?v=0.6.4';
+import {normalize} from './core/config.js?v=0.6.5';
+import {geometry} from './core/geometry.js?v=0.6.5';
+import {resolveProduct} from './core/products.js?v=0.6.5';
 // Geometry remains visual. Only the PHP endpoint may supply a V3 gross reference.
 // Allow the slab drawing to become interactive immediately. Price calculation
 // is a separate, cancellable WordPress request, never a geometry dependency.
