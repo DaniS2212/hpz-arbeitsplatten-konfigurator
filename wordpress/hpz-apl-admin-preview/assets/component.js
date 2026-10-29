@@ -1,11 +1,11 @@
-import {catalog} from './core/config.js?v=0.6.5';
-import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=0.6.5';
-import {svg} from './core/geometry.js?v=0.6.5';
-import {createPreviewController} from './latest.js?v=0.6.5';
-import {template} from './component-template.js?v=0.6.5';
-import {resolveProduct} from './core/products.js?v=0.6.5';
-import {decorImageUrl} from './decor-images.js?v=0.6.5';
-import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=0.6.5';
+import {catalog} from './core/config.js?v=1.0.0';
+import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.0';
+import {svg} from './core/geometry.js?v=1.0.0';
+import {createPreviewController} from './latest.js?v=1.0.0';
+import {template} from './component-template.js?v=1.0.0';
+import {resolveProduct} from './core/products.js?v=1.0.0';
+import {decorImageUrl} from './decor-images.js?v=1.0.0';
+import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=1.0.0';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -15,8 +15,8 @@ export function mountConfigurator(root,context={},adapters={}){
  mounts.get(root)?.destroy();
  const shadow=root.shadowRoot||root.attachShadow({mode:'open'});
  const shell=document.createElement('div');shell.className='hpz-apl';shell.dataset.mode=embedded?'embedded':'demo';
- const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=0.6.5',import.meta.url).href;
- const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=0.6.5',import.meta.url).href;
+ const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=1.0.0',import.meta.url).href;
+ const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=1.0.0',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,studioLink,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
  function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}
@@ -355,6 +355,24 @@ $('cart').addEventListener('click',async ()=>{
     purchaseState(false);
   }
 });
+if(embedded&&product==='straight'&&!adapters.purchase){
+ const copyButton=document.createElement('button');
+ copyButton.type='button';copyButton.textContent='Prüfkonfiguration kopieren';
+ copyButton.className='hpz-copy-proof';
+ copyButton.style.cssText='display:block;margin:12px auto;padding:8px 14px;border:1px solid currentColor;border-radius:8px;background:transparent;font:inherit;cursor:pointer';
+ $('cart').after(copyButton);
+ copyButton.addEventListener('click',async()=>{
+  if(!valid){$('price-note').textContent='Bitte erst gültige Maße eingeben.';return;}
+  try {
+   const json=JSON.stringify(payload());
+   if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+   await navigator.clipboard.writeText(json);
+   copyButton.textContent='Kopiert – im Backend einfügen';
+  }catch{
+   copyButton.textContent='Kopieren nicht möglich – Browserberechtigung prüfen';
+  }
+ });
+}
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
 $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));

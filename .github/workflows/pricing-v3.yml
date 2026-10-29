@@ -36,6 +36,8 @@ jobs:
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
           php wordpress/sale-launch-090/tests/disabled.php
           php wordpress/sale-launch-090/tests/enabled-sandbox.php
+      - name: Version 1.0 supplier proof admin input validation
+        run: php -l wordpress/sale-launch-100/HPZ_APL_WP_Proof_Admin.php && php wordpress/sale-launch-100/tests/admin-input.php
       - name: PHP preview syntax and security
         run: |
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
