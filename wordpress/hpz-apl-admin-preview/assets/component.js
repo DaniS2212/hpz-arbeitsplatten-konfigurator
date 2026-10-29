@@ -1,11 +1,11 @@
-import {catalog} from './core/config.js?v=1.0.1';
-import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.1';
-import {svg} from './core/geometry.js?v=1.0.1';
-import {createPreviewController} from './latest.js?v=1.0.1';
-import {template} from './component-template.js?v=1.0.1';
-import {resolveProduct} from './core/products.js?v=1.0.1';
-import {decorImageUrl} from './decor-images.js?v=1.0.1';
-import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=1.0.1';
+import {catalog} from './core/config.js?v=1.0.2';
+import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.2';
+import {svg} from './core/geometry.js?v=1.0.2';
+import {createPreviewController} from './latest.js?v=1.0.2';
+import {template} from './component-template.js?v=1.0.2';
+import {resolveProduct} from './core/products.js?v=1.0.2';
+import {decorImageUrl} from './decor-images.js?v=1.0.2';
+import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from './core/straight-corners.js?v=1.0.2';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -15,8 +15,8 @@ export function mountConfigurator(root,context={},adapters={}){
  mounts.get(root)?.destroy();
  const shadow=root.shadowRoot||root.attachShadow({mode:'open'});
  const shell=document.createElement('div');shell.className='hpz-apl';shell.dataset.mode=embedded?'embedded':'demo';
- const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=1.0.1',import.meta.url).href;
- const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=1.0.1',import.meta.url).href;
+ const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./component.css?v=1.0.2',import.meta.url).href;
+ const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=1.0.2',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,studioLink,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
  function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}
@@ -43,7 +43,7 @@ const formError=element('p','measurement-error');
 formError.id='measurement-error';formError.hidden=true;formError.setAttribute('role','alert');
 radiusWrap.after(formError);
 const infoDialog=element('dialog');infoDialog.id='corner-help';
-infoDialog.innerHTML='<button class="dialog-close" type="button" aria-label="Eckhinweise schließen">×</button><h2>Deine vorderen Ecken</h2><p>Du siehst die Platte von oben; die Vorderkante liegt unten. Längen und Tiefen kannst du auf 0,1 cm genau eingeben, Eckmaße in 1-cm-Schritten. Beim Wechsel der Bearbeitung werden nur die Eckmaße zurückgesetzt.</p><p>R1 ist vorne links, R2 vorne rechts. Bei Schrägen bezeichnet L2/L3 die Länge entlang der Vorderkante, B2/B3 die Tiefe entlang der Seite.</p><p>Bei der eckigen Abschrägung entsteht eine gerade Diagonale. Die durchlaufende Vorderkante zeigen wir mit schematischen Übergängen ohne Fertigungsradien; derzeit nur bei 200 × 60 cm, mit Schrägenlänge 6–50 cm und Tiefe 6–30 cm.</p><p>Die Vorschaugrenzen sind konservativ. Fertigung und Preisfreigabe bleiben getrennt; Bestellungen sind gesperrt.</p>';
+infoDialog.innerHTML='<button class="dialog-close" type="button" aria-label="Eckhinweise schließen">×</button><h2>Deine vorderen Ecken</h2><p>Du siehst die Platte von oben; die Vorderkante liegt unten. Längen und Tiefen kannst du auf 0,1 cm genau eingeben, Eckmaße in 1-cm-Schritten. Beim Wechsel der Bearbeitung werden nur die Eckmaße zurückgesetzt.</p><p>R1 ist vorne links, R2 vorne rechts. Bei Schrägen bezeichnet L2/L3 die Länge entlang der Vorderkante, B2/B3 die Tiefe entlang der Seite.</p><p>Bei der eckigen Abschrägung entsteht eine gerade Diagonale. Die durchlaufende Vorderkante zeigen wir mit schematischen Übergängen bei allen zulässigen Maßen. Bei dieser Variante: Länge 100–400 cm, Tiefe 30–90 cm. Eckmaße L2/L3 6–180 cm, B2/B3 6–50 cm, mit mindestens 10 cm Restkante.</p><p>Die Shopgrenzen liegen vorsichtig innerhalb der in Speedmaster angezeigten Bereiche. Maßgeblich für die Fertigung sind die eingegebenen Maße.</p>';
 shell.append(infoDialog);cornerHelp.addEventListener('click',()=>infoDialog.showModal());
 const detailOptions=element('div','a11-detail-options');detailOptions.id='drawing-detail-options';
 for(const [value,title] of [['overview','Gesamtansicht'],['left','Detail vorne links'],['right','Detail vorne rechts']]){
@@ -324,7 +324,7 @@ function refresh(){
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=v.id==='none'?'Vorderkante unten. Ohne Eckbearbeitung.':v.treatment==='round'?'Rundungen im nächsten Schritt einstellen.':v.treatment==='chamfer_square'?'Gerade Diagonalen. Länge und Tiefe im nächsten Schritt einstellen.':'Weichere Übergänge, schematisch dargestellt. Vorschau vorerst bei 200 × 60 cm.';
+    $('corner-note').textContent=v.id==='none'?'Vorderkante unten. Ohne Eckbearbeitung.':v.treatment==='round'?'Rundungen im nächsten Schritt einstellen.':v.treatment==='chamfer_square'?'Gerade Diagonalen. Länge und Tiefe im nächsten Schritt einstellen.':'Weichere Übergänge, schematisch dargestellt. Alle zulässigen Plattenmaße möglich.';
     $('summary-shape').textContent=`Gerade · ${sides[v.side]}`;
   }
   for(const id of c.families[product].fields){
@@ -355,24 +355,6 @@ $('cart').addEventListener('click',async ()=>{
     purchaseState(false);
   }
 });
-if(embedded&&product==='straight'&&!adapters.purchase){
- const copyButton=document.createElement('button');
- copyButton.type='button';copyButton.textContent='Prüfkonfiguration kopieren';
- copyButton.className='hpz-copy-proof';
- copyButton.style.cssText='display:block;margin:12px auto;padding:8px 14px;border:1px solid currentColor;border-radius:8px;background:transparent;font:inherit;cursor:pointer';
- $('cart').after(copyButton);
- copyButton.addEventListener('click',async()=>{
-  if(!valid){$('price-note').textContent='Bitte erst gültige Maße eingeben.';return;}
-  try {
-   const json=JSON.stringify(payload());
-   if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
-   await navigator.clipboard.writeText(json);
-   copyButton.textContent='Kopiert – im Backend einfügen';
-  }catch{
-   copyButton.textContent='Kopieren nicht möglich – Browserberechtigung prüfen';
-  }
- });
-}
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
 $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
