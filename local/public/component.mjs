@@ -217,6 +217,8 @@ function summary(config,invalid=false){
   }
   $('summary').replaceChildren(...rows.map(([key,value])=>{const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;}));
 }
+let saleReady=false,purchaseBusy=false;
+function purchaseState(enabled){saleReady=enabled&&!!adapters.purchase&&product==='straight'&&valid&&!purchaseBusy;$('cart').disabled=!saleReady;if(adapters.purchase)$('cart').textContent=saleReady?'In den Warenkorb →':'Konfiguration wird geprüft';}
 function priceDisplay(value,label){$('price').textContent=value;$('price-label').textContent=label;$('mobile-price').textContent=value;$('mobile-price-label').textContent=label;}
 function updateCornerBounds(){
   if(product!=='straight'||straightSide==='none')return;
@@ -264,10 +266,15 @@ function applyVisual(result){
     :`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`;
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});const response=await fetch('/api/preview',{signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.error);return result;},
-  onPending:()=>{if(disposed)return;valid=false;$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
+  onPending:()=>{if(disposed)return;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
    onVisual:applyVisual,
-  onResult:result=>{if(disposed)return;applyVisual(result);
-     if(result.quote.status==='calculated-not-sale-approved'){
+  onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);
+     if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase&&product==='straight'){
+      priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Bruttopreis · ${result.config.quantity} Stück`);
+      $('tax-note').textContent=result.quote.taxNote||'inkl. 19 % MwSt. · zzgl. Versand';
+      $('price-note').textContent='Maße und Ausführung werden beim Hinzufügen und an der Kasse erneut geprüft.';
+      purchaseState(true);
+     }else if(result.quote.status==='calculated-not-sale-approved'){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Unverbindlicher Bruttopreis${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);
       $('tax-note').textContent=result.quote.taxNote;
       $('price-note').textContent=customerMeasureError(result.quote.availabilityNote);
@@ -284,7 +291,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
   },onError:error=>{
     if(disposed)return;
-    valid=false;
+    valid=false;purchaseState(false);
     const message=customerMeasureError(error);
     const match=message.match(/^(L[123]|B[123]|R[12]):\s*/);
     if(match&&!fieldErrors.has(match[1]))setFieldError(match[1],message.slice(match[0].length));
@@ -309,6 +316,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
   }
 });
 function refresh(){
+  purchaseState(false);
   shell.style.setProperty('--hpz-decor-image',`url("${decorImageUrl(decor)}")`);
   shell.dataset.corner=corner;
   $('special-wrap').hidden=!['round','chamfer'].includes(corner);
@@ -330,6 +338,23 @@ function refresh(){
 $('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;refresh();});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
+$('cart').addEventListener('click',async ()=>{
+  if(!saleReady||purchaseBusy||!adapters.purchase||!valid||product!=='straight')return;
+  const raw=payload();
+  purchaseBusy=true;purchaseState(false);
+  $('cart').textContent='Wird zum Warenkorb hinzugefügt …';
+  try{
+    const data=await adapters.purchase(raw);
+    const url=new URL(data?.cartUrl??'',location.href);
+    if(!/^https?:$/.test(url.protocol)||url.origin!==location.origin||!data?.added)
+      throw new Error('Der Warenkorb konnte nicht geöffnet werden.');
+    location.assign(url.href);
+  }catch(error){
+    purchaseBusy=false;
+    $('price-note').textContent=error?.message||'Bitte versuche es erneut.';
+    purchaseState(false);
+  }
+});
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
 $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
@@ -342,7 +367,7 @@ rebuild();showStep(0);refresh();
 
 if(embedded){
  shell.querySelector('#products').hidden=true;
- if(product==='straight')$('cart').textContent='Bestellung gesperrt · Admin-Test';
+ if(product==='straight'&&!adapters.purchase)$('cart').textContent='Bestellung gesperrt · Admin-Test';
 }
 const handle={destroy(){if(disposed)return;disposed=true;controller.cancel();abort.abort();for(const d of shadow.querySelectorAll('dialog'))if(d.open)d.close();shadow.replaceChildren();mounts.delete(root);},updateContext(next){return mountConfigurator(root,{...context,...next},adapters);}};
 mounts.set(root,handle);return handle;

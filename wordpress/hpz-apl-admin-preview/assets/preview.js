@@ -51,7 +51,7 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
         message:response.status===422?data?.data?.message:'Preisvorschau derzeit nicht verfügbar.'}};
     }
     const q=data.data?.quote;
-    if(q?.status!=='calculated-not-sale-approved'||q.purchasable!==false||q.currency!=='EUR'
+    if(!((q?.status==='calculated-not-sale-approved'&&q.purchasable===false)||(q?.status==='calculated-ready-for-cart'&&q.purchasable===true&&pricePreview.sale===true))||q.currency!=='EUR'
       ||!Number.isSafeInteger(q.unitGrossReferenceCents)||q.unitGrossReferenceCents<1
       ||!Number.isSafeInteger(q.totalGrossReferenceCents)||q.totalGrossReferenceCents!==q.unitGrossReferenceCents*config.quantity
       ||q.quantity!==config.quantity)throw new Error('Invalid price response.');
@@ -59,4 +59,20 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
   }catch{
     return {...visual,quote:{status:'unavailable',purchasable:false,message:'Preisvorschau derzeit nicht verfügbar.'}};
   }
+}
+
+/** Public cart action only exists after audited server release. */
+export async function addConfigured(raw,cartConfig){
+  if(!cartConfig?.url||!cartConfig?.nonce)throw new Error('Bestellfunktion nicht freigegeben.');
+  const endpoint=new URL(cartConfig.url,location.href);
+  if(endpoint.origin!==location.origin)throw new Error('Ungültiges Bestellziel.');
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+  try{
+    const response=await fetch(endpoint.href,{method:'POST',credentials:'same-origin',cache:'no-store',
+      headers:{'Content-Type':'application/json','X-WP-Nonce':cartConfig.nonce},
+      signal:controller.signal,body:JSON.stringify(raw)});
+    const result=await response.json();
+    if(!response.ok||result?.success!==true)throw new Error(result?.data?.message||'Bestellung nicht möglich.');
+    return result.data;
+  }finally{clearTimeout(timeout);}
 }
