@@ -32,7 +32,7 @@ final class HPZ_APL_Admin_Preview {
     public static function init() {
         // Safe by default: self-registers no public route or Woo hooks without
         // the external 0.9 audited-release constant AND saved operator flag.
-        HPZ_APL_WP_Straight_Runtime_09::register();
+        add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_init', array(__CLASS__, 'settings'));
         add_action('template_redirect', array(__CLASS__, 'no_cache'));
