@@ -1,5 +1,5 @@
-import {validateStraightCorner} from './straight-corners.js?v=1.0.0';
-import {DECOR_CATALOG,decorById} from './decor-catalog.js?v=1.0.0';
+import {validateStraightCorner} from './straight-corners.js?v=1.0.1';
+import {DECOR_CATALOG,decorById} from './decor-catalog.js?v=1.0.1';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
   l: { label: 'Arbeitsplatte L-Form', geometries: ['L1','L2','L3','L4'], fields: ['L1','L2','B1','B2'] },

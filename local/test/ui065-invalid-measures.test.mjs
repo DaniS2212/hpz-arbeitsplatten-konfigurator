@@ -29,9 +29,9 @@ test('Field errors are direct and accessible in the WordPress bundle',async()=>{
  assert.match(css,/has-measure-error/);
  assert.match(css,/\.drawing-status/);
 });
-test('Only admin-preview, no purchasable path in 1.0.0',async()=>{
+test('Only admin-preview, no purchasable path in 1.0.1',async()=>{
  const php=await get('../../wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php');
- assert.match(php,/Version: 1\.0\.0/);
+ assert.match(php,/Version: 1\.0\.1/);
  assert.match(php,/woocommerce_is_purchasable/);
  assert.match(php,/woocommerce_store_api_cart_errors/);
  const bundle=await get('../../wordpress/hpz-apl-admin-preview/assets/component.js');

@@ -1,4 +1,4 @@
-import {decorById} from './core/decor-catalog.js?v=1.0.0';
+import {decorById} from './core/decor-catalog.js?v=1.0.1';
 // Same relative layout in the local demo and the standalone WordPress bundle.
 // No caller-controlled filename/URL and no fallback to a different decor.
 export function decorImageUrl(id,{thumbnail=false}={}){

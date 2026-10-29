@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Holz-Liebling Arbeitsplatten – Admin-Vorschau
  * Description: Isolierter Konfigurator für drei bestehende Produktentwürfe. Ausschließlich Admin-Test; kein Verkauf.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -25,7 +25,7 @@ require_once __DIR__.'/includes/straight-runtime.php';
 // Exact supplier approval UI disabled.
 
 final class HPZ_APL_Admin_Preview {
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.1';
     const OPTION = 'hpz_apl_admin_preview';
     const PRODUCTS = array(1000083 => 'straight', 1000080 => 'l', 1000081 => 'u');
     private static $rendered = false;

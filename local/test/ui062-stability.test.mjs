@@ -45,9 +45,9 @@ test('Customer-facing corner fields are grouped and decor cards remain mounted',
  assert.match(template,/Deine Konfiguration/);
  assert.match(template,/id="cart"[^>]+disabled/);
 });
-test('Bundled 1.0.0 plugin still requires draft-admin and keeps sales blocked',async()=>{
+test('Bundled 1.0.1 plugin still requires draft-admin and keeps sales blocked',async()=>{
  const php=await read('../../wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php');
- assert.match(php,/Version: 1\.0\.0/);
+ assert.match(php,/Version: 1\.0\.1/);
  assert.match(php,/woocommerce_is_purchasable/);
  assert.match(php,/woocommerce_store_api_cart_errors/);
  const js=await read('../../wordpress/hpz-apl-admin-preview/assets/component.js');
