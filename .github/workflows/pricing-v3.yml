@@ -28,6 +28,14 @@ jobs:
           php -l wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php
           php wordpress/checkout-v08/tests/cart-bridge.php
           php wordpress/checkout-v08/tests/wp-hooks.php
+      - name: "WP 0.9: no guest access, double release gate, supplier proofs and shipping/VAT"
+        run: |
+          php -l wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php
+          php -l wordpress/sale-launch-090/HPZ_APL_WP_Woo_Context.php
+          php -l wordpress/sale-launch-090/HPZ_APL_WP_Straight_Runtime.php
+          php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
+          php wordpress/sale-launch-090/tests/disabled.php
+          php wordpress/sale-launch-090/tests/enabled-sandbox.php
       - name: PHP preview syntax and security
         run: |
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
