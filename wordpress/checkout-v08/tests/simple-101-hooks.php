@@ -36,7 +36,7 @@ function input():array{return [
  'straightCorner'=>['side'=>'none','treatment'=>null,'parameters'=>[]],
  'dimensions'=>['L1'=>'2000','B1'=>'600'],'material'=>'APL38','decor'=>'W980','quantity'=>1,
 ];}
-$ctx=['country'=>'DE','pricesConfigured'=>true,'taxVerified'=>true];
+$ctx=['country'=>'DE','pricesConfigured'=>true,'taxVerified'=>true,'baseTaxRateBasisPoints'=>1900];
 HPZ_APL_WC_Dormant_Hooks_08::configure(
  function($key){return null;},
  function($item,$cart)use($ctx){return $ctx;},
