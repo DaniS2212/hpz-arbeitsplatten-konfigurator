@@ -51,7 +51,7 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
         // manually set operator option, it CANNOT be triggered by a URL,
         // POST payload, visitor cookie, webhook or the preview checkbox.
         HPZ_APL_WC_Dormant_Hooks_08::configure(
-            function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},
+            function($key){return null;},
             function($line,$cart){return HPZ_APL_WP_Woo_Context_09::context($line,$cart);},
             self::secret()
         );
@@ -95,7 +95,7 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
         $raw=self::ensureRequest('hpz_apl_public_quote');
         try {
             $signed=HPZ_APL_WC_Cart_Bridge_08::issue(
-                $raw,function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},self::secret()
+                $raw,function($key){return null;},self::secret()
             );
             $normalized=HPZ_APL_Price_Preview::normalize($raw);
             $quote=HPZ_APL_Price_V3::quote($normalized);
@@ -107,7 +107,7 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
                 'totalGrossReferenceCents'=>$quote['totalGrossReferenceCents'],
                 'quantity'=>$normalized['quantity'],
                 'taxNote'=>'DE-Bruttopreis inkl. 19 % MwSt. · Kundenversand wird im Checkout berechnet',
-                'availabilityNote'=>'Lieferbarkeit für diese Konfiguration hinterlegt. Versand und Steuer im Checkout endgültig geprüft.',
+                'availabilityNote'=>'Maße und Preis geprüft. Kundenversand über WooCommerce.',
                 'purchasable'=>true,
             ]],200);
         } catch(Throwable $error) {
@@ -122,7 +122,7 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
             if (!WC()->cart && function_exists('wc_load_cart')) wc_load_cart();
             if (!WC()->cart) throw new LogicException('Warenkorb nicht verfügbar.');
             $signed=HPZ_APL_WC_Cart_Bridge_08::issue(
-                $raw,function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},self::secret()
+                $raw,function($key){return null;},self::secret()
             );
             $quantity=$raw['quantity'] ?? null;
             if (!is_int($quantity)||$quantity<1||$quantity>1000) {
@@ -146,7 +146,7 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
         if (!$allowed || !self::canSell() || !is_int($quantity) || !is_array($cartItem)) return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);
         try {
             HPZ_APL_WC_Cart_Bridge_08::inspect(
-                $cartItem,$quantity,function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},self::secret()
+                $cartItem,$quantity,function($key){return null;},self::secret()
             );
             return true;
         }catch(Throwable $error){return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);}
@@ -157,7 +157,7 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
         if (!$allowed || !self::canSell() || !is_int($quantity)) return false;
         try{
             HPZ_APL_WC_Cart_Bridge_08::inspect(
-                $values,$quantity,function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},self::secret()
+                $values,$quantity,function($key){return null;},self::secret()
             );
             return true;
         }catch(Throwable $error){return false;}
