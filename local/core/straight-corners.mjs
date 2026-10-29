@@ -25,29 +25,30 @@ export function defaultCornerParameters(side,treatment){
   const variant=straightCorner(side,side==='none'?null:treatment);
   return Object.fromEntries(variant.parameters.map(key=>[key,treatment==='round'?'100':'150']));
 }
-// All caps below are SHOP PREVIEW RESTRICTIONS, not a supplier approval.
-// 1.40 is intentionally below the reported supplier ratio 1.41.
+// Conservative caps inside the pictured Speedmaster range:
+ // supplier L1 200–4050, B1 200–900, L2/L3 60–1950, B2/B3 60–550 mm.
+export const straightShopLimits=Object.freeze({L1:{min:1000,max:4000},B1:{min:300,max:900}});
+export const continuousShopLimits=Object.freeze({lengthMin:60,lengthMax:1800,depthMin:60,depthMax:500,frontMin:100,backMin:100});
+// Square cuts retain the previously observed 1.40 slope cap.
 export function cornerLimits(side,treatment,dimensions,parameters={}){
   const variant=straightCorner(side,treatment),{L1:w,B1:d}=dimensions,fields={};
   let enabled=true,reason='';
   const value=key=>Number.isFinite(Number(parameters[key]))?Number(parameters[key]):0;
-  if(treatment==='chamfer_continuous'&&(w!==2000||d!==600)){
-    enabled=false;reason='Durchlaufende Abschrägung vorerst nur in der Referenzgröße 2000 × 600 mm. Länge/Tiefe anpassen oder eine andere Bearbeitung wählen.';
-  }
-  if(treatment==='chamfer_square'&&(w<200||w>3010||d<200||d>1260)){
-    enabled=false;reason='Eckige Abschrägung: Unser Vorschau-Prüfbereich ist 200–3010 mm Länge und 200–1260 mm Tiefe.';
+  if(w<straightShopLimits.L1.min||w>straightShopLimits.L1.max||d<straightShopLimits.B1.min||d>straightShopLimits.B1.max){
+    enabled=false;reason='Für die Gerade sind 100–400 cm Länge und 30–90 cm Tiefe vorgesehen.';
   }
   for(const key of variant.parameters){
     const left=['R1','L2','B2'].includes(key),opposite=left?'L3':'L2';
     if(key.startsWith('R')){
-      fields[key]={min:side==='left'&&w===2000&&d===600?50:10,max:floor10(Math.min(d-1,w-value(left?'R2':'R1')-50)),step:10};
+      fields[key]={min:side==='left'&&w===2000&&d===600?50:10,max:floor10(Math.min(d-1,w-value(left?'R2':'R1')-100)),step:10};
     }else if(key.startsWith('L')){
-      fields[key]={min:60,max:floor10(Math.min(w-value(opposite)-50,treatment==='chamfer_continuous'?500:1.4*value(left?'B2':'B3'))),step:10};
+      fields[key]={min:60,max:floor10(Math.min(w-value(opposite)-100,1800,
+        treatment==='chamfer_square'?1.4*value(left?'B2':'B3'):Infinity)),step:10};
     }else{
-      fields[key]={min:60,max:floor10(Math.min(d-50,treatment==='chamfer_continuous'?300:Infinity)),step:10};
+      fields[key]={min:60,max:floor10(Math.min(d-100,500)),step:10};
     }
   }
-  return {enabled,reason,fields,minFrontMm:50,minBackMm:50,source:'shop-preview-policy-v1'};
+  return {enabled,reason,fields,minFrontMm:100,minBackMm:100,source:'speedmaster-conservative-shop-102'};
 }
 export function validateStraightCorner(raw,convert,dimensions,{millimetres=false}={}){
   if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).some(k=>!['side','treatment','parameters'].includes(k)))throw new Error('Ungültige Eckauswahl.');

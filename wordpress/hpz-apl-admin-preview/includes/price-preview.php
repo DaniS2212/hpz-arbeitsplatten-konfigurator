@@ -82,7 +82,7 @@ final class HPZ_APL_Price_Preview {
             'totalGrossReferenceCents'=>$quote['totalGrossReferenceCents'],
             'quantity'=>$quote['quantity'],
             'taxNote'=>$taxNote,
-            'availabilityNote'=>'Unverbindliche Preisvorschau. Lieferbarkeit und Fertigungsmaße sind noch nicht bestätigt.',
+            'availabilityNote'=>'Maße und V3-Preis geprüft. Kundenversand über WooCommerce.',
             'purchasable'=>false,
         ];
     }

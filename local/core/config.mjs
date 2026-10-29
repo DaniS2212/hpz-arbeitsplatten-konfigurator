@@ -1,4 +1,4 @@
-import {validateStraightCorner} from './straight-corners.mjs';
+import {validateStraightCorner,straightShopLimits} from './straight-corners.mjs';
 import {DECOR_CATALOG,decorById} from './decor-catalog.mjs';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
@@ -48,6 +48,12 @@ export function normalize(raw) {
   if(!object(raw.dimensions) || Object.keys(raw.dimensions).some(k=>!family.fields.includes(k)))
     throw new Error('Unzulässige Maßfelder.');
   const dimensions=Object.fromEntries(family.fields.map(k=>[k,convert(raw.dimensions[k])]));
+  if(millimetres&&raw.product==='straight'){
+    if(dimensions.L1<straightShopLimits.L1.min||dimensions.L1>straightShopLimits.L1.max)
+      throw new Error('L1: Länge zwischen 100 und 400 cm eingeben.');
+    if(dimensions.B1<straightShopLimits.B1.min||dimensions.B1>straightShopLimits.B1.max)
+      throw new Error('B1: Tiefe zwischen 30 und 90 cm eingeben.');
+  }
   const straightCorner=raw.straightCorner===undefined?undefined:validateStraightCorner(raw.straightCorner,convert,dimensions,{millimetres});
   let special={};
   if(['round','chamfer'].includes(raw.corner)) {

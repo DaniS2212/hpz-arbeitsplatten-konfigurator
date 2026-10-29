@@ -43,5 +43,5 @@ function chamferGeometry(config){
   edges:points.map((p,i)=>({from:p,to:points[(i+1)%points.length],kind:'line',finish:'matching-1.5',status:schematic?'reference-only':'planned'})),
   corner:config.corner,cornerSizeMm:null,joints:null,shippingParts:null,supplierMappingVerified:false,
   warnings:['Konturvorschau nach den Speedmaster-Referenzen. Keine Fertigungs- oder Bestellfreigabe. L2/L3 zeigen den Abschnitt entlang der Vorderkante, B2/B3 die Tiefe entlang der Seite.',
-   ...(schematic?['Weiche Übergänge sind ausschließlich schematisch gezeichnet. Keine exakten Fertigungsradien; Bemaßung an der ungerundeten Bezugskontur. Vorschau vorerst auf 2000 × 600 mm und konservative Sondermaße begrenzt.']:['Sondermaße sind konservativ begrenzt: Shop-Regel L ≤ 1,40 × B, 10-mm-Schritte und 50 mm verbleibende Vorderkante/Hinterkante. Das ist keine allgemeine Lieferantenfreigabe.'])]};
+   ...(schematic?['Weiche Übergänge sind ausschließlich schematisch gezeichnet. Keine exakten Fertigungsradien; Bemaßung an der ungerundeten Bezugskontur. Die weichen Übergänge bleiben schematisch; die Vorschau skaliert über den gesamten zulässigen Maßbereich.']:['Sondermaße sind konservativ begrenzt: Shop-Regel L ≤ 1,40 × B, 10-mm-Schritte und 50 mm verbleibende Vorderkante/Hinterkante. Das ist keine allgemeine Lieferantenfreigabe.'])]};
 }
