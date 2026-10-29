@@ -123,7 +123,7 @@ foreach(['APL17.5','APL38'] as $mat) {
 }
 foreach ([
  ['productId'=>1000080],['sku'=>'wrong'],['product'=>'l'],['geometry'=>'L1'],
- ['decor'=>'INVALID'],['material'=>'APL99'],['dimensions'=>['L1'=>'1000','B1'=>'600']]
+ ['decor'=>'INVALID'],['material'=>'APL99'],['dimensions'=>['L1'=>'999','B1'=>'600']]
 ] as $patch) {
   try{HPZ_APL_Straight_Sale_Readiness::review(raw($patch));ck(false,'reject invalid input');}
   catch(InvalidArgumentException $e){ck(true,'invalid input rejected');}
