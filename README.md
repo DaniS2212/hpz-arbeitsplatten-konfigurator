@@ -1,12 +1,14 @@
 # Küchenarbeitsplatten-Konfigurator
 
+**1.0.2 Maßbereich Gerade:** Die durchlaufende Abschrägung ist jetzt für 100–400 × 30–90 cm zulässig, sofern die Eckabschnitte und Restkanten passen. Details: [Maßbereiche und Testplan](docs/phase-102-speedmaster-continuous.md).
+
 **Entwicklung 0.7:** Die serverseitige Gerade-Verkaufsprüfung ist vorbereitet; aktuell bleiben sämtliche Kundenbestellungen gesperrt. Details und offene echte Liefer-/Versandnachweise: [docs/phase-070-gerade-bestellfaehig.md](docs/phase-070-gerade-bestellfaehig.md).
 
 Privates Entwicklungsprojekt von **DaniS2212** für holzplatten-zuschnitt.de.
 
 Repository: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
 
-Aktueller Plugin-Stand: **1.0.1 / gültigkeitsgesicherte Küchenstudio-Vorschau, kompakte Eckfelder und geschützte V3-Preisvorschau**. Die vollständige
+Aktueller Plugin-Stand: **1.0.2 / gültigkeitsgesicherte Küchenstudio-Vorschau, kompakte Eckfelder und geschützte V3-Preisvorschau**. Die vollständige
 Entwicklung einschließlich früherer Stände und Pakete wird hier erhalten.
 Der Import ändert weder WordPress noch WooCommerce-Produkte.
 
