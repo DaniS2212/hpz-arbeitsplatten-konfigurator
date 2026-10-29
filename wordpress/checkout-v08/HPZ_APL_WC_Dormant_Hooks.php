@@ -32,6 +32,19 @@ final class HPZ_APL_WC_Dormant_Hooks_08
         if (!defined('HPZ_APL_080_SANDBOX_HOOK_TEST') || HPZ_APL_080_SANDBOX_HOOK_TEST !== true) {
             return false;
         }
+        return self::registerHooks();
+    }
+
+    /** Called only by the explicitly audited, still-disabled 0.9 launch gate. */
+    public static function registerForVerifiedSale(): bool
+    {
+        if (!class_exists('HPZ_APL_WP_Straight_Runtime_09')
+            || !HPZ_APL_WP_Straight_Runtime_09::canSell()) return false;
+        return self::registerHooks();
+    }
+
+    private static function registerHooks(): bool
+    {
         if (!is_callable(self::$proofLookup) || !is_callable(self::$wooContext)) return false;
         add_filter('woocommerce_add_to_cart_validation',[__CLASS__,'classicValidate'],50,6);
         add_filter('woocommerce_add_cart_item_data',[__CLASS__,'classicCartData'],50,4);
@@ -171,6 +184,7 @@ final class HPZ_APL_WC_Dormant_Hooks_08
         if (!self::requireTarget($row['product_id'] ?? null)) return $row;
         try {
             self::checkSigned($row,(int)($row['quantity'] ?? 0));
+            unset(self::$pendingErrors['session_'.$key]);
         } catch (Throwable $e) {
             self::$pendingErrors['session_'.$key]='Konfiguration im Warenkorb ist nicht mehr gültig.';
         }
