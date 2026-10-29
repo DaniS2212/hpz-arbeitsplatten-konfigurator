@@ -80,7 +80,7 @@ final class HPZ_APL_Price_V3
             'unitCornerSurchargeCents' => $cornerGrossCents,
             'quantity' => $quantity,
             'purchasable' => false,
-            'blockers' => ['supplier-exact-ek-and-manufacturing-unverified', 'shipping-parts-unverified', 'woocommerce-checkout-not-activated'],
+            'blockers' => ['woocommerce-checkout-not-activated'],
         ];
     }
 
@@ -106,8 +106,12 @@ final class HPZ_APL_Price_V3
             throw new InvalidArgumentException('Dimensions must be integer millimetres L1 and B1.');
         }
         $l = $dim['L1']; $b = $dim['B1'];
-        // Conservative pricing model reference envelope; not a supplier limit.
-        if ($l < 2000 || $l > 3000 || $b < 600 || $b > ($thick === 'APL38' ? 881 : 1200)) {
+        // Shop caps below the visible supplier maximum. Outside the historic
+        // 2000–3000 mm V3 sample, pricing is extrapolated and requires a
+        // Speedmaster spot-check before the public product goes live.
+        $through = ($c['straightCorner']['treatment'] ?? null) === 'chamfer_continuous';
+        $maxDepth = ($through || $thick === 'APL38') ? 900 : 1200;
+        if ($l < 1000 || $l > 4000 || $b < 300 || $b > $maxDepth) {
             throw new InvalidArgumentException('Dimensions outside price V3 reference envelope.');
         }
         if (!is_int($c['quantity'] ?? null) || $c['quantity'] < 1 || $c['quantity'] > 1000) {
@@ -151,25 +155,23 @@ final class HPZ_APL_Price_V3
         if ($round) {
             $r1 = $p['R1'] ?? 0; $r2 = $p['R2'] ?? 0;
             $min = $side === 'left' && $l === 2000 && $b === 600 ? 50 : 10;
-            if (($r1 && $r1 < $min) || $r1 >= $b || $r2 >= $b || $r1 + $r2 > $l - 50) {
+            if (($r1 && $r1 < $min) || $r1 >= $b || $r2 >= $b || $r1 + $r2 > $l - 100) {
                 throw new InvalidArgumentException('Round corner dimensions outside preview limits.');
             }
             return;
         }
-        if ($treatment === 'chamfer_continuous' && ($l !== 2000 || $b !== 600)) {
-            throw new InvalidArgumentException('Continuous chamfer currently previewed only at 2000x600.');
-        }
         $l2 = $p['L2'] ?? 0; $l3 = $p['L3'] ?? 0;
-        if ($l2 + $l3 > $l - 50) {
-            throw new InvalidArgumentException('Chamfers do not leave 50mm of straight front.');
+        if ($l2 + $l3 > $l - 100) {
+            throw new InvalidArgumentException('Chamfers must leave 100mm of straight front.');
         }
         foreach ([['L2','B2'], ['L3','B3']] as $pair) {
             if (!isset($p[$pair[0]])) { continue; }
             $cutLength = $p[$pair[0]]; $cutDepth = $p[$pair[1]];
-            $limitLength = $treatment === 'chamfer_continuous' ? 500 : (int) (floor(1.40 * $cutDepth / 10) * 10);
-            $limitDepth = $treatment === 'chamfer_continuous' ? 300 : $b - 50;
+            $limitLength = $treatment === 'chamfer_continuous'
+                ? 1800 : min(1800, (int)(floor(1.40 * $cutDepth / 10) * 10));
+            $limitDepth = min(500, $b - 100);
             if ($cutLength < 60 || $cutDepth < 60 || $cutDepth > $limitDepth || $cutLength > $limitLength) {
-                throw new InvalidArgumentException('Chamfer dimensions outside conservative preview limits.');
+                throw new InvalidArgumentException('Chamfer dimensions outside conservative Speedmaster shop limits.');
             }
         }
     }

@@ -7,7 +7,7 @@
       root.dataset.hpzMounted='loading';
       try{
         const [{mountConfigurator},{preview,addConfigured}]=await Promise.all([
-          import(new URL('./component.js?v=1.0.1',source).href),import(new URL('./preview.js?v=1.0.1',source).href)
+          import(new URL('./component.js?v=1.0.2',source).href),import(new URL('./preview.js?v=1.0.2',source).href)
         ]);
         const pricePreview=root.dataset.priceEndpoint&&root.dataset.priceNonce
           ? {url:root.dataset.priceEndpoint,nonce:root.dataset.priceNonce,sale:root.dataset.publicSale==='true'}:null;

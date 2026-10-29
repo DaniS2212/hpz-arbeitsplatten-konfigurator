@@ -21,34 +21,34 @@ try{
    const treatment=s.querySelector('input[name="straight-treatment"][value="chamfer_continuous"]');
    treatment.checked=true;treatment.dispatchEvent(new Event('change',{bubbles:true}));
    s.querySelector('#steps button:nth-child(2)').click();
-   const l=s.querySelector('#dim-L2');l.focus();l.value='50';l.dispatchEvent(new Event('input',{bubbles:true}));
+   const l=s.querySelector('#dim-B2');l.focus();l.value='50';l.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('[data-field="L2"] .apl-measure-label text')?.textContent.includes('50 cm')
+   return s.querySelector('[data-field="B2"] .apl-measure-label text')?.textContent.includes('50 cm')
      &&s.querySelector('#drawing').getAttribute('aria-busy')==='false';
   });
   const first=await page.evaluate(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return {label:s.querySelector('[data-field="L2"] .apl-measure-label text').textContent,
+   return {label:s.querySelector('[data-field="B2"] .apl-measure-label text').textContent,
      contour:s.querySelector('.apl-surface')?.outerHTML};
   });
   await page.evaluate(()=>{
-   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-L2');
+   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-B2');
    l.value='51';l.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return !s.querySelector('#field-error-L2').hidden&&!s.querySelector('#drawing-status').hidden;
+   return !s.querySelector('#field-error-B2').hidden&&!s.querySelector('#drawing-status').hidden;
   });
   const invalid=await page.evaluate(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
    return {svg:!!s.querySelector('#drawing svg'),
-     label:s.querySelector('[data-field="L2"] .apl-measure-label text')?.textContent,
+     label:s.querySelector('[data-field="B2"] .apl-measure-label text')?.textContent,
      contour:s.querySelector('.apl-surface')?.outerHTML,
-     text:s.querySelector('#field-error-L2').textContent,
-     aria:s.querySelector('#dim-L2').getAttribute('aria-invalid'),
-     direct:s.querySelector('#dim-L2').closest('.a1-radius-field').classList.contains('has-measure-error'),
+     text:s.querySelector('#field-error-B2').textContent,
+     aria:s.querySelector('#dim-B2').getAttribute('aria-invalid'),
+     direct:s.querySelector('#dim-B2').closest('.a1-radius-field').classList.contains('has-measure-error'),
      status:s.querySelector('#drawing-status').textContent,
      formErrorHidden:s.querySelector('#measurement-error').hidden,
      nextDisabled:s.querySelector('#next').disabled,
@@ -70,36 +70,36 @@ try{
   assert.equal(invalid.cartDisabled,true);
   await page.screenshot({path:'wordpress/ci-artifacts/065-invalid-'+width+'.png',fullPage:true});
   await page.evaluate(()=>{
-   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-L2');
+   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-B2');
    l.value='50';l.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#field-error-L2').hidden&&s.querySelector('#drawing-status').hidden
+   return s.querySelector('#field-error-B2').hidden&&s.querySelector('#drawing-status').hidden
       &&!s.querySelector('#next').disabled;
   });
   await page.evaluate(()=>{
-   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-L2');
+   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-B2');
    l.value='abc';l.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#field-error-L2').textContent.includes('Bitte in cm eingeben')
+   return s.querySelector('#field-error-B2').textContent.includes('Bitte in cm eingeben')
        &&!s.querySelector('#drawing-status').hidden;
   });
   assert.equal(await page.evaluate(()=>!!document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#drawing svg')),true);
   await page.evaluate(()=>{
-   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-L2');
+   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,l=s.querySelector('#dim-B2');
    l.value='50';l.dispatchEvent(new Event('input',{bubbles:true}));
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#field-error-L2').hidden&&s.querySelector('#drawing-status').hidden
+   return s.querySelector('#field-error-B2').hidden&&s.querySelector('#drawing-status').hidden
       &&!s.querySelector('#next').disabled;
   });
   assert.deepEqual(errors,[]);
   await page.close();
-  console.log('PASS 1.0.0 '+width+' px: valid L2=50, rejected 51, bad text, SVG retained, inline error and recovery');
+  console.log('PASS 1.0.2 '+width+' px: valid B2=50, rejected 51, bad text, SVG retained, inline error and recovery');
  }
 }finally{
  await browser?.close();

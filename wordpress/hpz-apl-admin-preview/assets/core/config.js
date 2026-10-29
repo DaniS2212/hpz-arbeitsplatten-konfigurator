@@ -1,5 +1,5 @@
-import {validateStraightCorner} from './straight-corners.js?v=1.0.1';
-import {DECOR_CATALOG,decorById} from './decor-catalog.js?v=1.0.1';
+import {validateStraightCorner,straightShopLimits} from './straight-corners.js?v=1.0.2';
+import {DECOR_CATALOG,decorById} from './decor-catalog.js?v=1.0.2';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
   l: { label: 'Arbeitsplatte L-Form', geometries: ['L1','L2','L3','L4'], fields: ['L1','L2','B1','B2'] },
@@ -48,6 +48,13 @@ export function normalize(raw) {
   if(!object(raw.dimensions) || Object.keys(raw.dimensions).some(k=>!family.fields.includes(k)))
     throw new Error('Unzulässige Maßfelder.');
   const dimensions=Object.fromEntries(family.fields.map(k=>[k,convert(raw.dimensions[k])]));
+  if(millimetres&&raw.product==='straight'){
+    if(dimensions.L1<straightShopLimits.L1.min||dimensions.L1>straightShopLimits.L1.max)
+      throw new Error('L1: Länge zwischen 100 und 400 cm eingeben.');
+    const depthMax=raw.straightCorner?.treatment==='chamfer_continuous'||raw.material==='APL38'?900:straightShopLimits.B1.max;
+    if(dimensions.B1<straightShopLimits.B1.min||dimensions.B1>depthMax)
+      throw new Error(`B1: Tiefe zwischen 30 und ${depthMax/10} cm eingeben.`);
+  }
   const straightCorner=raw.straightCorner===undefined?undefined:validateStraightCorner(raw.straightCorner,convert,dimensions,{millimetres});
   let special={};
   if(['round','chamfer'].includes(raw.corner)) {

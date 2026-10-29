@@ -42,11 +42,21 @@ test('actual PHP WordPress-test adapter: admin gate, V3 prices and no internal d
     assert.notEqual(a,b,`${material}: ${one}→${two} cm, ${depth} cm`);
   }
   const two=input('W980','APL17.5','2000','600',2);assert.equal((await send(two)).data.data.quote.totalGrossReferenceCents,90000);
+  const through=input('W980','APL38','2500','800');
+  through.straightCorner={side:'both',treatment:'chamfer_continuous',parameters:{L2:'150',B2:'150',L3:'200',B3:'200'}};
+  const expanded=await send(through);
+  assert.equal(expanded.status,200,'250x80 both through must be server-priced');
+  assert.ok(expanded.data.data.quote.unitGrossReferenceCents>0);
+  through.dimensions={L1:'4000',B1:'900'};
+  assert.equal((await send(through)).status,200,'400x90 through accepted');
+  through.dimensions={L1:'4001',B1:'900'};
+  assert.equal((await send(through)).status,422,'400.1cm outside shop cap');
+
   for(const mode of ['visitor','no-test','disabled','published','wrong-sku'])assert.equal((await send(input(),mode)).status,403,mode);
   assert.equal((await send(input(),'','bad')).status,403,'bad nonce');
   const sockel=input();sockel.productId=999985;assert.equal((await send(sockel)).status,403,'sockel denied');
   const tamper=input();tamper.price=1;tamper.supplierNet=1;assert.equal((await send(tamper)).data.data.quote.totalGrossReferenceCents,45000);
-  for(const wrong of [input('W980','APL38','2500','882'),input('W980','APL17.5','1999','600'),input('BAD')])assert.equal((await send(wrong)).status,422);
+  for(const wrong of [input('W980','APL38','2500','901'),input('W980','APL17.5','999','600'),input('BAD')])assert.equal((await send(wrong)).status,422);
   assert.equal((await send(input(),'CH')).data.data.quote.taxNote.includes('19'),false,'foreign address has no applied DE tax statement');
   assert.equal((await send(input(),'DE')).data.data.quote.taxNote.includes('19'),true,'DE context gets DE tax label');
   const l=input();l.productId=1000080;l.product='l';l.geometry='L1';assert.equal((await send(l)).status,403,'L has no V3');

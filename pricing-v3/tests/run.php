@@ -59,17 +59,35 @@ foreach ([
     ['schemaVersion'=>1], ['unit'=>'cm'], ['geometry'=>'L1'], ['product'=>'l'],
     ['material'=>'APL99'], ['decor'=>'HACKED'], ['edge'=>'unfinished'],
     ['dimensions'=>['L1'=>'2000','B1'=>600]], ['dimensions'=>['L1'=>2000,'B1'=>600,'L3'=>42]],
-    ['dimensions'=>['L1'=>1999,'B1'=>600]], ['dimensions'=>['L1'=>3001,'B1'=>600]],
-    ['dimensions'=>['L1'=>2500,'B1'=>599]], ['dimensions'=>['L1'=>2500,'B1'=>1201]],
+    ['dimensions'=>['L1'=>999,'B1'=>600]], ['dimensions'=>['L1'=>4001,'B1'=>600]],
+    ['dimensions'=>['L1'=>2500,'B1'=>299]], ['dimensions'=>['L1'=>2500,'B1'=>1201]],
     ['quantity'=>0], ['quantity'=>1.5], ['quantity'=>1001],
     ['straightCorner'=>['side'=>'none','treatment'=>null,'parameters'=>['R1'=>100]]],
     ['corner'=>'round'],
 ] as $i=>$patch) {
     expectFail(static function() use($patch):void { HPZ_APL_Price_V3::quote(array_replace(input(),$patch)); }, 'invalid input case '. $i);
 }
-expectFail(static function():void { HPZ_APL_Price_V3::quote(input('APL38','W980',2000,882)); },'38 depth above reference');
-$c=input('APL17.5','W980',2001,600,'left','chamfer_continuous');
-expectFail(static function()use($c):void{HPZ_APL_Price_V3::quote($c);},'continuous limited to 2000x600');
+expectFail(static function():void { HPZ_APL_Price_V3::quote(input('APL38','W980',2000,901)); },'38 depth above shop max');
+foreach (['APL17.5','APL38'] as $material) foreach ([[1000,300],[2500,800],[4000,900]] as $pair) {
+    foreach (['left','right','both'] as $side) {
+        $c=input($material,'W980',$pair[0],$pair[1],$side,'chamfer_continuous');
+        check(gross($c)>0,'continuous available at '.$material.'/'.$pair[0].'x'.$pair[1].'/'.$side);
+    }
+}
+$c=input('APL38','W980',2500,800,'both','chamfer_continuous');
+$c['straightCorner']['parameters']=['L2'=>1500,'B2'=>500,'L3'=>500,'B3'=>300];
+check(gross($c)>0,'asymmetric large continuous cuts accepted');
+foreach ([['L2'=>1810,'B2'=>200],['L2'=>200,'B2'=>510]] as $params) {
+    $c=input('APL38','W980',2500,800,'left','chamfer_continuous');
+    $c['straightCorner']['parameters']=$params;
+    expectFail(static function()use($c):void{HPZ_APL_Price_V3::quote($c);},'continuous supplier-safe caps');
+}
+$c=input('APL38','W980',2000,600,'both','chamfer_continuous');
+$c['straightCorner']['parameters']=['L2'=>1000,'B2'=>200,'L3'=>1000,'B3'=>200];
+expectFail(static function()use($c):void{HPZ_APL_Price_V3::quote($c);},'continuous must leave straight front');
+$c=input('APL17.5','W980',2500,1000,'left','chamfer_continuous');
+expectFail(static function()use($c):void{HPZ_APL_Price_V3::quote($c);},'through depth max 90 cm');
+check(gross(input('APL17.5','W980',2500,1200))>0,'existing 120 cm thin board without through-cut retained');
 $c=input('APL17.5','W980',2000,600,'left','chamfer_square');$c['straightCorner']['parameters']['L2']=220;
 expectFail(static function()use($c):void{HPZ_APL_Price_V3::quote($c);},'square chamfer ratio max 210 at B=150');
 $c=input('APL17.5','W980',2000,600,'both','round');$c['straightCorner']['parameters']['R2']=601;
