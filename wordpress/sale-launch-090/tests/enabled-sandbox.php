@@ -21,6 +21,7 @@ function wc_tax_enabled(){return true;}
 function get_woocommerce_currency(){return 'EUR';}
 function wp_salt($action){return str_repeat('T',64);}
 class WC_Tax {static function get_rates($class=''){return [['rate'=>'19.0000','compound'=>'no']];}}
+class WP_Error {public $code;function __construct($code,$message='',$data=[]){$this->code=$code;}}
 class Product {
  public $sku='HPZ-APL-GERADE-2026',$status='publish',$taxable=true;
  function get_id(){return 1000083;}
@@ -83,10 +84,10 @@ $secret=HPZ_APL_WP_Straight_Runtime_09::secret();
 $snapshot=HPZ_APL_WC_Cart_Bridge_08::issue($raw,function($key){return HPZ_APL_WP_Supplier_Proofs_09::find($key);},$secret);
 $item=array_merge($snapshot,['product_id'=>1000083,'quantity'=>1,'data'=>$product]);
 ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,1,$product,$item)===true,'checked Store API quantity');
-ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,4,$product,$item)===false,'unverified higher quantity blocked');
+ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,4,$product,$item) instanceof WP_Error,'unverified higher quantity blocked');
 ck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(true,'key',$item,4)===false,'classic quantity bypass blocked');
 $spoof=$item;$spoof['hpz_apl_v08']['signature']=str_repeat('0',64);
-ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,1,$product,$spoof)===false,'tampered HMAC blocked');
+ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,1,$product,$spoof) instanceof WP_Error,'tampered HMAC blocked');
 $fields['packedWeightGrams']='0';
 try{HPZ_APL_WP_Supplier_Proofs_09::saveFromAdmin($raw,$fields,'TEST_NONCE');ck(false,'cannot approve absent package weight');}
 catch(InvalidArgumentException $e){ck(true,'missing real freight refused');}
@@ -95,7 +96,7 @@ try{HPZ_APL_WP_Supplier_Proofs_09::saveFromAdmin($raw,$fields,'TEST_NONCE');ck(f
 catch(InvalidArgumentException $e){ck(true,'high supplier cost rejected');}
 ck(HPZ_APL_WP_Supplier_Proofs_09::revokeFromAdmin($saved['configurationKey'],'TEST_NONCE'),'manual supplier revocation');
 ck(HPZ_APL_WP_Supplier_Proofs_09::find($saved['configurationKey'])===null,'previously signed snapshot has no current proof');
-ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,1,$product,$item)===false,'revoked supplier proof blocks future checkout');
+ck(HPZ_APL_WP_Straight_Runtime_09::storeQuantity(true,1,$product,$item) instanceof WP_Error,'revoked supplier proof blocks future checkout');
 $loggedAdmin=false;
 try{HPZ_APL_WP_Supplier_Proofs_09::saveFromAdmin($raw,$fields,'TEST_NONCE');ck(false,'guest approval');}
 catch(InvalidArgumentException $e){ck(true,'guest cannot add supplier approval');}
