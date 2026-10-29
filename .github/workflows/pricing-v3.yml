@@ -22,6 +22,12 @@ jobs:
         run: php pricing-v3/tests/run.php
       - name: Straight sale readiness, price integrity, supplier and shipping proof checks
         run: php -l pricing-v3/HPZ_APL_Straight_Sale_Readiness.php && php pricing-v3/tests/sale-readiness.php
+      - name: "Woo 0.8 draft cart: classic, Store API, coupons and manual supplier order"
+        run: |
+          php -l wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php
+          php -l wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php
+          php wordpress/checkout-v08/tests/cart-bridge.php
+          php wordpress/checkout-v08/tests/wp-hooks.php
       - name: PHP preview syntax and security
         run: |
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
