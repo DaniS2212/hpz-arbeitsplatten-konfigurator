@@ -110,7 +110,7 @@ final class HPZ_APL_Price_V3
         // 2000–3000 mm V3 sample, pricing is extrapolated and requires a
         // Speedmaster spot-check before the public product goes live.
         $through = ($c['straightCorner']['treatment'] ?? null) === 'chamfer_continuous';
-        $maxDepth = ($through || $thick) ? 900 : 1200;
+        $maxDepth = ($through || $thick === 'APL38') ? 900 : 1200;
         if ($l < 1000 || $l > 4000 || $b < 300 || $b > $maxDepth) {
             throw new InvalidArgumentException('Dimensions outside price V3 reference envelope.');
         }
