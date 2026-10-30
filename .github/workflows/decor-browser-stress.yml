@@ -11,6 +11,7 @@ on:
       - 'wordpress/ui063-browser-runner.mjs'
       - 'wordpress/live-price-browser-runner.mjs'
       - 'wordpress/invalid-measures-browser-runner.mjs'
+      - 'wordpress/family-browser-runner.mjs'
       - '.github/workflows/decor-browser-stress.yml'
   workflow_dispatch:
 permissions:
@@ -36,6 +37,8 @@ jobs:
         run: node wordpress/live-price-browser-runner.mjs
       - name: Invalid measurements preserve the last valid drawing
         run: node wordpress/invalid-measures-browser-runner.mjs
+      - name: "L-/U-Form: grouped measures, verified-only parts, mobile and drawing states"
+        run: node wordpress/family-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

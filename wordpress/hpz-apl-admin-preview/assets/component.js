@@ -1,4 +1,5 @@
 import {catalog} from './core/config.js?v=1.0.3';
+import {familyDimensionGroups} from './core/family-presentation.js?v=1.0.3';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.3';
 import {svg} from './core/geometry.js?v=1.0.3';
 import {createPreviewController} from './latest.js?v=1.0.3';
@@ -147,8 +148,11 @@ function placeSummary(){
 function updateFamilyCopy(){
  $('steps').querySelector('.step-label').textContent=product==='straight'?'Ecken':'Grundriss';
  $('view-parts').textContent='Aufteilung';$('view-parts').hidden=product==='straight';
- if(product==='straight'){view='plan';$('parts-note').hidden=true;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
+ if(product==='straight'){view='plan';$('parts-note').hidden=true;$('measure-toggle').hidden=false;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
  shadow.querySelector('[data-step="0"] h2').textContent=product==='straight'?'Vordere Ecken':'Grundriss wählen';
+  shadow.querySelector('[data-step="1"] .section-intro').textContent=product==='straight'
+    ?'In cm, auf 0,1 cm genau. Tippe ein Maß an, um es in der Zeichnung hervorzuheben.'
+    :'Maße deiner schematischen Arbeitsplattenform. Tippe ein Feld an, um die passende Strecke in der Zeichnung hervorzuheben.';
 }
 function renderChoices(){
   cornerTitle.hidden=false;cornerTitle.textContent='Wie soll die Ecke aussehen?';
@@ -176,24 +180,40 @@ function rebuild(){
   renderChoices();$('variant-wrap').hidden=product==='straight';
   $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
   $('dimensions').replaceChildren();
-  for(const id of c.families[product].fields){
+  const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    label.htmlFor=`dim-${id}`;label.append(document.createTextNode(product==='straight'?(id==='L1'?'Länge':'Tiefe'):fieldNames[id]),element('span','',id));
-    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=currentDimensions()[id];input.setAttribute('aria-describedby',`field-error-${id}`);
-    input.addEventListener('input',()=>{currentDimensions()[id]=input.value;refresh();});input.addEventListener('focus',()=>{active=id;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
-    const inline=element('p','field-error');inline.id=`field-error-${id}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
-    unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);$('dimensions').append(wrap);
+    label.htmlFor='dim-'+id;label.append(document.createTextNode(customerLabel),element('span','',id));
+    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=currentDimensions()[id];input.setAttribute('aria-describedby','field-error-'+id);
+    input.addEventListener('input',()=>{currentDimensions()[id]=input.value;refresh();});
+    input.addEventListener('focus',()=>{active=id;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
+    const inline=element('p','field-error');inline.id='field-error-'+id;inline.hidden=true;inline.setAttribute('aria-live','polite');
+    unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);target.append(wrap);
+  };
+  if(product==='straight'){
+    for(const id of c.families[product].fields)appendDimensionInput(id,id==='L1'?'Länge':'Tiefe',$('dimensions'));
+  }else{
+    for(const [index,group] of familyDimensionGroups(product).entries()){
+      const section=element('section','apl-dimension-group');section.dataset.group=group.id;
+      const title=element('h3','',group.title);title.id='apl-group-'+group.id;
+      section.setAttribute('aria-labelledby',title.id);
+      const copy=element('div','apl-dimension-group-copy');copy.append(title,element('p','',group.description));
+      const head=element('div','apl-dimension-group-heading');
+      head.append(element('span','apl-dimension-group-number',String(index+1).padStart(2,'0')),copy);
+      const fields=element('div','apl-dimension-group-fields');
+      for(const field of group.fields)appendDimensionInput(field.id,field.label,fields);
+      section.append(head,fields);$('dimensions').append(section);
+    }
   }
   renderRadiusInputs();
 }
 function payload(){const radii=product==='straight'?Object.fromEntries(straightCorner(straightSide,straightTreatment).parameters.map(k=>[k,cmInputToMmText(radiusValues[k])])):{};return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries(c.families[product].fields.map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
-function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:true,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
 function summary(config,invalid=false){
-  $('summary-shape').textContent=names[product];$('preview-family').textContent='Vorschau';
+  $('summary-shape').textContent=names[product];$('preview-family').textContent=product==='straight'?'Vorschau':names[product]+' · Planung';
   const decorName=c.decors.find(d=>d.id===decor).label;
   $('preview-material').textContent=`${material==='APL38'?'38':'17,5'} mm · ${decorName}`;
   $('selected-surface-name').textContent=decorName;
@@ -364,7 +384,7 @@ $('config').addEventListener('submit',event=>event.preventDefault());$('back').a
 $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
-for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));});
+for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('measure-toggle').hidden=view==='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
 for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const field=$(`dim-${measure.dataset.field}`);field?.focus();}});
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
