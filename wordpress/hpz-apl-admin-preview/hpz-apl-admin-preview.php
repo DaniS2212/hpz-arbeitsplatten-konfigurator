@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Holz-Liebling Arbeitsplatten – Admin-Vorschau
- * Description: Isolierter Konfigurator für drei bestehende Produktentwürfe. Ausschließlich Admin-Test; kein Verkauf.
- * Version: 1.0.2
+ * Description: Arbeitsplatten-Konfigurator: Gerade mit WooCommerce-Warenkorb; L- und U-Form weiterhin nur als Admin-Vorschau.
+ * Version: 1.0.3
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -25,7 +25,7 @@ require_once __DIR__.'/includes/straight-runtime.php';
 // Exact supplier approval UI disabled.
 
 final class HPZ_APL_Admin_Preview {
-    const VERSION = '1.0.2';
+    const VERSION = '1.0.3';
     const OPTION = 'hpz_apl_admin_preview';
     const PRODUCTS = array(1000083 => 'straight', 1000080 => 'l', 1000081 => 'u');
     private static $rendered = false;
@@ -38,6 +38,7 @@ final class HPZ_APL_Admin_Preview {
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_init', array(__CLASS__, 'settings'));
         add_action('template_redirect', array(__CLASS__, 'no_cache'));
+        add_action('wp', array(__CLASS__, 'prepare_top_configurator_cta'), 20);
         add_action('woocommerce_after_single_product_summary', array(__CLASS__, 'automatic'), 5);
         add_shortcode('hpz_apl_configurator', array(__CLASS__, 'shortcode'));
         add_action('wp_ajax_hpz_apl_price_preview', array(__CLASS__, 'price_preview'));
@@ -70,6 +71,36 @@ final class HPZ_APL_Admin_Preview {
         if (!defined('DONOTCACHEPAGE')) define('DONOTCACHEPAGE', true);
         nocache_headers();
     }
+    /**
+     * The standard WooCommerce form cannot attach signed dimensions, decor or
+     * a trusted V3 quote. Keep one buying path: the configurator below.
+     * This is conditional to the published straight product only; it never
+     * alters a default product, the cart/checkout, or L/U previews.
+     */
+    public static function prepare_top_configurator_cta() {
+        if (!function_exists('get_queried_object_id')
+            || !HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
+        add_action('woocommerce_single_product_summary', array(__CLASS__, 'top_configurator_cta'), 30);
+        add_action('wp_head', array(__CLASS__, 'top_configurator_style'), 30);
+    }
+    public static function top_configurator_cta() {
+        if (!HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        echo '<a class="button alt hpz-apl-top-cta" href="#hpz-apl-konfigurator">Jetzt konfigurieren <span aria-hidden="true">↓</span></a>';
+    }
+    public static function top_configurator_style() {
+        if (!HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        // Flatsome and third-party themes may print the Woo form directly.
+        // Defensive CSS is emitted only on this exact, publicly enabled product.
+        echo '<style id="hpz-apl-cta-103">body.single-product form.cart{display:none!important}'
+            .'.hpz-apl-top-cta{display:inline-flex;align-items:center;gap:10px;background:#16444d!important;'
+            .'border-radius:7px;color:#fff!important;font-weight:650;text-decoration:none;padding:12px 20px}'
+            .'.hpz-apl-top-cta:hover{background:#0e3540!important}'
+            .'#hpz-apl-konfigurator{scroll-margin-top:110px}'
+            .'html{scroll-behavior:smooth}'
+            .'@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}'
+            .'</style>';
+    }
     public static function automatic() {
         if (self::options()['placement']==='automatic') echo self::render(); // Escaped in render.
     }
@@ -100,7 +131,7 @@ final class HPZ_APL_Admin_Preview {
                 .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_add_configured_'.$id)).'"';
         }
         $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p>':'';
-        return $css.'<section class="hpz-apl-admin-preview" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
+        return $css.'<section class="hpz-apl-admin-preview" id="hpz-apl-konfigurator" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
     public static function price_preview_allowed($id, $nonce) {
         $o=self::options();
