@@ -120,10 +120,10 @@ function previewPartRegions(base,variant,b1,b2,b3,b4){
     ...(angled?[{id:'corner',label:'Eckbereich',polygon:corner}]:[]),
     {id:'leg',label:variant==='L2'?'Rechter Schenkel':'Linker Schenkel',polygon:leg}
   ];
-  return parts.map((part,index)=>{
-    if(part.polygon.length<3||area(part.polygon)<1)throw Error('L-Teilfläche passt nicht zur Vorschaukontur.');
-    return {...part,number:index+1,marker:partMarker(part.polygon),status:'illustration-only'};
-  });
+  // At supplier-supported boundary extents (e.g. L4 L1=B3 and L2=B4)
+  // the top and/or leg strip can vanish. They must not become fake parts.
+  return parts.filter(part=>part.polygon.length>=3&&area(part.polygon)>1).map((part,index)=>
+    ({...part,number:index+1,marker:partMarker(part.polygon),status:'illustration-only'}));
 }
 export function lGeometry(config){
   if(config.product!=='l'||!shapes.includes(config.geometry)||!config.lCorner)throw Error('L-Grundriss unbekannt.');
@@ -195,8 +195,8 @@ export function lGeometry(config){
     }
   }
   const previewSeams=angled?[
-    {from:pt(b3,variant==='L4'?Math.max(0,outer-b3):0),to:pt(b3,b2)},
-    {from:pt(variant==='L4'?Math.max(0,outer-b4):0,b4),to:pt(b1,b4)}
+    ...(previewParts.some(p=>p.id==='top')?[{from:pt(b3,variant==='L4'?Math.max(0,outer-b3):0),to:pt(b3,b2)}]:[]),
+    ...(previewParts.some(p=>p.id==='leg')?[{from:pt(variant==='L4'?Math.max(0,outer-b4):0,b4),to:pt(b1,b4)}]:[])
   ]:variant==='L1'?[{from:pt(0,b2),to:pt(b1,b2)}]:[{from:pt(w-b1,b2),to:pt(w,b2)}];
   const warnings=[
     'L'+variant.slice(1)+' nach Speedmaster-Screenshots vom 30.10.2026: nur Maßskizze, keine Fertigungs- oder Preisfreigabe.',

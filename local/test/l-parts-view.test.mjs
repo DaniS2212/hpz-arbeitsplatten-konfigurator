@@ -41,7 +41,7 @@ test('L1 and mirrored L2 have two distinct visible part regions and no supplier 
   for(const shape of ['L1','L2']){
     const g=make(shape);
     assertParts(shape,g,['top','leg']);
-    assert.ok(Math.abs(g.previewParts.reduce((a,p)=>a+area(p.polygon),0)-1_560_000)<.01);
+    assert.ok(Math.abs(g.previewParts.reduce((a,p)=>a+area(p.polygon),0)-2_160_000)<.01);
     assert.deepEqual(g.previewParts.map(p=>p.label),shape==='L1'
       ?['Obere Strecke','Linker Schenkel']:['Obere Strecke','Rechter Schenkel']);
   }
@@ -70,6 +70,13 @@ test('L4 part projections also remain valid when outer diagonal crosses top and 
   const g=make('L4','none',null,{L1:'200',L2:'200',B1:'30',B2:'30',B3:'95',B4:'95',B5:'30'});
   assertParts('L4',g,['top','corner','leg']);
   assert.ok(Math.abs(g.previewParts.reduce((a,p)=>a+area(p.polygon),0)-g.areaMm2)<.01);
+});
+test('L4 Speedmaster minimum extent has no imaginary zero-area pieces or external-border seams',()=>{
+  const g=make('L4','none',null,{L1:'95',L2:'95',B1:'30',B2:'30',B3:'95',B4:'95',B5:'30'});
+  assertParts('L4',g,['corner']);
+  assert.equal(g.previewSeams.length,0);
+  assert.ok(Math.abs(area(g.previewParts[0].polygon)-g.areaMm2)<.01);
+  assert.equal((svg(g,'',{partsView:true,showDimensions:false}).match(/class="apl-preview-part"/g)||[]).length,1);
 });
 test('parts view shows numbered, selectively highlighted regions, but no cutting dimensions',()=>{
   const g=make('L4');
