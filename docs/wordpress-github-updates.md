@@ -27,3 +27,32 @@ Ab dann: Ein Merge in `main` erzeugt bei gruenen Tests eine neue private Release
 - `Update URI` identifiziert nur das Plugin; `update_plugins_github.com` liefert private Updates, `upgrader_pre_download` faengt nur den exakten Release-API-Link ab.
 - Die vertraulichen GitHub-Anmeldedaten werden niemals an den per 302 gelieferten Datei-Host gesendet. Nur bekannte HTTPS-CDN-Hosts sind zugelassen.
 - Versionen werden zur Buildzeit gestempelt und die JS/CSS-Bundle-Imports neu gebaut; der Git-Quellstand bleibt mit der Baseline-Version (z.B. 1.0.3) reviewbar.
+
+## Update-Status und Versionsdetails (ab PR #29)
+
+Unter **Einstellungen → Arbeitsplatten-Updates** gibt es zusätzlich eine Statusübersicht mit
+installierter Version, zuletzt verifizierter GitHub-Release-Version, Zeit der letzten
+Abfrage und einer einfachen Fehlerdiagnose (beispielsweise unzugänglicher Release,
+ungültige Prüfsumme oder abgelaufener Token). Die gespeicherten Statusdaten enthalten
+**keine Zugangstoken, Download-URLs oder GitHub-Antwortkörper**.
+
+Der Button **„Jetzt auf Updates prüfen“** ist nur für WordPress-Administratoren
+verfügbar und durch ein Nonce geschützt. Er verwirft lediglich den WordPress-
+Updatecache und führt die native Plugin-Updateprüfung erneut aus. **Er installiert
+keine ZIP und veröffentlicht keine Produkte.** Die tatsächliche Installation läuft
+weiterhin über das WordPress-Update-Menü beziehungsweise dessen aktivierte
+zeitgesteuerte automatische Plugin-Updates.
+
+Der Link **„Details der Version …“** öffnet nun eine eigene WordPress-
+Plugininformationsansicht für den exakten Slug `hpz-apl-admin-preview`.
+Dadurch erfolgt kein fehlgeschlagener Nachschlag bei WordPress.org („Plugin not found“).
+Das Fenster zeigt nur geprüfte Release-Metadaten und fest eingetragene allgemeine
+Hinweise; es stellt **keinen freien oder ungesicherten Downloadlink** bereit.
+Wenn die GitHub-Abfrage nicht funktioniert, zeigt es ausschließlich die lokal
+installierte Version und eine sachliche Fehlermeldung. Der private ZIP-Download,
+SHA-256-Abgleich und das WordPress-Rollback bleiben unverändert.
+
+Bei einer bloßen Updateprüfung oder automatisch installiertem Plugin können
+GitHub-Stand und WP-Stand zeitweilig auseinanderliegen. Das ist normal, solange
+WordPress noch keinen Installationslauf durchgeführt hat; ein manuelles „Prüfen“
+startet bewusst **keine** sofortige Installation.
