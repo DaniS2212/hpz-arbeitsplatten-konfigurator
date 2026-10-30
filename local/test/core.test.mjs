@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { cmToMm, normalize, catalog } from '../core/config.mjs';
 import { geometry, svg } from '../core/geometry.mjs';
+import { lDefaultDimensions } from '../core/l-geometry.mjs';
 import { referencePrice, calculate, widthTier, quote } from '../private/pricing.mjs';
 
 const input = (overrides = {}) => ({ product: 'straight', geometry: 'straight', corner: 'square',
@@ -43,8 +44,8 @@ test('straight contour, dimensions, area and all four matching edges derive from
   assert.equal(g.dimensions.find(d=>d.id==='L1').mm,2000);
   assert.equal(g.shippingParts,null);
 });
-test('L/U family sketches use asymmetric dimensions but do not invent Speedmaster joints or parts', () => {
-  const l = geometry(normalize(input({product:'l', geometry:'L4', dimensions:{L1:'250',L2:'170',B1:'70',B2:'60'}})));
+test('L1/U legacy family sketches remain available without inventing supplier joints or parts', () => {
+  const l = geometry(normalize(input({product:'l', geometry:'L1', dimensions:{L1:'250',L2:'170',B1:'70',B2:'60'}})));
   assert.equal(l.areaMm2,2350000);
   assert.equal(l.points.length,6);
   const u = geometry(normalize(input({product:'u',geometry:'U2',dimensions:{L1:'250',L2:'170',L3:'180',B1:'70',B2:'60',B3:'60'}})));
@@ -82,7 +83,7 @@ test('every named variant and material renders, with unverified status and no in
     for(const material of ['APL17.5','APL38']) for(const corner of ['square','continuous','round','chamfer']) {
       const values={L1:'250',L2:'170',L3:'180',B1:'70',B2:'60',B3:'60'};
       const config=normalize(input({product,geometry:id,material,corner,
-        dimensions:Object.fromEntries(family.fields.map(k=>[k,values[k]])),
+        dimensions:product==='l'&&['L3','L4'].includes(id)?{...lDefaultDimensions(id),L1:'250',L2:'170'}:Object.fromEntries(family.fields.map(k=>[k,values[k]])),
         ...(['round','chamfer'].includes(corner)?{special:{size:'10'}}:{})}));
       const g=geometry(config);
       assert.ok(g.areaMm2>0);

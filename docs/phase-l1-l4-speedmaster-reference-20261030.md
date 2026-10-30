@@ -43,3 +43,7 @@ Für L1–L4 zeigt die Hersteller-Auswahl jeweils zehn Zustände: keine, links r
 - Tests: L1/L2 Grundkontur, Spiegelung und Maße; L3/L4 Basisdiagonalen; 4×10 Eckzustände; keine Lieferanten-/Preisfreigabe.
 - Browser: L/U und Gerade in denselben Responsive-Layouts; aktive Maße, Aufteilung, kein Cart.
 - Gerade wird nicht geändert und wird durch bestehende WooCommerce- und Browserregression geprüft.
+
+## Update 30.10.2026: B3/B4 und L4-B5 jetzt im Vorschaumodell
+
+Die neuen Speedmaster-Belege für L3 mit gekoppelten B1/B2 und B3/B4 sowie für L4 mit eigenem B5 sind jetzt integriert. Siehe [Maßabgleich L3/L4](phase-l3-l4-speedmaster-measures-20261030.md). Frühere Hinweise, diese Grundmaße seien für die Konturvorschau völlig ungeprüft, sind damit überholt; eine CNC- oder Preisfreigabe besteht weiterhin nicht.

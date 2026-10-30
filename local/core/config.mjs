@@ -1,5 +1,5 @@
 import {validateStraightCorner,straightShopLimits} from './straight-corners.mjs';
-import {validateLCorner} from './l-geometry.mjs';
+import {validateLCorner,lDimensionKeys,validateLDimensions} from './l-geometry.mjs';
 import {DECOR_CATALOG,decorById} from './decor-catalog.mjs';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
@@ -46,9 +46,11 @@ export function normalize(raw) {
   if(!decor) throw new Error('Dekor noch nicht hinterlegt.');
   if(raw.edge!==undefined && raw.edge!=='matching-1.5') throw new Error('Nur Dickkante 1,5 mm dekorgleich vorgesehen.');
   if(!corners.some(c=>c.id===raw.corner)) throw new Error('Unbekannte Eckausführung.');
-  if(!object(raw.dimensions) || Object.keys(raw.dimensions).some(k=>!family.fields.includes(k)))
-    throw new Error('Unzulässige Maßfelder.');
-  const dimensions=Object.fromEntries(family.fields.map(k=>[k,convert(raw.dimensions[k])]));
+  const dimensionKeys=raw.product==='l'?lDimensionKeys(raw.geometry):family.fields;
+  if(!object(raw.dimensions) || Object.keys(raw.dimensions).length!==dimensionKeys.length || Object.keys(raw.dimensions).some(k=>!dimensionKeys.includes(k)))
+    throw new Error('Unzulässige oder fehlende Maßfelder.');
+  const dimensions=Object.fromEntries(dimensionKeys.map(k=>[k,convert(raw.dimensions[k])]));
+  if(raw.product==='l')validateLDimensions(raw.geometry,dimensions);
   if(millimetres&&raw.product==='straight'){
     if(dimensions.L1<straightShopLimits.L1.min||dimensions.L1>straightShopLimits.L1.max)
       throw new Error('L1: Länge zwischen 100 und 400 cm eingeben.');

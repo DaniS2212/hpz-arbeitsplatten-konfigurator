@@ -71,8 +71,8 @@ test('chamfer dimensions and active side are explicit in SVG',()=>{
  assert.match(markup,/data-cut="right" data-active="true"/);assert.match(markup,/data-field="B3" data-active="true"/);
  assert.match(svg(g,'side-left'),/data-cut="left" data-active="true"/);
 });
-test('shared L/U mm inputs preserve their v1 contours and physical dimensions',()=>{
- for(const [product,id,dims] of [['l','L4',{L1:'2500',L2:'1700',B1:'600',B2:'600'}],['u','U4',{L1:'2500',L2:'1700',L3:'1800',B1:'600',B2:'600',B3:'600'}]]){
+test('L1/U4 legacy mm inputs preserve their v1 contours and physical dimensions',()=>{
+ for(const [product,id,dims] of [['l','L1',{L1:'2500',L2:'1700',B1:'600',B2:'600'}],['u','U4',{L1:'2500',L2:'1700',L3:'1800',B1:'600',B2:'600',B3:'600'}]]){
   const common={product,geometry:id,corner:'square',material:'APL38',decor:'W980'};
   const modern=normalize({...common,schemaVersion:2,inputUnit:'mm',dimensions:dims});
   const legacy=normalize({...common,dimensions:Object.fromEntries(Object.entries(dims).map(([k,v])=>[k,String(Number(v)/10)]))});

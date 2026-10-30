@@ -7,7 +7,9 @@ import {lCornerKeys,defaultLCorner} from '../core/l-geometry.mjs';
 const base=(shape,overrides={})=>({
   schemaVersion:2,inputUnit:'mm',product:'l',geometry:shape,corner:'square',
   material:'APL38',decor:'W980',quantity:1,
-  dimensions:{L1:'2000',L2:'1200',B1:'600',B2:'600'},
+  dimensions:shape==='L3'?{L1:'2000',L2:'2000',B1:'600',B2:'600',B3:'900',B4:'900'}
+      :shape==='L4'?{L1:'2000',L2:'2000',B1:'900',B2:'900',B3:'1050',B4:'1050',B5:'600'}
+      :{L1:'2000',L2:'1200',B1:'600',B2:'600'},
   lCorner:defaultLCorner(shape),...overrides
 });
 const get=(shape,overrides)=>geometry(normalize(base(shape,overrides)));
@@ -22,10 +24,10 @@ test('L1 left and L2 right reflect real Speedmaster B1=leg, B2=top (NOT the earl
 });
 test('L3 shows inside diagonal, L4 additionally outside chamfer; dimensions beyond B1/B2 explicitly unverified',()=>{
   const a=get('L3'),b=get('L4');
-  assert.deepEqual(a.points,[[0,0],[2000,0],[2000,600],[900,600],[600,900],[600,1200],[0,1200]]);
-  assert.deepEqual(b.points,[[600,0],[2000,0],[2000,600],[900,600],[600,900],[600,1200],[0,1200],[0,600]]);
+  assert.deepEqual(a.points,[[0,0],[2000,0],[2000,600],[900,600],[600,900],[600,2000],[0,2000]]);
+  assert.deepEqual(b.points,[[1100,0],[2000,0],[2000,900],[1050,900],[900,1050],[900,2000],[0,2000],[0,1100]]);
   assert.equal(a.previewSeams.length,2);assert.equal(b.previewSeams.length,2);
-  for(const shape of [a,b]){assert.match(shape.warnings.join(' '),/schematisch|nicht verifiziert/);assert.equal(shape.supplierMappingVerified,false);}
+  for(const shape of [a,b]){assert.match(shape.warnings.join(' '),/Vorschau|nicht geprüft|keine Fertigungs/);assert.equal(shape.supplierMappingVerified,false);}
 });
 test('exact ten screenshot-visible variants exist for all four L outlines, independent of the straight corner contract',()=>{
   for(const shape of ['L1','L2','L3','L4']){
@@ -55,7 +57,7 @@ test('manipulated L corners or impossible edges cannot be used for a real order'
     {corner:'round',special:{size:'100'},lCorner:defaultLCorner('L1')}
   ])assert.throws(()=>normalize(base('L1',patch)));
   assert.throws(()=>get('L1',{dimensions:{L1:'1200',L2:'1200',B1:'1200',B2:'600'}}));
-  assert.throws(()=>get('L3',{dimensions:{L1:'1000',L2:'900',B1:'600',B2:'600'}}));
+  assert.throws(()=>get('L3',{dimensions:{L1:'1000',L2:'900',B1:'600',B2:'600',B3:'900',B4:'900'}}));
   assert.throws(()=>get('L1',{lCorner:{side:'left',treatment:'round',parameters:{R1:'600'}}}));
 });
 test('L plan and split view stay one contour, preview seams are only illustrative',()=>{
