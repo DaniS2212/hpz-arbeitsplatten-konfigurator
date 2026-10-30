@@ -1,6 +1,6 @@
 <?php
 /**
- * Real WordPress / WooCommerce read-only preflight for HPZ APL v1.0.2.
+ * Real WordPress / WooCommerce read-only preflight for HPZ APL v1.0.3.
  *
  * Run from an authorized WP-CLI shell:
  *   wp eval-file /path/to/preflight.php baseline
@@ -87,7 +87,8 @@ foreach ($targetSkus as $id => $expectedSku) {
     $exists = $post && $product;
     $record('product-' . $id . '-exists', $exists ? 'PASS' : 'FAIL', 'Product must exist in this site');
     if (!$exists) continue;
-    $record('product-' . $id . '-draft', $post->post_status === 'draft' ? 'PASS' : 'FAIL', 'status=' . $post->post_status);
+    $expectedStatus = $id === 1000083 ? 'publish' : 'draft';
+    $record('product-' . $id . '-status', $post->post_status === $expectedStatus ? 'PASS' : 'FAIL', 'status=' . $post->post_status . ', expected=' . $expectedStatus);
     $record('product-' . $id . '-type', $post->post_type === 'product' ? 'PASS' : 'FAIL', 'type=' . $post->post_type);
     $record('product-' . $id . '-sku', $product->get_sku() === $expectedSku ? 'PASS' : 'FAIL', 'SKU matched=' . ($product->get_sku() === $expectedSku ? 'yes' : 'no'));
     $observations[(string) $id] = $fingerprint($id, $product);
@@ -105,10 +106,10 @@ $record('preview-plugin-loaded', $present ? 'PASS' : ($runMode === 'installed' ?
 
 if ($present) {
     $pluginVersion = defined('HPZ_APL_Admin_Preview::VERSION') ? constant('HPZ_APL_Admin_Preview::VERSION') : 'unknown';
-    $currentVersion = $pluginVersion === '1.0.2';
+    $currentVersion = $pluginVersion === '1.0.3';
     $record('preview-plugin-version', $currentVersion ? 'PASS' : ($runMode === 'installed' ? 'FAIL' : 'INFO'), $pluginVersion);
     if (!$currentVersion) {
-        $record('preview-current-version-hooks', 'SKIP', 'Baseline of older plugin; 1.0.2-only checks run after update');
+        $record('preview-current-version-hooks', 'SKIP', 'Baseline of older plugin; 1.0.3-only checks run after update');
     } else {
     $opts = HPZ_APL_Admin_Preview::options();
     $active = !empty($opts['enabled']) && !empty($opts['test_mode']);
@@ -130,8 +131,9 @@ if ($present) {
     foreach ($targetSkus as $id => $sku) {
         $product = wc_get_product($id);
         if ($product) {
-            $blocked = HPZ_APL_Admin_Preview::purchasable(true, $product) === false;
-            $record('blocked-purchase-' . $id, $blocked ? 'PASS' : 'FAIL', 'Plugin purchasable callback must deny');
+            $expected = $id === 1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell();
+            $actual = HPZ_APL_Admin_Preview::purchasable(true, $product);
+            $record('purchase-gate-' . $id, $actual === $expected ? 'PASS' : 'FAIL', 'Straight only when live; L/U always denied');
         }
     }
     if ($control) {

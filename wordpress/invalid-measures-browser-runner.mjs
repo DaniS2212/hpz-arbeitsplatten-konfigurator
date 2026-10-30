@@ -99,7 +99,7 @@ try{
   });
   assert.deepEqual(errors,[]);
   await page.close();
-  console.log('PASS 1.0.2 '+width+' px: valid B2=50, rejected 51, bad text, SVG retained, inline error and recovery');
+  console.log('PASS 1.0.3 '+width+' px: valid B2=50, rejected 51, bad text, SVG retained, inline error and recovery');
  }
 }finally{
  await browser?.close();
