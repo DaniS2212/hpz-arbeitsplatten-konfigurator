@@ -44,7 +44,7 @@ try{
      await page.evaluate(()=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
        const radio=s.querySelector('input[name="l-side"][value="left"]');radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));});
      await ready();
-     assert.equal(await page.locator('[data-hpz-apl-preview]').evaluate(el=>el.shadowRoot.querySelector('#dim-R1')?.value),'10');
+     assert.equal(await page.locator('[data-hpz-apl-preview]').evaluate(el=>el.shadowRoot.querySelector('#corner-R1')?.value),'10');
      await page.evaluate(()=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
        const radio=s.querySelector('input[name="l-treatment"][value="chamfer_square"]');radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));});
      await ready();

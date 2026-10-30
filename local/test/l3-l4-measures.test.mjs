@@ -46,6 +46,13 @@ test('paired widths reject mismatches or missing properties before preview',()=>
     {...l4,B5:'100'},
   ]) assert.throws(()=>normalize(make(dims.B5!==undefined&&dims.B5!=='100'?'L3':dims.B5==='100'?'L4':'L3',dims)));
 });
+test('L4 permits the Speedmaster boundary example B1/B2 300, B3/B4 950, B5 300',()=>{
+ const geometryAtLimit=geometry(normalize(make('L4',{
+   L1:'950',L2:'950',B1:'300',B2:'300',B3:'950',B4:'950',B5:'300'
+ })));
+ assert.equal(geometryAtLimit.supplierMappingVerified,false);
+ assert.ok(geometryAtLimit.areaMm2>0);
+});
 test('L3/L4 remain not purchasable even when all screenshot-defined fields validate',()=>{
   for(const [shape,dimensions] of [['L3',l3],['L4',l4]]){
     const g=geometry(normalize(make(shape,dimensions)));

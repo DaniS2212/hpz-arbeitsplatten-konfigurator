@@ -29,7 +29,8 @@ export function validateLDimensions(shape,dimensions) {
   if(B1<300||B1>900)throw Error('B1: Breite B1/B2 im belegten Vorschaufenster 30–90 cm.');
   if(B3<B1+50||B3>1050)throw Error('B3: Breite B3/B4 muss größer als B1/B2 sein und im belegten Vorschaufenster bleiben.');
   if(shape==='L4'&&(B5<300||B5>900))throw Error('B5: Der äußere Diagonalbereich liegt in den gezeigten Beispielen zwischen 30 und 90 cm.');
-  if(L1<=B3+100||L2<=B4+100)throw Error('L1: Für die diagonale Innenöffnung bleibt zu wenig Platz.');
+  if((shape==='L3'&&(L1<=B3+100||L2<=B4+100))||(shape==='L4'&&(L1<B3||L2<B4)))
+    throw Error('L1: Für die diagonale Innenöffnung bleibt zu wenig Platz.');
 }
 
 export function lCornerKeys(shape,side,type) {
