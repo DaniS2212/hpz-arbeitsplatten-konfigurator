@@ -1,5 +1,5 @@
 import {catalog} from './core/config.js?v=1.0.3';
-import {familyDimensionGroups} from './core/family-presentation.js?v=1.0.3';
+import {lCornerKeys,defaultLCorner} from './core/l-geometry.js?v=1.0.3';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.3';
 import {svg} from './core/geometry.js?v=1.0.3';
 import {createPreviewController} from './latest.js?v=1.0.3';
@@ -29,9 +29,10 @@ const cornerNames={square:'Eckig',round:'Abgerundet',chamfer:'Abgeschrägt',cont
 const fieldNames={L1:'Gesamtbreite',L2:'Links außen',L3:'Rechts außen',B1:'Tiefe oben',B2:'Breite links',B3:'Breite rechts'};
 let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',valid=false;
 let material='APL38',decor=startingDecor,corner='square';
-let straightSide='none',straightTreatment=null;
+let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCornerValues={};
 let radiusValues={},drawingDetail=null;
 const fieldErrors=new Map();
+const lSides={none:'Keine',left:'Links',right:'Rechts',both:'Beide Außenecken'};
 const retryPriceButton=element('button','price-retry','Preis erneut berechnen');
 retryPriceButton.type='button';retryPriceButton.hidden=true;
 $('price-note').after(retryPriceButton);
@@ -79,15 +80,17 @@ function setFieldError(key,message=''){
 }
 function clearFieldErrors(){for(const key of [...fieldErrors.keys()])setFieldError(key);}
 function renderRadiusInputs(){
-  for(const key of ['R1','R2','L2','B2','L3','B3'])fieldErrors.delete(key);
-  radiusWrap.replaceChildren();radiusWrap.hidden=product!=='straight'||straightSide==='none';
+  for(const key of (product==='l'?['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6']:['R1','R2','L2','B2','L3','B3']))fieldErrors.delete(key);
+  radiusWrap.replaceChildren();const l=product==='l',side=l?lSide:straightSide,type=l?lTreatment:straightTreatment;
+  radiusWrap.hidden=!(l||product==='straight')||side==='none';
   if(radiusWrap.hidden)return;
-  radiusWrap.append(element('legend','',straightTreatment==='round'?'Deine Rundungen':'Deine Abschrägungen'));
-  const keys=straightCorner(straightSide,straightTreatment).parameters;
+  radiusWrap.append(element('legend','',type==='round'?'Deine Rundungen':'Deine Abschrägungen'));
+  const keys=l?lCornerKeys(variants.l,lSide,lTreatment):straightCorner(straightSide,straightTreatment).parameters;
+  const leftKeys=l?lCornerKeys(variants.l,'left',lTreatment):['R1','L2','B2'];
   const grids=new Map();
   for(const key of keys){
-    const side=['R1','L2','B2'].includes(key)?'left':'right';
-    const place=side==='left'?'vorne links':'vorne rechts';
+    const side=leftKeys.includes(key)?'left':'right';
+    const place=l?(side==='left'?'außen links':'außen rechts'):(side==='left'?'vorne links':'vorne rechts');
     if(!grids.has(side)){
       const group=element('div','a1-corner-group');
       group.setAttribute('role','group');group.setAttribute('aria-label',`Ecke ${place}`);
@@ -97,15 +100,15 @@ function renderRadiusInputs(){
     const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
     const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':'Tiefe';
     label.htmlFor=`dim-${key}`;label.textContent=property;label.append(element('span','',key));
-    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} field-error-${key}`);
+    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} field-error-${key}`);
     input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
-    input.addEventListener('input',()=>{radiusValues[key]=input.value;refresh();});
+    input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
     input.addEventListener('focus',()=>{active=key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
-    const hint=element('p','microcopy');hint.id=`hint-${key}`;
+    const hint=element('p','microcopy');hint.id=`hint-${key}`;if(l)hint.textContent='Vorschauwert · Herstellergrenzen noch offen';
     const inline=element('p','field-error');inline.id=`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
   }
-  radiusWrap.append(element('p','a1-limit-note','Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
+  radiusWrap.append(element('p','a1-limit-note',l?'Die tatsächlichen Speedmaster-Grenzen sind noch zu bestätigen.':'Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
 }
 function renderStraightChoices(){
   sideWrap.hidden=product!=='straight';
@@ -121,6 +124,31 @@ function renderStraightChoices(){
   $('corners').replaceChildren(...Object.entries(treatments).map(([id,label])=>choice('straight-treatment',id,`${treatmentIcon(id)}<span>${label}</span>${id==='chamfer_continuous'?'<small>Weiche Übergänge · Vorschau schematisch</small>':''}`,straightTreatment===id,()=>{
     straightTreatment=id;radiusValues=Object.fromEntries(Object.entries(defaultCornerParameters(straightSide,straightTreatment)).map(([k,v])=>[k,mmToCmText(Number(v))]));corner='square';$('special').value='10';active=`side-${straightSide}`;drawingDetail=null;renderRadiusInputs();refresh();
   },'a1-treatment-card')));
+}
+function renderLChoices(){
+ if(product!=='l')return;
+ sideWrap.hidden=false;sideLegend.firstChild.textContent='Welche Außenecke?';
+ const mirror=variants.l==='L2';
+ const lIcon=side=>{
+   const points=mirror?'M8 6 H88 V40 H65 V20 H8 Z':'M8 6 H88 V20 H31 V40 H8 Z';
+   return '<svg viewBox="0 0 96 46" aria-hidden="true"><path d="'+points+'" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/>'
+     +(['left','both'].includes(side)?'<circle cx="'+(mirror?8:31)+'" cy="'+(mirror?20:40)+'" r="4" fill="#ad8667"/>':'')
+     +(['right','both'].includes(side)?'<circle cx="88" cy="'+(mirror?40:20)+'" r="4" fill="#ad8667"/>':'')+'</svg>';
+ };
+ sideWrap.lastElementChild.replaceChildren(...Object.entries(lSides).map(([id,name])=>choice('l-side',id,lIcon(id)+'<span>'+name+'</span>',lSide===id,()=>{
+   lSide=id;lTreatment=id==='none'?null:(lTreatment??'round');
+   lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));
+   active='side-'+id;renderLChoices();renderRadiusInputs();refresh();
+ },'a1-side-card')));
+ $('corners').hidden=lSide==='none';cornerTitle.hidden=lSide==='none';cornerTitle.textContent='Bearbeitung';
+ $('corners').style.gridTemplateColumns='1fr';
+ $('corners').replaceChildren(...Object.entries(treatments).map(([id,name])=>choice('l-treatment',id,
+   treatmentIcon(id)+'<span>'+name+'</span>'+(id==='chamfer_continuous'?'<small>Übergang schematisch</small>':''),
+   lTreatment===id,()=>{
+     lTreatment=id;
+     lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));
+     active='side-'+lSide;renderRadiusInputs();refresh();
+   },'a1-treatment-card')));
 }
 const variants={straight:'straight',l:'L1',u:'U1'};
 const dimensionValues={L1:'250',L2:'170',L3:'180',B1:'60',B2:'60',B3:'60'};
@@ -163,6 +191,7 @@ function renderChoices(){
   $('corners').style.gridTemplateColumns=`repeat(${visibleCorners.length===4?2:3},1fr)`;
   $('corners').replaceChildren(...visibleCorners.map(item=>choice('corner',item.id,`<svg viewBox="0 0 36 30" aria-hidden="true"><path d="${cornerIcons[item.id]}"/></svg><span>${cornerNames[item.id]}</span>`,corner===item.id,()=>{corner=item.id;refresh();},'corner-card')));
   renderStraightChoices();
+  renderLChoices();
   updateFamilyCopy();
   $('materials').replaceChildren(...c.materials.map(item=>choice('material',item.id,`<span class="slab ${item.id==='APL17.5'?'slim':''}" aria-hidden="true"></span><strong>${item.id==='APL17.5'?'17,5':'38'} mm</strong><small>${item.id==='APL17.5'?'Schlank & leicht in der Optik':'Klassisch & präsent'}</small>`,material===item.id,()=>{material=item.id;refresh();},'material-card')));
   // Reuse image elements across corner/side changes: recreating 16 lazy-loaded
@@ -176,9 +205,11 @@ function renderChoices(){
 }
 function rebuild(){
   shell.dataset.product=product;
-  if(product==='straight')corner='square';
+  if(product==='straight'||product==='l')corner='square';
   renderChoices();$('variant-wrap').hidden=product==='straight';
-  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
+  const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen'};
+  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
+  if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent='Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
   $('dimensions').replaceChildren();
   const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
@@ -189,29 +220,22 @@ function rebuild(){
     const inline=element('p','field-error');inline.id='field-error-'+id;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);target.append(wrap);
   };
-  if(product==='straight'){
-    for(const id of c.families[product].fields)appendDimensionInput(id,id==='L1'?'Länge':'Tiefe',$('dimensions'));
-  }else{
-    for(const [index,group] of familyDimensionGroups(product).entries()){
-      const section=element('section','apl-dimension-group');section.dataset.group=group.id;
-      const title=element('h3','',group.title);title.id='apl-group-'+group.id;
-      section.setAttribute('aria-labelledby',title.id);
-      const copy=element('div','apl-dimension-group-copy');copy.append(title,element('p','',group.description));
-      const head=element('div','apl-dimension-group-heading');
-      head.append(element('span','apl-dimension-group-number',String(index+1).padStart(2,'0')),copy);
-      const fields=element('div','apl-dimension-group-fields');
-      for(const field of group.fields)appendDimensionInput(field.id,field.label,fields);
-      section.append(head,fields);$('dimensions').append(section);
-    }
-  }
+  // Preserve the plain two-column measure grid from the finished straight UI.
+  const names=product==='straight'?{L1:'Länge',B1:'Tiefe'}
+   :product==='l'?{L1:'Gesamtlänge oben',L2:variants.l==='L2'?'Gesamtlänge rechts':'Gesamtlänge links',B1:variants.l==='L2'?'Schenkelbreite rechts':'Schenkelbreite links',B2:'Tiefe oben'}
+   :{L1:'Gesamtbreite oben',L2:'Gesamtlänge links',L3:'Gesamtlänge rechts',B1:'Tiefe oben',B2:'Schenkelbreite links',B3:'Schenkelbreite rechts'};
+  for(const id of c.families[product].fields)appendDimensionInput(id,names[id]||id,$('dimensions'));
   renderRadiusInputs();
 }
-function payload(){const radii=product==='straight'?Object.fromEntries(straightCorner(straightSide,straightTreatment).parameters.map(k=>[k,cmInputToMmText(radiusValues[k])])):{};return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries(c.families[product].fields.map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
+function payload(){const radii=product==='straight'?Object.fromEntries(straightCorner(straightSide,straightTreatment).parameters.map(k=>[k,cmInputToMmText(radiusValues[k])])):{};
+ const lParams=product==='l'?Object.fromEntries(lCornerKeys(variants.l,lSide,lTreatment).map(k=>[k,cmInputToMmText(lCornerValues[k])])):{};
+ return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),
+ ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries(c.families[product].fields.map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
-function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
 function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];$('preview-family').textContent=product==='straight'?'Vorschau':names[product]+' · Planung';
   const decorName=c.decors.find(d=>d.id===decor).label;
@@ -223,6 +247,7 @@ function summary(config,invalid=false){
   else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
   else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
   rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
+  if(product==='l')rows.push(['Ecken',lSide==='none'?'Ohne Bearbeitung':lSides[lSide]+' · '+treatments[lTreatment]]);
   if(product==='straight'){
     const location={none:'Ohne Bearbeitung',left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
     const finish={round:'Abgerundet',chamfer_square:'Eckig abgeschrägt',chamfer_continuous:'Vorderkante durchlaufend'}[straightTreatment];
@@ -286,7 +311,7 @@ function applyVisual(result){
     ?(straightTreatment==='chamfer_continuous'
        ?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.'
        :'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.')
-    :`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`;
+    :(product==='l'?`${variants.l}: Kontur nach Speedmaster-Fotos · Stöße und Diagonalzusatzmaße vorläufig.`:`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`);
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});throw new Error('Vorschauadapter fehlt. Kauf bleibt gesperrt.');},
   onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
@@ -317,7 +342,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
     const message=customerMeasureError(error);
-    const match=message.match(/^(L[123]|B[123]|R[12]):\s*/);
+    const match=message.match(/^(L[1-6]|B[1-6]|R[12]):\s*/);
     if(match&&!fieldErrors.has(match[1]))setFieldError(match[1],message.slice(match[0].length));
     formError.textContent=message;formError.hidden=false;
     $('drawing').setAttribute('aria-busy','false');
@@ -345,6 +370,12 @@ function refresh(){
   shell.dataset.corner=corner;
   $('special-wrap').hidden=!['round','chamfer'].includes(corner);
   $('corner-note').textContent=['round','chamfer'].includes(corner)?'Eckmuster oben links. Größe im Schritt „Maße“ anpassen; Ausführung noch zu prüfen.':corner==='continuous'?'Kontur und Verbindung dieser Ausführung sind noch zu prüfen.':'Klare, rechtwinklige Ecken. Die Außenkante ist im gleichen Dekor vorgesehen.';
+  if(product==='l'){
+    $('special-wrap').hidden=true;
+    $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · Übergang schematisch.';
+    $('parts-note').querySelector('strong').textContent='Stoßpositionen zur Orientierung';
+    $('parts-note').querySelector('p').textContent='Die Fugen sind aus den Speedmaster-Ansichten abgeleitet. Exakte Fräsungen, Verbinder und Zusatzmaße müssen noch geprüft werden.';
+  }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
     $('special-wrap').hidden=true;
@@ -356,11 +387,11 @@ function refresh(){
     try{cmInputToMmText(input.value);setFieldError(id);}
     catch{setFieldError(id,'Bitte ein gültiges Maß in cm eingeben (z. B. 200 oder 200,1).');}
   }
-  updateCornerBounds();
+  if(product==='straight')updateCornerBounds();
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
-$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;refresh();});
+$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{

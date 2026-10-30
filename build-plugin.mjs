@@ -4,7 +4,7 @@ const base=new URL('./',import.meta.url), out=new URL('wordpress/hpz-apl-admin-p
 const version=(await readFile(new URL('wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php',base),'utf8')).match(/Version: ([\d.]+)/)[1];
 const versionImports=code=>code.replace(/(from\s+['"]\.\.?\/[^'"]+\.js)(?:\?v=[^'"]+)?(['"])/g,`$1?v=${version}$2`);
 await mkdir(new URL('core/',out),{recursive:true});
-for(const name of ['config','geometry','products','family-presentation','straight-corners','straight-geometry','decor-catalog','customer-measures']) {
+for(const name of ['config','geometry','products','family-presentation','l-geometry','straight-corners','straight-geometry','decor-catalog','customer-measures']) {
   let code=await readFile(new URL(`local/core/${name}.mjs`,base),'utf8');
   if(name==='decor-catalog')code=code.replace(/^\/\*\*[\s\S]*?\*\/\s*/,'// Local decor mapping; provenance is retained in the source catalog.\n');
   await writeFile(new URL(`core/${name}.js`,out),versionImports(code.replaceAll('.mjs\'','.js\'')));
