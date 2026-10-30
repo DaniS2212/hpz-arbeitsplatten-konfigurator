@@ -6,6 +6,9 @@ final class HPZ_APL_GitHub_Updater {
     public const PLUGIN = 'hpz-apl-admin-preview/hpz-apl-admin-preview.php';
     private const OPTION = 'hpz_apl_github_updater';
     private const STATUS_OPTION = 'hpz_apl_updater_status';
+    private const INSTALL_STATUS_OPTION = 'hpz_apl_updater_install_status';
+    private const POLL_HOOK = 'hpz_apl_update_poll';
+    private const POLL_INTERVAL = 900; // 15 minutes. Runs via WP-Cron, not browser requests.
     private const URI = 'https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator';
     private const API = 'https://api.github.com/repos/DaniS2212/hpz-arbeitsplatten-konfigurator';
 
@@ -17,6 +20,103 @@ final class HPZ_APL_GitHub_Updater {
         add_action('admin_menu', [__CLASS__, 'menu']);
         add_action('admin_post_hpz_apl_updater_save', [__CLASS__, 'save']);
         add_action('admin_post_hpz_apl_updater_check', [__CLASS__, 'checkNow']);
+        add_filter('cron_schedules', [__CLASS__, 'cronSchedules']);
+        add_action('init', [__CLASS__, 'scheduleCron'], 30);
+        add_action(self::POLL_HOOK, [__CLASS__, 'runScheduledUpdate']);
+    }
+
+    /** A dedicated schedule avoids the standard roughly 12-hour core-update wait. */
+    public static function cronSchedules($schedules): array {
+        if (!is_array($schedules)) $schedules = [];
+        $schedules['hpz_apl_15_minutes'] = [
+            'interval'=>self::POLL_INTERVAL,
+            'display'=>'Arbeitsplatten-Updates alle 15 Minuten',
+        ];
+        return $schedules;
+    }
+
+    public static function scheduleCron(): void {
+        $scheduled = wp_next_scheduled(self::POLL_HOOK);
+        if (!self::enabled() || version_compare((string)get_bloginfo('version'), '6.6', '<')) {
+            if ($scheduled !== false) wp_clear_scheduled_hook(self::POLL_HOOK);
+            return;
+        }
+        if ($scheduled === false) {
+            wp_schedule_event(time() + 60, 'hpz_apl_15_minutes', self::POLL_HOOK);
+        }
+    }
+
+    /** No credentials, raw GitHub bodies or external error text in diagnostics. */
+    private static function rememberInstall(string $state, string $message, string $version = ''): void {
+        update_option(self::INSTALL_STATUS_OPTION, [
+            'attempted_at'=>time(),
+            'state'=>$state,
+            'message'=>$message,
+            'version'=>$version,
+        ], false);
+    }
+
+    /**
+     * Runs only on a real WordPress cron request and updates ONLY this plugin.
+     * WordPress still owns safety checks, filesystem permissions, fatal-error
+     * rollback and the native shared auto-updater lock. Never runs from a page
+     * view or tries to update WordPress core / unrelated extensions.
+     */
+    public static function runScheduledUpdate(): void {
+        if (!wp_doing_cron() || !self::enabled()
+            || version_compare((string)get_bloginfo('version'), '6.6', '<')) return;
+        if (function_exists('is_main_network') && !is_main_network()) return;
+        if (function_exists('is_main_site') && !is_main_site()) return;
+
+        $release = self::latest(); // Valid tag, asset ID, SHA-256 and size only.
+        if (!$release) return;
+        if (version_compare($release['version'], self::installedVersion(), '<=')) return;
+
+        if (!class_exists('WP_Upgrader', false)) {
+            require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
+        }
+        if (!class_exists('WP_Automatic_Updater', false)) {
+            require_once ABSPATH.'wp-admin/includes/class-wp-automatic-updater.php';
+        }
+        $updater = new WP_Automatic_Updater();
+        if ($updater->is_disabled()) {
+            self::rememberInstall('blocked', 'WordPress hat Hintergrund-Updates serverseitig deaktiviert.', $release['version']);
+            return;
+        }
+
+        // A normal WordPress update response is essential: same offer and
+        // authenticated, SHA-256-checked package as for manual updates.
+        delete_site_transient('update_plugins');
+        wp_update_plugins();
+        $updates = get_site_transient('update_plugins');
+        $item = is_object($updates) && isset($updates->response[self::PLUGIN])
+            ? $updates->response[self::PLUGIN] : null;
+        $expectedPackage = self::API.'/releases/assets/'.$release['id'];
+        if (!is_object($item) || ($item->plugin ?? '') !== self::PLUGIN
+            || ($item->new_version ?? '') !== $release['version']
+            || ($item->package ?? '') !== $expectedPackage
+            || empty($item->autoupdate)) {
+            self::rememberInstall('deferred', 'Kein passendes, geprueftes WordPress-Updateangebot vorhanden.', $release['version']);
+            return;
+        }
+        if (!WP_Upgrader::create_lock('auto_updater')) {
+            self::rememberInstall('deferred', 'Ein anderer WordPress-Updatevorgang laeuft. Naechster Versuch automatisch.', $release['version']);
+            return;
+        }
+        try {
+            $result = $updater->update('plugin', $item);
+            if ($result === true && version_compare(self::installedVersion(), $release['version'], '>=')) {
+                self::rememberInstall('installed', 'Arbeitsplatten-Update automatisch installiert.', $release['version']);
+            } elseif (is_wp_error($result)) {
+                self::rememberInstall('error', 'Die automatische Installation ist fehlgeschlagen. WordPress hat den Versuch beendet.', $release['version']);
+            } else {
+                self::rememberInstall('blocked', 'WordPress hat die Installation uebersprungen (z. B. Dateirechte oder Updatesperre).', $release['version']);
+            }
+        } catch (Throwable $error) {
+            self::rememberInstall('error', 'Die automatische Installation konnte nicht abgeschlossen werden.', $release['version']);
+        } finally {
+            WP_Upgrader::release_lock('auto_updater');
+        }
     }
 
     private static function config(): array {
@@ -242,6 +342,15 @@ final class HPZ_APL_GitHub_Updater {
         $latestVersion = is_string($status['version'] ?? null) && $status['version'] !== '' ? $status['version'] : 'Noch nicht erkannt';
         $lastCheck = $checkedAt > 0 ? wp_date('d.m.Y H:i', $checkedAt) : 'Noch nicht geprueft';
         $message = is_string($status['message'] ?? null) ? $status['message'] : '';
+        $next = wp_next_scheduled(self::POLL_HOOK);
+        $nextText = $enabled && $next !== false ? wp_date('d.m.Y H:i', $next) : 'Nicht geplant';
+        $install = get_option(self::INSTALL_STATUS_OPTION, []);
+        $install = is_array($install) ? $install : [];
+        $installAt = (int)($install['attempted_at'] ?? 0);
+        $installTime = $installAt > 0 ? wp_date('d.m.Y H:i', $installAt) : 'Noch kein Installationsversuch';
+        $installMessage = is_string($install['message'] ?? null) ? $install['message'] : '';
+        $installVersion = is_string($install['version'] ?? null) ? $install['version'] : '';
+        $installLabel = $installMessage !== '' ? $installMessage : 'Noch keine automatische Installation dokumentiert.';
 
         echo '<div class="wrap"><h1>Arbeitsplatten-Konfigurator: automatische Updates</h1>';
         echo '<p>Nur gepruefte ZIP-Releases aus dem privaten GitHub-Repository. Kein Hosting-/SSH-Zugang erforderlich.</p>';
@@ -250,8 +359,17 @@ final class HPZ_APL_GitHub_Updater {
         echo '<tr><th scope="row">Zuletzt erkannte GitHub-Version</th><td>'.esc_html($latestVersion).'</td></tr>';
         echo '<tr><th scope="row">Letzte GitHub-Pruefung</th><td>'.esc_html($lastCheck).'</td></tr>';
         echo '<tr><th scope="row">Status</th><td>'.esc_html($state).($enabled && $message !== '' ? ' – '.esc_html($message) : '').'</td></tr>';
-        echo '<tr><th scope="row">Automatische Installation</th><td>'.($enabled ? 'Aktiviert (WordPress-Zeitplan)' : 'Deaktiviert').'</td></tr>';
+        echo '<tr><th scope="row">Automatische Installation</th><td>'.($enabled ? 'Aktiviert (eigener 15-Minuten-WP-Cron)' : 'Deaktiviert').'</td></tr>';
+        echo '<tr><th scope="row">Naechster automatischer Lauf</th><td>'.esc_html($nextText).'</td></tr>';
+        echo '<tr><th scope="row">Letzter Installationsversuch</th><td>'.esc_html($installTime).' – '.esc_html($installLabel)
+            .($installVersion !== '' ? ' ('.esc_html($installVersion).')' : '').'</td></tr>';
         echo '</table>';
+        if ($enabled && $next !== false && $next + 3 * self::POLL_INTERVAL < time()) {
+            echo '<div class="notice notice-warning inline"><p>Die geplante Pruefung ist ueberfaellig. Bitte unter Werkzeuge &gt; Website-Zustand die WordPress-Cron-Ausfuehrung pruefen. Bei deaktiviertem WP-Cron muss ein Server-Cronjob wp-cron.php aufrufen.</p></div>';
+        }
+        if ($enabled && defined('DISABLE_WP_CRON') && DISABLE_WP_CRON) {
+            echo '<div class="notice notice-info inline"><p>Interner WP-Cron ist deaktiviert. Ein externer Server-Cronjob muss wp-cron.php mindestens alle 15 Minuten starten.</p></div>';
+        }
         if (!empty($_GET['checked'])) {
             echo '<div class="notice notice-info inline"><p>Eine neue WordPress-Updatepruefung wurde ausgefuehrt. Es wurde kein Plugin installiert.</p></div>';
         }
@@ -273,7 +391,7 @@ final class HPZ_APL_GitHub_Updater {
         echo '<p><label><input type="checkbox" name="enabled" value="1" '.checked(!empty($setting['enabled']),true,false).'> Updates automatisch installieren</label></p>';
         echo '<p><label><input type="checkbox" name="remove_token" value="1"> Gespeicherten Token entfernen und Updates deaktivieren</label></p>';
         submit_button('Speichern');
-        echo '</form><p>WordPress prueft standardmaessig zweimal taeglich. Der Button startet nur die Updatepruefung; eine Installation erfolgt danach ueber die normale WordPress-Verwaltung bzw. automatisch gemaess Zeitplan.</p></div>';
+        echo '</form><p>Nach jedem getesteten GitHub-Release prueft dieses Plugin ueber WP-Cron alle 15 Minuten und installiert eine neue Version automatisch mit WordPress-Sicherheitspruefungen. Der Button prueft nur, installiert aber nichts. Ausfuehrung setzt funktionierenden WordPress-Cron voraus (bei wenig Traffic ggf. verzoegert).</p></div>';
     }
 
     public static function save(): void {
@@ -293,6 +411,7 @@ final class HPZ_APL_GitHub_Updater {
         $enabled = !empty($_POST['enabled']) && $token !== '' && empty($_POST['remove_token']);
         // autoload disabled: credentials are never loaded in ordinary front-end options.
         update_option(self::OPTION, ['token'=>$token, 'enabled'=>$enabled], false);
+        self::scheduleCron();
         delete_site_transient('update_plugins');
         wp_safe_redirect(admin_url('options-general.php?page=hpz-apl-updates&saved=1'));
         exit;

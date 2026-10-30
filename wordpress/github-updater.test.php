@@ -7,11 +7,15 @@ $GLOBALS['http_mode']='valid';
 $GLOBALS['bytes']=str_repeat('x',1500);
 $GLOBALS['log']=[];$GLOBALS['hooks']=[];$GLOBALS['checks']=0;
 $GLOBALS['status_options']=[];$GLOBALS['refresh_calls']=0;$GLOBALS['deleted_transients']=[];
+$GLOBALS['installed_version']='1.0.3.11';$GLOBALS['simulated_update_check']=false;
+$GLOBALS['update_transient']=null;$GLOBALS['cron_events']=[];
+$GLOBALS['auto_disabled']=false;$GLOBALS['auto_result']=true;
+$GLOBALS['update_calls']=[];$GLOBALS['updater_lock']=false;$GLOBALS['lock_forced']=false;$GLOBALS['locks_released']=0;$GLOBALS['fake_doing_cron']=true;
 class WP_Error {public $code;function __construct($code,$message){$this->code=$code;}}
 function is_wp_error($value){return $value instanceof WP_Error;}
 function get_option($name,$fallback=null){return $name==='hpz_apl_github_updater'?$GLOBALS['hpz_setting']:($GLOBALS['status_options'][$name]??$fallback);}
 function update_option($name,$value,$autoload=null){$GLOBALS['status_options'][$name]=$value;return true;}
-function get_file_data($path,$keys,$context=''){return ['Version'=>'1.0.3.11'];}
+function get_file_data($path,$keys,$context=''){return ['Version'=>$GLOBALS['installed_version']];}
 function current_user_can($cap){return $cap==='manage_options';}
 function admin_url($path=''){return 'https://example.test/wp-admin/'.$path;}
 function esc_url($v){return htmlspecialchars($v,ENT_QUOTES,'UTF-8');}
@@ -21,8 +25,33 @@ function checked($actual,$expected=true,$echo=true){$str=$actual==$expected?'che
 function wp_nonce_field($action){echo '<input type="hidden" name="_wpnonce" value="TEST">';}
 function submit_button($label='Save'){echo '<button>'.esc_html($label).'</button>';}
 function wp_date($format,$timestamp){return gmdate($format,$timestamp);}
-function delete_site_transient($name){$GLOBALS['deleted_transients'][]=$name;}
-function wp_update_plugins(){$GLOBALS['refresh_calls']++;}
+function delete_site_transient($name){$GLOBALS['deleted_transients'][]=$name;if($name==='update_plugins'&&$GLOBALS['simulated_update_check'])$GLOBALS['update_transient']=null;}
+function wp_update_plugins(){
+ $GLOBALS['refresh_calls']++;
+ if(!$GLOBALS['simulated_update_check'])return;
+ $offer=HPZ_APL_GitHub_Updater::offer(false,['Version'=>$GLOBALS['installed_version']],HPZ_APL_GitHub_Updater::PLUGIN,[]);
+ $item=$offer?(object)array_merge($offer,['plugin'=>HPZ_APL_GitHub_Updater::PLUGIN,'new_version'=>$offer['version']]):null;
+ $GLOBALS['update_transient']=(object)['response'=>$item?[
+  'other/example.php'=>(object)['plugin'=>'other/example.php','new_version'=>'9.0.0'],
+  HPZ_APL_GitHub_Updater::PLUGIN=>$item]:[]];
+}
+function get_site_transient($key){return $key==='update_plugins'?$GLOBALS['update_transient']:null;}
+function wp_doing_cron(){return $GLOBALS['fake_doing_cron'];}
+function wp_next_scheduled($hook){return $GLOBALS['cron_events'][$hook]['timestamp']??false;}
+function wp_schedule_event($timestamp,$recurrence,$hook){$GLOBALS['cron_events'][$hook]=['timestamp'=>$timestamp,'recurrence'=>$recurrence];return true;}
+function wp_clear_scheduled_hook($hook){unset($GLOBALS['cron_events'][$hook]);return 1;}
+class WP_Upgrader{
+ public static function create_lock($name){if($GLOBALS['lock_forced'])return false;$GLOBALS['updater_lock']=true;return true;}
+ public static function release_lock($name){$GLOBALS['updater_lock']=false;$GLOBALS['locks_released']++;return true;}
+}
+class WP_Automatic_Updater{
+ public function is_disabled(){return $GLOBALS['auto_disabled'];}
+ public function update($type,$item){
+  $GLOBALS['update_calls'][]=[$type,$item->plugin??'', $item->new_version??''];
+  if($GLOBALS['auto_result']===true)$GLOBALS['installed_version']=$item->new_version;
+  return $GLOBALS['auto_result'];
+ }
+}
 function wp_safe_redirect($url){$GLOBALS['redirect_to']=$url;}
 function get_bloginfo($name){return $GLOBALS['wp_version'];}
 function add_filter($name,$callback,$priority=10,$args=1){$GLOBALS['hooks'][$name]=$callback;}
@@ -142,5 +171,73 @@ checkit(strpos($html,'1.0.3.87')!==false,'latest release shown');
 checkit(strpos($html,'hpz_apl_updater_check')!==false,'manual check action present');
 checkit(strpos($html,'_wpnonce')!==false,'manual check form includes nonce');
 checkit(strpos($html,'EXAMPLE_READ_ONLY')===false,'token never displayed in settings');
+
+
+// Regression: a successful private GitHub release must be automatically
+// installed on our own short, native WP-Cron schedule (not 12h after merge).
+checkit(isset($GLOBALS['hooks']['cron_schedules']),'native cron interval registered');
+checkit(isset($GLOBALS['hooks']['hpz_apl_update_poll']),'dedicated plugin-only job registered');
+$schedules=HPZ_APL_GitHub_Updater::cronSchedules([]);
+checkit(($schedules['hpz_apl_15_minutes']['interval']??0)===900,'15-minute WP-Cron interval');
+HPZ_APL_GitHub_Updater::scheduleCron();
+$at=wp_next_scheduled('hpz_apl_update_poll');
+checkit(is_int($at)&&$at>time(),'schedule an upcoming automatic update check');
+HPZ_APL_GitHub_Updater::scheduleCron();
+checkit(wp_next_scheduled('hpz_apl_update_poll')===$at,'never duplicate cron events');
+
+$GLOBALS['simulated_update_check']=true;
+$GLOBALS['installed_version']='1.0.3.11';
+$GLOBALS['http_mode']='valid';
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit($GLOBALS['installed_version']==='1.0.3.87','new trusted private release installed automatically');
+checkit(count($GLOBALS['update_calls'])===1,'only one automatic plugin updater invoked');
+checkit($GLOBALS['update_calls'][0]===['plugin',HPZ_APL_GitHub_Updater::PLUGIN,'1.0.3.87'],'auto updater receives exact plugin and version');
+checkit($GLOBALS['updater_lock']===false&&$GLOBALS['locks_released']===1,'WordPress automatic-updater lock released');
+$install=get_option('hpz_apl_updater_install_status',[]);
+checkit(($install['state']??'')==='installed'&&($install['version']??'')==='1.0.3.87','successful installation recorded');
+checkit(strpos(json_encode($install),'EXAMPLE_READ_ONLY')===false,'installation status does not expose credentials');
+
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit(count($GLOBALS['update_calls'])===1,'already current: no second install');
+$GLOBALS['installed_version']='1.0.3.11';
+$GLOBALS['lock_forced']=true;
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit(count($GLOBALS['update_calls'])===1&&$GLOBALS['locks_released']===1,'concurrent updater lock prevents collision');
+checkit((get_option('hpz_apl_updater_install_status',[])['state']??'')==='deferred','lock collision visible to admin');
+$GLOBALS['lock_forced']=false;
+$GLOBALS['auto_disabled']=true;
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit(count($GLOBALS['update_calls'])===1,'WordPress global update-disable respected');
+checkit((get_option('hpz_apl_updater_install_status',[])['state']??'')==='blocked','automatic-update block visible to admin');
+$GLOBALS['auto_disabled']=false;
+$GLOBALS['auto_result']=new WP_Error('update_failed','fake error must never reach UI');
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit((get_option('hpz_apl_updater_install_status',[])['state']??'')==='error','failed automatic installation recorded');
+checkit(strpos(json_encode(get_option('hpz_apl_updater_install_status',[])),'fake error')===false,'no raw upstream errors in diagnostics');
+$GLOBALS['auto_result']=false;
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit((get_option('hpz_apl_updater_install_status',[])['state']??'')==='blocked','filesystem skip reported without false success');
+$GLOBALS['auto_result']=true;
+$GLOBALS['http_mode']='missing-hash';
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit(count($GLOBALS['update_calls'])===3,'unsigned release never starts another install');
+$GLOBALS['http_mode']='valid';
+$GLOBALS['fake_doing_cron']=false;
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit(count($GLOBALS['update_calls'])===3,'direct front-end requests must never install');
+$GLOBALS['fake_doing_cron']=true;
+
+$GLOBALS['hpz_setting']['enabled']=false;
+HPZ_APL_GitHub_Updater::scheduleCron();
+checkit(wp_next_scheduled('hpz_apl_update_poll')===false,'disable immediately removes plugin cron');
+HPZ_APL_GitHub_Updater::runScheduledUpdate();
+checkit(count($GLOBALS['update_calls'])===3,'disabled plugin never installs');
+$GLOBALS['hpz_setting']['enabled']=true;
+$GLOBALS['installed_version']='1.0.3.11';
+HPZ_APL_GitHub_Updater::scheduleCron();
+ob_start();HPZ_APL_GitHub_Updater::page();$html=ob_get_clean();
+checkit(strpos($html,'Naechster automatischer Lauf')!==false,'admin page shows next automatic poll');
+checkit(strpos($html,'Letzter Installationsversuch')!==false,'admin page shows installation status separate from release detection');
+checkit(strpos($html,'EXAMPLE_READ_ONLY')===false,'scheduled diagnostics must never leak token');
 
 echo "PASS {$GLOBALS['checks']} private GitHub updater assertions\n";
