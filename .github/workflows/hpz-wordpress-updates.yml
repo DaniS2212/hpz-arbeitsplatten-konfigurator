@@ -1,0 +1,121 @@
+name: Arbeitsplatten WordPress release (private GitHub)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/hpz-wordpress-updates.yml'
+      - 'scripts/updater/**'
+      - 'wordpress/**'
+      - 'local/**'
+      - 'design/**'
+      - 'pricing-v3/**'
+      - 'build-plugin.mjs'
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: hpz-wp-release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  php:
+    name: PHP price, checkout and updater security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax and updater regression
+        run: |
+          php -l wordpress/hpz-apl-admin-preview/includes/github-updater.php
+          php wordpress/github-updater.test.php
+          php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
+          php wordpress/price-preview.test.php
+          php wordpress/price-ajax.test.php
+          php wordpress/top-cta.test.php
+          php wordpress/decor-catalog.test.php
+          php wordpress/admin-supplier-decor.test.php
+          php pricing-v3/tests/run.php
+          php pricing-v3/tests/sale-readiness.php
+          php wordpress/checkout-v08/tests/simple-101.php
+          php wordpress/checkout-v08/tests/simple-101-hooks.php
+          php wordpress/sale-launch-090/tests/disabled.php
+          php wordpress/sale-launch-100/tests/admin-input.php
+  node:
+    name: Node integration and release safeguards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run full Node and update tests
+        run: node --test local/test/*.test.mjs wordpress/*.test.mjs scripts/updater/*.test.mjs
+      - name: Assert generated assets are reviewed
+        run: |
+          node build-plugin.mjs
+          git diff --exit-code -- wordpress/hpz-apl-admin-preview
+  browser:
+    name: Chromium responsive and price-network smoke
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install matching Playwright client
+        run: npm install --no-save --no-package-lock playwright@1.55.1
+      - name: Existing browser regression
+        run: |
+          node wordpress/stability-ci-runner.mjs
+          node wordpress/ui063-browser-runner.mjs
+          node wordpress/live-price-browser-runner.mjs
+          node wordpress/invalid-measures-browser-runner.mjs
+  release:
+    name: Publish tested plugin ZIP (NO hosting access)
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [php, node, browser]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source matches generated plugin
+        run: |
+          node build-plugin.mjs
+          git diff --exit-code -- wordpress/hpz-apl-admin-preview
+      - name: Stamp unique tested plugin version and regenerate bundled module URLs
+        id: version
+        shell: bash
+        run: |
+          version=$(node scripts/updater/stamp-release.mjs wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php "$GITHUB_RUN_NUMBER")
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+          node build-plugin.mjs
+          node --test wordpress/plugin.test.mjs
+      - name: Build only the installable WordPress plugin directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          version='${{ steps.version.outputs.value }}'
+          mkdir -p dist
+          (cd wordpress && zip -qr "../dist/hpz-apl-admin-preview-$version.zip" hpz-apl-admin-preview)
+          unzip -t "dist/hpz-apl-admin-preview-$version.zip" | tail -n 1
+          unzip -p "dist/hpz-apl-admin-preview-$version.zip" hpz-apl-admin-preview/hpz-apl-admin-preview.php | grep -F "Version: $version"
+          sha256sum "dist/hpz-apl-admin-preview-$version.zip"
+      - name: Publish private GitHub Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version='${{ steps.version.outputs.value }}'
+          tag="hpz-apl-v$version"
+          gh release create "$tag" "dist/hpz-apl-admin-preview-$version.zip" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Arbeitsplatten-Plugin $version" \
+            --notes "Automatisch gebaut aus dem getesteten main-Commit $GITHUB_SHA. Keine Produktfreischaltung." \
+            --latest

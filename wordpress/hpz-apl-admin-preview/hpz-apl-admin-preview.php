@@ -3,6 +3,7 @@
  * Plugin Name: Holz-Liebling Arbeitsplatten – Admin-Vorschau
  * Description: Arbeitsplatten-Konfigurator: Gerade mit WooCommerce-Warenkorb; L- und U-Form weiterhin nur als Admin-Vorschau.
  * Version: 1.0.3
+ * Update URI: https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -13,6 +14,7 @@
 defined('ABSPATH') || exit;
 require_once __DIR__.'/includes/decor-catalog.php';
 require_once __DIR__.'/includes/admin-supplier-decor.php';
+require_once __DIR__.'/includes/github-updater.php';
 require_once __DIR__.'/includes/price-v3.php';
 require_once __DIR__.'/includes/price-preview.php';
 // 0.9 sale components: physically bundled but completely dormant unless a
@@ -36,6 +38,7 @@ final class HPZ_APL_Admin_Preview {
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
         HPZ_APL_WP_Admin_Supplier_Decor::register();
+        HPZ_APL_GitHub_Updater::init();
         // No individual supplier approvals.
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_init', array(__CLASS__, 'settings'));
