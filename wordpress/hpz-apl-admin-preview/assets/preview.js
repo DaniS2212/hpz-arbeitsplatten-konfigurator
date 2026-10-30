@@ -20,7 +20,7 @@ async function postQuote(endpoint,nonce,request,signal) {
   if(signal?.aborted)cancel();
   const timeout=setTimeout(cancel,8000);
   try{
-    const response=await fetch(endpoint,{method:'POST',credentials:'same-origin',cache:'no-store',
+    const response=await fetch(endpoint.href,{method:'POST',credentials:'same-origin',cache:'no-store',
       headers:{'Content-Type':'application/json','X-WP-Nonce':nonce},
       signal:own.signal,body:JSON.stringify(request)});
     // Invalid/expired nonce is not a temporary backend error. Do not retry.
@@ -51,7 +51,7 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
     for(let attempt=0;attempt<2;attempt++){
       if(signal?.aborted)return visual;
       try{
-        const {response,data}=await postQuote(endpoint.href,pricePreview.nonce,request,signal);
+        const {response,data}=await postQuote(endpoint,pricePreview.nonce,request,signal);
         if(signal?.aborted)return visual;
         if(response.status===401||response.status===403)
           return unavailable(visual,'Die Preisprüfung wurde abgelehnt oder ist abgelaufen. Bitte Produktseite neu laden.');
