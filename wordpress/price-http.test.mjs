@@ -34,6 +34,8 @@ test('actual PHP WordPress-test adapter: admin gate, V3 prices and no internal d
   }
   assert.equal((await send(input('W980','APL17.5','2501','880'))).data.data.quote.unitGrossReferenceCents,74000);
   assert.equal((await send(input('W980','APL38','2781','600'))).data.data.quote.unitGrossReferenceCents,89000);
+  assert.equal((await send(input('W980','APL38','1200','600'))).data.data.quote.unitGrossReferenceCents,51000,'120x60 PHP HTTP quote');
+  assert.equal((await send(input('W980','APL38','3500','900'))).data.data.quote.unitGrossReferenceCents,203000,'350x90 PHP HTTP quote');
   assert.equal((await send(input('W980','APL38','2500','881'))).data.data.quote.unitGrossReferenceCents,149000);
   for(const [material,one,two,depth] of [['APL17.5','250','250,1','60'],['APL38','278','278,1','60'],['APL38','250','250','88']]){
     const before=input('W980',material,cmInputToMmText(one),cmInputToMmText(depth));

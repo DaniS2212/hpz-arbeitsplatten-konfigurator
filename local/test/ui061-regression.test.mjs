@@ -63,16 +63,16 @@ test('the strong input highlight is identical in source and bundled WordPress st
   assert.match(source,/\.a1-radius-field\.active-dimension/);
   assert.match(source,/border:2px solid #146178/);
 });
-test('WordPress assets are cache-busted at 1.0.2 and retain the protected price adapter',async()=>{
+test('WordPress assets are cache-busted at 1.0.3 and retain the protected price adapter',async()=>{
   const wp=new URL('../wordpress/hpz-apl-admin-preview/',root);
   const php=await readFile(new URL('hpz-apl-admin-preview.php',wp),'utf8');
-  assert.match(php,/Version: 1\.0\.2/);
+  assert.match(php,/Version: 1\.0\.3/);
   const bootstrap=await readFile(new URL('assets/bootstrap.js',wp),'utf8');
-  assert.match(bootstrap,/component\.js\?v=1\.0\.2/);
-  assert.match(bootstrap,/preview\.js\?v=1\.0\.2/);
+  assert.match(bootstrap,/component\.js\?v=1\.0\.3/);
+  assert.match(bootstrap,/preview\.js\?v=1\.0\.3/);
   const js=await readFile(new URL('assets/component.js',wp),'utf8');
-  assert.match(js,/component\.css\?v=1\.0\.2/);
-  assert.match(js,/kuechenstudio-060\.css\?v=1\.0\.2/);
+  assert.match(js,/component\.css\?v=1\.0\.3/);
+  assert.match(js,/kuechenstudio-060\.css\?v=1\.0\.3/);
   assert.match(js,/function summary\(config,invalid=false\)/);
   assert.match(php,/woocommerce_is_purchasable/);
   assert.match(php,/woocommerce_store_api_cart_errors/);

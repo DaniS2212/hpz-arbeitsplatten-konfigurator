@@ -1,4 +1,6 @@
-# Installation – Admin-Test 1.0.2 (Küchenstudio-Vorschau)
+# Installation – Gerade live / L-U Admin-Vorschau, Plugin 1.0.3
+
+**1.0.3:** Bei der geraden Arbeitsplatte führt „Jetzt konfigurieren“ im Produktkopf direkt zum Konfigurator; das standardmäßige WooCommerce-Kaufformular wird nur für dieses Produkt unterdrückt. Vorübergehende PHP-Preisfehler werden einmal erneut versucht; danach erscheint „Preis erneut berechnen“. Keine lokale Preisfreigabe. Für 120 × 60 cm, 38 mm, Platinweiß ist 510 € brutto vorgesehen; 350 × 90 cm 2.030 € brutto. Kauf und Versand bleiben beim bisherigen WooCommerce-System. Nach Plugin-Update Cache leeren.
 
 **Version 1.0.2:** Durchlaufende Abschrägung bei gültigen Maßen statt nur 200 × 60 cm; Shoplänge 100–400 cm, Tiefe 30–90 cm, Eckabschnitte bis 180 × 50 cm bei 10-cm-Restkanten. Bestehende 17,5-mm-Referenzplatten ohne durchlaufende Abschrägung bis 120 cm Tiefe bleiben erhalten. V3-Formel und WooCommerce-Kundenversand bleiben unverändert. Mehr Infos in `docs/phase-102-speedmaster-continuous.md`.
 

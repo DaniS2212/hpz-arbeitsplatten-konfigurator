@@ -25,6 +25,8 @@ check(is_array($c['hpz_apl_v08']),'cart can issue without any Speedmaster-specif
 check(!array_key_exists('supplierNetCents',$c['hpz_apl_v08']),'no EK data');
 $info=HPZ_APL_WC_Cart_Bridge_08::inspect($c,1,$noProof,$secret);
 check($info['quote']['unitGrossReferenceCents']===67000,'V3 baseline 670 gross');
+$small=HPZ_APL_WC_Cart_Bridge_08::issue(raw(['dimensions'=>['L1'=>'1200','B1'=>'600']]),$noProof,$secret);
+check(HPZ_APL_WC_Cart_Bridge_08::inspect($small,1,$noProof,$secret)['quote']['unitGrossReferenceCents']===51000,'small 120x60 can be signed and priced for cart');
 check($info['proof']===null,'no supplier proof');
 check($info['production']['supplierDecorCode']==='W980 ST7','Speedmaster decor code preserved for manual order');
 check(HPZ_APL_WC_Cart_Bridge_08::priceForWoo(67000,true,'DE')==='670.00','Woo gross');

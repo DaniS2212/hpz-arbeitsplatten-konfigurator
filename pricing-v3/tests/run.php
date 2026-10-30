@@ -36,6 +36,8 @@ foreach ($names as $decor) foreach (['APL17.5','APL38'] as $material) {
 }
 check(gross(input())===45000,'17.5 white baseline');
 check(gross(input('APL38'))===67000,'38 white baseline');
+check(gross(input('APL38','W980',1200,600))===51000,'120x60 must price at 510 EUR');
+check(gross(input('APL38','W980',3500,900))===203000,'350x90 38 mm gross price 2030 EUR');
 check(gross(input('APL17.5','W980',2500,880))===70000,'thin size 2500x880');
 check(gross(input('APL17.5','W980',2501,880))===74000,'thin length jump 2501');
 check(gross(input('APL17.5','F128',2501,880))===113000,'granite thin area premium');

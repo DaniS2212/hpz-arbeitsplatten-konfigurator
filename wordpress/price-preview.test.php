@@ -26,6 +26,8 @@ foreach ($catalog as $id=>$row) foreach (['APL17.5','APL38'] as $material) {
 }
 $baseline=HPZ_APL_Price_Preview::publicQuote(sample());
 ensure($baseline['unitGrossReferenceCents']===45000 && $baseline['totalGrossReferenceCents']===45000,'base V3 price');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','1200','600'))['unitGrossReferenceCents']===51000,'small worktop 120x60 510 EUR');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','3500','900'))['unitGrossReferenceCents']===203000,'large worktop 350x90 2030 EUR');
 ensure(strpos($baseline['taxNote'],'19')===false,'unknown destination does not claim applied 19% tax');
 ensure(strpos(HPZ_APL_Price_Preview::publicQuote(sample(),'DE')['taxNote'],'19')!==false,'DE reference explicitly labeled');
 ensure(strpos(HPZ_APL_Price_Preview::publicQuote(sample(),'CH')['taxNote'],'19')===false,'foreign destination does not claim applied 19% tax');
