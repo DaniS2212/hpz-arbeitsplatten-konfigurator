@@ -45,6 +45,8 @@ jobs:
           php wordpress/price-preview.test.php
           php wordpress/price-ajax.test.php
           php wordpress/top-cta.test.php
+          php -l wordpress/hpz-apl-admin-preview/includes/admin-supplier-decor.php
+          php wordpress/admin-supplier-decor.test.php
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
