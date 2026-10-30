@@ -31,6 +31,14 @@ try{
    assert.equal(info.groupCards,0,'L/U must use the finished straight measure grid, not separate cards');
    assert.equal(info.summaryCount,1);assert.equal(info.cartDisabled,true);assert.equal(info.productCardsHidden,true);
    if(kind==='l'){
+     const cards=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+       const root=el.shadowRoot;
+       const opts=root.querySelector('.a1-side-options');
+       const svg=opts.querySelector('.a1-side-card svg');
+       return {cols:getComputedStyle(opts).gridTemplateColumns.split(' ').filter(Boolean).length,svgWidth:svg.getBoundingClientRect().width};
+     });
+     assert.equal(cards.cols,width>=761?4:2,'L side cards must match straight UX grid');
+     assert.ok(cards.svgWidth<=85,'L line icons must stay compact like straight');
      assert.deepEqual(info.measures,['dim-L1','dim-L2','dim-B1','dim-B2']);
      assert.ok(info.labels.some(x=>x.includes('Schenkelbreite links')));
      const initial=await page.locator('[data-hpz-apl-preview]').evaluate(el=>el.shadowRoot.querySelector('#drawing .apl-surface').getAttribute('d'));
@@ -71,6 +79,26 @@ try{
      assert.equal(l4Fields.baseB5,1);
      assert.equal(l4Fields.cornerB5,1);
      assert.ok(l4Fields.cartDisabled);
+     await page.evaluate(()=>{const root=document.querySelector('[data-hpz-apl-preview]').shadowRoot;root.querySelector('#steps button:nth-child(2)').click();root.querySelector('#corner-B5').focus();});
+     await page.waitForFunction(()=>!!document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#drawing [data-field="corner-B5"][data-active="true"]'));
+     const paired=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+       const root=el.shadowRoot;
+       return {
+         activeBase:root.querySelector('#drawing [data-field="B5"][data-active="true"]')!==null,
+         labels:[...root.querySelectorAll('#summary dt')].map(n=>n.textContent),
+         callouts:root.querySelectorAll('#drawing [data-field="corner-B5"]').length
+       };
+     });
+     assert.equal(paired.activeBase,false,'base B5 does not highlight when corner-B5 receives focus');
+     assert.ok(paired.callouts>0);
+     assert.ok(paired.labels.includes('Eckbereich')&&paired.labels.includes('Diagonalbereich'),'customer-readable L summary');
+     await page.evaluate(()=>{
+       const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       s.querySelector('#dim-B5').focus();
+       s.querySelector('#drawing [data-field="corner-B5"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+     });
+     const fromDrawing=await page.locator('[data-hpz-apl-preview]').evaluate(el=>el.shadowRoot.activeElement?.id);
+     assert.equal(fromDrawing,'corner-B5','clicking the L bevel diagram focuses its exact input');
    }
    await page.evaluate((key)=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
      s.querySelector('#steps button:nth-child(2)').click();s.querySelector('#dim-'+key).focus();

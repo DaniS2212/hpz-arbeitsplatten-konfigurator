@@ -51,7 +51,7 @@ export function validateLCorner(raw,convert,shape) {
   if(Object.keys(raw.parameters).sort().join('|')!==[...keys].sort().join('|'))throw Error('L-Eckmaßfelder stimmen nicht überein.');
   const parameters=Object.fromEntries(keys.map(k=>[k,convert(raw.parameters[k])]));
   for(const [k,v] of Object.entries(parameters))if(v<10||v>1000||v%10!==0)
-    throw Error(k+': Bitte ganze Zentimeter zwischen 1 und 100 eingeben (nur Vorschau).');
+    throw Error('corner-'+k+': Bitte ganze Zentimeter zwischen 1 und 100 eingeben (nur Vorschau).');
   return {side:raw.side,treatment:raw.treatment,parameters};
 }
 const pt=(x,y)=>[x,y], fmt=p=>p.join(' ');
@@ -68,8 +68,8 @@ function outline(base,edits){
     if(a>=len(p,before)-10||b>=len(p,after)-10)throw Error('L-Eckbearbeitung: Restkante zu klein.');
     const start=between(p,before,a),end=between(p,after,b);
     const smooth=c.treatment!=='chamfer_square';
-    commands.push('L '+fmt(start),smooth?'Q '+fmt(p)+' '+fmt(end):'L '+fmt(end));
-    points.push(start,end);markers.push({...c,from:start,to:end});
+    commands.push('L '+fmt(start),c.treatment==='round'?`A ${c.horizontal} ${c.horizontal} 0 0 1 ${fmt(end)}`:smooth?'Q '+fmt(p)+' '+fmt(end):'L '+fmt(end));
+    points.push(start,end);markers.push({...c,vertex:p,from:start,to:end});
   }
   return {path:commands.join(' ')+' Z',points,markers};
 }
@@ -83,7 +83,7 @@ export function lGeometry(config){
   // paired widths (B3/B4). No inferred half-depth diagonal.
   // For L4 the screenshot shows a 45-degree exterior chamfer with width B5;
   // its projection is a preview inference, not released cutting geometry.
-  const outer=variant==='L4'?Math.round((b1+b3-b5*Math.SQRT2)/10)*10:null;
+  const outer=variant==='L4'?b1+b3-b5*Math.SQRT2:null;
   if(variant==='L4'&&(outer<100||outer>=Math.min(w,h)-100))
     throw Error('B5: Äußere Diagonale passt nicht zu diesen Schenkelmaßen.');
   const bases={
@@ -108,10 +108,39 @@ export function lGeometry(config){
     {id:'B2',mm:b2,from:pt(left?w:0,0),to:pt(left?w:0,b2),side:left?1:-1}
   ];
   if(angled){
-    dims.find(d=>d.id==='B1').label='B1/B2';
-    dims.find(d=>d.id==='B2').label='B1/B2';
-    dims.push({id:'B3',label:'B3/B4',mm:b3,from:pt(0,b2),to:pt(b3,b2),side:1,secondary:true});
-    if(variant==='L4')dims.push({id:'B5',mm:b5,from:pt(outer/2,outer/2),to:pt((b3+b1)/2,(b2+b4)/2),side:1,secondary:true});
+    // B1/B2 and B3/B4 are coupled Speedmaster inputs but different
+    // perpendicular projections. Never measure across the textured slab.
+    dims.find(d=>d.id==='B1').focusKey='B1';
+    dims.find(d=>d.id==='B2').focusKey='B1';
+    dims.push(
+      {id:'B3',focusKey:'B3',label:'B3',axis:'horizontal',mm:b3,from:pt(0,0),to:pt(b3,0),side:-1,secondary:true,referenceOutside:true,offsetFactor:.88},
+      {id:'B3',focusKey:'B3',label:'B4',axis:'vertical',mm:b4,from:pt(0,0),to:pt(0,b4),side:-1,secondary:true,referenceOutside:true,offsetFactor:.88}
+    );
+    if(variant==='L4')dims.push({
+      id:'B5',axis:'diagonal',mm:b5,from:pt(outer/2,outer/2),to:pt((b3+b1)/2,(b2+b4)/2),
+      side:1,secondary:true
+    });
+  }
+  // Match the proven straight implementation: expose projection lengths for
+  // each cut, plus an arc/radius callout. Prefix the field IDs so the L4
+  // basic B5 and corner B5 never select one another.
+  const cornerDimensions=[],cornerCuts=[],cornerArcs=[];
+  for(const marker of result.markers){
+    const p=marker.vertex,{from,to,side,treatment,fields}=marker;
+    const horiz=from[1]===p[1]?from:to;
+    const vert=from[0]===p[0]?from:to;
+    if(treatment==='round'){
+      cornerArcs.push({
+        id:'corner-'+fields[0],label:fields[0],side,radiusMm:marker.horizontal,
+        center:[horiz[0],vert[1]],from,to
+      });
+    }else{
+      cornerCuts.push({side,from,to,fields:fields.map(k=>'corner-'+k),presentationOnly:treatment==='chamfer_continuous'});
+      cornerDimensions.push(
+        {id:'corner-'+fields[0],label:fields[0],mm:marker.horizontal,from:p,to:horiz,side,axis:'horizontal'},
+        {id:'corner-'+fields[1],label:fields[1],mm:marker.vertical,from:p,to:vert,side,axis:'vertical'}
+      );
+    }
   }
   const previewSeams=angled?[
     {from:pt(b3,variant==='L4'?Math.max(0,outer-b3):0),to:pt(b3,b2)},
@@ -128,7 +157,7 @@ export function lGeometry(config){
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
     points:result.points,path:result.path,areaMm2:area(result.points),width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
-    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,previewSeams,
+    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,
     joints:null,shippingParts:null,supplierMappingVerified:false,warnings
   };
 }
