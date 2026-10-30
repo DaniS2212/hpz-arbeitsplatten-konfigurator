@@ -136,8 +136,8 @@ try{
     assert.equal(priced.busy,'false');
 
     if(width===1366){
-      // Force a PHP-style never-finishing request. After the 9-second client
-      // timeout only the price becomes unavailable; SVG and inputs stay live.
+      // Force a PHP-style never-finishing request. After two bounded 6-second
+      // attempts only the price becomes unavailable; SVG and inputs stay live.
       await page.evaluate(()=>{
         const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
         const input=s.querySelector('input[name="decor"][value="F095"]');
@@ -151,19 +151,21 @@ try{
       await page.waitForFunction(()=>{
         const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
         return s?.querySelector('#price').textContent==='Preis offen';
-      },null,{timeout:12000});
+      },null,{timeout:17000});
       const blocked=await page.evaluate(()=>{
         const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
         return {image:!!s.querySelector('#drawing svg'),busy:s.querySelector('#drawing').getAttribute('aria-busy'),
           opacity:getComputedStyle(s.querySelector('#drawing')).opacity,
           nextDisabled:s.querySelector('#next').disabled,
-          cartDisabled:s.querySelector('#cart').disabled};
+          cartDisabled:s.querySelector('#cart').disabled,
+          retryVisible:!s.querySelector('.price-retry').hidden};
       });
       assert.equal(blocked.image,true);
       assert.equal(blocked.busy,'false');
       assert.equal(blocked.opacity,'1');
       assert.equal(blocked.nextDisabled,false);
       assert.equal(blocked.cartDisabled,true);
+      assert.equal(blocked.retryVisible,true,'A failed PHP quote must show a safe retry control');
     }
     await page.screenshot({path:'wordpress/ci-artifacts/064-ajax-'+width+'.png',fullPage:true});
     assert.deepEqual(exceptions,[],'No browser exceptions');

@@ -18,7 +18,7 @@ async function postQuote(endpoint,nonce,request,signal) {
   const cancel=()=>own.abort();
   signal?.addEventListener('abort',cancel,{once:true});
   if(signal?.aborted)cancel();
-  const timeout=setTimeout(cancel,8000);
+  const timeout=setTimeout(cancel,6000);
   try{
     const response=await fetch(endpoint.href,{method:'POST',credentials:'same-origin',cache:'no-store',
       headers:{'Content-Type':'application/json','X-WP-Nonce':nonce},
