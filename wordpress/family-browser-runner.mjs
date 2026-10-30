@@ -79,15 +79,7 @@ try{
      assert.equal(l4Fields.baseB5,1);
      assert.equal(l4Fields.cornerB5,1);
      assert.ok(l4Fields.cartDisabled);
-     await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#corner-B5').focus());
-     const diag=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
-       const root=el.shadowRoot,mark=root.querySelector('#drawing');
-       return {input:root.activeElement?.id,variant:root.querySelector('#geometry')?.value,
-         fields:[...mark.querySelectorAll('[data-field]')].map(e=>e.dataset.field+':'+e.dataset.active).slice(-35),
-         error:root.querySelector('#error')?.textContent,notice:root.querySelector('#drawing-status')?.textContent,
-         hidden:root.querySelector('#drawing-status')?.hidden,busy:mark.getAttribute('aria-busy')};
-     });
-     console.log('L4-CORNER-DEBUG '+JSON.stringify(diag));
+     await page.evaluate(()=>{const root=document.querySelector('[data-hpz-apl-preview]').shadowRoot;root.querySelector('#steps button:nth-child(2)').click();root.querySelector('#corner-B5').focus();});
      await page.waitForFunction(()=>!!document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#drawing [data-field="corner-B5"][data-active="true"]'));
      const paired=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
        const root=el.shadowRoot;
