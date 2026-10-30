@@ -1,8 +1,10 @@
 import {straightGeometry} from './straight-geometry.js?v=1.0.3';
+import {lGeometry} from './l-geometry.js?v=1.0.3';
 import {mmToCmText} from './customer-measures.js?v=1.0.3';
 // L/U are explicitly generic family sketches. They are not Speedmaster L1–L4/U1–U4 definitions.
 export function geometry(config) {
   if(config.product==='straight'&&config.straightCorner)return straightGeometry(config);
+  if(config.product==='l'&&config.lCorner)return lGeometry(config);
   const {L1:w,L2:left,L3:right,B1:depth,B2:leg,B3:legRight}=config.dimensions;
   const isStraight=config.product==='straight', isU=config.product==='u';
   if(!isStraight && (left<=depth || leg>=w || (isU && (right<=depth || leg+legRight>=w))))
@@ -57,7 +59,7 @@ function schematicPath(g,trim){
   }
   return path+' Z';
 }
-export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,textureUrl=null,unit='mm'}={}) {
+export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,detail=null,textureUrl=null,unit='mm'}={}) {
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
   const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
@@ -109,6 +111,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
     frontX=detail==='left'?extent*.5:g.width-extent*.5;
   }
   const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.25}" text-anchor="middle" fill="#146178" font-size="${font*.8}">Vorderkante</text></g>`:'';
+  const seams=(g.previewSeams??[]).map(s=>`<path class="apl-preview-seam" d="M ${s.from} L ${s.to}" fill="none" stroke="#365861" stroke-width="${font/(partsView?11:28)}" stroke-dasharray="${font/(partsView?4:10)} ${font/(partsView?6:12)}" opacity="${partsView?.82:.28}"/>`).join('');
   const schematicNote=''; // the adjacent shape-note provides the non-manufacturing disclaimer
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${escapeXml(g.title+(detail?' · Detail '+(detail==='left'?'vorne links':'vorne rechts'):''))}" style="width:100%;height:auto;max-height:560px">
     <title>${escapeXml(g.title)}</title><desc>Maße in ${unit==='cm'?'Zentimetern':'Millimetern'}. Ungeprüfte Vorschau, keine Fertigungszeichnung.</desc>
@@ -117,5 +120,5 @@ export function svg(g,active='',{decor='W980',showDimensions=true,detail=null,te
     <pattern id="apl-oak" width="360" height="160" patternUnits="userSpaceOnUse"><rect width="360" height="160" fill="#c49b68"/>
     <path d="M-40 20 Q100 1 400 18 M-40 44 Q190 68 400 34 M-40 86 Q150 55 400 94 M-40 121 Q150 143 400 116 M-40 150 Q150 129 400 152" fill="none" stroke="#a77b4d" stroke-width="5" opacity=".46"/>
     <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><rect width="${g.width}" height="${g.height}" fill="#e9eeec"/><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}</defs>
-    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" stroke="#8c887a" stroke-width="${font/12}"/>${front}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
+    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" stroke="#8c887a" stroke-width="${font/12}"/>${front}${seams}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
 }
