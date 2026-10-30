@@ -71,14 +71,17 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const width=(text.length*.57+.60)*size,height=size*1.40;
     return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
+  const lCornerFocus=active.startsWith('corner-')&&g.version?.startsWith('speedmaster-l');
   const measures=(detail?[]:g.dimensions).map(d=>{
-    if(d.secondary&&d.id!==active)return '';
-    const vertical=d.from[0]===d.to[0], offset=pad*(g.cornerDimensions?.length&&d.id==='B1'?.95:.45)*d.side;
+    const field=d.focusKey??d.id;
+    if(lCornerFocus || (d.secondary&&field!==active))return '';
+    const vertical=d.axis==='vertical'||(d.axis!=='horizontal'&&d.from[0]===d.to[0]);
+    const offset=pad*(d.referenceOutside?(d.offsetFactor??.88):(g.cornerDimensions?.length&&d.id==='B1'?.95:.45))*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
-    const selected=d.id===active,color=selected?'#a34f1c':'#365861';
+    const selected=field===active,color=selected?'#a34f1c':'#365861';
     const textX=(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0), textY=(a[1]+b[1])/2-(vertical?0:font*.75);
-    return `<g class="apl-measure" data-field="${escapeXml(d.id)}" data-active="${d.id===active}" stroke="${color}" fill="${color}">
+    return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
       ${label(`${d.label??d.id}: ${measure(d.mm)}`,textX,textY,{vertical,selected})}</g>`;
@@ -87,7 +90,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
     const x=a.side==='left'?g.width*.18:g.width*.82,y=g.height+pad*.65;
     const tx=a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.sqrt(2),ty=a.center[1]+a.radiusMm/Math.sqrt(2);
-    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(`${a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
+    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
     const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
@@ -100,9 +103,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const offset=vertical?(d.side==='left'?-pad*.42:pad*.40):pad*.60;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const x=vertical?a[0]+(d.side==='left'?-font*.9:font*.9):Math.max(font*3,Math.min(g.width-font*3,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
-    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
+    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
-  let viewBox=`${-pad} ${-pad} ${g.width+pad*2.3} ${g.height+pad*2}`;
+  const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
+  const extra=outsideReference ? 0.5 : 0;
+  let viewBox=`${-pad*(1+extra)} ${-pad*(1+extra)} ${g.width+pad*(2.3+extra)} ${g.height+pad*(2+extra)}`;
   let frontX=g.width/2;
   if(detail){
     const parameters=[...(g.cornerArcs??[]).filter(a=>a.side===detail).map(a=>a.radiusMm),...(g.cornerDimensions??[]).filter(d=>d.side===detail).map(d=>d.mm)];

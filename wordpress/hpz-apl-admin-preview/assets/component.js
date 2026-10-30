@@ -63,7 +63,8 @@ function treatmentIcon(kind){
   return `<svg viewBox="0 0 98 46" aria-hidden="true"><path d="${path}" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M35 39H80" stroke="#146178" stroke-width="3"/></svg>`;
 }
 function setFieldError(key,message=''){
-  const input=$(`dim-${key}`),note=$(`field-error-${key}`);
+  const isLCorner=key.startsWith('corner-'),fieldKey=isLCorner?key.slice(7):key;
+  const input=$(isLCorner?`corner-${fieldKey}`:`dim-${fieldKey}`),note=$(isLCorner?`corner-field-error-${fieldKey}`:`field-error-${fieldKey}`);
   if(!input||!note){fieldErrors.delete(key);return;}
   const wrapper=input.closest('.a1-radius-field')??input.parentElement.parentElement;
   if(message){
@@ -80,7 +81,7 @@ function setFieldError(key,message=''){
 }
 function clearFieldErrors(){for(const key of [...fieldErrors.keys()])setFieldError(key);}
 function renderRadiusInputs(){
-  for(const key of (product==='l'?['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6']:['R1','R2','L2','B2','L3','B3']))fieldErrors.delete(key);
+  for(const key of (product==='l'?['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6'].map(k=>'corner-'+k):['R1','R2','L2','B2','L3','B3']))fieldErrors.delete(key);
   radiusWrap.replaceChildren();const l=product==='l',side=l?lSide:straightSide,type=l?lTreatment:straightTreatment;
   radiusWrap.hidden=!(l||product==='straight')||side==='none';
   if(radiusWrap.hidden)return;
@@ -182,7 +183,18 @@ function updateFamilyCopy(){
  shadow.querySelector('[data-step="0"] h2').textContent=product==='straight'?'Vordere Ecken':'Grundriss wählen';
   shadow.querySelector('[data-step="1"] .section-intro').textContent=product==='straight'
     ?'In cm, auf 0,1 cm genau. Tippe ein Maß an, um es in der Zeichnung hervorzuheben.'
+    :product==='l'?'In cm: Tippe ein Maß an, um die passende Strecke in der Zeichnung hervorzuheben.'
     :'Maße deiner schematischen Arbeitsplattenform. Tippe ein Feld an, um die passende Strecke in der Zeichnung hervorzuheben.';
+  if(product==='l'){
+    infoDialog.querySelector('h2').textContent='Deine L-Arbeitsplatte';
+    const guidance=[
+      'Die Draufsicht zeigt die Außenmaße der L-Form. Die Gesamtfläche wird verbunden dargestellt; die genaue Aufteilung muss noch bestätigt werden.',
+      'B1/B2 ist die gemeinsame Schenkelbreite, B3/B4 die gemeinsame Eckbreite. Bei L4 markiert B5 den Abstand zwischen den Diagonalen.',
+      'Eckmaße werden separat angegeben. L-/B-Abschnitte bestimmen Länge und Tiefe einer Abschrägung; R1/R2 den Radius.',
+      'Für die Fertigung und Verbindungen fehlen noch Freigaben. Die L-Form ist derzeit nicht bestellbar.'
+    ];
+    infoDialog.querySelectorAll('p').forEach((p,i)=>{p.textContent=guidance[i]??'';});
+  }
 }
 function renderChoices(){
   cornerTitle.hidden=false;cornerTitle.textContent='Wie soll die Ecke aussehen?';
@@ -254,14 +266,29 @@ function summary(config,invalid=false){
   const rows=[];
   if(!config)rows.push(['Maße',invalid?'Bitte korrigieren':'Wird geprüft …']);
   else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
-  else if(product==='l'&&['L3','L4'].includes(variants.l))rows.push(['Maße',
-    ['L1','L2','B1','B3',...(variants.l==='L4'?['B5']:[])].map(key=>{
-      const name=key==='B1'?'B1/B2':key==='B3'?'B3/B4':key;
-      return `${name}: ${mmToCmText(config.dimensions[key])} cm`;
-    }).join(' · ')]);
+  else if(product==='l'){
+    const d=config.dimensions;
+    rows.push(['Außenmaße',`${mmToCmText(d.L1)} × ${mmToCmText(d.L2)} cm`]);
+    if(['L3','L4'].includes(variants.l)){
+      rows.push(['Schenkelbreite',`${mmToCmText(d.B1)} cm`],['Eckbereich',`${mmToCmText(d.B3)} cm`]);
+      if(variants.l==='L4')rows.push(['Diagonalbereich',`${mmToCmText(d.B5)} cm`]);
+    }else{
+      rows.push(['Schenkelbreite',`${mmToCmText(d.B1)} cm`],['Tiefe oben',`${mmToCmText(d.B2)} cm`]);
+    }
+  }
   else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
   rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
-  if(product==='l')rows.push(['Ecken',lSide==='none'?'Ohne Bearbeitung':lSides[lSide]+' · '+treatments[lTreatment]]);
+  if(product==='l'){
+    rows.push(['Ecken',lSide==='none'?'Ohne Bearbeitung':lSides[lSide]+' · '+treatments[lTreatment]]);
+    if(config?.lCorner?.parameters&&lSide!=='none'){
+      for(const side of (lSide==='both'?['left','right']:[lSide])){
+        const keys=lCornerKeys(variants.l,side,lTreatment);
+        const values=keys.map(k=>mmToCmText(config.lCorner.parameters[k]));
+        rows.push([side==='left'?'Linke Ecke':'Rechte Ecke',
+          lTreatment==='round'?`Radius ${values[0]} cm`:`${values[0]} × ${values[1]} cm`]);
+      }
+    }
+  }
   if(product==='straight'){
     const location={none:'Ohne Bearbeitung',left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
     const finish={round:'Abgerundet',chamfer_square:'Eckig abgeschrägt',chamfer_continuous:'Vorderkante durchlaufend'}[straightTreatment];
@@ -356,7 +383,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
     const message=customerMeasureError(error);
-    const match=message.match(/^(L[1-6]|B[1-6]|R[12]):\s*/);
+    const match=message.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
     if(match&&!fieldErrors.has(match[1]))setFieldError(match[1],message.slice(match[0].length));
     formError.textContent=message;formError.hidden=false;
     $('drawing').setAttribute('aria-busy','false');
@@ -396,10 +423,16 @@ function refresh(){
     $('corner-note').textContent=v.id==='none'?'Vorderkante unten. Ohne Eckbearbeitung.':v.treatment==='round'?'Rundungen im nächsten Schritt einstellen.':v.treatment==='chamfer_square'?'Gerade Diagonalen. Länge und Tiefe im nächsten Schritt einstellen.':'Weichere Übergänge, schematisch dargestellt. Alle zulässigen Plattenmaße möglich.';
     $('summary-shape').textContent=`Gerade · ${sides[v.side]}`;
   }
-  for(const id of c.families[product].fields){
+  for(const id of (product==='l'?lVisibleDimensionKeys(variants.l):c.families[product].fields)){
     const input=$(`dim-${id}`);
     try{cmInputToMmText(input.value);setFieldError(id);}
     catch{setFieldError(id,'Bitte ein gültiges Maß in cm eingeben (z. B. 200 oder 200,1).');}
+  }
+  if(product==='l'){
+    for(const key of lCornerKeys(variants.l,lSide,lTreatment)){
+      try{cmInputToMmText(lCornerValues[key]);setFieldError('corner-'+key);}
+      catch{setFieldError('corner-'+key,'Bitte ein gültiges Eckmaß in cm eingeben.');}
+    }
   }
   if(product==='straight')updateCornerBounds();
   return controller.refresh(()=>payload());
@@ -430,7 +463,7 @@ $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.quer
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('measure-toggle').hidden=view==='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
-for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const field=$(`dim-${measure.dataset.field}`);field?.focus();}});
+for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
 rebuild();showStep(0);refresh();

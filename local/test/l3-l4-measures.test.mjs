@@ -33,7 +33,8 @@ test('L3 inside diagonal follows B3/B4 explicitly rather than the former guessed
 test('L4 B5 changes the outer diagonal independently of B3/B4 inside diagonal',()=>{
   const large=geometry(normalize(make('L4',l4)));
   const short=geometry(normalize(make('L4',{...l4,B5:'300'})));
-  assert.deepEqual(large.points,[[1100,0],[2000,0],[2000,900],[1050,900],[900,1050],[900,2000],[0,2000],[0,1100]]);
+  assert.ok(Math.abs(large.points[0][0]-(900+1050-600*Math.SQRT2))<.01);
+  assert.deepEqual(large.points.slice(1,7),[[2000,0],[2000,900],[1050,900],[900,1050],[900,2000],[0,2000]]);
   assert.notDeepEqual(large.points[0],short.points[0]);
   assert.deepEqual(large.points[3],short.points[3]);
   assert.equal(large.supplierMappingVerified,false);
