@@ -12,6 +12,7 @@
  */
 defined('ABSPATH') || exit;
 require_once __DIR__.'/includes/decor-catalog.php';
+require_once __DIR__.'/includes/admin-supplier-decor.php';
 require_once __DIR__.'/includes/price-v3.php';
 require_once __DIR__.'/includes/price-preview.php';
 // 0.9 sale components: physically bundled but completely dormant unless a
@@ -34,6 +35,7 @@ final class HPZ_APL_Admin_Preview {
         // Safe by default: self-registers no public route or Woo hooks without
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
+        HPZ_APL_WP_Admin_Supplier_Decor::register();
         // No individual supplier approvals.
         add_action('admin_menu', array(__CLASS__, 'menu'));
         add_action('admin_init', array(__CLASS__, 'settings'));
