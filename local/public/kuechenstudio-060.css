@@ -527,3 +527,41 @@
   .hpz-apl .measurement-error{font-size:11px}
   .hpz-apl .field-error{font-size:10px}
 }
+
+/* 1.0.3 – Graceful recovery after temporary PHP quote timeouts. */
+.hpz-apl .order-summary .price-retry{display:block;width:100%;margin:4px 0 12px;padding:10px 12px;border:1px solid #b8ccca;border-radius:9px;background:transparent;color:#174650;font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+.hpz-apl .order-summary .price-retry:hover{background:#e6f0ee}
+.hpz-apl .order-summary .price-retry[hidden]{display:none}
+
+/* L/U studio foundation: shared straight-worktop visual language, no speculative supplier seams. */
+.hpz-apl[data-product="l"] #dimensions,
+.hpz-apl[data-product="u"] #dimensions{display:flex;flex-direction:column;gap:15px}
+.hpz-apl[data-product="l"] .apl-dimension-group,
+.hpz-apl[data-product="u"] .apl-dimension-group{
+  border:1px solid #d7e3e2;border-radius:14px;
+  background:linear-gradient(150deg,#fff 0%,#f7faf9 100%);
+  padding:18px;min-width:0;
+}
+.hpz-apl .apl-dimension-group-heading{display:flex;align-items:center;gap:12px;margin-bottom:17px}
+.hpz-apl .apl-dimension-group-number{
+  display:grid;place-items:center;flex:0 0 34px;height:34px;
+  border-radius:10px;color:#175565;background:#e6f1f1;font-size:12px;font-weight:750
+}
+.hpz-apl .apl-dimension-group-copy{min-width:0}
+.hpz-apl .apl-dimension-group-copy h3{margin:0 0 3px;font-size:15px;font-weight:650;color:var(--studio-ink)}
+.hpz-apl .apl-dimension-group-copy p{margin:0;color:var(--studio-muted);font-size:11px;line-height:1.45}
+.hpz-apl .apl-dimension-group-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hpz-apl[data-product="l"] #parts-note,
+.hpz-apl[data-product="u"] #parts-note{
+  border:1px solid #cedfdd;background:#f2f8f7;border-radius:12px;
+  color:#365861;box-shadow:0 6px 20px #17383c08;padding:14px 16px;line-height:1.55
+}
+.hpz-apl[data-product="l"] #parts-note strong,
+.hpz-apl[data-product="u"] #parts-note strong{font-size:12px;color:var(--studio-ink)}
+.hpz-apl[data-product="l"] #parts-note p,
+.hpz-apl[data-product="u"] #parts-note p{font-size:11px;margin:7px 0 0}
+@media(max-width:420px){
+ .hpz-apl .apl-dimension-group-fields{grid-template-columns:1fr}
+ .hpz-apl[data-product="l"] .apl-dimension-group,
+ .hpz-apl[data-product="u"] .apl-dimension-group{padding:14px}
+}
