@@ -72,6 +72,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
   const measures=(detail?[]:g.dimensions).map(d=>{
+    if(d.secondary&&d.id!==active)return '';
     const vertical=d.from[0]===d.to[0], offset=pad*(g.cornerDimensions?.length&&d.id==='B1'?.95:.45)*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
@@ -80,7 +81,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     return `<g class="apl-measure" data-field="${escapeXml(d.id)}" data-active="${d.id===active}" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
-      ${label(`${d.id}: ${measure(d.mm)}`,textX,textY,{vertical,selected})}</g>`;
+      ${label(`${d.label??d.id}: ${measure(d.mm)}`,textX,textY,{vertical,selected})}</g>`;
   }).join('');
   const radii=(g.cornerArcs??[]).filter(a=>!detail||a.side===detail).map(a=>{
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';

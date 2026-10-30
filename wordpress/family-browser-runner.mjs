@@ -48,11 +48,29 @@ try{
      await page.evaluate(()=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
        const radio=s.querySelector('input[name="l-treatment"][value="chamfer_square"]');radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));});
      await ready();
-     assert.ok(await page.locator('[data-hpz-apl-preview]').evaluate(el=>!!el.shadowRoot.querySelector('#dim-L3')&&!!el.shadowRoot.querySelector('#dim-B3')));
+     assert.ok(await page.locator('[data-hpz-apl-preview]').evaluate(el=>!!el.shadowRoot.querySelector('#corner-L3')&&!!el.shadowRoot.querySelector('#corner-B3')));
      await page.evaluate(()=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
        s.querySelector('#geometry').value='L3';s.querySelector('#geometry').dispatchEvent(new Event('change',{bubbles:true}));});
      await ready();
-     assert.ok(await page.locator('[data-hpz-apl-preview]').evaluate(el=>!!el.shadowRoot.querySelector('#dim-L5')&&!!el.shadowRoot.querySelector('#dim-B5')));
+     assert.ok(await page.locator('[data-hpz-apl-preview]').evaluate(el=>!!el.shadowRoot.querySelector('#corner-L5')&&!!el.shadowRoot.querySelector('#corner-B5')));
+     const l3Fields=await page.locator('[data-hpz-apl-preview]').evaluate(el=>[...el.shadowRoot.querySelectorAll('#dimensions input')].map(i=>i.id));
+     assert.deepEqual(l3Fields,['dim-L1','dim-L2','dim-B1','dim-B3']);
+     await page.evaluate(()=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       s.querySelector('#dim-B3').value='95';s.querySelector('#dim-B3').dispatchEvent(new Event('input',{bubbles:true}));});
+     await ready();
+     await page.evaluate(()=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       s.querySelector('#geometry').value='L4';s.querySelector('#geometry').dispatchEvent(new Event('change',{bubbles:true}));});
+     await ready();
+     const l4Fields=await page.locator('[data-hpz-apl-preview]').evaluate(el=>({
+       dims:[...el.shadowRoot.querySelectorAll('#dimensions input')].map(i=>i.id),
+       baseB5:el.shadowRoot.querySelectorAll('#dim-B5').length,
+       cornerB5:el.shadowRoot.querySelectorAll('#corner-B5').length,
+       cartDisabled:el.shadowRoot.querySelector('#cart').disabled
+     }));
+     assert.deepEqual(l4Fields.dims,['dim-L1','dim-L2','dim-B1','dim-B3','dim-B5']);
+     assert.equal(l4Fields.baseB5,1);
+     assert.equal(l4Fields.cornerB5,1);
+     assert.ok(l4Fields.cartDisabled);
    }
    await page.evaluate((key)=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
      s.querySelector('#steps button:nth-child(2)').click();s.querySelector('#dim-'+key).focus();

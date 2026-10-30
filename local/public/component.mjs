@@ -1,5 +1,5 @@
 import {catalog} from '/core/config.mjs';
-import {lCornerKeys,defaultLCorner} from '../core/l-geometry.mjs';
+import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions} from '../core/l-geometry.mjs';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from '/core/customer-measures.mjs';
 import {svg} from '/core/geometry.mjs';
 import {createPreviewController} from '/latest.mjs';
@@ -99,13 +99,14 @@ function renderRadiusInputs(){
     }
     const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
     const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':'Tiefe';
-    label.htmlFor=`dim-${key}`;label.textContent=property;label.append(element('span','',key));
-    input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',`hint-${key} field-error-${key}`);
+    const cornerId=l?`corner-${key}`:`dim-${key}`;
+    label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
+    input.id=cornerId;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',l?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
     input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
-    input.addEventListener('focus',()=>{active=key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
-    const hint=element('p','microcopy');hint.id=`hint-${key}`;if(l)hint.textContent='Vorschauwert · Herstellergrenzen noch offen';
-    const inline=element('p','field-error');inline.id=`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
+    input.addEventListener('focus',()=>{active=l?`corner-${key}`:key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
+    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;if(l)hint.textContent='Vorschauwert · Herstellergrenzen noch offen';
+    const inline=element('p','field-error');inline.id=l?`corner-field-error-${key}`:`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
   }
   radiusWrap.append(element('p','a1-limit-note',l?'Die tatsächlichen Speedmaster-Grenzen sind noch zu bestätigen.':'Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
@@ -152,7 +153,8 @@ function renderLChoices(){
 }
 const variants={straight:'straight',l:'L1',u:'U1'};
 const dimensionValues={L1:'250',L2:'170',L3:'180',B1:'60',B2:'60',B3:'60'};
-const straightDimensionValues={L1:'200',B1:'60'},currentDimensions=()=>product==='straight'?straightDimensionValues:dimensionValues;
+const lDimensionValues=Object.fromEntries(['L1','L2','L3','L4'].map(id=>[id,lDefaultDimensions(id)]));
+const straightDimensionValues={L1:'200',B1:'60'},currentDimensions=()=>product==='straight'?straightDimensionValues:product==='l'?lDimensionValues[variants.l]:dimensionValues;
 const money=value=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(value));
 function element(tag,className,text){const e=document.createElement(tag);if(className)e.className=className;if(text!==undefined)e.textContent=text;return e;}
 function choice(group,value,html,selected,callback,extraClass){const label=element('label',`choice ${extraClass}`),input=element('input');
@@ -209,28 +211,35 @@ function rebuild(){
   renderChoices();$('variant-wrap').hidden=product==='straight';
   const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen'};
   $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
-  if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent='Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
+  if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent=['L3','L4'].includes(variants.l)?'B1/B2 sowie B3/B4 werden gemeinsam eingegeben. Bearbeitung und Bestellung bleiben in Prüfung.':'Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
   $('dimensions').replaceChildren();
   const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
     label.htmlFor='dim-'+id;label.append(document.createTextNode(customerLabel),element('span','',id));
     input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=currentDimensions()[id];input.setAttribute('aria-describedby','field-error-'+id);
-    input.addEventListener('input',()=>{currentDimensions()[id]=input.value;refresh();});
+    input.addEventListener('input',()=>{currentDimensions()[id]=input.value;
+      if(product==='l'&&['L3','L4'].includes(variants.l)){
+        if(id==='B1')currentDimensions().B2=input.value;
+        if(id==='B3')currentDimensions().B4=input.value;
+      }
+      refresh();});
     input.addEventListener('focus',()=>{active=id;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
     const inline=element('p','field-error');inline.id='field-error-'+id;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);target.append(wrap);
   };
   // Preserve the plain two-column measure grid from the finished straight UI.
   const names=product==='straight'?{L1:'Länge',B1:'Tiefe'}
-   :product==='l'?{L1:'Gesamtlänge oben',L2:variants.l==='L2'?'Gesamtlänge rechts':'Gesamtlänge links',B1:variants.l==='L2'?'Schenkelbreite rechts':'Schenkelbreite links',B2:'Tiefe oben'}
+   :product==='l'?(['L3','L4'].includes(variants.l)
+     ?{L1:'Gesamtlänge oben',L2:'Gesamtlänge links',B1:'Breite B1/B2 · Schenkel',B3:'Breite B3/B4 · Eckbereich',B5:'Breite B5 · Diagonalbereich'}
+     :{L1:'Gesamtlänge oben',L2:variants.l==='L2'?'Gesamtlänge rechts':'Gesamtlänge links',B1:variants.l==='L2'?'Schenkelbreite rechts':'Schenkelbreite links',B2:'Tiefe oben'})
    :{L1:'Gesamtbreite oben',L2:'Gesamtlänge links',L3:'Gesamtlänge rechts',B1:'Tiefe oben',B2:'Schenkelbreite links',B3:'Schenkelbreite rechts'};
-  for(const id of c.families[product].fields)appendDimensionInput(id,names[id]||id,$('dimensions'));
+  for(const id of (product==='l'?lVisibleDimensionKeys(variants.l):c.families[product].fields))appendDimensionInput(id,names[id]||id,$('dimensions'));
   renderRadiusInputs();
 }
 function payload(){const radii=product==='straight'?Object.fromEntries(straightCorner(straightSide,straightTreatment).parameters.map(k=>[k,cmInputToMmText(radiusValues[k])])):{};
  const lParams=product==='l'?Object.fromEntries(lCornerKeys(variants.l,lSide,lTreatment).map(k=>[k,cmInputToMmText(lCornerValues[k])])):{};
  return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),
- ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries(c.families[product].fields.map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
+ ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
 function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
@@ -245,6 +254,11 @@ function summary(config,invalid=false){
   const rows=[];
   if(!config)rows.push(['Maße',invalid?'Bitte korrigieren':'Wird geprüft …']);
   else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
+  else if(product==='l'&&['L3','L4'].includes(variants.l))rows.push(['Maße',
+    ['L1','L2','B1','B3',...(variants.l==='L4'?['B5']:[])].map(key=>{
+      const name=key==='B1'?'B1/B2':key==='B3'?'B3/B4':key;
+      return `${name}: ${mmToCmText(config.dimensions[key])} cm`;
+    }).join(' · ')]);
   else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
   rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
   if(product==='l')rows.push(['Ecken',lSide==='none'?'Ohne Bearbeitung':lSides[lSide]+' · '+treatments[lTreatment]]);
