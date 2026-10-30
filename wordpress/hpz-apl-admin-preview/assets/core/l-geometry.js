@@ -1,7 +1,7 @@
 /**
  * L1–L4 customer outlines after Speedmaster screenshots, 30.10.2026.
- * L3/L4 bevel projection and seams remain illustration-only until all
- * supplier B3/B4/B5 and machining dimensions are confirmed. No sale logic.
+ * L3/L4 bevel projection, seams AND preview part regions remain illustration-only
+ * until supplier B3/B4/B5 and machining dimensions are confirmed. No sale logic.
  */
 const shapes=['L1','L2','L3','L4'],sides=['none','left','right','both'],types=['round','chamfer_square','chamfer_continuous'];
 const isObj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
@@ -74,6 +74,57 @@ function outline(base,edits){
   return {path:commands.join(' ')+' Z',points,markers};
 }
 function area(points){return Math.abs(points.reduce((sum,p,i)=>{const n=points[(i+1)%points.length];return sum+p[0]*n[1]-p[1]*n[0]},0))/2;}
+/** Clip a supplier-unverified outline to simple visualization regions.
+ * The polygons describe ONLY what appears on screen. They are never cutting
+ * coordinates, shipping parts or assembly-/CNC-ready shop instructions. */
+function clipHalfPlane(polygon,axis,limit,greater){
+  const inside=p=>greater?p[axis]>=limit-1e-7:p[axis]<=limit+1e-7;
+  const intersect=(a,b)=>{
+    const fraction=(limit-a[axis])/(b[axis]-a[axis]);
+    return [a[0]+(b[0]-a[0])*fraction,a[1]+(b[1]-a[1])*fraction];
+  };
+  const clipped=[];
+  for(let i=0;i<polygon.length;i++){
+    const now=polygon[i],prev=polygon[(i+polygon.length-1)%polygon.length];
+    if(inside(now)){
+      if(!inside(prev))clipped.push(intersect(prev,now));
+      clipped.push(now);
+    }else if(inside(prev))clipped.push(intersect(prev,now));
+  }
+  // Avoid duplicate endpoints when a seam meets an existing polygon vertex.
+  const output=clipped.filter((p,i)=>!i||len(p,clipped[i-1])>1e-7);
+  if(output.length>1&&len(output[0],output[output.length-1])<1e-7)output.pop();
+  return output;
+}
+function partMarker(polygon){
+  let twiceArea=0,x=0,y=0;
+  for(let i=0;i<polygon.length;i++){
+    const p=polygon[i],q=polygon[(i+1)%polygon.length];
+    const cross=p[0]*q[1]-q[0]*p[1];
+    twiceArea+=cross;
+    x+=(p[0]+q[0])*cross;
+    y+=(p[1]+q[1])*cross;
+  }
+  if(Math.abs(twiceArea)<1e-7)throw Error('L-Teilfläche ist geometrisch leer.');
+  return [x/(3*twiceArea),y/(3*twiceArea)];
+}
+function previewPartRegions(base,variant,b1,b2,b3,b4){
+  // Two simple regions for L1/L2, three for L3/L4.
+  // The same split planes drive the existing illustrated seam markers.
+  const angled=variant==='L3'||variant==='L4';
+  const top=angled?clipHalfPlane(base,0,b3,true):clipHalfPlane(base,1,b2,false);
+  const leg=angled?clipHalfPlane(base,1,b4,true):clipHalfPlane(base,1,b2,true);
+  const corner=angled?clipHalfPlane(clipHalfPlane(base,0,b3,false),1,b4,false):null;
+  const parts=[
+    {id:'top',label:'Obere Strecke',polygon:top},
+    ...(angled?[{id:'corner',label:'Eckbereich',polygon:corner}]:[]),
+    {id:'leg',label:variant==='L2'?'Rechter Schenkel':'Linker Schenkel',polygon:leg}
+  ];
+  return parts.map((part,index)=>{
+    if(part.polygon.length<3||area(part.polygon)<1)throw Error('L-Teilfläche passt nicht zur Vorschaukontur.');
+    return {...part,number:index+1,marker:partMarker(part.polygon),status:'illustration-only'};
+  });
+}
 export function lGeometry(config){
   if(config.product!=='l'||!shapes.includes(config.geometry)||!config.lCorner)throw Error('L-Grundriss unbekannt.');
   const {L1:w,L2:h,B1:b1,B2:b2,B3:b3,B4:b4,B5:b5}=config.dimensions,variant=config.geometry;
@@ -101,6 +152,7 @@ export function lGeometry(config){
     edits.push({index,side,treatment:corner.treatment,horizontal,vertical,fields:keys});
   }
   const result=outline(base,edits);
+  const previewParts=previewPartRegions(base,variant,b1,b2,b3,b4);
   const dims=[
     {id:'L1',mm:w,from:pt(0,0),to:pt(w,0),side:-1},
     {id:'L2',mm:h,from:pt(left?0:w,0),to:pt(left?0:w,h),side:left?-1:2},
@@ -157,7 +209,7 @@ export function lGeometry(config){
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
     points:result.points,path:result.path,areaMm2:area(result.points),width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
-    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,
+    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewParts,
     joints:null,shippingParts:null,supplierMappingVerified:false,warnings
   };
 }

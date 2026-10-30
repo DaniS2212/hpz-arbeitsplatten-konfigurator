@@ -187,3 +187,23 @@
  .hpz-apl .decor-card strong,.hpz-apl[data-product="straight"] .decor-card strong{font-size:13px;padding:10px;min-height:48px}
  .hpz-apl .workspace>.order-summary{width:100%;padding:18px;border-radius:14px}
 }
+
+/* L1-L4: compact, keyboard-accessible illustration-only part selector.
+   Mirrors the neutral Küchenstudio palette; the straight product is untouched. */
+.hpz-apl[data-product="l"] .apl-part-choices{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:12px}
+.hpz-apl[data-product="l"] .apl-part-choice{
+  min-height:36px;max-width:100%;border:1px solid #cddbd9;border-radius:19px;
+  padding:7px 11px;background:#fffefa;color:#204952;font-size:11px;
+  line-height:1.2;font-weight:600;text-align:left;transition:background .15s,border-color .15s
+}
+.hpz-apl[data-product="l"] .apl-part-choice[aria-pressed="true"]{
+  background:#e5f0f0;border-color:#146178;color:#123f4b;box-shadow:inset 0 0 0 1px #14617822
+}
+.hpz-apl[data-product="l"] #drawing .apl-preview-part,
+.hpz-apl[data-product="l"] #large-drawing .apl-preview-part{cursor:pointer}
+.hpz-apl[data-product="l"] #drawing .apl-preview-part:hover,
+.hpz-apl[data-product="l"] #large-drawing .apl-preview-part:hover{fill-opacity:.24}
+@media(max-width:760px){
+  .hpz-apl[data-product="l"] .apl-part-choices{gap:6px}
+  .hpz-apl[data-product="l"] .apl-part-choice{min-height:40px;font-size:11px}
+}

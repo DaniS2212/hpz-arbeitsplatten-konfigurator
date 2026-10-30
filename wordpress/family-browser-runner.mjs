@@ -114,7 +114,58 @@ try{
        over:document.documentElement.scrollWidth-document.documentElement.clientWidth
      };});
    assert.equal(parts.labels,0);assert.ok(parts.hiddenToggle);assert.ok(parts.over<=1);
-   if(kind==='l'){assert.ok(parts.seamCount>=1);assert.match(parts.warning,/fräs|Fräs|Verbinder|Fugen/);}
+   if(kind==='l'){
+      assert.ok(parts.seamCount>=1);assert.match(parts.warning,/fräs|Fräs|Verbinder|Fugen/);
+      const overview=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        const sh=el.shadowRoot;
+        return {
+          regions:[...sh.querySelectorAll('#drawing .apl-preview-part')].map(e=>e.dataset.partId),
+          numbers:sh.querySelectorAll('#drawing .apl-part-number').length,
+          chips:[...sh.querySelectorAll('#part-choices button')].map(e=>e.textContent.trim()),
+          contour:sh.querySelectorAll('#drawing .apl-surface').length,
+          clip:sh.querySelectorAll('#drawing clipPath').length
+        };
+      });
+      assert.deepEqual(overview.regions,['top','corner','leg']);
+      assert.equal(overview.numbers,3);
+      assert.equal(overview.chips.length,4);
+      assert.equal(overview.contour,1,'one connected surface even in part view');
+      assert.equal(overview.clip,1);
+      await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        el.shadowRoot.querySelector('#part-choices button[data-part="corner"]').click();
+      });
+      const chosen=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        const sh=el.shadowRoot;
+        return {
+          marker:[...sh.querySelectorAll('#drawing .apl-preview-part[data-selected="true"]')].map(e=>e.dataset.partId),
+          pressed:[...sh.querySelectorAll('#part-choices button[aria-pressed="true"]')].map(e=>e.dataset.part),
+          width:document.documentElement.scrollWidth-document.documentElement.clientWidth
+        };
+      });
+      assert.deepEqual(chosen.marker,['corner']);
+      assert.deepEqual(chosen.pressed,['corner']);
+      assert.ok(chosen.width<=1,'part chips must not cause mobile overflow');
+      await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        el.shadowRoot.querySelector('#drawing .apl-preview-part[data-part-id="leg"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      });
+      assert.equal(await page.locator('[data-hpz-apl-preview]').evaluate(el=>
+        el.shadowRoot.querySelector('#part-choices button[aria-pressed="true"]').dataset.part),'leg');
+      await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        const sh=el.shadowRoot;
+        sh.querySelector('#geometry').value='L1';
+        sh.querySelector('#geometry').dispatchEvent(new Event('change',{bubbles:true}));
+      });
+      await ready();
+      const changed=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        const sh=el.shadowRoot;
+        return {regions:[...sh.querySelectorAll('#drawing .apl-preview-part')].map(e=>e.dataset.partId),
+          pressed:[...sh.querySelectorAll('#part-choices button[aria-pressed="true"]')].map(e=>e.dataset.part),
+          cartDisabled:sh.querySelector('#cart').disabled};
+      });
+      assert.deepEqual(changed.regions,['top','leg']);
+      assert.deepEqual(changed.pressed,['all'],'switching L layout resets part selection');
+      assert.ok(changed.cartDisabled,'L never becomes purchasable');
+    }
    else{assert.equal(parts.seamCount,0);assert.match(parts.warning,/noch nicht|Lieferant/);}
    await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#view-plan').click());
    const restored=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
