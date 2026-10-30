@@ -31,6 +31,9 @@ let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null;
 let radiusValues={},drawingDetail=null;
 const fieldErrors=new Map();
+const retryPriceButton=element('button','price-retry','Preis erneut berechnen');
+retryPriceButton.type='button';retryPriceButton.hidden=true;
+$('price-note').after(retryPriceButton);
 const cornerTitle=$('corners').previousElementSibling;
 const sideWrap=element('fieldset','a1-sides');
 const sideLegend=element('legend','','Welche Seite?'),cornerHelp=element('button','a11-info','i');
@@ -266,9 +269,9 @@ function applyVisual(result){
     :`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`;
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});const response=await fetch('/api/preview',{signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.error);return result;},
-  onPending:()=>{if(disposed)return;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
+  onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
    onVisual:applyVisual,
-  onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);
+  onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);retryPriceButton.hidden=result.quote.status!=='unavailable';
      if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase&&product==='straight'){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Bruttopreis · ${result.config.quantity} Stück`);
       $('tax-note').textContent=result.quote.taxNote||'inkl. 19 % MwSt. · zzgl. Versand';
@@ -291,6 +294,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
   },onError:error=>{
     if(disposed)return;
+    retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
     const message=customerMeasureError(error);
     const match=message.match(/^(L[123]|B[123]|R[12]):\s*/);
@@ -335,6 +339,7 @@ function refresh(){
   updateCornerBounds();
   return controller.refresh(()=>payload());
 }
+retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
 $('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;refresh();});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
