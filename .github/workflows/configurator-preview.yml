@@ -4,6 +4,7 @@ on:
     paths:
       - 'local/**'
       - 'wordpress/**'
+      - 'scripts/l-supplier-audit.mjs'
       - 'build-plugin.mjs'
       - '.github/workflows/configurator-preview.yml'
   workflow_dispatch:
@@ -19,6 +20,8 @@ jobs:
           node-version: '22'
       - name: Node modules and bundled-asset regression
         run: node --test local/test/*.test.mjs wordpress/*.test.mjs
+      - name: L supplier evidence regression (read-only)
+        run: node scripts/l-supplier-audit.mjs --check
       - name: PHP syntax
         run: php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php && php -l wordpress/hpz-apl-admin-preview/includes/decor-catalog.php && php -l wordpress/decor-catalog.test.php
       - name: Execute previously skipped PHP resolver test
