@@ -173,16 +173,23 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   // Clip the overlays to the actual corner-edited contour, including round arcs.
   // Never render these regions as factory-approved cut plans.
   const previewParts=partsView&&Array.isArray(g.previewParts)?g.previewParts:[];
+  // A selected illustrative seam touches two specific visual regions.
+  // Emphasize BOTH, not the whole contour or an invented CNC connector.
+  // Direct part selection takes priority if callers provide both states.
+  const seam=partsView&&!selectedPart&&selectedSeam
+    ?(g.previewSeamDetails??[]).find(s=>s.id===selectedSeam):null;
+  const seamNeighbors=new Set(seam?.partIds?.length===2?seam.partIds:[]);
   const partsClip=previewParts.length?`<clipPath id="apl-parts-clip"><path d="${escapeXml(schematicPath(g,trim))}"/></clipPath>`:'';
   const pieceOverlays=previewParts.map(part=>{
-    const selected=selectedPart===part.id,other=!!selectedPart&&!selected;
+    const selected=selectedPart===part.id,neighbor=seamNeighbors.has(part.id);
+    const other=(!!selectedPart||seamNeighbors.size>0)&&!selected&&!neighbor;
     const shade=part.id==='corner'?'#b49a78':'#146178';
-    const opacity=selected?.23:other?.025:part.number%2===0?.085:.055;
-    return `<path class="apl-preview-part" data-part-id="${escapeXml(part.id)}" data-selected="${selected}" d="M ${part.polygon.map(p=>p.join(' ')).join(' L ')} Z" fill="${shade}" fill-opacity="${opacity}" stroke="none"/>`;
+    const opacity=selected?.23:neighbor?.20:other?.025:part.number%2===0?.085:.055;
+    return `<path class="apl-preview-part" data-part-id="${escapeXml(part.id)}" data-selected="${selected}" data-seam-neighbor="${neighbor}" d="M ${part.polygon.map(p=>p.join(' ')).join(' L ')} Z" fill="${shade}" fill-opacity="${opacity}" stroke="none"/>`;
   }).join('');
   const overlays=previewParts.length?`<g class="apl-part-overlays" clip-path="url(#apl-parts-clip)">${pieceOverlays}</g>`:'';
   const partNumbers=previewParts.map(part=>{
-    const selected=selectedPart===part.id;
+    const selected=selectedPart===part.id||seamNeighbors.has(part.id);
     const radius=font*.46,x=part.marker[0],y=part.marker[1];
     return `<g class="apl-part-number" transform="translate(${x} ${y})" pointer-events="none"><circle r="${radius}" fill="${selected?'#16444d':'#fffefa'}" stroke="#16444d" stroke-width="${font/24}"/><text text-anchor="middle" dominant-baseline="central" font-size="${font*.53}" font-weight="700" fill="${selected?'#fffefa':'#16444d'}">${part.number}</text></g>`;
   }).join('');
