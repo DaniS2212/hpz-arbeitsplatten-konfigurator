@@ -23,6 +23,8 @@ try {
    const svg=s?.querySelector('#drawing svg');
    return svg&&svg.querySelector('title')?.textContent.startsWith(shape+' ·');
   },shape,{timeout:25000});
+  // WordPress bootstrap loads modules asynchronously; wait before touching shadow DOM.
+  await ready('L1');
   for(const shape of ['L1','L2']) {
    await page.evaluate(shape=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
