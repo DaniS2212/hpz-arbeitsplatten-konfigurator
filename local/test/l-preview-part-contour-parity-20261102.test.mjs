@@ -84,6 +84,25 @@ test('both rounded ends use their actual chord-contour for tinted part regions; 
   assert.ok(Math.abs(g.areaMm2-(1550000+arcCorrection))<1e-6);
   assert.ok(g.previewParts.every(p=>containsPoint(p.polygon,p.marker)));
 });
+test('rounded L1 parts must PAINT the actual circular corners, not leave unshaded slivers between arc and chord',()=>{
+  const g=make('L1',{...photos[0],treatment:'round',parameters:{R1:100,R2:100}});
+  // The inward chord is a sensible numeric approximation for partition
+  // areas, but the visible quarter-circle extends OUTSIDE that chord.
+  const arcLeft=[560,1150],arcRight=[1960,550];
+  assert.equal(containsPoint(g.previewParts.find(p=>p.id==='leg').polygon,arcLeft),false);
+  assert.equal(containsPoint(g.previewParts.find(p=>p.id==='top').polygon,arcRight),false);
+  for(const [id,point] of [['leg',arcLeft],['top',arcRight]]){
+    const html=svg(g,'',{partsView:true,selectedPart:id,showDimensions:false});
+    assert.match(html,/clip-path="url\\(#apl-parts-clip\\)"/);
+    assert.match(html,/A 100 100/,'the SVG itself has the real rounding arc');
+    const match=html.match(new RegExp('class="apl-preview-part" data-part-id="'+id+'"[^>]* d="([^"]+)"'));
+    assert.ok(match,'part overlay must be rendered');
+    const paintPolygon=[...match[1].matchAll(/(-?\\d+(?:\\.\\d+)?) (-?\\d+(?:\\.\\d+)?)/g)]
+      .map(([,x,y])=>[Number(x),Number(y)]);
+    assert.ok(containsPoint(paintPolygon,point),
+      id+' SVG mask paint must cover the visible rounded arc area; actual surface clip removes excess');
+  }
+});
 test('L4 B5=300 vs 600 preserves two seam neighbors, unaffected by the corrected exterior preview pieces',()=>{
   const ref=photos[3];
   const a=make('L4',ref);
