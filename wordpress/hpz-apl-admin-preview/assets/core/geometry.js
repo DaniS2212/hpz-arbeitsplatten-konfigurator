@@ -74,7 +74,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const width=(text.length*.57+.60)*size,height=size*1.40;
     return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
-  const lCornerFocus=active.startsWith('corner-')&&g.version?.startsWith('speedmaster-l');
+  const isLPreview=g.version?.startsWith('speedmaster-l');
+  const b2Baseline=g.dimensions?.find(d=>d.id==='B2');
+  const b2Crowded=isLPreview&&b2Baseline&&(g.cornerDimensions??[])
+    .some(c=>c.axis==='vertical'&&Math.abs(c.from[0]-b2Baseline.from[0])<.001);
+  const lCornerFocus=active.startsWith('corner-')&&isLPreview;
   const measures=(detail?[]:g.dimensions).map(d=>{
     const field=d.focusKey??d.id;
     if(lCornerFocus || (d.secondary&&field!==active))return '';
@@ -84,7 +88,10 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const isL=g.version?.startsWith('speedmaster-l');
     const lowerCorner=isL&&(g.cornerDimensions??[]).some(c=>c.axis==='horizontal'&&c.from[1]===g.height);
     const cornerB1=!!g.cornerDimensions?.length&&d.id==='B1';
-    const offset=pad*(d.referenceOutside?(d.offsetFactor??.88):(cornerB1?(lowerCorner?1.35:.95):.45))*d.side;
+    // B2 shares its vertical alignment with an upper-corner B4 (or mirrored
+    // B3). Place the long full-depth label on a distinct outer measurement rail.
+    const rail=d.id==='B2'&&b2Crowded?.95:cornerB1?(lowerCorner?1.35:.95):.45;
+    const offset=pad*(d.referenceOutside?(d.offsetFactor??.88):rail)*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const selected=field===active,color=selected?'#a34f1c':'#365861';
@@ -124,6 +131,19 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
   const extra=outsideReference ? 0.5 : 0;
   let viewBox=`${-pad*(1+extra)} ${-pad*(1+extra)} ${g.width+pad*(2.3+extra)} ${g.height+pad*(2+extra)}`;
+  if(isLPreview){
+    // All visible L labels must fit the actual SVG viewport (DOM visibility
+    // alone does not prevent clipping). Extra rails are activated only where
+    // a corner is physically present on the same external measurement edge.
+    const leftRail=b2Crowded&&b2Baseline.from[0]===0;
+    const rightRail=b2Crowded&&b2Baseline.from[0]===g.width;
+    const bottomRail=(g.cornerDimensions??[]).some(c=>c.axis==='horizontal'&&c.from[1]===g.height);
+    const leftFactor=Math.max(1+extra,leftRail?1.55:1);
+    const rightFactor=rightRail?1.55:1.3;
+    const bottomFactor=bottomRail?1.55:1;
+    const topFactor=1+extra;
+    viewBox=`${-pad*leftFactor} ${-pad*topFactor} ${g.width+pad*(leftFactor+rightFactor)} ${g.height+pad*(topFactor+bottomFactor)}`;
+  }
   let frontX=g.width/2;
   if(detail){
     const parameters=[...(g.cornerArcs??[]).filter(a=>a.side===detail).map(a=>a.radiusMm),...(g.cornerDimensions??[]).filter(d=>d.side===detail).map(d=>d.mm)];
