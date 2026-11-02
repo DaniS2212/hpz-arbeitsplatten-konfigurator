@@ -14,7 +14,7 @@ Dadurch waren die tatsächlichen internen Vorschaupolygone und deren Flächensch
 
 - **L1/L2:** Obere Strecke und linker/rechter Schenkel enthalten keine rechnerischen Dreiecke mehr, die durch die äußeren Abschrägungen bereits weggefallen sind.
 - **L3/L4:** Die drei **illustrativen** Bereiche (obere Strecke, Eckbereich, Schenkel) werden weiterhin an denselben unbestätigten Hilfs-Stoßlinien abgegrenzt. Die Endkonturen berücksichtigen die tatsächlich gezeichneten äußeren Abschrägungen.
-- **Rundungen:** Der Vorschau-Polygonpfad enthält die **Sehne** zwischen den beiden Kreisbogen-Endpunkten. Die fertige SVG-Clipkontur zeigt weiterhin den Kreisbogen; die separate mathematische Kreisbogenflächenkorrektur im Gesamtwert `areaMm2` bleibt erhalten. Eine Polygon-Sehne ist **kein** behauptetes Fräsverfahren.
+- **Rundungen:** Das numerische Vorschau-Teilpolygon enthält die **Sehne** zwischen den beiden Kreisbogen-Endpunkten und bestimmt damit den Schwerpunkt. Damit beim Hervorheben kein schmaler, ungetönter Bereich zwischen Sehne und Kreisbogen entsteht, bekommt die SVG-Farbfläche zusätzlich ein separates, unbeschnittenes **Masken-Füllpolygon**. Erst die vorhandene SVG-Clipkontur schneidet diese Farbe auf den **tatsächlich gerundeten Außenpfad** zu. Dieses Füllpolygon ist ausdrücklich **kein** Teilzuschnitt. Die separate mathematische Kreisbogenflächenkorrektur im Gesamtwert `areaMm2` bleibt erhalten.
 - **PR #45:** Bei Auswahl von Stoß A/B werden weiterhin nur die zwei angrenzenden, jetzt korrekt gekürzten Teilregionen markiert. Die Teilnummern werden aus dem Schwerpunkt dieser bearbeiteten Regionen neu bestimmt.
 
 ## Nachvollziehbare Rechenreferenzen (mm, mm²)
