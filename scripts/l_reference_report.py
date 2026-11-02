@@ -113,6 +113,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / "dist/l-reference-report.html")
     parser.add_argument("--archive", type=Path, default=DEFAULT_ARCHIVE)
+    parser.add_argument("--commit", default="local-unversioned")
     args = parser.parse_args()
     config = json.loads(DEFAULT_FIXTURE.read_text(encoding="utf-8"))
     if config.get("scope") != "PRIVATE-AUDIT-ONLY":
@@ -129,7 +130,7 @@ def main():
             if not filename.is_file():
                 raise ReportError(f"{width} px preview missing: {filename}")
             previews[(case["id"], width)] = filename.read_bytes()
-    content = render_report(cases, images, previews, commit="CI checkout")
+    content = render_report(cases, images, previews, commit=args.commit)
     output = args.output.resolve()
     # The report must never be placed inside the installable WordPress assets.
     plugin_dir = (ROOT / "wordpress/hpz-apl-admin-preview").resolve()
