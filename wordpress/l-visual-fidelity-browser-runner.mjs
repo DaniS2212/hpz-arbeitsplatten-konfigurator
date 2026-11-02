@@ -83,7 +83,21 @@ try {
      const continuous=s.querySelector('input[name="l-treatment"][value="chamfer_continuous"]')?.checked;
      const icon=s.querySelector('input[name="l-treatment"][value="chamfer_continuous"]')?.closest('label')
       ?.querySelector('svg path')?.getAttribute('d')??'';
-     return {cut:s.querySelector('#drawing [data-cut="left"]')!==null,iconsAngular:!/[QA] [0-9]/.test(icon),
+     // A label can be clear of the textured fill yet cover ANOTHER label.
+     // Check ALL visible callouts, not just the previously reported B1/B3 pair.
+     const labels=[...svg.querySelectorAll('.apl-measure .apl-measure-label rect')].map(rect=>({
+       id:rect.closest('.apl-measure')?.getAttribute('data-field')??'?...',
+       box:rect.getBoundingClientRect().toJSON()
+     }));
+     const labelOverlaps=[];
+     for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++){
+       const a=labels[i],b=labels[j];
+       const dx=Math.max(0,Math.min(a.box.right,b.box.right)-Math.max(a.box.left,b.box.left));
+       const dy=Math.max(0,Math.min(a.box.bottom,b.box.bottom)-Math.max(a.box.top,b.box.top));
+       const area=dx*dy,minArea=Math.min(a.box.width*a.box.height,b.box.width*b.box.height);
+       if(minArea>0&&area/minArea>.08)labelOverlaps.push(a.id+' / '+b.id);
+     }
+     return {labelOverlaps,cut:s.querySelector('#drawing [data-cut="left"]')!==null,iconsAngular:!/[QA] [0-9]/.test(icon),
       b1OnWood:b1.inside,b3OnWood:b3.inside,l3OnWood:l3.inside,
       b1B3OverlapPx2:intersect(b1.box,b3.box),horizontalOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
       cartDisabled:s.querySelector('#cart').disabled,continuous};
@@ -94,6 +108,7 @@ try {
     assert.equal(result.b3OnWood,false,shape+' B3 opaque label over textured worktop');
     assert.equal(result.l3OnWood,false,shape+' L3 opaque label over textured worktop');
     assert.ok(result.b1B3OverlapPx2<1,shape+' B1/B3 label collision: '+result.b1B3OverlapPx2);
+    assert.deepEqual(result.labelOverlaps,[],shape+' '+treatment+' overlapping dimensions (B2 vs upper corner etc.)');
     assert.ok(result.horizontalOverflow<=1,shape+' mobile overflow '+result.horizontalOverflow);
     assert.equal(result.cartDisabled,true,'L purchase must remain blocked');
     assert.equal(result.continuous,treatment==='chamfer_continuous');
