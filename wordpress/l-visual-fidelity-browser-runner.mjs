@@ -144,6 +144,10 @@ try {
        active:line?.getAttribute('data-selected'),
        button:s.querySelector('#seam-choices [data-seam="'+id+'"]')?.getAttribute('aria-pressed'),
        explanation:s.querySelector('#seam-explain')?.textContent??'',
+       neighbors:[...s.querySelectorAll('#drawing svg .apl-preview-part[data-seam-neighbor="true"]')]
+         .map(p=>p.dataset.partId),
+       selectedParts:[...s.querySelectorAll('#drawing svg .apl-preview-part[data-selected="true"]')]
+         .map(p=>p.dataset.partId),
        cartDisabled:s.querySelector('#cart').disabled,
        horizontalOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
      };
@@ -151,6 +155,11 @@ try {
    assert.equal(review.active,'true',shape+' selected seam must be visibly highlighted');
    assert.equal(review.button,'true',shape+' seam button must announce pressed state');
    assert.match(review.explanation,/Fräs|Verbinder|nicht bestätigt|noch ungeprüft/);
+   // The selected illustrated joint must emphasize exactly the two
+   // neighboring areas, never all pieces or an invented connector.
+   assert.deepEqual(review.neighbors,expectedJoints===1?['top','leg']:['corner','leg'],
+     shape+' seam '+chosen+' must highlight only adjacent areas');
+   assert.deepEqual(review.selectedParts,[],'no part was individually selected');
    assert.equal(review.cartDisabled,true);
    assert.ok(review.horizontalOverflow<=1,shape+' seam UI mobile overflow');
    await page.screenshot({path:'dist/l-visual-joint-'+shape+'-'+width+'.png',fullPage:true});
