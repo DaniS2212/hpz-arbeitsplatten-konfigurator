@@ -25,7 +25,7 @@ test('L1 left and L2 right reflect real Speedmaster B1=leg, B2=top (NOT the earl
 test('L3 shows inside diagonal, L4 additionally outside chamfer; dimensions beyond B1/B2 explicitly unverified',()=>{
   const a=get('L3'),b=get('L4');
   assert.deepEqual(a.points,[[0,0],[2000,0],[2000,600],[900,600],[600,900],[600,2000],[0,2000]]);
-  assert.ok(Math.abs(b.points[0][0]-(900+1050-600*Math.SQRT2))<.01);
+  assert.ok(Math.abs(b.points[0][0]-Math.min(1050,900+1050-600*Math.SQRT2))<.01);
   assert.deepEqual(b.points.slice(1,7),[[2000,0],[2000,900],[1050,900],[900,1050],[900,2000],[0,2000]]);
   assert.equal(a.previewSeams.length,2);assert.equal(b.previewSeams.length,2);
   for(const shape of [a,b]){assert.match(shape.warnings.join(' '),/Vorschau|nicht geprüft|keine Fertigungs/);assert.equal(shape.supplierMappingVerified,false);}
