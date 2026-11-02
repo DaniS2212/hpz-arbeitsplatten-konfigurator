@@ -9,7 +9,7 @@ function make(shape,dims){
     dimensions:dims,lCorner:defaultLCorner(shape)};
 }
 const l3={L1:'2000',L2:'2000',B1:'600',B2:'600',B3:'900',B4:'900'};
-const l4={L1:'2000',L2:'2000',B1:'900',B2:'900',B3:'1050',B4:'1050',B5:'600'};
+const l4={L1:'2000',L2:'2000',B1:'600',B2:'600',B3:'900',B4:'900',B5:'600'};
 
 test('Speedmaster L3 and L4 show grouped width pairs in the same straight-style measure grid',()=>{
   assert.deepEqual(lVisibleDimensionKeys('L3'),['L1','L2','B1','B3']);
@@ -33,8 +33,9 @@ test('L3 inside diagonal follows B3/B4 explicitly rather than the former guessed
 test('L4 B5 changes the outer diagonal independently of B3/B4 inside diagonal',()=>{
   const large=geometry(normalize(make('L4',l4)));
   const short=geometry(normalize(make('L4',{...l4,B5:'300'})));
-  assert.ok(Math.abs(large.points[0][0]-(900+1050-600*Math.SQRT2))<.01);
-  assert.deepEqual(large.points.slice(1,7),[[2000,0],[2000,900],[1050,900],[900,1050],[900,2000],[0,2000]]);
+  assert.ok(Math.abs(large.points[0][0]-(600+900-600*Math.SQRT2))<.01);
+  assert.deepEqual(large.points.slice(1,7),[[2000,0],[2000,600],[900,600],[600,900],[600,2000],[0,2000]]);
+  assert.equal(short.points[0][0],900);
   assert.notDeepEqual(large.points[0],short.points[0]);
   assert.deepEqual(large.points[3],short.points[3]);
   assert.equal(large.supplierMappingVerified,false);
