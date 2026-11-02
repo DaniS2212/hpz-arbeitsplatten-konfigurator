@@ -52,6 +52,7 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 - [Teileansicht](../../phase-l-parts-preview-20261030.md)
 - [L-Preisnachweise](../../phase-l-price-evidence-20261102.md)
 - [Neue L4-B5-Paarbilder (300/600 mm): reproduzierbare Konturmessung, SHA-256 und offener Original-Binärimport](L4-B5-VISUAL-20261102.md)
+- [PR #45: auswählbare L4-Stoßstellen A/B mit markierten angrenzenden Teilbereichen, nur schematische Vorschau](../../phase-l4-seam-neighbors-20261102.md)
 
 ## Verbindliche Nutzung
 1. Original-Speedmaster-Bild (nicht eigener Shop-Screenshot) per Manifest finden.
