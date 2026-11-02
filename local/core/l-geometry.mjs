@@ -240,6 +240,12 @@ export function lGeometry(config){
     edits.push({index,side,treatment:corner.treatment,horizontal,vertical,fields:keys,axisFields});
   }
   const result=outline(base,edits);
+  // The contour points connect round endpoints by a chord. The SVG uses
+  // actual quarter-circle arcs, whose surface area is larger than the
+  // chord polygon by r^2*(pi/4 - 1/2) for each convex 90-degree corner.
+  // This is a mathematical preview area only, never a sellable CNC area.
+  const roundArcCorrection=result.markers.reduce((sum,marker)=>
+    sum+(marker.treatment==='round'?marker.horizontal**2*(Math.PI/4-0.5):0),0);
   // Preview-only very short tangent blends at each end of a "continuous"
   // chamfer. The long main chamfer remains straight; no CNC radius is implied.
   const softIndices=result.markers.filter(m=>m.treatment==='chamfer_continuous')
@@ -314,7 +320,7 @@ export function lGeometry(config){
   if(corner.treatment==='chamfer_continuous')warnings.push('Kante durchlaufend: kleine weiche Endübergänge nur schematisch dargestellt; Radius und Kantenverlauf sind noch nicht fertigungstechnisch freigegeben.');
   return {
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
-    points:result.points,path:result.path,areaMm2:area(result.points),width:w,height:h,dimensions:dims,
+    points:result.points,path:result.path,areaMm2:area(result.points)+roundArcCorrection,width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
     corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewSeamDetails,previewParts,
     softIndices,contourStatus:softIndices.length?'schematic':null,
