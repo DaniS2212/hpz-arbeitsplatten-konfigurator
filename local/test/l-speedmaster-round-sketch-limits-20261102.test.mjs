@@ -60,3 +60,16 @@ test('no corners leave no bounds; one active corner never creates an inactive ra
  assert.deepEqual(Object.keys(lCornerPreviewLimits('L1',d,'left','round').fields),['R1']);
  assert.deepEqual(Object.keys(lCornerPreviewLimits('L2',d,'right','round').fields),['R2']);
 });
+
+test('actual mathematical round area is not the straight-chamfer polygon approximation',()=>{
+ const cornerNone=defaultLCorner('L1','none',null);
+ const noCorner=prepare('L1');noCorner.lCorner=cornerNone;
+ const base=geometry(normalize(noCorner));
+ for(const radii of [[100,100],[230,350],[580,100]]){
+  const rounded=geometry(normalize(prepare('L1',{R1:radii[0],R2:radii[1]})));
+  const removed=(radii[0]**2+radii[1]**2)*(1-Math.PI/4);
+  assert.ok(Math.abs((base.areaMm2-removed)-rounded.areaMm2)<0.000001,
+   'round area should use true quarter-circle arc, radii '+radii.join('/'));
+  assert.equal(rounded.supplierMappingVerified,false);
+ }
+});
