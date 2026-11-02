@@ -76,9 +76,9 @@ export function lObservedChamferLimits(shape,dimensions,side,treatment,{material
  * observed Speedmaster input limits above; neither is CNC-ready.
  */
 export function lCornerPreviewLimits(shape,dimensions,side,treatment,context={}) {
-  if(side==='none'||treatment==='round')return {status:'unverified-preview',fields:{},photo:null};
+  if(side==='none')return {status:'unverified-preview',fields:{},photo:null};
   if(!shapes.includes(shape)||!isObj(dimensions)||!['left','right','both'].includes(side)
-    ||!['chamfer_square','chamfer_continuous'].includes(treatment))
+    ||!['round','chamfer_square','chamfer_continuous'].includes(treatment))
     throw Error('Unbekannte L-Abschrägung.');
   const {L1,L2,B1,B2,B3,B4}=dimensions;
   const ranges={
@@ -87,14 +87,20 @@ export function lCornerPreviewLimits(shape,dimensions,side,treatment,context={})
     L3:{L5:L2-B4,B5:B1,L6:L1-B3,B6:B2},
     L4:{L5:L2-B4,B5:B1,L6:L1-B3,B6:B2}
   };
-  const photo=lObservedChamferLimits(shape,dimensions,side,treatment,context);
+  const rounded=treatment==='round';
+  const photo=rounded?null:lObservedChamferLimits(shape,dimensions,side,treatment,context);
+  const suffix=shape==='L1'||shape==='L2'?['3','4']:['5','6'];
   const fields=Object.fromEntries(lCornerKeys(shape,side,treatment).map(key=>{
+    // Round radii span BOTH neighboring edge segments. The supplier has
+    // never approved R1/R2 sizes; cap only the numerical drawing.
+    const length=key==='R1'?Math.min(ranges[shape]['L'+suffix[0]],ranges[shape]['B'+suffix[0]])
+      :key==='R2'?Math.min(ranges[shape]['L'+suffix[1]],ranges[shape]['B'+suffix[1]])
+      :ranges[shape][key];
     // outline() rejects a cut >= (neighbor length - 10mm). The last
     // whole-centimetre value strictly below that threshold is valid.
-    const length=ranges[shape][key];
-    const geometricMax=Math.max(0,Math.min(2000,(Math.ceil((length-10)/10)-1)*10));
+    const geometricMax=Math.max(0,Math.min(rounded?1000:2000,(Math.ceil((length-10)/10)-1)*10));
     const photoMax=photo?.fields[key]?.max??null;
-    return [key,{min:60,max:Math.min(geometricMax,photoMax??Infinity),
+    return [key,{min:rounded?10:60,max:Math.min(geometricMax,photoMax??Infinity),
       geometricMax,photoMax}];
   }));
   return {status:'preview-only',fields,photo};
@@ -112,13 +118,14 @@ export function validateLCorner(raw,convert,shape,context={}) {
   const chamfer=raw.treatment!=='round',minimum=chamfer?60:10,previewMaximum=chamfer?2000:1000;
   for(const [k,v] of Object.entries(parameters))if(v<minimum||v>previewMaximum||v%10!==0)
     throw Error('corner-'+k+': Bitte ganze Zentimeter zwischen '+(minimum/10)+' und '+(previewMaximum/10)+' eingeben (nur Vorschau; keine allgemeine Herstellerfreigabe).');
-  if(chamfer&&context.dimensions){
+  if(context.dimensions){
     const limits=lCornerPreviewLimits(shape,context.dimensions,raw.side,raw.treatment,context);
     for(const [key,value] of Object.entries(parameters)){
       const limit=limits.fields[key];
       if(limit&&value>limit.max){
-        const evidence=limit.photoMax!==null&&limit.max===limit.photoMax
-          ?'Speedmaster-Foto (nur identischer Referenzfall)':'rein geometrische Zeichnungsgrenze';
+        const evidence=raw.treatment==='round'?'rein geometrische Rundungsgrenze'
+          :limit.photoMax!==null&&limit.max===limit.photoMax
+            ?'Speedmaster-Foto (nur identischer Referenzfall)':'rein geometrische Zeichnungsgrenze';
         throw Error('corner-'+key+': Maximal '+(limit.max/10)+' cm ('+evidence+'). Keine Fertigungsfreigabe.');
       }
     }
@@ -233,6 +240,12 @@ export function lGeometry(config){
     edits.push({index,side,treatment:corner.treatment,horizontal,vertical,fields:keys,axisFields});
   }
   const result=outline(base,edits);
+  // The contour points connect round endpoints by a chord. The SVG uses
+  // actual quarter-circle arcs, whose surface area is larger than the
+  // chord polygon by r^2*(pi/4 - 1/2) for each convex 90-degree corner.
+  // This is a mathematical preview area only, never a sellable CNC area.
+  const roundArcCorrection=result.markers.reduce((sum,marker)=>
+    sum+(marker.treatment==='round'?marker.horizontal**2*(Math.PI/4-0.5):0),0);
   // Preview-only very short tangent blends at each end of a "continuous"
   // chamfer. The long main chamfer remains straight; no CNC radius is implied.
   const softIndices=result.markers.filter(m=>m.treatment==='chamfer_continuous')
@@ -307,7 +320,7 @@ export function lGeometry(config){
   if(corner.treatment==='chamfer_continuous')warnings.push('Kante durchlaufend: kleine weiche Endübergänge nur schematisch dargestellt; Radius und Kantenverlauf sind noch nicht fertigungstechnisch freigegeben.');
   return {
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
-    points:result.points,path:result.path,areaMm2:area(result.points),width:w,height:h,dimensions:dims,
+    points:result.points,path:result.path,areaMm2:area(result.points)+roundArcCorrection,width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
     corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewSeamDetails,previewParts,
     softIndices,contourStatus:softIndices.length?'schematic':null,

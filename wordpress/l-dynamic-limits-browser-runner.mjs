@@ -113,6 +113,52 @@ try {
   assert.ok(state.over<=1,'L2 horizontal mobile overflow');
   assert.deepEqual(errors,[],errors.join('; '));
   await page.screenshot({path:'dist/l-visual-photo-L2-'+width+'.png',fullPage:true});
+  // PR #42: round R1/R2 are constrained by physical sketch edges, not
+  // the supplier chamfer snapshot. The limits follow the selected leg.
+  await page.evaluate(()=>{
+   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+   s.getElementById('geometry').value='L1';
+   s.getElementById('geometry').dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  await select('l-treatment','round');
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.getElementById('corner-hint-R1')?.textContent.includes('Zeichnung: 1–58 cm');
+  },null,{timeout:12000});
+  await change('corner-R1','59');
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.getElementById('corner-R1')?.getAttribute('aria-invalid')==='true'
+      && s.getElementById('corner-field-error-R1')?.textContent.includes('58');
+  },null,{timeout:12000});
+  await change('corner-R1','58');
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.getElementById('corner-R1')?.getAttribute('aria-invalid')!=='true'
+      && s.querySelector('#drawing svg [data-corner="corner-R1"]');
+  },null,{timeout:12000});
+  await change('dim-B1','30');
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.getElementById('corner-hint-R1')?.textContent.includes('Zeichnung: 1–28 cm')
+      && s.getElementById('corner-field-error-R1')?.textContent.includes('28');
+  },null,{timeout:12000});
+  const roundState=await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    return {r1:s.getElementById('corner-hint-R1').textContent,
+      r2:s.getElementById('corner-hint-R2').textContent,
+      invalid:s.getElementById('corner-R1').getAttribute('aria-invalid'),
+      cartDisabled:s.getElementById('cart').disabled,
+      overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth};
+  });
+  assert.match(roundState.r1,/Zeichnung: 1–28 cm/);
+  assert.match(roundState.r2,/Zeichnung: 1–58 cm/);
+  assert.doesNotMatch(roundState.r1,/Speedmaster-Foto/);
+  assert.equal(roundState.invalid,'true');
+  assert.equal(roundState.cartDisabled,true);
+  assert.ok(roundState.overflow<=1,'L1 round responsive overflow');
+  await page.screenshot({path:'dist/l-visual-round-L1-'+width+'.png',fullPage:true});
+  console.log('PASS '+width+'px round R1/R2 physical preview limits, no supplier claim, cart blocked');
   console.log('PASS '+width+'px photo input bounds + sketch-only limits + no L checkout');
   await page.close();
  }
