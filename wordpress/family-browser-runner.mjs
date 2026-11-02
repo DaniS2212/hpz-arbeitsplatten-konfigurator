@@ -31,6 +31,15 @@ try{
    assert.equal(info.groupCards,0,'L/U must use the finished straight measure grid, not separate cards');
    assert.equal(info.summaryCount,1);assert.equal(info.cartDisabled,true);assert.equal(info.productCardsHidden,true);
    if(kind==='l'){
+     // The package test server loads the component stylesheet asynchronously.
+     // A drawn SVG can become ready before the 4/2-column CSS is applied.
+     // Wait for the target layout rather than asserting on the early 1-column
+     // browser default; a genuinely broken stylesheet still times out/fails.
+     await page.waitForFunction(expected=>{
+       const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+       const opts=s?.querySelector('.a1-side-options');
+       return !!opts&&getComputedStyle(opts).gridTemplateColumns.split(' ').filter(Boolean).length===expected;
+     },width>=761?4:2,{timeout:25000});
      const cards=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
        const root=el.shadowRoot;
        const opts=root.querySelector('.a1-side-options');
