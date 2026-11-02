@@ -50,8 +50,13 @@ export function validateLCorner(raw,convert,shape) {
   const keys=lCornerKeys(shape,raw.side,raw.treatment);
   if(Object.keys(raw.parameters).sort().join('|')!==[...keys].sort().join('|'))throw Error('L-Eckmaßfelder stimmen nicht überein.');
   const parameters=Object.fromEntries(keys.map(k=>[k,convert(raw.parameters[k])]));
-  for(const [k,v] of Object.entries(parameters))if(v<10||v>1000||v%10!==0)
-    throw Error('corner-'+k+': Bitte ganze Zentimeter zwischen 1 und 100 eingeben (nur Vorschau).');
+  // Speedmaster screenshots document 60 mm minima for the chamfer
+  // distances. A global 1000 mm cap wrongly blocked valid longer cuts
+  // (e.g. L1 L4=1200 and L3 L5=1050). The upper preview ceiling is
+  // deliberately NOT a verified manufacturer/production limit.
+  const chamfer=raw.treatment!=='round',minimum=chamfer?60:10,previewMaximum=chamfer?2000:1000;
+  for(const [k,v] of Object.entries(parameters))if(v<minimum||v>previewMaximum||v%10!==0)
+    throw Error('corner-'+k+': Bitte ganze Zentimeter zwischen '+(minimum/10)+' und '+(previewMaximum/10)+' eingeben (nur Vorschau; keine allgemeine Herstellerfreigabe).');
   return {side:raw.side,treatment:raw.treatment,parameters};
 }
 const pt=(x,y)=>[x,y], fmt=p=>p.join(' ');
