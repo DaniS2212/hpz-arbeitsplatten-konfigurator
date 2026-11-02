@@ -67,6 +67,7 @@ export function auditLReference(config,drawing) {
    &&Object.entries(sample.dimensionsMm).every(([name,mm])=>config.dimensions[name]===mm);
  const outline=Array.isArray(drawing?.points)?drawing.points:[];
  const seams=Array.isArray(drawing?.previewSeams)?drawing.previewSeams:[];
+ const details=Array.isArray(drawing?.previewSeamDetails)?drawing.previewSeamDetails:[];
  const regions=Array.isArray(drawing?.previewParts)?drawing.previewParts:[];
  const area=Math.abs(signedArea(outline));
  const regionArea=regions.reduce((total,p)=>total+Math.abs(signedArea(p.polygon)),0);
@@ -77,6 +78,11 @@ export function auditLReference(config,drawing) {
   check('visible-seam-count',!identical||seams.length===sample.visualSeams),
   check('seam-ends-on-contour',seams.every(s=>validPoint(s.from)&&validPoint(s.to)
    &&onContour(s.from,outline)&&onContour(s.to,outline))),
+  check('seam-evidence-unapproved',details.length===seams.length&&details.every((detail,i)=>
+   detail?.id==='seam-'+(i+1)&&detail.status==='illustration-only'
+   &&detail.connectorType===null&&detail.connectorCount===null&&detail.machiningCoordinates===null
+   &&samePoints([detail.from,detail.to],[seams[i]?.from,seams[i]?.to])
+   &&Array.isArray(detail.partIds)&&detail.partIds.every(id=>regions.some(p=>p.id===id)))),
   check('preview-region-coverage',regions.length>0&&regions.every(p=>
    p.status==='illustration-only'&&Array.isArray(p.polygon)&&p.polygon.length>=3
    &&p.polygon.every(validPoint)&&Math.abs(signedArea(p.polygon))>1)
