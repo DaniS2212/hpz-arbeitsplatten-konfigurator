@@ -89,6 +89,10 @@ try {
        id:rect.closest('.apl-measure')?.getAttribute('data-field')??'?...',
        box:rect.getBoundingClientRect().toJSON()
      }));
+     // SVG objects can exist in the DOM while being cut off by viewBox.
+     const frame=svg.getBoundingClientRect();
+     const clippedLabels=labels.filter(l=>l.box.left<frame.left-1||l.box.right>frame.right+1
+       ||l.box.top<frame.top-1||l.box.bottom>frame.bottom+1).map(l=>l.id);
      const labelOverlaps=[];
      for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++){
        const a=labels[i],b=labels[j];
@@ -97,7 +101,7 @@ try {
        const area=dx*dy,minArea=Math.min(a.box.width*a.box.height,b.box.width*b.box.height);
        if(minArea>0&&area/minArea>.08)labelOverlaps.push(a.id+' / '+b.id);
      }
-     return {labelOverlaps,cut:s.querySelector('#drawing [data-cut="left"]')!==null,iconsAngular:!/[QA] [0-9]/.test(icon),
+     return {labelOverlaps,clippedLabels,cut:s.querySelector('#drawing [data-cut="left"]')!==null,iconsAngular:!/[QA] [0-9]/.test(icon),
       b1OnWood:b1.inside,b3OnWood:b3.inside,l3OnWood:l3.inside,
       b1B3OverlapPx2:intersect(b1.box,b3.box),horizontalOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
       cartDisabled:s.querySelector('#cart').disabled,continuous};
@@ -109,6 +113,7 @@ try {
     assert.equal(result.l3OnWood,false,shape+' L3 opaque label over textured worktop');
     assert.ok(result.b1B3OverlapPx2<1,shape+' B1/B3 label collision: '+result.b1B3OverlapPx2);
     assert.deepEqual(result.labelOverlaps,[],shape+' '+treatment+' overlapping dimensions (B2 vs upper corner etc.)');
+    assert.deepEqual(result.clippedLabels,[],shape+' '+treatment+' dimension text clipped by SVG viewport');
     assert.ok(result.horizontalOverflow<=1,shape+' mobile overflow '+result.horizontalOverflow);
     assert.equal(result.cartDisabled,true,'L purchase must remain blocked');
     assert.equal(result.continuous,treatment==='chamfer_continuous');
