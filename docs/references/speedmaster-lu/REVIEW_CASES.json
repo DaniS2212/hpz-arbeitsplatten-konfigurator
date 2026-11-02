@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "scope": "PRIVATE-AUDIT-ONLY",
+  "reviewStatus": "visual-comparison-open",
+  "caseSource": "docs/l-speedmaster-screenshot-evidence-20261102.md",
+  "cases": [
+    {
+      "id": "L1",
+      "source": "originals/block-06/image(20261102-115001).png",
+      "shape": "L1",
+      "treatment": "chamfer_square",
+      "dimensions": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "corners": {
+        "L3": 120,
+        "B3": 240,
+        "L4": 120,
+        "B4": 240
+      },
+      "note": "Beide Außenecken; ungleiche horizontale und vertikale Eckwerte. Exakte Übereinstimmung der archivierten Eingabewerte bei Sichtprüfung bestätigen."
+    },
+    {
+      "id": "L2",
+      "source": "originals/block-06/image(20261102-115024).png",
+      "shape": "L2",
+      "treatment": "chamfer_continuous",
+      "dimensions": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "corners": {
+        "L3": 240,
+        "B3": 120,
+        "L4": 120,
+        "B4": 240
+      },
+      "note": "Gespiegelte L-Form; durchlaufende Vorderkante nur schematisch. Endradien nicht belegt."
+    },
+    {
+      "id": "L3",
+      "source": "originals/block-03/image(20261102-114354).png",
+      "shape": "L3",
+      "treatment": "chamfer_continuous",
+      "dimensions": {
+        "L1": 2000,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900
+      },
+      "corners": {
+        "L5": 120,
+        "B5": 400,
+        "L6": 150,
+        "B6": 150
+      },
+      "note": "L3-Innendiagonale und ungleiche Endbearbeitung; Stöße nur illustrativ."
+    },
+    {
+      "id": "L4",
+      "source": "originals/block-03/image(20261102-114510).png",
+      "shape": "L4",
+      "treatment": "chamfer_square",
+      "dimensions": {
+        "L1": 2000,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900,
+        "B5": 600
+      },
+      "corners": {
+        "L5": 150,
+        "B5": 150,
+        "L6": 120,
+        "B6": 240
+      },
+      "note": "B5-Grundmaß 600 mm getrennt vom B5-Eckmaß 150 mm. Äußere Diagonale weiterhin angenähert."
+    }
+  ]
+}
