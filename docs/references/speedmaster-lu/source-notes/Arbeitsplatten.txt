@@ -1,0 +1,260 @@
+Hier ist die **Üabenotiz für den neuen Chat**, damit wir das Projekt ohne erneute Erklärungen direkt Richtung **Version 1.0 – verkaufsfertige gerade Küchenarbeitsplatte** weiterentwickeln können.
+
+<WritingBlock id="58321" variant="document"># Projektübergabe – Küchenarbeitsplatten-Konfigurator
+## Ziel: Version 1.0 – Gerade Arbeitsplatte vollständig bestellbar
+
+**Stand der Übergabe:** 29.10.2026  
+**Shop:** holzplatten-zuschnitt.de  
+**GitHub:** https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator  
+**GitHub-Konto:** DaniS2212
+
+### 1. Projektziel und grundsätzliche Entscheidungen
+
+Wir entwickeln einen hochwertigen Küchenarbeitsplatten-Konfigurator, der direkt in WooCommerce und das bestehende Flatsome-Theme integriert wird.
+
+Der Konfigurator soll sich optisch und funktional wie ein modernes, hochwertiges Küchenstudio anfühlen: übersichtlich, hochwertig, intuitiv, mobil perfekt nutzbar.
+
+**Die gerade Küchenarbeitsplatte soll jetzt vollständig bestellbar gemacht werden.** L- und U-Form werden erst anschließend weiterentwickelt.
+
+Wichtige Entscheidungen:
+
+- **Keine Speedmaster-API erforderlich.** Die Bestellung wird zunächst manuell bei Speedmaster ausgelöst.
+- Alle für Speedmaster nötigen Bestelldaten müssen vollständig und eindeutig in der WooCommerce-Bestellung stehen.
+- Keine weiteren grundlegenden UI-Redesigns. Der Nutzer ist mit der aktuellen Oberfläche zufrieden.
+- Möglichst schnell zur funktionierenden Bestellung kommen.
+- **Keine weiteren Zwischenversionen in WordPress installieren.** Erst wenn die finale Version vollständig vorbereitet und geprüft ist, wird das vorhandene Plugin aktualisiert.
+- Keine Veröffentlichung oder Freischaltung für Kunden ohne ausdrückliche Zustimmung.
+- Bestehende Produkte, WooCommerce-Funktionen, Versandregeln und andere Plugins dürfen nicht beeinträchtigt werden.
+
+### 2. Produkte in WordPress
+
+Drei bereits angelegte WooCommerce-Produktentwürfe:
+
+| Produkt | ID | Status |
+|---|---|---|
+| Gerade Arbeitsplatte | 1000083 | Entwurf |
+| L-Arbeitsplatte | 1000080 | Entwurf |
+| U-Arbeitsplatte | 1000081 | Entwurf |
+
+SKU Gerade: `HPZ-APL-GERADE-2026`
+
+Nur Produkt **1000083** wird jetzt verkaufsfertig gemacht.
+
+### 3. Bestehender Konfigurator
+
+Die aktuelle funktionierende WordPress-Admin-Vorschau ist **Version 0.6.5**.
+
+Sie wurde im echten Liveshop-Backend erfolgreich getestet.
+
+Bereits umgesetzt:
+
+- Hochwertiges Küchenstudio-Design.
+- Drei Konfigurationsschritte: Ecken, Maße, Oberfläche.
+- Auswahl von 17,5 mm und 38 mm Plattenstärke.
+- 16 Dekore mit echten Speedmaster-Dekorbildern und kurzen, kundenfreundlichen Bezeichnungen.
+- Kundenmaßangaben in Zentimetern, intern exakte Millimeter.
+- Zehn Eckzustände einschließlich unbearbeitet, gerundet und zwei Abschrägungsvarianten.
+- Live-Skizze und Hervorhebung des bearbeiteten Maßes.
+- Kompakte, übersichtliche Konfigurationszusammenfassung.
+- Responsive Desktop-/Smartphone-Darstellung.
+- Serverseitige V3-Preisvorschau.
+- Korrekte Validierung ungültiger Maße.
+- Bei ungültigen Maßen bleibt die letzte gültige Skizze sichtbar, während Preis und Fortsetzung gesperrt werden.
+- Schutz vor hängenden Preisabfragen und veralteten AJAX-Antworten.
+- Admin-Testmodus und bestehende Kaufsperren.
+
+**Praxistest:** Der Nutzer ist mit Version 0.6.5 zufrieden. Die UI ist grundsätzlich fertig.
+
+### 4. Preisberechnung V3
+
+Die Preisengine V3 existiert bereits als eigenständiges PHP-Modul.
+
+Referenzkonfiguration:
+
+- Gerade Arbeitsplatte
+- 200 × 60 cm
+- 38 mm
+- Platinweiß
+- Keine Eckbearbeitung
+
+**Unverbindlicher Brutto-Referenzpreis Deutschland: 670,00 €**
+
+Die V3-Preisberechnung darf nicht durch eine zweite, abweichende Kalkulation ersetzt werden.
+
+Wichtige Vorgaben:
+
+- Mindestmarge 35 %.
+- 10 % Kostenreserve berücksichtigen.
+- Rabatte/Gutscheine dürfen die Mindestmarge nicht unterschreiten.
+- Tatsächliche Steuer- und Versandeinstellungen von WooCommerce berücksichtigen.
+- Keine erfundenen Lieferantenpreise, Versandgewichte oder Lieferfreigaben.
+- Ursprüngliche EK-Recherchen und Preisreferenzen liegen im Repository.
+
+Die Preisengine funktioniert, ist aber ursprünglich ausdrücklich nur als Preisvorschau entwickelt worden. Die verbindliche Verwendung beim Checkout muss abgesichert werden.
+
+### 5. Entwicklungsversionen und PR-Stand
+
+**0.6.5 – Fertige Admin-Vorschau**
+
+Im WordPress-Backend installiert und erfolgreich getestet.
+
+**0.7 – Serverseitige Verkaufsprüfung**
+
+PR #15 wurde gemergt.
+
+Umgesetzt:
+
+- Exakte Konfigurationsidentifikation.
+- Prüfung von Lieferbarkeit und Lieferantennachweisen.
+- Margenkontrolle.
+- Versand- und Verpackungsprüfung.
+- Strukturierter Fertigungsdatensatz.
+- Sichere Sperren bei fehlenden Nachweisen.
+
+**0.8 – WooCommerce-Bestelladapter**
+
+PR #16:  
+https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/16
+
+Im bisherigen Chat wurde Version 0.8 entwickelt und als mergefähig gemeldet. **Der Merge von PR #16 wurde hier noch nicht bestätigt.**
+
+Umgesetzt bzw. vorbereitet:
+
+- Signierter Konfigurationsdatensatz im WooCommerce-Warenkorb.
+- Serverseitige Neukalkulation mit V3.
+- Klassischer WooCommerce-Warenkorb.
+- Store-API-Unterstützung.
+- Mengenänderungen und Rabatte.
+- Versand-/Steuerprüfungen.
+- HPOS-kompatible Bestellpositionsdaten.
+- Vollständige Angaben für die manuelle Bestellung bei Speedmaster.
+- Umfangreiche automatische PHP-Tests.
+
+Die 0.8-Komponenten liegen noch separat im Repository und sind **nicht mit dem aktiven WordPress-Plugin verbunden**. Die bisherigen Kaufsperren bleiben aktiv.
+
+**0.9 / 1.0**
+
+In diesem Chat wurde noch keine abgeschlossene 0.9-Implementierung bestätigt.
+
+**Wichtig für den neuen Chat:** Als Erstes den tatsächlichen GitHub-Stand auf `main`, alle offenen PRs und die aktuelle Dokumentation prüfen. Nicht davon ausgehen, dass 0.8 oder 0.9 bereits gemergt sind.
+
+### 6. Was Version 1.0 vollständig können muss
+
+#### A. Konfigurator → Warenkorb
+
+Der Kunde konfiguriert seine gerade Arbeitsplatte und klickt auf „In den Warenkorb“.
+
+WooCommerce übernimmt die vollständige Konfiguration, einschließlich:
+
+- Länge und Tiefe in mm.
+- Plattenstärke.
+- Dekor-Kundenname.
+- Speedmaster-Dekorcode.
+- Kantenbearbeitung.
+- Eckseite und Eckbearbeitungsart.
+- Alle relevanten Sondermaße R1/R2/L2/B2/L3/B3.
+- Stückzahl.
+- Serverseitig berechnetem Verkaufspreis.
+
+Keine manuelle Eingabe eines Produktpreises durch Kunden.
+
+#### B. Warenkorb und Checkout
+
+Der Kunde kann seine Bestellung regulär abschließen.
+
+Erforderlich:
+
+- Richtiger Produktpreis.
+- Richtige Mehrwertsteuer.
+- Funktionierende Versandkosten.
+- Mengenänderungen.
+- Gutscheine und Rabatte.
+- Gastbestellungen.
+- Bestehende Zahlungsmethoden.
+- Funktionierende Bestellbestätigung.
+
+Auch manipulierte Warenkorb- oder Store-API-Anfragen müssen sicher abgefangen werden.
+
+#### C. Bestellung im Backend
+
+Die WooCommerce-Bestellung muss so übersichtlich aufgebaut sein, dass die Mitarbeiter die Arbeitsplatte ohne Rückfragen manuell bei Speedmaster bestellen können.
+
+Insbesondere müssen Maße, Stärke, Dekor, Herstellercode, Ecken und Sondermaße eindeutig erkennbar sein.
+
+Eine automatische Bestellung bei Speedmaster ist **nicht gewünscht und nicht notwendig**.
+
+#### D. Lieferbarkeit und Versand
+
+Es müssen die tatsächlich bestellbaren Kombinationen abgesichert werden.
+
+Für den schnellsten Verkaufsstart ist ein eingeschränkter, nachweislich lieferbarer Umfang ausdrücklich erlaubt.
+
+Priorität:
+
+1. Gerade Arbeitsplatte ohne Sonderbearbeitung.
+2. Anschließend bestätigte Eckbearbeitungen.
+3. Erst danach kompliziertere Varianten.
+
+Die durchlaufenden Abschrägungen waren in der Vorschau teilweise nur schematisch belegt und dürfen ohne Fertigungsbestätigung nicht automatisch zum Verkauf freigegeben werden.
+
+Versand möglichst über die bestehenden WooCommerce-Versandregeln. Keine neue Versandplattform entwickeln.
+
+#### E. Sichere Freischaltung
+
+Der bisherige Testkonfigurator ist ausschließlich für Administratoren sichtbar.
+
+Für Version 1.0 müssen ausschließlich die ausdrücklich freigegebenen geraden Arbeitsplatten für Kunden kaufbar werden.
+
+L- und U-Form bleiben Entwürfe und gesperrt.
+
+Andere Shopprodukte dürfen nicht verändert werden.
+
+### 7. Vorgehensweise im neuen Chat
+
+Bitte **nicht erneut bei null anfangen**.
+
+Den vorhandenen Code im GitHub-Repository als Grundlage verwenden.
+
+Gewünschter Ablauf:
+
+1. Aktuellen GitHub-Stand und PR #16 prüfen.
+2. Bestehende 0.7-/0.8-Komponenten übernehmen.
+3. Fehlende echte WooCommerce-Integration abschließen.
+4. Lieferbarkeit und Versand auf einen sicher freigebbaren Startumfang begrenzen.
+5. Warenkorb, Checkout, Steuer, Versand und Bestellmetadaten absichern.
+6. Automatisierte Tests für Normalfälle und Manipulationen durchführen.
+7. Eine finale, installierbare WordPress-Plugin-ZIP vorbereiten.
+8. Kontrollierten Praxistest im Liveshop zunächst ohne öffentliche Verkaufsfreigabe durchführen.
+9. Nach ausdrücklicher Zustimmung die gerade Arbeitsplatte für Kunden freischalten.
+
+Da keine Staging-Umgebung existiert, wurden echte WordPress-Tests bislang in der kontrollierten Admin-Vorschau des Liveshops durchgeführt.
+
+### 8. Wichtige Arbeitsregeln
+
+- Zügig und eigenständig entwickeln.
+- Bestehende Komponenten wiederverwenden.
+- Keine unnötigen neuen Architekturen oder Tools entwickeln.
+- Keine Speedmaster-API bauen.
+- Keine erneute Diskussion über bereits freigegebene UI-Entscheidungen.
+- Tests und GitHub CI nach Änderungen ausführen.
+- Änderungen möglichst in wenigen sinnvollen Commits bündeln, damit GitHub nicht für zahlreiche fehlschlagende Zwischenstände Benachrichtigungen verschickt.
+- PRs zur Prüfung bereitstellen.
+- WordPress nicht eigenmächtig aktualisieren.
+- Keine echten Kundenbestellungen oder Zahlungen ohne gesonderte Freigabe auslösen.
+- Keine falsche Aussage „verkaufsfertig“, solange reale Checkout- und Versandtests fehlen.
+
+### 9. Konkreter nächster Auftrag
+
+**Bitte prüfe den aktuellen GitHub-Stand und entwickle die vorhandene 0.8-Warenkorbarchitektur direkt zur vollständigen, testbaren Version 1.0 weiter.**
+
+Das Ziel ist ein funktionierender Ablauf von:
+
+**Konfigurieren → Preis berechnen → Warenkorb → Checkout → WooCommerce-Bestellung → manuelle Speedmaster-Bestellung.**
+
+Wir wollen jetzt die gerade Arbeitsplatte fertigstellen und nicht weitere Wochen an Vorarbeiten verbringen.
+
+Bitte erstelle die notwendigen PRs, dokumentiere noch fehlende echte Lieferanten- und WooCommerce-Nachweise und bereite anschließend eine finale Plugin-ZIP vor.
+
+**Keine Live-Veröffentlichung ohne ausdrückliche Freigabe.**</WritingBlock>
+
+Die Notiz kannst du direkt in einen neuen Chat kopieren. Besonders wichtig ist der Hinweis auf **PR #16 und den tatsächlichen GitHub-Stand**: Damit setzt der neue Chat genau dort an, wo der Code aktuell steht, statt bereits erledigte Entwicklungsphasen zu wiederholen.

@@ -1,0 +1,287 @@
+
+Version 1.0.3.11 ist installiert und automatische Updates sind aktiviert.
+
+Damit ist bestätigt, dass der Download und die Aktualisierung aus unserem privaten GitHub-Repository funktionieren.
+
+Ich verbessere jetzt den WordPress-Updater im bestehenden Repository: das fehlerhafte Versionsdetails-Fenster, eine übersichtliche Update-Statusanzeige und eine manuelle Updateprüfung. Die Preisberechnung und die Produktfreigaben bleiben unangetastet.
+
+PR #29 – WordPress-Updater verbessert
+Alle 7 Tests grün – PR mergefähig
+
+PR #29 auf GitHub öffnen
+Folgende Verbesserungen sind umgesetzt:
+
+Versionsdetails: Das Fenster soll jetzt die Plugininformationen anzeigen statt „Plugin not found“.
+
+Statusübersicht: Installierte Version, neueste erkannte GitHub-Version, letzter Prüfzeitpunkt und mögliche Fehler.
+
+Manueller Updatecheck: Unter Einstellungen → Arbeitsplatten-Updates gibt es einen Button „Jetzt auf Updates prüfen“.
+
+Sicherheit: Keine Anzeige des GitHub-Tokens, keine Änderung am geprüften Download, an der automatischen Installation oder am Rollback.
+
+Du kannst PR #29 jetzt mergen. Anschließend muss WordPress die neue Plugin-Version übernehmen. Erst dann lässt sich das neue Versionsdetails-Fenster live überprüfen.
+
+Die fertige Gerade, WooCommerce, die Preiskalkulation sowie die L-/U-Produktfreigaben bleiben unverändert.
+
+Schau dir in Ruhe die L-Platten an. Wenn dir dort etwas auffällt, können wir es direkt im nächsten Entwicklungsschritt korrigieren.
+
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Benutzeranhang
+Ja. Da fällt mir noch so einiges auf. Ich schicke dir einfach mal Screenshots vom fertigen Geraden Konfigurator und daneben unseren L Konfigurator.
+Wirst wahrscheinlich das meiste selbst sehen können. Was mir gut gefällt: DIe Skizze ist größer und besser zu erkennen als bei der Geraden Platte. Die hervorhebung für diagonalbereich ist auch zum BEispiel gut
+Worked for 33s
+Ja, absolut — da sieht man schon einiges sehr klar.
+Und ich sehe es ähnlich wie du: ein paar Dinge im L‑Konfigurator sind schon besser als bei der Geraden, aber vieles ist noch uneinheitlich bzw. wirkt noch nach Zwischenstand.
+
+Was am L‑Konfigurator schon gut ist
+Das würde ich nicht kaputtmachen, sondern bewusst übernehmen bzw. beibehalten:
+
+Größere Skizze / bessere Lesbarkeit
+
+Die L‑Vorschau ist deutlich präsenter.
+Maße und Form sind schneller erfassbar.
+Gezielte Hervorhebung einzelner Bereiche
+
+z. B. Diagonalbereich B5 ist gut gelöst.
+Auch die Fokus-Hervorhebung bei den Feldern wirkt hilfreich.
+Technische Darstellung der L-Form
+
+Die Zeichnung erklärt die Form logisch.
+Gerade bei komplexeren Formen ist das schon ein echter Mehrwert.
+Was mir beim Vergleich auffällt
+1. Gerade wirkt fertiger und ruhiger im UI
+Die Gerade wirkt insgesamt:
+
+klarer strukturiert
+homogener in Typografie und Abständen
+„verkaufsfertiger“
+verständlicher für normale Kunden
+Der L‑Konfigurator wirkt dagegen eher noch wie:
+
+technisch,
+teilweise intern gedacht,
+stellenweise unfertig bzw. nicht ganz sauber auf Kundenführung optimiert.
+2. Uneinheitliche Schrittlogik
+Bei der Geraden ist die Führung sehr sauber:
+
+Ecken
+Maße
+Oberfläche
+Beim L‑Konfigurator heißt Schritt 1 dagegen:
+
+Grundriss
+dann Maße
+dann Oberfläche
+Das ist inhaltlich okay, aber die Umsetzung wirkt uneinheitlich:
+
+Bei der Geraden ist Schritt 1 sehr verständlich für Endkunden.
+Bei L ist „Grundriss wählen“ schon eher technisch.
+Manche Texte wirken eher wie interner Stand:
+„in Prüfung“
+„vorläufig“
+„Herstellergrenzen noch offen“
+„L/U-Formen haben noch keine freigegebene Preisvorschau“
+Mein Eindruck:
+Der L‑Konfigurator zeigt dem Kunden aktuell zu viel internen Baustellen-Charakter.
+
+3. Die Optionskarten im L‑Schritt 1 sind visuell schwächer
+Bei der Geraden sind die Auswahlkarten für Ecken relativ sauber und direkt verständlich.
+
+Beim L‑Konfigurator in Grundriss:
+
+die Karten sind sehr groß
+die Innenillustrationen wirken etwas grob / technisch
+die braunen Punkte für Außenecken sind prinzipiell hilfreich, aber optisch nicht ganz sauber integriert
+die Beschriftungen „Keine / Links / Rechts / Beide Außenecken“ sind okay, aber könnten klarer und kompakter ins Layout eingebunden sein
+Bei Bearbeitung (abgerundet / abgeschrägt / Vorderkante durchlaufend):
+
+funktional verständlich,
+aber optisch noch nicht auf dem Niveau der Geraden.
+4. Maßeingabe im L-Konfigurator ist fachlich gut, aber sperriger
+Das ist aus meiner Sicht ein zentraler Punkt.
+
+Positiv:
+Die Hervorhebung der jeweils aktiven Maße in der Skizze ist gut.
+Der Diagonalbereich ist gut sichtbar.
+Die Gruppierung nach Bereichen ist grundsätzlich sinnvoll.
+Aber:
+Im L‑Konfigurator sind die Felder für normale Nutzer deutlich anstrengender als bei der Geraden:
+
+viele kryptische Maße:
+B1/B2
+B3/B4
+B5
+L5 / B6 etc.
+teils technisch korrekt, aber nicht direkt selbsterklärend
+die Zusatztexte darunter sind teilweise noch „Baustellen-Texte“
+Die Gerade ist hier viel zugänglicher, weil sie sehr direkt ist:
+
+Länge
+Tiefe
+linke Ecke
+rechte Ecke
+Beim L‑Konfigurator müsste man aus meiner Sicht stärker übersetzen in:
+
+Gesamtlänge oben
+Gesamtlänge links
+Breite Schenkel
+Breite Eckbereich
+Diagonalbereich
+Rundung linke Ecke
+Rundung rechte Ecke
+Also technisch korrekt, aber kundenfreundlicher.
+
+5. Oberfläche: Gerade wirkt deutlich eleganter
+Bei der Geraden Oberfläche sieht alles sehr rund aus:
+
+gute Karten
+gute Hierarchie
+gute Auswahl
+insgesamt wertiger Eindruck
+Beim L‑Oberflächenschritt ist es zwar schon ordentlich, aber:
+
+die linke Vorschau nimmt viel Platz ein und ist teils etwas leer
+die rechte Fläche wirkt etwas dichter / technischer
+die Balance zwischen Vorschau und Auswahl könnte noch etwas harmonischer werden
+Hier würde ich optisch möglichst den Stil der Geraden 1:1 angleichen, nur eben mit L‑Vorschau statt Rechteck.
+
+6. Zusammenfassung unten: Gerade klarer, L noch zu technisch
+Bei der Geraden ist die Zusammenfassung unten sehr klar:
+
+Maße
+Material
+Dekor
+Ecken
+Preis
+CTA
+Beim L‑Konfigurator fällt auf:
+
+Preisbereich ist noch „Noch offen“ → klar, fachlich bewusst so
+die Maßdarstellung ist deutlich technischer
+teilweise stehen viele Kürzel in einer Zeile
+das ist für Kunden schwerer lesbar
+Hier würde ich später unbedingt lesbarer machen, z. B.:
+
+Oben: 200 cm
+Links: 200 cm
+Schenkeltiefe: 90 cm
+Eckbereich: 105 cm
+Diagonalbereich: 60 cm
+Bearbeitung: Beide Außenecken abgerundet
+statt sehr viel kompakt in Kürzelform.
+
+Mein klares Fazit
+Was ich übernehmen würde
+Vom L‑Konfigurator in die Gesamtlogik:
+
+größere Vorschau
+bessere aktive Hervorhebung in der Zeichnung
+gute Fokusführung bei komplexen Maßfeldern
+gute Sichtbarkeit vom Diagonalbereich
+Was ich angleichen würde
+Vom fertigen Geraden Konfigurator in den L‑Konfigurator:
+
+ruhigere visuelle Sprache
+konsistentere Karten / Buttons / Abstände
+verständlichere Texte
+weniger technische / interne Formulierungen
+klarere Zusammenfassung unten
+hochwertigerer Oberflächen-Schritt
+Ich würde es in dieser Reihenfolge verbessern
+Phase 1 – Schnell sichtbare Qualitätsverbesserung
+Texte bereinigen
+
+„in Prüfung“, „vorläufig“, „Grenzen offen“ etc. nur zeigen, wenn unbedingt nötig
+kundenfreundlicher formulieren
+L-Step 1 visuell vereinheitlichen
+
+Auswahlkarten für Außenecken und Bearbeitung ruhiger gestalten
+Layout näher an Gerade bringen
+Zusammenfassung unten lesbarer machen
+
+weniger Kürzel in Fließform
+Maße lesbarer aufteilen
+Phase 2 – UX wirklich gut machen
+Maßfelder kundenfreundlicher benennen
+
+technische Kürzel weiter intern behalten
+nach außen aber verständlichere Labels
+Oberflächen-Schritt optisch an die Gerade angleichen
+
+gleiche Anmutung, gleiche Kartenlogik, gleiche Hierarchie
+Skizzen-Logik der Geraden verbessern
+
+dort die größere / bessere L-Logik teilweise übernehmen
+Phase 3 – Feinschliff
+Infotexte / Hilfetexte sauber vereinheitlichen
+Responsive / Scroll-Verhalten prüfen
+Optional: sticky oder smartere Zusammenfassung / CTA
+Meine Empfehlung ganz konkret
+Ich würde nicht alles neu designen, sondern:
+
+L-Konfigurator optisch auf das Niveau der Geraden ziehen
+gleichzeitig die guten L-Elemente behalten
+große Skizze
+aktive Hervorhebungen
+Diagonalbereich-Fokus
+Also vereinfacht:
+
+Look & Feel von Gerade
+
+Skizzen-/Interaktionsstärke von L
+= beste Lösung
+Wenn du willst, kann ich dir im nächsten Schritt direkt eine konkrete Umsetzungs-Prioritätenliste für die Entwicklung schreiben, also ganz praktisch:
+
+was wir jetzt sofort anpassen,
+was wir danach machen,
+und welche Punkte eher später / optional sind.
+Ich kann dir das dann so aufbereiten, dass wir direkt wieder in die Umsetzung gehen können.
+
+Benutzeranhang
+Benutzeranhang
+Lass uns direkt in die Umsetzung gehen. Dabei noch ein paar sachen von mir: Stimmen die Maßmarkierungen fpr B3/B4 beispielsweise so wie sie in der Zeichnung markiert sind? Prüf das bitte auch bei allen anderen Konfigurationen. Bei den Abschrägungen fehlen noch sämtliche Markierungen und Maßzeichnungen. Das kannst du dir bei der Geraden abgucken.
+Allgemein kannst du alles was du jetzt für die L-Form auf die Gerade anpassen möchtest bzw von der geraden kopieren möchtest kannst du dir einfach im GitHub Code anschauen und kopieren, oder nicht?
+Ich habe die Ursachen im GitHub-Code gefunden:
+
+B3/B4: Die bisherige Maßlinie zeigt zwar die eingetragene Breite, verläuft aber mitten durch die Platte. Außerdem fehlt die zweite, dazugehörige Maßrichtung. So ist die Bemaßung missverständlich.
+
+Abschrägungen: Die L-Geometrie erzeugt bereits die abgeschrägten Konturen, übergibt deren Maße aber noch nicht an die Zeichenfunktionen, die bei „Gerade“ funktionieren.
+
+Oberfläche: Die kompakten Auswahlkarten von „Gerade“ sind im CSS ausschließlich für das gerade Produkt definiert. Deshalb werden die L-Karten viel zu groß dargestellt.
+
+B5: Bei L4 gibt es ein Grundmaß B5 und gegebenenfalls ein Eckmaß B5. Die Eingabefelder sind getrennt, aber die Zeichnung muss sie ebenfalls eindeutig unterscheiden.
+
+Ich korrigiere diese Punkte direkt an ihren Ursachen. Die große Vorschau und die hilfreiche Hervorhebung aktiver Maße bleiben erhalten.
+
+PR #30 ist fertig und bereit zum Mergen
+7 von 7 Tests erfolgreich – PR mergefähig
+
+PR #30 auf GitHub öffnen
+Was jetzt verbessert wurde
+Maßzeichnungen L1–L4: Alle Grundmaße wurden rechnerisch gegen die gezeichneten Strecken geprüft. B3 und B4 haben jetzt separate horizontale und vertikale Referenzlinien, statt einer Linie quer durch die Arbeitsplatte.
+
+Abschrägungen: Wie bei „Gerade“ werden die zugehörigen Längen- und Tiefenmaße mit Maßlinien angezeigt.
+
+Rundungen: R1/R2 erhalten echte Kreisbögen und Radiusmarkierungen.
+
+B5: Das Grundmaß des Diagonalbereichs und das gleichnamige Eckmaß sind eindeutig getrennt. Beide lassen sich unabhängig hervorheben.
+
+Bedienung: Kompakte Auswahlkarten, Abstände und Größen entsprechen jetzt dem fertigen Gerade-Konfigurator. Die größere L-Zeichnung bleibt erhalten.
+
+Zusammenfassung: Statt langer technischer Maßketten werden Außenmaße, Schenkelbreite, Eckbereich und Bearbeitungen übersichtlich dargestellt.
+
+Die Browserprüfungen auf Desktop und Smartphone sind ebenfalls erfolgreich.
+
+Was bewusst noch offen bleibt
+Die B3-/B4-Markierungen sind jetzt geometrisch korrekte Projektionsmaße unserer Vorschau. Die endgültigen Herstellerbezüge und Fräspositionen müssen wir vor einer Fertigungsfreigabe weiterhin bestätigen. Dasselbe gilt für die aus den Referenzbildern abgeleitete äußere L4-Diagonale.
+
+Die Gerade bleibt unverändert und bestellbar; L/U bleiben gesperrte Entwürfe.
+
+Du kannst PR #30 jetzt mergen. Nach Übernahme der neuen Plugin-Version durch WordPress schauen wir uns die L1–L4-Darstellungen gemeinsam im Shop an. Dann können wir gezielt den letzten visuellen Feinschliff machen, bevor wir uns der Preiskalkulation und den U-Formen widmen.

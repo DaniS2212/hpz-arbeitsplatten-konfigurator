@@ -13,12 +13,34 @@ Der Nutzer hat für die Entwicklung aus sechs Chatblöcken **60 originale PNG-Sc
 
 **48 Speedmaster-Originalansichten** und **12 eigene Produkt-/UI-Vergleiche**. Dateiliste und Kontext stehen in [IMAGE_MANIFEST.csv](IMAGE_MANIFEST.csv) und [DEVELOPMENT_CONTEXT.md](DEVELOPMENT_CONTEXT.md).
 
-## Originaldateien (Importstatus)
-Die Binärdateien wurden als **byte-identisches, lokal geprüftes ZIP-Archiv** vorbereitet:
-`Speedmaster-Referenzarchiv-2026-11-02.zip` (16.780.349 Bytes; SHA-256 `c32267e1dba0b8374f3215002b1505675b364a589d3128954feba5db34b4f9eb`).
+## Originalbilder im Repository – PR #39 verifiziert
 
-**WICHTIG: Dieses ZIP befindet sich zum Zeitpunkt dieses PR noch NICHT im Repository.**
-Der Dateinamenindex ist ein Empfangsprotokoll, nicht der Beweis einer GitHub-Einspielung. Für die dauerhafte Nutzung in neuen Chats die ZIP-Datei in **diesen Ordner** einspielen und anschließend in GitHub verifizieren. Die ZIP enthält Original-PNGs in sechs Blöcken, Manifest mit SHA-256 je Datei, zugehörige Übergabenotizen und Chat-Entscheidungen. Nicht als Website-Asset oder WordPress-Bundle veröffentlichen.
+**Alle 60 Originalscreenshots wurden als ein einziges ZIP-Archiv im PR-Branch abgelegt.** Das ZIP ist keine Verzeichnisvorschau mit einzelnen Bildern, sondern enthält die vollständigen PNG-Binärdateien unverändert im Archiv.
+
+- [Speedmaster_PR39_GitHub_Upload.zip](Speedmaster_PR39_GitHub_Upload.zip) – **16.780.349 Bytes**.
+- Originalarchiv und GitHub-Datei haben denselben **Git-Blob-SHA-1**: `e3237c4adc831bdfcbdf7778ed25d13ee20c8b78`.
+- SHA-256 der lokalen byteidentischen Originaldatei: `c32267e1dba0b8374f3215002b1505675b364a589d3128954feba5db34b4f9eb`.
+- ZIP-CRC und **60/60 SHA-256-Prüfsummen** der enthaltenen PNGs: erfolgreich geprüft.
+- Bildverzeichnis nach ursprünglicher Reihenfolge, Beschreibung und SHA-256: [SOURCE_MANIFEST.csv](SOURCE_MANIFEST.csv).
+- Begleitende Entscheidungen: [CHAT-ENTSCHEIDUNGEN.md](CHAT-ENTSCHEIDUNGEN.md), [ARCHIVE_README.md](ARCHIVE_README.md), [DEVELOPMENT_CONTEXT.md](DEVELOPMENT_CONTEXT.md) und historische [source-notes/](source-notes/).
+
+### In späteren Entwicklungssitzungen verwenden
+
+Aus einem Checkout des **privaten** Repositories (Repo-Root):
+
+```bash
+python scripts/import_speedmaster_reference_zip.py check-zip docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip
+python scripts/import_speedmaster_reference_zip.py import docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip
+python scripts/import_speedmaster_reference_zip.py verify-tree
+```
+
+Anschließend stehen die 60 einzelnen Originale lokal unter `docs/references/speedmaster-lu/originals/block-01/` bis `block-06/` zur visuellen Inspektion bereit. Diese temporär extrahierten Einzelbilder **müssen nicht noch einmal in Git committet werden**; der ZIP-Commit ist die dauerhafte Quelle.
+
+**Grenze:** Der reine GitHub-Textconnector kann das ZIP nicht selbst als Bilder anzeigen. Ein zukünftiger Chat benötigt eine Arbeitsumgebung mit Repo-Checkout/ZIP-Extraktion oder einzeln bereitgestellte Bilddateien, um die Bilder tatsächlich zu sehen. Die erfolgreiche Archivierung ist **kein visueller Geometrieabgleich** und kein Beleg für noch unbestätigte Herstellerdetails.
+
+**Sicherheitsregel:** ZIP und Extrakte niemals als Kundenbilder veröffentlichen, nie in `dist/` oder in ein WordPress-Plugin-Bundle aufnehmen. Unsere bestehende kaufbare Gerade und L/U-Testfreigaben bleiben davon unberührt.
+
+Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 
 ## Bereits im Repository verankerte technische Quellen
 - [L1–L4-Screenshotreferenzen](../../l-speedmaster-screenshot-evidence-20261102.md)
