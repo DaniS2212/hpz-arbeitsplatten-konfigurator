@@ -93,12 +93,13 @@ test('rounded L1 parts must PAINT the actual circular corners, not leave unshade
   assert.equal(containsPoint(g.previewParts.find(p=>p.id==='top').polygon,arcRight),false);
   for(const [id,point] of [['leg',arcLeft],['top',arcRight]]){
     const html=svg(g,'',{partsView:true,selectedPart:id,showDimensions:false});
-    assert.match(html,/clip-path="url\\(#apl-parts-clip\\)"/);
+    assert.ok(html.includes('clip-path="url(#apl-parts-clip)"'), 'the overlay must still be clipped to the visible surface');
     assert.match(html,/A 100 100/,'the SVG itself has the real rounding arc');
     const match=html.match(new RegExp('class="apl-preview-part" data-part-id="'+id+'"[^>]* d="([^"]+)"'));
     assert.ok(match,'part overlay must be rendered');
-    const paintPolygon=[...match[1].matchAll(/(-?\\d+(?:\\.\\d+)?) (-?\\d+(?:\\.\\d+)?)/g)]
-      .map(([,x,y])=>[Number(x),Number(y)]);
+    const coords=match[1].replace(/[MLZ]/g,'').trim().split(' ').filter(Boolean).map(Number);
+    const paintPolygon=[];
+    for(let i=0;i<coords.length;i+=2)paintPolygon.push([coords[i],coords[i+1]]);
     assert.ok(containsPoint(paintPolygon,point),
       id+' SVG mask paint must cover the visible rounded arc area; actual surface clip removes excess');
   }
