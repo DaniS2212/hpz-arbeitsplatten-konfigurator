@@ -63,6 +63,12 @@ function treatmentIcon(kind){
   const path=kind==='round'?'M10 5H88V39H26A16 16 0 0 1 10 23Z':kind==='chamfer_square'?'M10 5H88V39H27L10 22Z':'M10 5H88V39H29Q27 39 25 37L12 24Q10 22 10 20Z';
   return `<svg viewBox="0 0 98 46" aria-hidden="true"><path d="${path}" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M35 39H80" stroke="#146178" stroke-width="3"/></svg>`;
 }
+// L corner rendering follows its own Speedmaster silhouette, not the
+// separately documented straight-worktop schematic rounded transitions.
+function lTreatmentIcon(kind){
+ if(kind!=='chamfer_continuous')return treatmentIcon(kind);
+ return '<svg viewBox="0 0 98 46" aria-hidden="true"><path d="M10 5 H88 V39 H29 L10 20 Z" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M10 20 L29 39 H80" fill="none" stroke="#146178" stroke-width="3"/></svg>';
+}
 function setFieldError(key,message=''){
   const isLCorner=key.startsWith('corner-'),fieldKey=isLCorner?key.slice(7):key;
   const input=$(isLCorner?`corner-${fieldKey}`:`dim-${fieldKey}`),note=$(isLCorner?`corner-field-error-${fieldKey}`:`field-error-${fieldKey}`);
@@ -100,7 +106,7 @@ function renderRadiusInputs(){
       const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(side,grid);
     }
     const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':'Tiefe';
+    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l?'Breite':'Tiefe';
     const cornerId=l?`corner-${key}`:`dim-${key}`;
     label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
     input.id=cornerId;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',l?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
@@ -146,7 +152,7 @@ function renderLChoices(){
  $('corners').hidden=lSide==='none';cornerTitle.hidden=lSide==='none';cornerTitle.textContent='Bearbeitung';
  $('corners').style.gridTemplateColumns='1fr';
  $('corners').replaceChildren(...Object.entries(treatments).map(([id,name])=>choice('l-treatment',id,
-   treatmentIcon(id)+'<span>'+name+'</span>'+(id==='chamfer_continuous'?'<small>Übergang schematisch</small>':''),
+   lTreatmentIcon(id)+'<span>'+name+'</span>'+(id==='chamfer_continuous'?'<small>Gerade Abschrägung · Kantenverlauf noch zu prüfen</small>':''),
    lTreatment===id,()=>{
      lTreatment=id;
      lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));
@@ -191,7 +197,7 @@ function updateFamilyCopy(){
     const guidance=[
       'Die Draufsicht zeigt die Außenmaße der L-Form. Die Gesamtfläche wird verbunden dargestellt; die genaue Aufteilung muss noch bestätigt werden.',
       'B1/B2 ist die gemeinsame Schenkelbreite, B3/B4 die gemeinsame Eckbreite. Bei L4 markiert B5 den Abstand zwischen den Diagonalen.',
-      'Eckmaße werden separat angegeben. L-/B-Abschnitte bestimmen Länge und Tiefe einer Abschrägung; R1/R2 den Radius.',
+      'Eckmaße folgen der Schenkelausrichtung: Bei L1 links unten ist L3 vertikal und B3 horizontal, rechts L4 horizontal und B4 vertikal. L2 ist gespiegelt; L3/L4 verwenden L5/B5 und L6/B6 entsprechend. Alle Eckgeometrien bleiben bis zum vollständigen Speedmaster-Abgleich Vorschauwerte.',
       'Für die Fertigung und Verbindungen fehlen noch Freigaben. Die L-Form ist derzeit nicht bestellbar.'
     ];
     infoDialog.querySelectorAll('p').forEach((p,i)=>{p.textContent=guidance[i]??'';});
@@ -429,7 +435,7 @@ function refresh(){
   $('corner-note').textContent=['round','chamfer'].includes(corner)?'Eckmuster oben links. Größe im Schritt „Maße“ anpassen; Ausführung noch zu prüfen.':corner==='continuous'?'Kontur und Verbindung dieser Ausführung sind noch zu prüfen.':'Klare, rechtwinklige Ecken. Die Außenkante ist im gleichen Dekor vorgesehen.';
   if(product==='l'){
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · Übergang schematisch.';
+    $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · gerade Abschrägung; Kantenverlauf noch zu prüfen.';
     $('parts-note').querySelector('strong').textContent='Teilflächen zur Orientierung · keine Zuschnittdaten';
     $('parts-note').querySelector('p').textContent='Wähle eine Teilfläche aus. Die Stoßlinien zeigen nur die aus Speedmaster-Bildern erkennbare Lage. Exakte Fräsungen, Verbinder und Teileabmessungen bleiben ungeprüft.';
   }

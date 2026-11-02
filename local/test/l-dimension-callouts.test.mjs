@@ -72,7 +72,10 @@ test('all L chamfers have exact L/B callouts like straight; fields remain isolat
           assert.ok(d,shape+' '+side+' missing '+key);
           assert.equal(d.label,key);
           assert.ok(Math.abs(dist(d.from,d.to)-d.mm)<.01);
-          assert.equal(d.axis,key.startsWith('L')?'horizontal':'vertical');
+          const lengthHorizontal=shape==='L2'?d.side==='left':d.side==='right';
+          const expectedAxis=key.startsWith('L')?(lengthHorizontal?'horizontal':'vertical')
+            :(lengthHorizontal?'vertical':'horizontal');
+          assert.equal(d.axis,expectedAxis,shape+' '+d.side+' '+key);
           const drawing=svg(g,'corner-'+key,{unit:'cm'});
           assert.match(drawing,new RegExp('data-field="corner-'+key+'" data-active="true"'));
           assert.match(drawing,new RegExp(key+': 15 cm'));

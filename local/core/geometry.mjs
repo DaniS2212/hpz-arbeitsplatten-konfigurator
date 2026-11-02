@@ -76,7 +76,12 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const field=d.focusKey??d.id;
     if(lCornerFocus || (d.secondary&&field!==active))return '';
     const vertical=d.axis==='vertical'||(d.axis!=='horizontal'&&d.from[0]===d.to[0]);
-    const offset=pad*(d.referenceOutside?(d.offsetFactor??.88):(g.cornerDimensions?.length&&d.id==='B1'?.95:.45))*d.side;
+    // A short corner-cut label sits just below the leg. Put the full B1
+    // width dimension farther down to prevent opaque labels masking each other.
+    const isL=g.version?.startsWith('speedmaster-l');
+    const lowerCorner=isL&&(g.cornerDimensions??[]).some(c=>c.axis==='horizontal'&&c.from[1]===g.height);
+    const cornerB1=!!g.cornerDimensions?.length&&d.id==='B1';
+    const offset=pad*(d.referenceOutside?(d.offsetFactor??.88):(cornerB1?(lowerCorner?1.35:.95):.45))*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const selected=field===active,color=selected?'#a34f1c':'#365861';
@@ -100,9 +105,12 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   }).join('');
   const cornerMeasures=(g.cornerDimensions??[]).filter(d=>!detail||d.side===detail).map(d=>{
     const vertical=d.axis==='vertical',selected=d.id===active,color=selected?'#a34f1c':'#365861';
-    const offset=vertical?(d.side==='left'?-pad*.42:pad*.40):pad*.60;
+    // Do not infer the free side from a corner's left/right *name*.
+    const isL=g.version?.startsWith('speedmaster-l');
+    const normal=isL&&d.labelNormal!==undefined?d.labelNormal:(d.side==='left'?-1:1);
+    const offset=vertical?(isL?normal*pad*.40:(d.side==='left'?-pad*.42:pad*.40)):pad*(isL?.35:.60);
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
-    const x=vertical?a[0]+(d.side==='left'?-font*.9:font*.9):Math.max(font*3,Math.min(g.width-font*3,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
+    const x=vertical?a[0]+normal*font*.9:Math.max(font*3,Math.min(g.width-font*3,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
     return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
   const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
