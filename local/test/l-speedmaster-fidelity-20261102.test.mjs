@@ -94,13 +94,7 @@ test('all 40 L1-L4 corner conditions preserve a closed drawing and disabled prod
   let states=0;
   for(const side of ['none','left','right','both']){
    for(const treatment of side==='none'?[null]:['round','chamfer_square','chamfer_continuous']){
-    const cfg=side==='none'?
-     normalize({schemaVersion:2,inputUnit:'mm',product:'l',geometry:shape,material:'APL38',decor:'W980',
-      corner:'square',quantity:1,lCorner:defaultLCorner(shape),
-      dimensions:Object.fromEntries(Object.entries(rawMeasures[shape]).map(([name,value])=>[name,String(value)]))}):
-     treatment==='round'?
-      normalize({...mmConfig(shape,side,'chamfer_square'),lCorner:defaultLCorner(shape,side,'round')}):
-      mmConfig(shape,side,treatment);
+    const cfg=mmConfig(shape,side,treatment);
     const g=geometry(cfg);
     assert.ok(g.path.startsWith('M ')&&g.path.endsWith(' Z'),shape+' '+side+' '+treatment);
     assert.ok(g.areaMm2>0);
@@ -115,7 +109,7 @@ test('all 40 L1-L4 corner conditions preserve a closed drawing and disabled prod
 });
 test('L1 lower-leg corner labels sit OUTSIDE the wood and avoid B1 label collisions',()=>{
  for(const treatment of ['chamfer_square','chamfer_continuous']){
-  const g=geometry(mmConfig('L1','both',treatment)),img=svg(g,'corner-L3',{unit:'cm'});
+  const g=geometry(mmConfig('L1','both',treatment)),img=svg(g,'side-both',{unit:'cm'});
   const vertical=pos(img,'corner-L3'),horizontal=pos(img,'corner-B3'),base=pos(img,'B1');
   assert.equal(vertical.vertical,true);
   assert.ok(vertical.x>g.dimensions.find(d=>d.id==='B1').mm+30,'L3 vertical label must sit in inner opening, not on leg');
