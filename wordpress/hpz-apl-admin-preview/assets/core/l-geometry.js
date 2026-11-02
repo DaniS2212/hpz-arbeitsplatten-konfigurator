@@ -216,6 +216,16 @@ export function lGeometry(config){
     ...(previewParts.some(p=>p.id==='top')?[{from:pt(b3,variant==='L4'?Math.max(0,outer-b3):0),to:pt(b3,b2)}]:[]),
     ...(previewParts.some(p=>p.id==='leg')?[{from:pt(variant==='L4'?Math.max(0,outer-b4):0,b4),to:pt(b1,b4)}]:[])
   ]:variant==='L1'?[{from:pt(0,b2),to:pt(b1,b2)}]:[{from:pt(w-b1,b2),to:pt(w,b2)}];
+  // Reference photos show an approximate surface seam, not a manufacturer
+  // connector, milling operation, genuine part split or shipping item.
+  const previewSeamDetails=previewSeams.map((seam,index)=>{
+    const vertical=Math.abs(seam.from[0]-seam.to[0])<1e-7;
+    const neighbors=angled?(vertical?['top','corner']:['corner','leg']):['top','leg'];
+    const allVisible=neighbors.every(id=>previewParts.some(p=>p.id===id));
+    return {id:'seam-'+(index+1),label:'Stoß '+String.fromCharCode(65+index),
+      from:[...seam.from],to:[...seam.to],partIds:allVisible?neighbors:[],
+      status:'illustration-only',connectorType:null,connectorCount:null,machiningCoordinates:null};
+  });
   const warnings=[
     'L'+variant.slice(1)+' nach Speedmaster-Screenshots vom 30.10.2026: nur Maßskizze, keine Fertigungs- oder Preisfreigabe.',
     'Aufteilung illustriert die sichtbaren Anschlussrichtungen; exakte Dübel-/Verbinderfräsungen und Lieferantengrenzen bleiben offen.'
@@ -228,7 +238,7 @@ export function lGeometry(config){
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
     points:result.points,path:result.path,areaMm2:area(result.points),width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
-    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewParts,
+    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewSeamDetails,previewParts,
     softIndices,contourStatus:softIndices.length?'schematic':null,
     joints:null,shippingParts:null,supplierMappingVerified:false,warnings
   };

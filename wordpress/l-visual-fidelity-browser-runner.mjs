@@ -120,6 +120,44 @@ try {
     await page.screenshot({path:'dist/l-visual-'+shape+'-'+treatment+'-'+width+'.png',fullPage:true});
     console.log('PASS '+shape+' '+treatment+' '+width+'px: labels in clear space, long diagonal and subtle transition, cart blocked');
    }
+   // Visual-only supplier seam review: make the true screenshot locations
+   // inspectable without implying a connector count, CNC path or sale.
+   await page.evaluate(()=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     s.querySelector('#view-parts').click();
+   });
+   const expectedJoints=['L1','L2'].includes(shape)?1:2;
+   await page.waitForFunction(count=>{
+     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+     return s?.querySelectorAll('#seam-choices [data-seam]').length===count
+       && s?.querySelectorAll('#drawing svg [data-seam-id]').length===count;
+   },expectedJoints,{timeout:25000});
+   const chosen='seam-'+expectedJoints;
+   await page.evaluate(id=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     s.querySelector('#seam-choices [data-seam="'+id+'"]').click();
+   },chosen);
+   const review=await page.evaluate(id=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     const line=s.querySelector('#drawing svg [data-seam-id="'+id+'"]');
+     return {
+       active:line?.getAttribute('data-selected'),
+       button:s.querySelector('#seam-choices [data-seam="'+id+'"]')?.getAttribute('aria-pressed'),
+       explanation:s.querySelector('#seam-explain')?.textContent??'',
+       cartDisabled:s.querySelector('#cart').disabled,
+       horizontalOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+     };
+   },chosen);
+   assert.equal(review.active,'true',shape+' selected seam must be visibly highlighted');
+   assert.equal(review.button,'true',shape+' seam button must announce pressed state');
+   assert.match(review.explanation,/Fräs|Verbinder|nicht bestätigt|noch ungeprüft/);
+   assert.equal(review.cartDisabled,true);
+   assert.ok(review.horizontalOverflow<=1,shape+' seam UI mobile overflow');
+   await page.screenshot({path:'dist/l-visual-joint-'+shape+'-'+width+'.png',fullPage:true});
+   await page.evaluate(()=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     s.querySelector('#view-plan').click();
+   });
    if(shape==='L4') {
      // B5 in the BASIC L4 geometry is different from the corner-B5 cut.
      await page.evaluate(()=>{

@@ -207,3 +207,12 @@
   .hpz-apl[data-product="l"] .apl-part-choices{gap:6px}
   .hpz-apl[data-product="l"] .apl-part-choice{min-height:40px;font-size:11px}
 }
+
+/* L-form supplier-evidence seam UI; unrelated to approved workshop joints. */
+.hpz-apl[data-product="l"] .apl-seam-choices{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.hpz-apl[data-product="l"] .apl-seam-choice{min-height:36px;max-width:100%;padding:7px 12px;border:1px dashed #93b0ad;background:#fff;color:#305761;border-radius:10px;font-size:11px;font-weight:600;text-align:left}
+.hpz-apl[data-product="l"] .apl-seam-choice[aria-pressed="true"]{background:#fff4e9;border:1px solid #bd7550;color:#734526}
+.hpz-apl[data-product="l"] .apl-seam-explain{font-size:11px;line-height:1.55;color:#526664;margin:10px 0 2px;max-width:66ch}
+.hpz-apl[data-product="l"] .apl-seam-hit{cursor:pointer}
+.hpz-apl[data-product="l"] .apl-seam-review[data-selected="true"] .apl-seam-badge{filter:drop-shadow(0 1px 2px #4a302b50)}
+@media(max-width:760px){.hpz-apl[data-product="l"] .apl-seam-choice{min-height:40px}}

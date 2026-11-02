@@ -59,7 +59,7 @@ function schematicPath(g,trim){
   }
   return path+' Z';
 }
-export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,detail=null,textureUrl=null,unit='mm'}={}) {
+export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,selectedSeam=null,detail=null,textureUrl=null,unit='mm'}={}) {
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
   const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
@@ -153,7 +153,19 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     frontX=detail==='left'?extent*.5:g.width-extent*.5;
   }
   const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.25}" text-anchor="middle" fill="#146178" font-size="${font*.8}">Vorderkante</text></g>`:'';
-  const seams=(g.previewSeams??[]).map(s=>`<path class="apl-preview-seam" d="M ${s.from} L ${s.to}" fill="none" stroke="#365861" stroke-width="${font/(partsView?11:28)}" stroke-dasharray="${font/(partsView?4:10)} ${font/(partsView?6:12)}" opacity="${partsView?.82:.28}"/>`).join('');
+  const seams=(g.previewSeams??[]).map((seam,index)=>{
+    const meta=partsView?g.previewSeamDetails?.[index]:null;
+    const d='M '+seam.from+' L '+seam.to;
+    if(!meta)return '<path class="apl-preview-seam" d="'+d+'" fill="none" stroke="#365861" stroke-width="'+(font/(partsView?11:28))+'" stroke-dasharray="'+(font/(partsView?4:10))+' '+(font/(partsView?6:12))+'" opacity="'+(partsView?.82:.28)+'"/>';
+    const selected=meta.id===selectedSeam,color=selected?'#bc7045':'#365861';
+    const x=(seam.from[0]+seam.to[0])/2,y=(seam.from[1]+seam.to[1])/2;
+    const marker=meta.label.replace('Stoß ','');
+    return '<g class="apl-seam-review" data-seam-id="'+escapeXml(meta.id)+'" data-selected="'+selected+'">'
+      +'<title>'+escapeXml(meta.label)+': Lage nur skizziert. Verbinder und CNC-Fräsungen unbekannt.</title>'
+      +'<path class="apl-preview-seam" d="'+d+'" fill="none" stroke="'+color+'" stroke-width="'+(font/(selected?5:11))+'" stroke-dasharray="'+(font/4)+' '+(font/7)+'" opacity=".92" pointer-events="none"/>'
+      +'<g class="apl-seam-badge" transform="translate('+x+' '+y+')" pointer-events="none"><circle r="'+(font*.43)+'" fill="'+(selected?'#bc7045':'#fffefa')+'" stroke="#365861" stroke-width="'+(font/23)+'"/><text text-anchor="middle" dominant-baseline="central" font-size="'+(font*.48)+'" font-weight="700" fill="'+(selected?'#fffefa':'#365861')+'">'+marker+'</text></g>'
+      +'<path class="apl-seam-hit" d="'+d+'" stroke="transparent" stroke-width="'+(font*.64)+'" fill="none" pointer-events="stroke"/></g>';
+  }).join('');
   // Part polygons come from the same illustrative split planes as the seams.
   // Clip the overlays to the actual corner-edited contour, including round arcs.
   // Never render these regions as factory-approved cut plans.
