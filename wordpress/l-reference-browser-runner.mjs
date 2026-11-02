@@ -92,6 +92,43 @@ try{
    await page.screenshot({path:'dist/l-review-'+c.id+'-'+width+'.png',fullPage:true});
    console.log('PASS '+c.id+' '+width+' px input fixture; image for human supplier comparison, no cart');
   }
+  // PR #44: exact customer-provided Speedmaster L4 B5 pair. Both
+  // dimensions and the selected contour have to change on mobile/desktop.
+  // Supplier source images are human-review evidence, not auto-approved CNC.
+  await page.evaluate(()=>{
+    const r=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    const g=r.getElementById('geometry');g.value='L4';g.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  await select('l-side','none');
+  for(const [id,mm] of Object.entries({L1:2000,L2:2000,B1:600,B3:900,B5:600}))
+    await change('dim-'+id,mm);
+  for(const [b5,outer] of [[600,651.47],[300,900]]){
+    await change('dim-B5',b5);
+    await page.waitForFunction(({outer,b5})=>{
+      const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+      const path=s?.querySelector('#drawing svg .apl-surface')?.getAttribute('d')??'';
+      const number=Number(path.match(/^M ([0-9.]+) 0/)?.[1]);
+      return !!path&&Math.abs(number-outer)<1&&s.getElementById('dim-B5')?.value===String(b5/10);
+    },{outer,b5},{timeout:25000});
+    const verdict=await page.evaluate(()=>{
+      const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+      const d=s.querySelector('#drawing svg .apl-surface').getAttribute('d');
+      return {
+        outer:Number(d.match(/^M ([0-9.]+) 0/)?.[1]),
+        input:s.getElementById('dim-B5').value,
+        cartDisabled:s.getElementById('cart').disabled,
+        error:s.getElementById('measurement-error')?.textContent,
+        overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+      };
+    });
+    assert.ok(Math.abs(verdict.outer-outer)<1,'L4 B5 '+b5+' outside point');
+    assert.equal(verdict.input,String(b5/10));
+    assert.equal(verdict.cartDisabled,true,'L4 remains non-purchasable');
+    assert.ok(verdict.overflow<=1,'L4 responsive width '+width);
+    assert.deepEqual(errors,[],'No browser errors for L4 '+b5);
+    await page.screenshot({path:'dist/l-review-L4-B5-'+b5+'-'+width+'.png',fullPage:true});
+    console.log('PASS L4 B5='+b5+' mm '+width+' px: outer='+verdict.outer+' mm, no checkout');
+  }
   await page.close();
  }
 }finally{

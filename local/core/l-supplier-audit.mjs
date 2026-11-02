@@ -3,7 +3,7 @@
  * an approved CNC drawing, verified part list or a sale/price authorization.
  */
 const SOURCE='Speedmaster-Screenshots 30.10.2026';
-const outer=900+1050-600*Math.SQRT2; // L4 exterior projection: unconfirmed model assumption
+const outer=Math.min(1050,900+1050-600*Math.SQRT2); // unverified historical L4 witness; capped as in newer paired photo
 const proofCommon=[
  'Hersteller-Mindest-/Höchstgrenzen je Stärke, Dekor und Eckvariante aus den Eingabefeldern',
  'Gelieferte Packstücke und deren Maße/Gewichte zur Versandprüfung',
@@ -31,7 +31,7 @@ export const L_REFERENCE_CASES=Object.freeze({
   [[0,0],[2000,0],[2000,600],[900,600],[600,900],[600,2000],[0,2000]],2,proofTwo),
  L4:make('L4',{L1:2000,L2:2000,B1:900,B2:900,B3:1050,B4:1050,B5:600},
   [[outer,0],[2000,0],[2000,900],[1050,900],[900,1050],[900,2000],[0,2000],[0,outer]],2,
-  [...proofTwo.slice(0,2),'L4-B5: zwei Speedmaster-Draufsichten bei identischen Grundmaßen, nur B5 einzeln verändert',...proofCommon],
+  [...proofTwo.slice(0,2),'L4-B5: zusätzliche Speedmaster-Paaransichten für B1/B2=900 und B3/B4=1050; das neue Paar (600/900) vom 02.11.2026 ist nicht identisch',...proofCommon],
   {B5OuterProjection:'model-derived-unverified'})
 });
 const near=(a,b,eps=1e-6)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=eps;

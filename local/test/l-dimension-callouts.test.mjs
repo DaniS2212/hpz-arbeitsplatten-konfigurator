@@ -19,6 +19,7 @@ test('every L1-L4 basic dimension has a true-length reference segment',()=>{
   for(const shape of ['L1','L2','L3','L4']){
     const {geometry:g}=plate(shape);
     for(const d of g.dimensions){
+      if(d.settingOnly){assert.equal(d.id,'B5');continue;}
       assert.ok(Math.abs(dist(d.from,d.to)-d.mm)<.01,
         shape+' '+d.label+' / '+d.id+': displayed '+d.mm+' mm, segment '+dist(d.from,d.to)+' mm');
     }
@@ -49,14 +50,22 @@ test('L3 and L4 show B3 horizontal and B4 vertical construction dimensions only 
   }
 });
 
-test('L4 B5 dimension measures the actual separation of parallel diagonals',()=>{
+test('L4 B5 does not lie about the measured diagonal separation when screenshot contour reaches its cap',()=>{
   const g=plate('L4').geometry,d=g.dimensions.find(m=>m.id==='B5');
   assert.ok(d);
-  assert.ok(Math.abs(dist(d.from,d.to)-d.mm)<.01);
   const outer=g.points[0][0]+g.points[0][1];
   const inner=g.points[3][0]+g.points[3][1];
-  assert.ok(Math.abs(d.from[0]+d.from[1]-outer)<.01,'start on outer 45-degree diagonal');
-  assert.ok(Math.abs(d.to[0]+d.to[1]-inner)<.01,'end on inner 45-degree diagonal');
+  assert.equal(outer,1050);
+  assert.equal(inner,1950);
+  assert.equal(d.mm,600);
+  assert.equal(d.settingOnly,true,'B5 remains the input, not 636.4mm physical gap');
+  assert.ok(dist(d.from,d.to)>d.mm);
+  const rendered=svg(g,'B5',{unit:'cm'});
+  assert.match(rendered,/data-field="B5" data-active="true" data-setting-only="true"/);
+  assert.match(rendered,/B5: 60 cm · Einstellung/);
+  // Avoid a manufactured leader/double arrow across the unrelated physical gap.
+  const callout=rendered.match(/<g class="apl-measure" data-field="B5"[^>]*>([\s\S]*?)<\/g>/)?.[1]??'';
+  assert.doesNotMatch(callout,/marker-start|marker-end/);
 });
 
 test('all L chamfers have exact L/B callouts like straight; fields remain isolated from L4 B5',()=>{
@@ -81,7 +90,7 @@ test('all L chamfers have exact L/B callouts like straight; fields remain isolat
           assert.match(drawing,new RegExp(key+': 15 cm'));
         }
         if(shape==='L4'){
-          assert.ok(g.dimensions.some(d=>d.id==='B5'),'B5 base remains independently measurable');
+          assert.ok(g.dimensions.some(d=>d.id==='B5'),'B5 base remains independently selectable');
           assert.ok(g.cornerDimensions.some(d=>d.id==='corner-B5') || side==='right');
         }
       }

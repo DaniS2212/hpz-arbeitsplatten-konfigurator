@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "scope": "PRIVATE-REFERENCE-PROVENANCE",
+  "capturedDate": "2026-11-02",
+  "source": "user-uploaded Speedmaster screenshot files supplied in conversation; SHA256 verified in analysis workspace",
+  "originalsInRepository": false,
+  "needsBinaryGitHubUpload": true,
+  "notes": "This register preserves provenance and measured contour points; image pixels have NOT been committed by the text-only GitHub connector. Do not claim original image archival until the six PNGs are uploaded and verified in a separate binary-capable session.",
+  "settingsMm": {
+    "L1": 2000,
+    "L2": 2000,
+    "B1": 600,
+    "B2": 600,
+    "B3": 900,
+    "B4": 900
+  },
+  "standardEdge": "1.5 mm decor-matching thick edge on selected exterior sides",
+  "renderingStatus": "preview-only",
+  "images": [
+    {
+      "filename": "image(20261102-144509).png",
+      "sha256": "be2b1b8c1a6089a46cbd267f0ca6d5198f5a1a28cfc2e6bc2b2eb6110182ca30",
+      "dimensionsPx": {
+        "width": 2047,
+        "height": 777
+      },
+      "viewType": "speedmaster-top",
+      "B5": 600,
+      "extractedPolygonPixels": [
+        [
+          1679,
+          222
+        ],
+        [
+          1679,
+          376
+        ],
+        [
+          1318,
+          737
+        ],
+        [
+          1165,
+          737
+        ],
+        [
+          1165,
+          389
+        ],
+        [
+          1332,
+          222
+        ]
+      ],
+      "legWidthPx": 153,
+      "outerProjectionPx": 167,
+      "approxOuterMm": 654.9
+    },
+    {
+      "filename": "image(20261102-144533).png",
+      "sha256": "7c3f047a97b020927d39f82faad6e4acde2d870bf1d0dcd1564f9cfe9d7a7cde",
+      "dimensionsPx": {
+        "width": 2048,
+        "height": 860
+      },
+      "viewType": "speedmaster-top",
+      "B5": 300,
+      "extractedPolygonPixels": [
+        [
+          1777,
+          274
+        ],
+        [
+          1777,
+          416
+        ],
+        [
+          1444,
+          749
+        ],
+        [
+          1303,
+          749
+        ],
+        [
+          1303,
+          484
+        ],
+        [
+          1513,
+          274
+        ]
+      ],
+      "legWidthPx": 141,
+      "outerProjectionPx": 210,
+      "approxOuterMm": 893.6
+    },
+    {
+      "filename": "image(20261102-144608).png",
+      "sha256": "13a0acf69a097791bf230ca38cad75109d802c138070469c5597a278a55761e6",
+      "dimensionsPx": {
+        "width": 2048,
+        "height": 821
+      },
+      "viewType": "speedmaster-3d",
+      "B5": 600
+    },
+    {
+      "filename": "image(20261102-144646).png",
+      "sha256": "765b68c1adcce7378a9e0c50e03fe8f6971724d0c0a75b6b4b99c531f5f9e2b1",
+      "dimensionsPx": {
+        "width": 2048,
+        "height": 780
+      },
+      "viewType": "speedmaster-3d",
+      "B5": 300
+    },
+    {
+      "filename": "image(20261102-144658).png",
+      "sha256": "18afb1d3afe17ff0cf05f70b98fdc056249ba4a3be32c9bac0858ab6ad16c971",
+      "dimensionsPx": {
+        "width": 2047,
+        "height": 677
+      },
+      "viewType": "speedmaster-connection-closeup",
+      "B5": 300
+    },
+    {
+      "filename": "image(20261102-144721).png",
+      "sha256": "1e51c03f1bf9702e70d2d38eb86f8762d66d45025b2349252de5b621a90a6024",
+      "dimensionsPx": {
+        "width": 2048,
+        "height": 775
+      },
+      "viewType": "speedmaster-underside-top",
+      "B5": 300
+    }
+  ]
+}

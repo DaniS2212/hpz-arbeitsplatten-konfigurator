@@ -100,6 +100,9 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     // cross the plate, but an OPAQUE dimension label must never hide its decor.
     const textX=diagonal?g.points[0][0]*.32:(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0);
     const textY=diagonal?-pad*.9:(a[1]+b[1])/2-(vertical?0:font*.75);
+    // B5 is a setting value, not a physical-gap ruler, when Speedmaster
+    // caps its outside diagonal at B3/B4. No false 300mm double-arrow.
+    if(diagonal&&d.settingOnly)return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" data-setting-only="true">${label(`${d.label??d.id}: ${measure(d.mm)} · Einstellung`,textX,textY,{selected})}</g>`;
     return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>

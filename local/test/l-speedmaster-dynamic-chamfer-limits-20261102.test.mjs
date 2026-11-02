@@ -82,8 +82,8 @@ test('L4 base B5 and outer-corner B5 stay separate when the diagonal basic width
  const second=geometry(normalize(moved));
  assert.equal(first.cornerDimensions.find(x=>x.id==='corner-B5')?.mm,150);
  assert.equal(second.cornerDimensions.find(x=>x.id==='corner-B5')?.mm,150);
- assert.ok(Math.abs(first.points[0][0]-second.points[0][0])>300,
-  'L4 outer diagonal is still model-derived, must respond independently');
+ assert.ok(Math.abs(first.points[0][0]-second.points[0][0])>200,
+  'L4 outer diagonal moves with B5, but stops at photo-observed B3/B4 bound');
  assert.equal(second.supplierMappingVerified,false);
  assert.equal(second.joints,null);
  assert.equal(second.shippingParts,null);
