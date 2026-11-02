@@ -27,7 +27,7 @@ const icons={straight:'M8 11 H68 V35 H8 Z',l:'M8 6 H68 V22 H26 V42 H8 Z',u:'M8 6
 const cornerIcons={square:'M5 25 V5 H30',round:'M5 25 V17 Q5 5 17 5 H30',chamfer:'M5 25 V16 L16 5 H30',continuous:'M5 25 V5 H30 M10 25 V10 H30'};
 const cornerNames={square:'Eckig',round:'Abgerundet',chamfer:'Abgeschrägt',continuous:'Durchlaufend'};
 const fieldNames={L1:'Gesamtbreite',L2:'Links außen',L3:'Rechts außen',B1:'Tiefe oben',B2:'Breite links',B3:'Breite rechts'};
-let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',selectedPart=null,valid=false;
+let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',selectedPart=null,selectedSeam=null,valid=false;
 let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCornerValues={};
 let radiusValues={},drawingDetail=null;
@@ -37,6 +37,9 @@ const retryPriceButton=element('button','price-retry','Preis erneut berechnen');
 retryPriceButton.type='button';retryPriceButton.hidden=true;
 $('price-note').after(retryPriceButton);
 const partChoices=element('div','apl-part-choices');partChoices.id='part-choices';$('parts-note').append(partChoices);
+const seamChoices=element('div','apl-seam-choices');seamChoices.id='seam-choices';
+const seamExplain=element('p','apl-seam-explain');seamExplain.id='seam-explain';
+$('parts-note').append(seamChoices,seamExplain);
  const cornerTitle=$('corners').previousElementSibling;
 const sideWrap=element('fieldset','a1-sides');
 const sideLegend=element('legend','','Welche Seite?'),cornerHelp=element('button','a11-info','i');
@@ -207,7 +210,7 @@ function renderChoices(){
   cornerTitle.hidden=false;cornerTitle.textContent='Wie soll die Ecke aussehen?';
   $('corners').hidden=false;
   sideWrap.hidden=product!=='straight';
-  $('products').replaceChildren(...Object.keys(c.families).map(id=>choice('product',id,`<svg viewBox="0 0 76 48" aria-hidden="true"><path d="${icons[id]}"/></svg><span>${names[id]}</span>`,product===id,()=>{if(resolved)return;product=id;rebuild();refresh();},'shape-card')));
+  $('products').replaceChildren(...Object.keys(c.families).map(id=>choice('product',id,`<svg viewBox="0 0 76 48" aria-hidden="true"><path d="${icons[id]}"/></svg><span>${names[id]}</span>`,product===id,()=>{if(resolved)return;product=id;selectedPart=null;selectedSeam=null;rebuild();refresh();},'shape-card')));
   const visibleCorners=c.corners.filter(v=>v.id!=='continuous'||product!=='straight');
   $('corners').style.gridTemplateColumns=`repeat(${visibleCorners.length===4?2:3},1fr)`;
   $('corners').replaceChildren(...visibleCorners.map(item=>choice('corner',item.id,`<svg viewBox="0 0 36 30" aria-hidden="true"><path d="${cornerIcons[item.id]}"/></svg><span>${cornerNames[item.id]}</span>`,corner===item.id,()=>{corner=item.id;refresh();},'corner-card')));
@@ -269,16 +272,40 @@ function renderPartChoices(){
   if([...partChoices.children].map(b=>b.dataset.part).join('|')!==wanted){
     partChoices.replaceChildren(...entries.map(entry=>{
       const button=element('button','apl-part-choice',entry.name);button.type='button';button.dataset.part=entry.id;
-      button.addEventListener('click',()=>{selectedPart=entry.id==='all'?null:entry.id;renderDrawing();});
+      button.addEventListener('click',()=>{selectedPart=entry.id==='all'?null:entry.id;selectedSeam=null;renderDrawing();});
       return button;
     }));
   }
   for(const button of partChoices.children)button.setAttribute('aria-pressed',String((button.dataset.part==='all'?null:button.dataset.part)===selectedPart));
 }
-function renderDrawing(){if(!lastGeometry)return;renderPartChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderSeamChoices(){
+ const seams=product==='l'&&view==='parts'?(lastGeometry?.previewSeamDetails??[]):[];
+ if(!seams.length){
+  seamChoices.replaceChildren();selectedSeam=null;
+  seamExplain.textContent=product==='l'&&view==='parts'?'Bei dieser Ansicht ist keine separate Stoßlinie erkennbar. Wir erfinden keine Verbindung.':'';
+  return;
+ }
+ if(selectedSeam&&!seams.some(s=>s.id===selectedSeam))selectedSeam=null;
+ const sig=seams.map(s=>s.id).join('|');
+ if([...seamChoices.children].map(b=>b.dataset.seam).join('|')!==sig){
+  seamChoices.replaceChildren(...seams.map(seam=>{
+   const button=element('button','apl-seam-choice',seam.label+' · Lage prüfen');button.type='button';
+   button.dataset.seam=seam.id;
+   button.addEventListener('click',()=>{selectedSeam=seam.id;selectedPart=null;renderDrawing();});
+   return button;
+  }));
+ }
+ for(const button of seamChoices.children)button.setAttribute('aria-pressed',String(button.dataset.seam===selectedSeam));
+ const selected=seams.find(s=>s.id===selectedSeam);
+ if(selected){
+  const labels=selected.partIds.map(id=>lastGeometry.previewParts.find(p=>p.id===id)?.label).filter(Boolean);
+  seamExplain.textContent=selected.label+': '+(labels.length?labels.join(' / ')+' · ':'')+'Die Lage folgt der Bildskizze. Verbinder, Fräsungen, echte Teilplatten und Versandstücke sind noch ungeprüft.';
+ }else seamExplain.textContent='Wähle Stoß A/B, um die gezeigte Stelle zu markieren. Lage aus Speedmaster-Bildern nur zur Orientierung – keine CNC-, Verbinder- oder Teilefreigabe.';
+}
+function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
 function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];$('preview-family').textContent=product==='straight'?'Vorschau':names[product]+' · Planung';
   const decorName=c.decors.find(d=>d.id===decor).label;
@@ -460,7 +487,7 @@ function refresh(){
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
-$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;selectedPart=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
+$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{
@@ -485,7 +512,7 @@ $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.quer
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('measure-toggle').hidden=view==='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
-for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const part=event.target.closest('[data-part-id]');if(product==='l'&&view==='parts'&&part){selectedPart=part.dataset.partId;renderDrawing();return;}const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
+for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const seam=event.target.closest('[data-seam-id]');if(product==='l'&&view==='parts'&&seam){selectedSeam=seam.dataset.seamId;selectedPart=null;renderDrawing();return;}const part=event.target.closest('[data-part-id]');if(product==='l'&&view==='parts'&&part){selectedPart=part.dataset.partId;selectedSeam=null;renderDrawing();return;}const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
 rebuild();showStep(0);refresh();
