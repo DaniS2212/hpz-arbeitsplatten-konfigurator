@@ -7,6 +7,7 @@ on:
       - 'scripts/test_l_reference_report.py'
       - 'wordpress/l-reference-browser-runner.mjs'
       - 'docs/references/speedmaster-lu/REVIEW_CASES.json'
+      - 'docs/l-private-speedmaster-review-guide-20261102.md'
       - 'local/core/l-geometry.mjs'
       - 'local/core/geometry.mjs'
       - 'wordpress/hpz-apl-admin-preview/assets/**'
@@ -40,7 +41,7 @@ jobs:
       - name: Generate matched-input test screenshots - no purchases
         run: node wordpress/l-reference-browser-runner.mjs
       - name: Verify original screenshot ZIP and build self-contained HTML
-        run: python3 scripts/l_reference_report.py --output dist/l-reference-report.html
+        run: python3 scripts/l_reference_report.py --output dist/l-reference-report.html --commit "$GITHUB_SHA"
       - name: Upload PRIVATE human-review artifact only (not WordPress/release)
         if: always()
         uses: actions/upload-artifact@v4
