@@ -1,0 +1,53 @@
+name: Speedmaster private L visual comparison (never publish)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/l-private-reference-report.yml'
+      - 'scripts/l_reference_report.py'
+      - 'scripts/test_l_reference_report.py'
+      - 'wordpress/l-reference-browser-runner.mjs'
+      - 'docs/references/speedmaster-lu/REVIEW_CASES.json'
+      - 'local/core/l-geometry.mjs'
+      - 'local/core/geometry.mjs'
+      - 'wordpress/hpz-apl-admin-preview/assets/**'
+  push:
+    branches: [main]
+    paths:
+      - 'local/core/l-geometry.mjs'
+      - 'local/core/geometry.mjs'
+      - 'wordpress/hpz-apl-admin-preview/assets/**'
+      - '.github/workflows/l-private-reference-report.yml'
+      - 'docs/references/speedmaster-lu/REVIEW_CASES.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  supplier-visual-audit:
+    name: Offline verified source vs L1-L4 previews
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit tests - secure offline board and source classification
+        run: python3 -m unittest discover -s scripts -p 'test_l_reference_report.py' -v
+      - name: Install matching Playwright version
+        run: npm install --no-save --no-package-lock playwright@1.55.1
+      - name: Generate matched-input test screenshots - no purchases
+        run: node wordpress/l-reference-browser-runner.mjs
+      - name: Verify original screenshot ZIP and build self-contained HTML
+        run: python3 scripts/l_reference_report.py --output dist/l-reference-report.html
+      - name: Upload PRIVATE human-review artifact only (not WordPress/release)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: l-private-speedmaster-reference-review
+          path: |
+            dist/l-reference-report.html
+            dist/l-review-*.png
+          if-no-files-found: ignore
+          retention-days: 30
