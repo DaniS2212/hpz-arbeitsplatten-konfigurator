@@ -2,8 +2,8 @@
 """Verify and import the original Speedmaster reference screenshots.
 
 Usage (from a clone of the GitHub repository):
-  python scripts/import_speedmaster_reference_zip.py check-zip /path/to/Speedmaster-Referenzarchiv-2026-11-02.zip
-  python scripts/import_speedmaster_reference_zip.py import /path/to/Speedmaster-Referenzarchiv-2026-11-02.zip
+  python scripts/import_speedmaster_reference_zip.py check-zip docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip
+  python scripts/import_speedmaster_reference_zip.py import docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip
   python scripts/import_speedmaster_reference_zip.py verify-tree
 
 This is a documentation-only importer; it never modifies the shop plugin.
