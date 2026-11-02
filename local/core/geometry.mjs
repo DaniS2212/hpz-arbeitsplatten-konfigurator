@@ -185,7 +185,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const other=(!!selectedPart||seamNeighbors.size>0)&&!selected&&!neighbor;
     const shade=part.id==='corner'?'#b49a78':'#146178';
     const opacity=selected?.23:neighbor?.20:other?.025:part.number%2===0?.085:.055;
-    return `<path class="apl-preview-part" data-part-id="${escapeXml(part.id)}" data-selected="${selected}" data-seam-neighbor="${neighbor}" d="M ${part.polygon.map(p=>p.join(' ')).join(' L ')} Z" fill="${shade}" fill-opacity="${opacity}" stroke="none"/>`;
+    // Rounded parts require an untrimmed paint cover inside the *actual*
+    // SVG silhouette clip, or an arc-sized sliver would remain unshaded.
+    // The truthful numeric part polygon/marker stays corner-edited.
+    const paintPolygon=part.maskPaintPolygon??part.polygon;
+    return `<path class="apl-preview-part" data-part-id="${escapeXml(part.id)}" data-selected="${selected}" data-seam-neighbor="${neighbor}" d="M ${paintPolygon.map(p=>p.join(' ')).join(' L ')} Z" fill="${shade}" fill-opacity="${opacity}" stroke="none"/>`;
   }).join('');
   const overlays=previewParts.length?`<g class="apl-part-overlays" clip-path="url(#apl-parts-clip)">${pieceOverlays}</g>`:'';
   const partNumbers=previewParts.map(part=>{
