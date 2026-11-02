@@ -73,6 +73,7 @@ jobs:
           node wordpress/live-price-browser-runner.mjs
           node wordpress/invalid-measures-browser-runner.mjs
           node wordpress/l-visual-fidelity-browser-runner.mjs
+          node wordpress/l-dynamic-limits-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -44,7 +44,62 @@ export function lCornerKeys(shape,side,type) {
 export function defaultLCorner(shape,side='none',type=null) {
   return {side,treatment:type,parameters:Object.fromEntries(lCornerKeys(shape,side,type).map(k=>[k,type==='round'?'100':'150']))};
 }
-export function validateLCorner(raw,convert,shape) {
+// Snapshot input ranges legible in four exact supplier screenshots.
+// The max values are displayed by Speedmaster for THESE inputs, not
+// generic manufacturing limits. No CNC, shipment, pricing or sale approval.
+const observedChamferInputs=Object.freeze({
+  L1:{image:'block-06/image(20261102-115001).png',treatment:'chamfer_square',
+    dimensions:{L1:2000,L2:1200,B1:600,B2:600},
+    fields:{L3:550,B3:600,L4:1350,B4:600}},
+  L2:{image:'block-06/image(20261102-115024).png',treatment:'chamfer_continuous',
+    dimensions:{L1:2000,L2:1200,B1:600,B2:600},
+    fields:{L3:1350,B3:2000,L4:550,B4:600}},
+  L3:{image:'block-03/image(20261102-114354).png',treatment:'chamfer_continuous',
+    dimensions:{L1:2000,L2:2000,B1:600,B2:600,B3:900,B4:900},
+    fields:{L5:1050,B5:600,L6:1050,B6:600}},
+  L4:{image:'block-03/image(20261102-114510).png',treatment:'chamfer_square',
+    dimensions:{L1:2000,L2:2000,B1:600,B2:600,B3:900,B4:900,B5:600},
+    fields:{L5:1050,B5:600,L6:1050,B6:600}}
+});
+export function lObservedChamferLimits(shape,dimensions,side,treatment,{material,decor}={}) {
+  const photo=observedChamferInputs[shape];
+  if(!photo||!dimensions||side!=='both'||treatment!==photo.treatment
+    ||material!=='APL38'||decor!=='W980'
+    ||Object.entries(photo.dimensions).some(([key,mm])=>dimensions[key]!==mm))return null;
+  return {status:'screenshot-input-range-only',image:photo.image,
+    fields:Object.fromEntries(Object.entries(photo.fields).map(([key,max])=>[key,{min:60,max}]))};
+}
+/**
+ * Conservative numeric SKETCH guardrails. Each chamfer must leave >10 mm
+ * on both physical leg edges, including L2's lower right leg (L2-B2,
+ * NOT the full uninterrupted contour edge L2). Distinct from the exact
+ * observed Speedmaster input limits above; neither is CNC-ready.
+ */
+export function lCornerPreviewLimits(shape,dimensions,side,treatment,context={}) {
+  if(side==='none'||treatment==='round')return {status:'unverified-preview',fields:{},photo:null};
+  if(!shapes.includes(shape)||!isObj(dimensions)||!['left','right','both'].includes(side)
+    ||!['chamfer_square','chamfer_continuous'].includes(treatment))
+    throw Error('Unbekannte L-Abschrägung.');
+  const {L1,L2,B1,B2,B3,B4}=dimensions;
+  const ranges={
+    L1:{L3:L2-B2,B3:B1,L4:L1-B1,B4:B2},
+    L2:{L3:L1-B1,B3:B2,L4:L2-B2,B4:B1},
+    L3:{L5:L2-B4,B5:B1,L6:L1-B3,B6:B2},
+    L4:{L5:L2-B4,B5:B1,L6:L1-B3,B6:B2}
+  };
+  const photo=lObservedChamferLimits(shape,dimensions,side,treatment,context);
+  const fields=Object.fromEntries(lCornerKeys(shape,side,treatment).map(key=>{
+    // outline() rejects a cut >= (neighbor length - 10mm). The last
+    // whole-centimetre value strictly below that threshold is valid.
+    const length=ranges[shape][key];
+    const geometricMax=Math.max(0,Math.min(2000,(Math.ceil((length-10)/10)-1)*10));
+    const photoMax=photo?.fields[key]?.max??null;
+    return [key,{min:60,max:Math.min(geometricMax,photoMax??Infinity),
+      geometricMax,photoMax}];
+  }));
+  return {status:'preview-only',fields,photo};
+}
+export function validateLCorner(raw,convert,shape,context={}) {
   if(!isObj(raw)||Object.keys(raw).some(k=>!['side','treatment','parameters'].includes(k))||!isObj(raw.parameters))
     throw Error('Ungültige L-Eckauswahl.');
   const keys=lCornerKeys(shape,raw.side,raw.treatment);
@@ -57,6 +112,17 @@ export function validateLCorner(raw,convert,shape) {
   const chamfer=raw.treatment!=='round',minimum=chamfer?60:10,previewMaximum=chamfer?2000:1000;
   for(const [k,v] of Object.entries(parameters))if(v<minimum||v>previewMaximum||v%10!==0)
     throw Error('corner-'+k+': Bitte ganze Zentimeter zwischen '+(minimum/10)+' und '+(previewMaximum/10)+' eingeben (nur Vorschau; keine allgemeine Herstellerfreigabe).');
+  if(chamfer&&context.dimensions){
+    const limits=lCornerPreviewLimits(shape,context.dimensions,raw.side,raw.treatment,context);
+    for(const [key,value] of Object.entries(parameters)){
+      const limit=limits.fields[key];
+      if(limit&&value>limit.max){
+        const evidence=limit.photoMax!==null&&limit.max===limit.photoMax
+          ?'Speedmaster-Foto (nur identischer Referenzfall)':'rein geometrische Zeichnungsgrenze';
+        throw Error('corner-'+key+': Maximal '+(limit.max/10)+' cm ('+evidence+'). Keine Fertigungsfreigabe.');
+      }
+    }
+  }
   return {side:raw.side,treatment:raw.treatment,parameters};
 }
 const pt=(x,y)=>[x,y], fmt=p=>p.join(' ');

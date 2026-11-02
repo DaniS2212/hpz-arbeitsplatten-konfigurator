@@ -44,6 +44,7 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 
 ## Bereits im Repository verankerte technische Quellen
 - [Abschrägungs-Eingabewerte aus Herstellerbildern und Grenzkorrektur (PR #40)](../../l-speedmaster-chamfer-limits-20261102.md)
+- [Dynamische Zeichnungsgrenzen vs. Speedmaster-Fotolimite (PR #41)](../../l-speedmaster-dynamic-corner-limits-20261102.md)
 - [L1–L4-Screenshotreferenzen](../../l-speedmaster-screenshot-evidence-20261102.md)
 - [Geometrie/Visual-Parity](../../l-speedmaster-visual-parity-20261102.md)
 - [Fertigungsabgleich](../../phase-l-fertigungsabgleich-20261102.md)

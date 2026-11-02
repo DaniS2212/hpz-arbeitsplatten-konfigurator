@@ -61,7 +61,7 @@ export function normalize(raw) {
   const straightCorner=raw.straightCorner===undefined?undefined:validateStraightCorner(raw.straightCorner,convert,dimensions,{millimetres});
   if(raw.lCorner!==undefined&&raw.product!=='l')throw new Error('Diese L-Eckbearbeitung ist für das Produkt unzulässig.');
   if(raw.lCorner!==undefined&&(raw.corner!=='square'||raw.special!==undefined))throw new Error('Alte Eckmuster und L-Bearbeitung dürfen nicht kombiniert werden.');
-  const lCorner=raw.lCorner===undefined?undefined:validateLCorner(raw.lCorner,convert,raw.geometry);
+  const lCorner=raw.lCorner===undefined?undefined:validateLCorner(raw.lCorner,convert,raw.geometry,{dimensions,material:raw.material,decor:decor.id});
   let special={};
   if(['round','chamfer'].includes(raw.corner)) {
     if(!object(raw.special) || Object.keys(raw.special).some(k=>k!=='size')) throw new Error('Eckmaß fehlt oder ist unzulässig.');
