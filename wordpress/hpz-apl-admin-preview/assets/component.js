@@ -20,14 +20,14 @@ export function mountConfigurator(root,context={},adapters={}){
  const studioLink=document.createElement('link');studioLink.rel='stylesheet';studioLink.href=new URL('./kuechenstudio-060.css?v=1.0.3',import.meta.url).href;
  shell.innerHTML=template;shadow.replaceChildren(link,studioLink,shell);
  const abort=new AbortController();let disposed=false;const instance='hpz-apl-'+(++sequence);
- function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture');}
+ function namespaceSvg(markup,view){return markup.replaceAll('apl-arrow',instance+'-'+view+'-arrow').replaceAll('apl-white',instance+'-'+view+'-white').replaceAll('apl-oak',instance+'-'+view+'-oak').replaceAll('apl-texture',instance+'-'+view+'-texture').replaceAll('apl-parts-clip',instance+'-'+view+'-parts-clip');}
 const c=catalog(),$=id=>shadow.getElementById(id);
 const names={straight:'Gerade',l:'L-Form',u:'U-Form'};
 const icons={straight:'M8 11 H68 V35 H8 Z',l:'M8 6 H68 V22 H26 V42 H8 Z',u:'M8 6 H68 V42 H51 V22 H25 V42 H8 Z'};
 const cornerIcons={square:'M5 25 V5 H30',round:'M5 25 V17 Q5 5 17 5 H30',chamfer:'M5 25 V16 L16 5 H30',continuous:'M5 25 V5 H30 M10 25 V10 H30'};
 const cornerNames={square:'Eckig',round:'Abgerundet',chamfer:'Abgeschrägt',continuous:'Durchlaufend'};
 const fieldNames={L1:'Gesamtbreite',L2:'Links außen',L3:'Rechts außen',B1:'Tiefe oben',B2:'Breite links',B3:'Breite rechts'};
-let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',valid=false;
+let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',selectedPart=null,valid=false;
 let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCornerValues={};
 let radiusValues={},drawingDetail=null;
@@ -36,7 +36,8 @@ const lSides={none:'Keine',left:'Links',right:'Rechts',both:'Beide Außenecken'}
 const retryPriceButton=element('button','price-retry','Preis erneut berechnen');
 retryPriceButton.type='button';retryPriceButton.hidden=true;
 $('price-note').after(retryPriceButton);
-const cornerTitle=$('corners').previousElementSibling;
+const partChoices=element('div','apl-part-choices');partChoices.id='part-choices';$('parts-note').append(partChoices);
+ const cornerTitle=$('corners').previousElementSibling;
 const sideWrap=element('fieldset','a1-sides');
 const sideLegend=element('legend','','Welche Seite?'),cornerHelp=element('button','a11-info','i');
 cornerHelp.type='button';cornerHelp.setAttribute('aria-label','Hinweise zu Eckmaßen und Vorschaugrenzen');sideLegend.append(cornerHelp);
@@ -253,10 +254,25 @@ function payload(){const radii=product==='straight'?Object.fromEntries(straightC
  return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),
  ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
-function renderDrawing(){if(!lastGeometry)return;const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderPartChoices(){
+  const parts=product==='l'&&view==='parts'?(lastGeometry?.previewParts??[]):[];
+  if(!parts.length){partChoices.replaceChildren();selectedPart=null;return;}
+  if(selectedPart&&!parts.some(p=>p.id===selectedPart))selectedPart=null;
+  const entries=[{id:'all',name:'Alle Teile'},...parts.map(p=>({id:p.id,name:`${p.number} · ${p.label}`}))];
+  const wanted=entries.map(e=>e.id).join('|');
+  if([...partChoices.children].map(b=>b.dataset.part).join('|')!==wanted){
+    partChoices.replaceChildren(...entries.map(entry=>{
+      const button=element('button','apl-part-choice',entry.name);button.type='button';button.dataset.part=entry.id;
+      button.addEventListener('click',()=>{selectedPart=entry.id==='all'?null:entry.id;renderDrawing();});
+      return button;
+    }));
+  }
+  for(const button of partChoices.children)button.setAttribute('aria-pressed',String((button.dataset.part==='all'?null:button.dataset.part)===selectedPart));
+}
+function renderDrawing(){if(!lastGeometry)return;renderPartChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
 function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];$('preview-family').textContent=product==='straight'?'Vorschau':names[product]+' · Planung';
   const decorName=c.decors.find(d=>d.id===decor).label;
@@ -414,8 +430,8 @@ function refresh(){
   if(product==='l'){
     $('special-wrap').hidden=true;
     $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · Übergang schematisch.';
-    $('parts-note').querySelector('strong').textContent='Stoßpositionen zur Orientierung';
-    $('parts-note').querySelector('p').textContent='Die Fugen sind aus den Speedmaster-Ansichten abgeleitet. Exakte Fräsungen, Verbinder und Zusatzmaße müssen noch geprüft werden.';
+    $('parts-note').querySelector('strong').textContent='Teilflächen zur Orientierung · keine Zuschnittdaten';
+    $('parts-note').querySelector('p').textContent='Wähle eine Teilfläche aus. Die Stoßlinien zeigen nur die aus Speedmaster-Bildern erkennbare Lage. Exakte Fräsungen, Verbinder und Teileabmessungen bleiben ungeprüft.';
   }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
@@ -438,7 +454,7 @@ function refresh(){
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
-$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
+$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;selectedPart=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{
@@ -463,7 +479,7 @@ $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.quer
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('measure-toggle').hidden=view==='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
-for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
+for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const part=event.target.closest('[data-part-id]');if(product==='l'&&view==='parts'&&part){selectedPart=part.dataset.partId;renderDrawing();return;}const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
 rebuild();showStep(0);refresh();

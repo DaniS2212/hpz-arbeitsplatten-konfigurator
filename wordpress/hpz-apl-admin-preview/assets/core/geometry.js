@@ -59,7 +59,7 @@ function schematicPath(g,trim){
   }
   return path+' Z';
 }
-export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,detail=null,textureUrl=null,unit='mm'}={}) {
+export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,detail=null,textureUrl=null,unit='mm'}={}) {
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
   const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
@@ -118,6 +118,23 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   }
   const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.25}" text-anchor="middle" fill="#146178" font-size="${font*.8}">Vorderkante</text></g>`:'';
   const seams=(g.previewSeams??[]).map(s=>`<path class="apl-preview-seam" d="M ${s.from} L ${s.to}" fill="none" stroke="#365861" stroke-width="${font/(partsView?11:28)}" stroke-dasharray="${font/(partsView?4:10)} ${font/(partsView?6:12)}" opacity="${partsView?.82:.28}"/>`).join('');
+  // Part polygons come from the same illustrative split planes as the seams.
+  // Clip the overlays to the actual corner-edited contour, including round arcs.
+  // Never render these regions as factory-approved cut plans.
+  const previewParts=partsView&&Array.isArray(g.previewParts)?g.previewParts:[];
+  const partsClip=previewParts.length?`<clipPath id="apl-parts-clip"><path d="${escapeXml(g.path)}"/></clipPath>`:'';
+  const pieceOverlays=previewParts.map(part=>{
+    const selected=selectedPart===part.id,other=!!selectedPart&&!selected;
+    const shade=part.id==='corner'?'#b49a78':'#146178';
+    const opacity=selected?.23:other?.025:part.number%2===0?.085:.055;
+    return `<path class="apl-preview-part" data-part-id="${escapeXml(part.id)}" data-selected="${selected}" d="M ${part.polygon.map(p=>p.join(' ')).join(' L ')} Z" fill="${shade}" fill-opacity="${opacity}" stroke="none"/>`;
+  }).join('');
+  const overlays=previewParts.length?`<g class="apl-part-overlays" clip-path="url(#apl-parts-clip)">${pieceOverlays}</g>`:'';
+  const partNumbers=previewParts.map(part=>{
+    const selected=selectedPart===part.id;
+    const radius=font*.46,x=part.marker[0],y=part.marker[1];
+    return `<g class="apl-part-number" transform="translate(${x} ${y})" pointer-events="none"><circle r="${radius}" fill="${selected?'#16444d':'#fffefa'}" stroke="#16444d" stroke-width="${font/24}"/><text text-anchor="middle" dominant-baseline="central" font-size="${font*.53}" font-weight="700" fill="${selected?'#fffefa':'#16444d'}">${part.number}</text></g>`;
+  }).join('');
   const schematicNote=''; // the adjacent shape-note provides the non-manufacturing disclaimer
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${escapeXml(g.title+(detail?' · Detail '+(detail==='left'?'vorne links':'vorne rechts'):''))}" style="width:100%;height:auto;max-height:560px">
     <title>${escapeXml(g.title)}</title><desc>Maße in ${unit==='cm'?'Zentimetern':'Millimetern'}. Ungeprüfte Vorschau, keine Fertigungszeichnung.</desc>
@@ -125,6 +142,6 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     <linearGradient id="apl-white" x2=".2" y2="1"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#e8e7df"/></linearGradient>
     <pattern id="apl-oak" width="360" height="160" patternUnits="userSpaceOnUse"><rect width="360" height="160" fill="#c49b68"/>
     <path d="M-40 20 Q100 1 400 18 M-40 44 Q190 68 400 34 M-40 86 Q150 55 400 94 M-40 121 Q150 143 400 116 M-40 150 Q150 129 400 152" fill="none" stroke="#a77b4d" stroke-width="5" opacity=".46"/>
-    <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><rect width="${g.width}" height="${g.height}" fill="#e9eeec"/><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}</defs>
-    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" stroke="#8c887a" stroke-width="${font/12}"/>${front}${seams}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
+    <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><rect width="${g.width}" height="${g.height}" fill="#e9eeec"/><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}${partsClip}</defs>
+    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" stroke="#8c887a" stroke-width="${font/12}"/>${front}${overlays}${seams}${partNumbers}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
 }
