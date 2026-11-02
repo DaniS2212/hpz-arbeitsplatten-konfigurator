@@ -72,6 +72,14 @@ jobs:
           node wordpress/ui063-browser-runner.mjs
           node wordpress/live-price-browser-runner.mjs
           node wordpress/invalid-measures-browser-runner.mjs
+          node wordpress/l-visual-fidelity-browser-runner.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l-speedmaster-visual-review
+          path: dist/l-visual-*.png
+          if-no-files-found: ignore
+          retention-days: 7
   release:
     name: Publish tested plugin ZIP (NO hosting access)
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
