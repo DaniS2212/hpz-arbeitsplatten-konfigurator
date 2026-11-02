@@ -1,5 +1,5 @@
 import {catalog} from '/core/config.mjs';
-import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions} from '../core/l-geometry.mjs';
+import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions,lCornerPreviewLimits} from '../core/l-geometry.mjs';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from '/core/customer-measures.mjs';
 import {svg} from '/core/geometry.mjs';
 import {createPreviewController} from '/latest.mjs';
@@ -358,6 +358,41 @@ function summary(config,invalid=false){
 let saleReady=false,purchaseBusy=false;
 function purchaseState(enabled){saleReady=enabled&&!!adapters.purchase&&product==='straight'&&valid&&!purchaseBusy;$('cart').disabled=!saleReady;if(adapters.purchase)$('cart').textContent=saleReady?'In den Warenkorb →':'Konfiguration wird geprüft';}
 function priceDisplay(value,label){$('price').textContent=value;$('price-label').textContent=label;$('mobile-price').textContent=value;$('mobile-price-label').textContent=label;}
+function updateLRangeHints(){
+  if(product!=='l'||lSide==='none')return;
+  const keys=lCornerKeys(variants.l,lSide,lTreatment);
+  let limits=null;
+  try {
+    const dimensions=Object.fromEntries(Object.entries(currentDimensions())
+      .map(([key,value])=>[key,Number(cmInputToMmText(value))]));
+    limits=lCornerPreviewLimits(variants.l,dimensions,lSide,lTreatment,{material,decor});
+  } catch {
+    // Keep editing possible while a basic dimension is temporarily invalid.
+  }
+  for(const key of keys){
+    const hint=$('corner-hint-'+key);if(!hint)continue;
+    const bound=limits?.fields[key];
+    if(!bound){
+      hint.textContent='Nur Vorschauwert · Herstellergrenzen noch offen.';
+    }else if(bound.max<bound.min){
+      hint.textContent='Mit diesen Grundmaßen keine Abschrägung in der Zeichnung möglich.';
+    }else{
+      const sketch='Zeichnung: '+mmToCmText(bound.min)+'–'+mmToCmText(bound.max)+' cm';
+      const supplier=bound.photoMax===null?''
+        :' · Speedmaster-Foto: 6–'+mmToCmText(bound.photoMax)+' cm';
+      hint.textContent=sketch+supplier+' · keine Fertigungsfreigabe';
+    }
+  }
+  const note=radiusWrap.querySelector('.a1-limit-note');
+  if(!note)return;
+  note.textContent=!limits
+    ?'Bitte erst gültige Grundmaße eingeben. Herstellergrenzen sind ungeprüft.'
+    :limits.photo
+      ?'Foto-Eingabewerte gelten nur für die gezeigten Grundmaße. Zeichnungsgrenzen können abweichen; keine Fertigungsfreigabe.'
+      :lTreatment==='round'
+        ?'Rundungswerte sind nur skizziert. Tatsächliche Speedmaster-Grenzen fehlen.'
+        :'Zeichnungsgrenzen folgen den Plattenmaßen. Speedmaster-Grenzen für andere Kombinationen sind noch offen.';
+}
 function updateCornerBounds(){
   if(product!=='straight'||straightSide==='none')return;
   let dims;
@@ -484,6 +519,7 @@ function refresh(){
     }
   }
   if(product==='straight')updateCornerBounds();
+   if(product==='l')updateLRangeHints();
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
