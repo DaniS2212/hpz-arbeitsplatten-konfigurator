@@ -134,3 +134,22 @@ test('read-only CLI --check executes the audited fixtures without updating WordP
   assert.match(cmd.stdout,/L4.*OK/);
   assert.match(cmd.stdout,/0 Fertigungsfreigaben/);
 });
+
+test('supplier audit rejects vendor connector claims smuggled into picture-only seam data',()=>{
+ for(const shape of ['L1','L2','L3','L4']){
+  const config=asConfig(shape),drawing=geometry(config);
+  const baseline=auditLReference(config,drawing);
+  assert.ok(baseline.checks.some(check=>check.id==='seam-evidence-unapproved'&&check.ok),shape);
+  for(const key of ['connectorType','connectorCount','machiningCoordinates']){
+   const tampered=structuredClone(drawing);
+   tampered.previewSeamDetails[0][key]=key==='connectorType'?'lamello':key==='connectorCount'?3:[[25,25]];
+   const audit=auditLReference(config,tampered);
+   assert.equal(audit.geometryConsistent,false,shape+' forged '+key);
+   assert.ok(audit.checks.some(check=>check.id==='seam-evidence-unapproved'&&!check.ok));
+   assert.equal(audit.manufacturingReady,false);
+  }
+  const moved=structuredClone(drawing);
+  moved.previewSeamDetails[0].from=[-1,-1];
+  assert.equal(auditLReference(config,moved).geometryConsistent,false,'seam metadata must match drawn line');
+ }
+});
