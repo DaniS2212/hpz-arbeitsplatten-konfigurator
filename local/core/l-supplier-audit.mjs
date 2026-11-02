@@ -3,7 +3,7 @@
  * an approved CNC drawing, verified part list or a sale/price authorization.
  */
 const SOURCE='Speedmaster-Screenshots 30.10.2026';
-const outer=900+1050-600*Math.SQRT2; // L4 exterior projection: unconfirmed model assumption
+const outer=Math.min(1050,900+1050-600*Math.SQRT2); // unverified historical L4 witness; capped as in newer paired photo
 const proofCommon=[
  'Hersteller-Mindest-/Höchstgrenzen je Stärke, Dekor und Eckvariante aus den Eingabefeldern',
  'Gelieferte Packstücke und deren Maße/Gewichte zur Versandprüfung',
