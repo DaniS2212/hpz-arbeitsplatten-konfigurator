@@ -271,6 +271,10 @@ export function lGeometry(config){
     );
     if(variant==='L4')dims.push({
       id:'B5',axis:'diagonal',mm:b5,from:pt(outer/2,outer/2),to:pt((b3+b1)/2,(b2+b4)/2),
+      // At B5=300 in the supplier photos the outside is capped at B3=900,
+      // leaving ~424 mm of physical gap. Drawing a 300 mm ruler across that
+      // gap would be misleading. Keep B5 as a selected setting annotation.
+      settingOnly:Math.abs((b1+b3-outer)/Math.SQRT2-b5)>1e-6,
       side:1,secondary:true
     });
   }
