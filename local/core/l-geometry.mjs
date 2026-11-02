@@ -67,8 +67,10 @@ function outline(base,edits){
     const a=inH?c.horizontal:c.vertical,b=inH?c.vertical:c.horizontal;
     if(a>=len(p,before)-10||b>=len(p,after)-10)throw Error('L-Eckbearbeitung: Restkante zu klein.');
     const start=between(p,before,a),end=between(p,after,b);
-    const smooth=c.treatment!=='chamfer_square';
-    commands.push('L '+fmt(start),c.treatment==='round'?`A ${c.horizontal} ${c.horizontal} 0 0 1 ${fmt(end)}`:smooth?'Q '+fmt(p)+' '+fmt(end):'L '+fmt(end));
+    // Both Speedmaster chamfers have a straight diagonal contour, not a curve.
+    commands.push('L '+fmt(start),c.treatment==='round'
+      ?`A ${c.horizontal} ${c.horizontal} 0 0 1 ${fmt(end)}`
+      :'L '+fmt(end));
     points.push(start,end);markers.push({...c,vertex:p,from:start,to:end});
   }
   return {path:commands.join(' ')+' Z',points,markers};
@@ -148,8 +150,16 @@ export function lGeometry(config){
   if(corner.side!=='none')for(const side of (corner.side==='both'?['left','right']:[corner.side])){
     const isLeft=side==='left',index=isLeft?(variant==='L2'?5:angled?5:4):2;
     const keys=lCornerKeys(variant,side,corner.treatment),v=corner.parameters;
-    const horizontal=corner.treatment==='round'?v[keys[0]]:v[keys[0]],vertical=corner.treatment==='round'?horizontal:v[keys[1]];
-    edits.push({index,side,treatment:corner.treatment,horizontal,vertical,fields:keys});
+    // L = length along the leg; B = width across it. Not fixed X/Y!
+    // L2 has mirrored end orientations relative to L1/L3/L4.
+    const lengthIsHorizontal=variant==='L2'?isLeft:!isLeft;
+    const axisFields=corner.treatment==='round'?null:{
+      horizontal:lengthIsHorizontal?keys[0]:keys[1],
+      vertical:lengthIsHorizontal?keys[1]:keys[0]
+    };
+    const horizontal=corner.treatment==='round'?v[keys[0]]:v[axisFields.horizontal];
+    const vertical=corner.treatment==='round'?horizontal:v[axisFields.vertical];
+    edits.push({index,side,treatment:corner.treatment,horizontal,vertical,fields:keys,axisFields});
   }
   const result=outline(base,edits);
   const previewParts=previewPartRegions(base,variant,b1,b2,b3,b4);
@@ -178,7 +188,7 @@ export function lGeometry(config){
   // basic B5 and corner B5 never select one another.
   const cornerDimensions=[],cornerCuts=[],cornerArcs=[];
   for(const marker of result.markers){
-    const p=marker.vertex,{from,to,side,treatment,fields}=marker;
+    const p=marker.vertex,{from,to,side,treatment,fields,axisFields}=marker;
     const horiz=from[1]===p[1]?from:to;
     const vert=from[0]===p[0]?from:to;
     if(treatment==='round'){
@@ -188,9 +198,13 @@ export function lGeometry(config){
       });
     }else{
       cornerCuts.push({side,from,to,fields:fields.map(k=>'corner-'+k),presentationOnly:treatment==='chamfer_continuous'});
+      // Exterior location controls the free side for vertical label placement.
+      const labelNormal=variant==='L2'&&side==='left'?-1:1;
       cornerDimensions.push(
-        {id:'corner-'+fields[0],label:fields[0],mm:marker.horizontal,from:p,to:horiz,side,axis:'horizontal'},
-        {id:'corner-'+fields[1],label:fields[1],mm:marker.vertical,from:p,to:vert,side,axis:'vertical'}
+        {id:'corner-'+axisFields.horizontal,label:axisFields.horizontal,mm:marker.horizontal,
+          from:p,to:horiz,side,axis:'horizontal'},
+        {id:'corner-'+axisFields.vertical,label:axisFields.vertical,mm:marker.vertical,
+          from:p,to:vert,side,axis:'vertical',labelNormal}
       );
     }
   }
