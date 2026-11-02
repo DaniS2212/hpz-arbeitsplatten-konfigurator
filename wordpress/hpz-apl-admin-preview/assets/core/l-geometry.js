@@ -212,9 +212,12 @@ export function lGeometry(config){
     throw Error('L-Form: Bitte gültige Maße mit einer positiven Innenöffnung eingeben.');
   // L3/L4 internal diagonal endpoints come from the separately supplied
   // paired widths (B3/B4). No inferred half-depth diagonal.
-  // For L4 the screenshot shows a 45-degree exterior chamfer with width B5;
-  // its projection is a preview inference, not released cutting geometry.
-  const outer=variant==='L4'?b1+b3-b5*Math.SQRT2:null;
+  // The two independent Speedmaster L4 images (B5=600 and B5=300,
+  // 02.11.2026) show the 45-degree outer cut stops at the B3/B4 corner
+  // projection. An unconstrained projected B5=300 line would continue
+  // 176 mm past this point into the top/leg strip, unlike the supplier.
+  // Keep this a visual constraint only: connector/CNC geometry is unknown.
+  const outer=variant==='L4'?Math.min(b3,b1+b3-b5*Math.SQRT2):null;
   if(variant==='L4'&&(outer<100||outer>=Math.min(w,h)-100))
     throw Error('B5: Äußere Diagonale passt nicht zu diesen Schenkelmaßen.');
   const bases={
