@@ -3,7 +3,7 @@
 Diese Liste ist **kein Hindernis** für weitere dokumentierende, prüfende oder UX-sichernde PRs. Sie ist eine harte Grenze für Fertigungs-/Preis-/Shop-Freigabe.
 
 ### Geometrie: zuerst abschließen
-1. **L4-B5-Grundmaß**: exakt dieselbe Konfiguration zweimal, *nur* B5-Grundmaß ändern (z. B. 600 auf 300 mm), beide Male Eingabewerte und Draufsicht. Das bestätigt/entkräftet die derzeit angenäherte äußere Diagonale.
+1. **L4-B5-Grundmaß – Paar jetzt vorhanden (02.11.2026)**: Zwei identische Speedmaster-Konfigurationen mit B5=600/300 mm und ergänzende 3D-/Kantenansichten wurden geliefert. Der 2D-Konturfehler bei B5=300 wurde für diese konkreten Maße belegt; siehe [Bildmessung](L4-B5-VISUAL-20261102.md). **Noch offen:** weitere B1/B3-Kombinationen, der Zwischenwertverlauf, wahre B5-Maßdefinition, echte Teilplatten und die binäre Archivierung dieser sechs neuen PNGs. Die geometrische Formel ist nicht insgesamt vom Hersteller freigegeben.
 2. **Vorderkante durchlaufend**: identische L1- oder L2-Maße, einmal eckig, einmal durchlaufend; dazu 2D- und 3D-Nahaufnahme der Eckübergänge. Aus den bereits gesendeten Ansichten ist die lange gerade Schräge erkennbar, nicht aber der technische Endradius.
    - **Auch R1/R2 bleibt offen:** PR #42 sichert lediglich die mathematische 2D-Zeichnungsgrenze und korrekte SVG-Kreisbogenfläche. Tatsächliche Speedmaster-Radien bzw. Fertigungsfräsungen sind weiterhin nicht bestätigt.
 3. Für eventuelle **dynamische Mindest-/Maximalwerte** die tatsächlichen Speedmaster-Grenzen je Plattenstärke, Ecktyp, Schenkelmaß belegen.
