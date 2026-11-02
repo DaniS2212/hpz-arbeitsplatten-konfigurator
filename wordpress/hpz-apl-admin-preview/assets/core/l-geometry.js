@@ -162,6 +162,10 @@ export function lGeometry(config){
     edits.push({index,side,treatment:corner.treatment,horizontal,vertical,fields:keys,axisFields});
   }
   const result=outline(base,edits);
+  // Preview-only very short tangent blends at each end of a "continuous"
+  // chamfer. The long main chamfer remains straight; no CNC radius is implied.
+  const softIndices=result.markers.filter(m=>m.treatment==='chamfer_continuous')
+    .flatMap(m=>[m.from,m.to].map(p=>result.points.findIndex(q=>q[0]===p[0]&&q[1]===p[1])));
   const previewParts=previewPartRegions(base,variant,b1,b2,b3,b4);
   const dims=[
     {id:'L1',mm:w,from:pt(0,0),to:pt(w,0),side:-1},
@@ -219,11 +223,13 @@ export function lGeometry(config){
   if(angled)warnings.push('L3/L4: B1/B2 und B3/B4 folgen den gemeinsamen Speedmaster-Eingaben. Stoßfräsungen, Endbearbeitung und allgemeingültige Grenzformeln sind noch nicht geprüft.');
   if(variant==='L4')warnings.push('L4: Der äußere B5-Abstand wird in der Ansicht als parallele 45°-Diagonale projiziert; Zuschnittfreigabe fehlt.');
   if(corner.treatment)warnings.push('Eckmaße nur skizziert; zulässige Speedmaster-Maßgrenzen noch nicht nachgewiesen.');
+  if(corner.treatment==='chamfer_continuous')warnings.push('Kante durchlaufend: kleine weiche Endübergänge nur schematisch dargestellt; Radius und Kantenverlauf sind noch nicht fertigungstechnisch freigegeben.');
   return {
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
     points:result.points,path:result.path,areaMm2:area(result.points),width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
     corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewParts,
+    softIndices,contourStatus:softIndices.length?'schematic':null,
     joints:null,shippingParts:null,supplierMappingVerified:false,warnings
   };
 }
