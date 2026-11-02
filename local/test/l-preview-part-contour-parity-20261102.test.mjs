@@ -53,7 +53,7 @@ test('L1: photographed unequal 120/240 chamfers must alter the actual top and le
   assert.equal(area(g.previewParts[0].polygon),1185600,'right end chamfer removes 14,400 mm2 from upper strip');
   assert.equal(area(g.previewParts[1].polygon),345600,'left end chamfer removes 14,400 mm2 from leg');
   assert.ok(g.previewParts[0].polygon.some(p=>p[0]===1880&&p[1]===600));
-  assert.ok(g.previewParts[1].polygon.some(p=>p[0]===480&&p[1]===1200));
+  assert.ok(g.previewParts[1].polygon.some(p=>p[0]===360&&p[1]===1200), '240 mm horizontal cut from x=600 to x=360');
   assert.ok(!g.previewParts[0].polygon.some(p=>p[0]===2000&&p[1]===600),'unmodified cut vertex must not survive');
   assert.ok(!g.previewParts[1].polygon.some(p=>p[0]===600&&p[1]===1200),'unmodified cut vertex must not survive');
 });
