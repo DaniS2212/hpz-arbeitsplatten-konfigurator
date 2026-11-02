@@ -63,7 +63,10 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
   const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
-  const trim=g.contourStatus==='schematic'?Math.min(font*.4,(g.front.to[0]-g.front.from[0])*.2):0;
+  const trim=g.contourStatus==='schematic'
+    ?g.front?Math.min(font*.4,(g.front.to[0]-g.front.from[0])*.2)
+      :Math.min(18,font*.13,...(g.cornerCuts??[]).map(c=>Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1])*.08))
+    :0;
   // Put opaque, calm label plates in front of guide lines so dense corner
   // dimensions remain readable on both textured and light surfaces.
   const label=(text,x,y,{vertical=false,selected=false,corner=false}={})=>{
@@ -85,7 +88,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const selected=field===active,color=selected?'#a34f1c':'#365861';
-    const textX=(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0), textY=(a[1]+b[1])/2-(vertical?0:font*.75);
+    const diagonal=isL&&d.axis==='diagonal';
+    // L4 B5 is a diagonal perpendicular clearance. The actual leaders can
+    // cross the plate, but an OPAQUE dimension label must never hide its decor.
+    const textX=diagonal?g.points[0][0]*.32:(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0);
+    const textY=diagonal?-pad*.9:(a[1]+b[1])/2-(vertical?0:font*.75);
     return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
@@ -99,7 +106,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
     const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
-    const len=Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1]),t=Math.min(trim,len*.24);
+    const len=Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1]),t=Math.min(c.presentationOnly?trim:0,len*.24);
     const a=c.from.map((v,i)=>v+(c.to[i]-v)*t/len),b=c.to.map((v,i)=>v+(c.from[i]-v)*t/len);
     return `<g data-cut="${c.side}" data-active="${selected}"><path d="M ${a} L ${b}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/></g>`;
   }).join('');
@@ -110,7 +117,8 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const normal=isL&&d.labelNormal!==undefined?d.labelNormal:(d.side==='left'?-1:1);
     const offset=vertical?(isL?normal*pad*.40:(d.side==='left'?-pad*.42:pad*.40)):pad*(isL?.35:.60);
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
-    const x=vertical?a[0]+normal*font*.9:Math.max(font*3,Math.min(g.width-font*3,(a[0]+b[0])/2)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
+    const mid=(a[0]+b[0])/2;
+    const x=vertical?a[0]+normal*font*.9:isL?mid:Math.max(font*3,Math.min(g.width-font*3,mid)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
     return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
   const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
@@ -130,7 +138,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   // Clip the overlays to the actual corner-edited contour, including round arcs.
   // Never render these regions as factory-approved cut plans.
   const previewParts=partsView&&Array.isArray(g.previewParts)?g.previewParts:[];
-  const partsClip=previewParts.length?`<clipPath id="apl-parts-clip"><path d="${escapeXml(g.path)}"/></clipPath>`:'';
+  const partsClip=previewParts.length?`<clipPath id="apl-parts-clip"><path d="${escapeXml(schematicPath(g,trim))}"/></clipPath>`:'';
   const pieceOverlays=previewParts.map(part=>{
     const selected=selectedPart===part.id,other=!!selectedPart&&!selected;
     const shade=part.id==='corner'?'#b49a78':'#146178';

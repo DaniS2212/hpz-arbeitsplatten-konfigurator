@@ -79,11 +79,11 @@ test('axis binding follows actual end-of-leg orientation for all 4 layouts and b
   }
  }
 });
-test('continuous-edge chamfers contain straight diagonals, never made-up quadratic rounded corners',()=>{
+test('continuous-edge chamfers retain linear physical contours and small illustrative joins only in SVG',()=>{
  for(const shape of SHAPES)for(const side of ['left','right','both']){
   const config=mmConfig(shape,side,'chamfer_continuous'),g=geometry(config);
   assert.doesNotMatch(g.path,/\bQ\b/,shape+' '+side+' rounded contour is not supplier evidence');
-  assert.doesNotMatch(svg(g,'',{unit:'cm'}),/class="apl-surface" d="[^"]*Q/);
+  assert.equal((svg(g,'',{unit:'cm'}).match(/class="apl-surface" d="[^"]*Q/g)||[]).length,1);
   assert.equal(g.cornerArcs.length,0);
   assert.equal(g.cornerCuts.length,side==='both'?2:1);
   assert.match(g.warnings.join(' '),/Vorschau|Fertigungs/);
