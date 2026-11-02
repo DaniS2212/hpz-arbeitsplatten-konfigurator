@@ -37,10 +37,13 @@ try {
     const radio=s.querySelector('input[name="l-side"][value="both"]');
     radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));
    });
-   await page.waitForFunction(()=>{
+   await page.waitForFunction(shape=>{
     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-    return !!s?.querySelector('#corner-R1')&&!!s?.querySelector('#corner-R2');
-   });
+    // Changing the shape preserves the currently selected corner treatment;
+    // round-specific R1/R2 fields are therefore NOT guaranteed.
+    return !!s?.querySelector('input[name="l-side"][value="both"]')?.checked
+      && !!s?.querySelector('#drawing svg title')?.textContent.startsWith(shape+' ·');
+   },shape,{timeout:25000});
    for(const treatment of ['chamfer_square','chamfer_continuous']) {
     await page.evaluate(treatment=>{
      const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
