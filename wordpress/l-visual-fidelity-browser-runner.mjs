@@ -1,4 +1,4 @@
-// Real Chromium rendering for the two photographed L1/L2 front-chamfer cases.
+// Chromium evidence for all four photographed Speedmaster L1-L4 corner variants.
 // Screenshots are CI artifacts for HUMAN comparison with Speedmaster; without
 // manufacturer golden images, automated tests do not claim full visual parity.
 import {strict as assert} from 'node:assert';
@@ -25,7 +25,7 @@ try {
   },shape,{timeout:25000});
   // WordPress bootstrap loads modules asynchronously; wait before touching shadow DOM.
   await ready('L1');
-  for(const shape of ['L1','L2']) {
+  for(const shape of ['L1','L2','L3','L4']) {
    await page.evaluate(shape=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
     s.querySelector('#geometry').value=shape;
@@ -50,14 +50,17 @@ try {
      const radio=s.querySelector('input[name="l-treatment"][value="'+treatment+'"]');
      radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));
     },treatment);
-    await page.waitForFunction(shape=>{
+    await page.waitForFunction(({shape,treatment})=>{
      const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
      const svg=s?.querySelector('#drawing svg');
      const d=svg?.querySelector('.apl-surface')?.getAttribute('d')??'';
+     const cornerSuffix=['L3','L4'].includes(shape)?'5':'3';
+     const curves=(d.match(/\bQ\b/g)||[]).length;
      return svg?.querySelector('title')?.textContent.startsWith(shape+' ·')
-      && !!s.querySelector('#corner-L3')&&!!s.querySelector('#corner-B3')
-      && d.includes(' L ')&&!/[QA] [0-9]/.test(d);
-    },shape,{timeout:25000});
+      && !!s.querySelector('#corner-L'+cornerSuffix)&&!!s.querySelector('#corner-B'+cornerSuffix)
+      && d.includes(' L ')
+      && (treatment==='chamfer_continuous'?curves===4:curves===0);
+    },{shape,treatment},{timeout:25000});
     const result=await page.evaluate(()=>{
      const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
      const svg=s.querySelector('#drawing svg'),surface=svg.querySelector('.apl-surface');
@@ -70,7 +73,8 @@ try {
       const inside=surface.isPointInFill(center.matrixTransform(surface.getScreenCTM().inverse()));
       return {inside,box:rect.getBoundingClientRect().toJSON()};
      };
-     const b1=label('B1'),b3=label('corner-B3'),l3=label('corner-L3');
+     const suffix=['L3','L4'].includes(s.querySelector('#geometry').value)?'5':'3';
+     const b1=label('B1'),b3=label('corner-B'+suffix),l3=label('corner-L'+suffix);
      const intersect=(a,b)=>{
       const x=Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left));
       const y=Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
@@ -94,7 +98,29 @@ try {
     assert.equal(result.cartDisabled,true,'L purchase must remain blocked');
     assert.equal(result.continuous,treatment==='chamfer_continuous');
     await page.screenshot({path:'dist/l-visual-'+shape+'-'+treatment+'-'+width+'.png',fullPage:true});
-    console.log('PASS '+shape+' '+treatment+' '+width+'px: labels on clear space, angular contour, cart blocked');
+    console.log('PASS '+shape+' '+treatment+' '+width+'px: labels in clear space, long diagonal and subtle transition, cart blocked');
+   }
+   if(shape==='L4') {
+     // B5 in the BASIC L4 geometry is different from the corner-B5 cut.
+     await page.evaluate(()=>{
+       const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       s.querySelector('#dim-B5').dispatchEvent(new Event('focus'));
+     });
+     await page.waitForFunction(()=>{
+       const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+       return s?.querySelector('#drawing svg .apl-measure[data-field="B5"][data-active="true"]');
+     },null,{timeout:25000});
+     const clear=await page.evaluate(()=>{
+       const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       const svg=s.querySelector('#drawing svg');
+       const text=svg.querySelector('.apl-measure[data-field="B5"] .apl-measure-label rect');
+       const surface=svg.querySelector('.apl-surface');
+       const bbox=text.getBBox(),point=new DOMPoint(bbox.x+bbox.width/2,bbox.y+bbox.height/2)
+        .matrixTransform(text.getScreenCTM());
+       return !surface.isPointInFill(point.matrixTransform(surface.getScreenCTM().inverse()));
+     });
+     assert.equal(clear,true,'L4 B5 opaque diagonal label must not hide the real worktop surface');
+     await page.screenshot({path:'dist/l-visual-L4-B5-focus-'+width+'.png',fullPage:true});
    }
   }
   assert.deepEqual(errors,[]);
