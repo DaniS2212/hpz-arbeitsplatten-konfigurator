@@ -95,9 +95,9 @@ test('parts view shows numbered, selectively highlighted regions, but no cutting
   assert.equal(g.joints,null);
   assert.equal(g.shippingParts,null);
 });
-test('straight and U remain untouched when asking for parts view',()=>{
+test('straight and U2 remain untouched when asking for parts view',()=>{
   const u=normalize({
-    schemaVersion:2,inputUnit:'mm',product:'u',geometry:'U1',corner:'square',
+    schemaVersion:2,inputUnit:'mm',product:'u',geometry:'U2',corner:'square',
     material:'APL38',decor:'W980',quantity:1,
     dimensions:{L1:'2500',L2:'1800',L3:'1800',B1:'600',B2:'600',B3:'600'}
   });

@@ -24,3 +24,7 @@ Diese Liste ist **kein Hindernis** für weitere dokumentierende, prüfende oder 
 - Bestehende Model-/Browser-Tests gegen die dokumentierten Beispielwerte vertiefen.
 - Maß-/Labelkollisionen, mobile Darstellung und interne Freigabesperren prüfen.
 - Bestehende PR #36-Aufteilung und #37-Preisbelege auf Seiteneffekte kontrollieren.
+
+### U-Formen (05.11.2026)
+- U1: drei neue Speedmaster-Bilder, sechs Grundmaße, zwei sichtbare Fugen und drei grafische Bereiche dokumentiert. Noch keine echten CNC-Teilzuschnitte, Fräsabstände, verbindlichen Verbindermengen, Packstücke oder vollständigen Liefer-/Preisnachweise. Original-PNG-Bytes bisher nicht im GitHub-Archiv.
+- U2–U4: vollständige Speedmaster-Maße und transparente 3D-Verbindungsbilder fehlen. Weiterhin nur schematische Ansichten und nicht kaufbar.

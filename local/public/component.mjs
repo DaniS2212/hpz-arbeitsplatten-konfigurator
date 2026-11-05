@@ -163,7 +163,7 @@ function renderLChoices(){
    },'a1-treatment-card')));
 }
 const variants={straight:'straight',l:'L1',u:'U1'};
-const dimensionValues={L1:'250',L2:'170',L3:'180',B1:'60',B2:'60',B3:'60'};
+const dimensionValues={L1:'200',L2:'120',L3:'180',B1:'60',B2:'60',B3:'60'};
 const lDimensionValues=Object.fromEntries(['L1','L2','L3','L4'].map(id=>[id,lDefaultDimensions(id)]));
 const straightDimensionValues={L1:'200',B1:'60'},currentDimensions=()=>product==='straight'?straightDimensionValues:product==='l'?lDimensionValues[variants.l]:dimensionValues;
 const money=value=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Number(value));
@@ -231,7 +231,7 @@ function rebuild(){
   shell.dataset.product=product;
   if(product==='straight'||product==='l')corner='square';
   renderChoices();$('variant-wrap').hidden=product==='straight';
-  const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen'};
+  const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · zwei Schenkel'};
   $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
   if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent=['L3','L4'].includes(variants.l)?'B1/B2 sowie B3/B4 werden gemeinsam eingegeben. Bearbeitung und Bestellung bleiben in Prüfung.':'Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
   $('dimensions').replaceChildren();
@@ -264,7 +264,7 @@ function payload(){const radii=product==='straight'?Object.fromEntries(straightC
  ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
 function renderPartChoices(){
-  const parts=product==='l'&&view==='parts'?(lastGeometry?.previewParts??[]):[];
+  const parts=product!=='straight'&&view==='parts'?(lastGeometry?.previewParts??[]):[];
   if(!parts.length){partChoices.replaceChildren();selectedPart=null;return;}
   if(selectedPart&&!parts.some(p=>p.id===selectedPart))selectedPart=null;
   const entries=[{id:'all',name:'Alle Teile'},...parts.map(p=>({id:p.id,name:`${p.number} · ${p.label}`}))];
@@ -279,10 +279,10 @@ function renderPartChoices(){
   for(const button of partChoices.children)button.setAttribute('aria-pressed',String((button.dataset.part==='all'?null:button.dataset.part)===selectedPart));
 }
 function renderSeamChoices(){
- const seams=product==='l'&&view==='parts'?(lastGeometry?.previewSeamDetails??[]):[];
+ const seams=product!=='straight'&&view==='parts'?(lastGeometry?.previewSeamDetails??[]):[];
  if(!seams.length){
   seamChoices.replaceChildren();selectedSeam=null;
-  seamExplain.textContent=product==='l'&&view==='parts'?'Bei dieser Ansicht ist keine separate Stoßlinie erkennbar. Wir erfinden keine Verbindung.':'';
+  seamExplain.textContent=product!=='straight'&&view==='parts'?'Bei dieser Ansicht ist keine separate Stoßlinie erkennbar. Wir erfinden keine Verbindung.':'';
   return;
  }
  if(selectedSeam&&!seams.some(s=>s.id===selectedSeam))selectedSeam=null;
@@ -308,7 +308,9 @@ function renderSeamChoices(){
    &&(photo.illustratedSeamId===selected.id||photo.illustratedSeamIds?.includes(selected.id));
   const profileNote=photo?.observationScope==='layout-and-symbols-profile-not-fully-matched'
    ?' Die L3-Modellprofil-Ausführung ist nicht vollständig abgeglichen.':'';
-  const imageWitness=!photoMatches?'':photo.illustratedSeamIds?.length
+  const imageWitness=!photoMatches?'':photo.caseId.startsWith('U1-')
+   ?' Speedmaster-Referenz 05.11.2026 (nur U1 L1=2000, L2=1200, L3=1800, B1/B2/B3=600 mm, W980, 38 mm): Drei sichtbare Teilbereiche, zwei Stoßstellen mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.'
+   :photo.illustratedSeamIds?.length
    ?' Speedmaster-Referenz '+(photo.capturedDate==='2026-11-02'?'02.11.2026':'05.11.2026')
      +' (nur beobachtete 2000×2000-mm-Grundform, B1/B2=600 mm, B3/B4=900 mm'
      +(photo.caseId.startsWith('L4')?', B5-Grundmaß=600 mm':'')
@@ -452,7 +454,7 @@ function applyVisual(result){
     ?(straightTreatment==='chamfer_continuous'
        ?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.'
        :'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.')
-    :(product==='l'?`${variants.l}: Kontur nach Speedmaster-Fotos · Stöße und Diagonalzusatzmaße vorläufig.`:`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`);
+    :(product==='l'?`${variants.l}: Kontur nach Speedmaster-Fotos · Stöße und Diagonalzusatzmaße vorläufig.`:((product==='u'&&variants.u==='U1'&&result.geometry.version.startsWith('speedmaster-u1'))?'U1: Grundkontur und zwei Stoßstellen nach Speedmaster-Fotos · CNC/Versand offen.':`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`));
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});const response=await fetch('/api/preview',{signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.error);return result;},
   onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
@@ -564,7 +566,7 @@ $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.quer
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('measure-toggle').hidden=view==='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
-for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const seam=event.target.closest('[data-seam-id]');if(product==='l'&&view==='parts'&&seam){selectedSeam=seam.dataset.seamId;selectedPart=null;renderDrawing();return;}const part=event.target.closest('[data-part-id]');if(product==='l'&&view==='parts'&&part){selectedPart=part.dataset.partId;selectedSeam=null;renderDrawing();return;}const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
+for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const seam=event.target.closest('[data-seam-id]');if(product!=='straight'&&view==='parts'&&seam){selectedSeam=seam.dataset.seamId;selectedPart=null;renderDrawing();return;}const part=event.target.closest('[data-part-id]');if(product!=='straight'&&view==='parts'&&part){selectedPart=part.dataset.partId;selectedSeam=null;renderDrawing();return;}const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
 rebuild();showStep(0);refresh();

@@ -139,7 +139,11 @@
         "note": "Im transparenten Speedmaster-Bild L4 werden bei beiden Stoßlinien Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbole gezeigt. Genaue Verbindertypen, Anzahl, Abstand und Fräs-/Bohrkoordinaten nicht bestätigt."
       }
     },
-    "U1": {},
+    "U1": {
+      "contour": {"status":"observed","sourceRefs":["docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"],"note":"Nur Grundform eines U1-Beispiels bestätigt; andere Ecken und Grenzwerte ungeprüft."},
+      "real-parts": {"status":"observed","sourceRefs":["docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"],"note":"Drei grafische Regionen, keine realen Teilezuschnitte oder Packstücke bestätigt."},
+      "connectors": {"status":"observed","sourceRefs":["docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"],"note":"Zwei Verbindersymbol-Gruppen erkennbar; tatsächlicher Typ, Menge und Fräspositionen nicht bestätigt."}
+    },
     "U2": {},
     "U3": {},
     "U4": {}
