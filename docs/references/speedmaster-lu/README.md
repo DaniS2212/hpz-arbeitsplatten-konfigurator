@@ -58,6 +58,7 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 - [PR #48: stabile Bezeichnungen der L4-Stoßstellen A/B bei verschwindenden Vorschau-Teilflächen](../../phase-l-stable-seam-identities-20261105.md)
 - [PR #49: maschinenlesbare Speedmaster-Fertigstellungscheckliste L1–L4 / U1–U4](../../phase-lu-speedmaster-closeout-handoff-20261105.md) – [interner Prüfdatensatz](SUPPLIER_CLOSEOUT.json)
 - [PR #51: neue L1/L2-Stoßansichten (2000×1200, 38 mm, W980) mit sechs SHA-256-Originalnachweisen, ohne CNC-Freigabe](../../phase-l1-l2-joint-photos-20261105.md) – [Quellmanifest](L1_L2_JOINT_USER_20261105.json). Die sechs neuen PNG-Binärdateien sind **nicht** Teil des PR-39-Archivs.
+- [PR #52: L3 und L4 – beide Stoßstellen A/B mit zwei Hersteller-Belegserien (L3 historische PR39-PNGs, L4 vier neue B5=600-PNGs)](../../phase-l3-l4-joint-photos-20261105.md) – [Foto-Metadaten und SHA-256](L3_L4_JOINT_USER_20261105.json). L3-Profilvariante nur eingeschränkt belegbar; vier aktuelle L4-Originale noch nicht als GitHub-Binärdateien hinterlegt.
 
 
 

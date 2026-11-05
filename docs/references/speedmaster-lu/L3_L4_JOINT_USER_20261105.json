@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "sourceType": "speedmaster",
+  "sourcePolicy": "L3 original PNG pixels already in private verified PR39 ZIP; L4 four additional user uploads in current conversation, hash verified locally and not yet binary committed. Neither proves machining count/locations.",
+  "cases": {
+    "L3": {
+      "caseId": "L3-base-2000-2000-600-900-20261102",
+      "status": "observed-not-reviewed",
+      "capturedDate": "2026-11-02",
+      "originalBinaryInGitHub": true,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900
+      },
+      "material": "APL38",
+      "decor": "W980",
+      "edge": "matching-1.5",
+      "profileExactMatchVerified": false,
+      "profileCaveat": "Historic 2D/input screenshot image(20261102-114414).png identifies 'Postforming DR, R=3mm' model profile. Do not claim its model profile is identical to the later L4 1.5mm standard thick edge or that each historic L3 view has the same edge settings.",
+      "visiblePanelRegions": 3,
+      "visibleSeams": [
+        "seam-1",
+        "seam-2"
+      ],
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "images": [
+        {
+          "filename": "image(20261102-114219).png",
+          "sha256": "a77bd47959376502f926aa2749a9085fc01defc12ddca199b0bc7c82f7c48155",
+          "bytes": 232901,
+          "width": 1442,
+          "height": 872,
+          "view": "top view with three illustrated regions",
+          "archivePath": "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-02/image(20261102-114219).png",
+          "binaryVerifiedInGitHubArchive": true
+        },
+        {
+          "filename": "image(20261102-114229).png",
+          "sha256": "90bf6c48bf9b344b3d2a2cbd170898248e7c3402ad9d7f3c6b3f4a728193ef8e",
+          "bytes": 201304,
+          "width": 1207,
+          "height": 753,
+          "view": "3D transparent two-seam connector icons",
+          "archivePath": "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-02/image(20261102-114229).png",
+          "binaryVerifiedInGitHubArchive": true
+        },
+        {
+          "filename": "image(20261102-114414).png",
+          "sha256": "8996fa5789c763d670acbf8a210ed995816526012e3beac2f4f7b6963d883620",
+          "bytes": 300409,
+          "width": 2048,
+          "height": 822,
+          "view": "2000/2000/600/900 input list, profile different; scope geometry only",
+          "archivePath": "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114414).png",
+          "binaryVerifiedInGitHubArchive": true
+        }
+      ]
+    },
+    "L4": {
+      "caseId": "L4-W980-38-2000x2000-B5-600-20261105",
+      "status": "observed-not-reviewed",
+      "capturedDate": "2026-11-05",
+      "originalBinaryInGitHub": false,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900,
+        "B5": 600
+      },
+      "material": "APL38",
+      "decor": "W980",
+      "edge": "matching-1.5",
+      "profileExactMatchVerified": true,
+      "visiblePanelRegions": 3,
+      "visibleSeams": [
+        "seam-1",
+        "seam-2"
+      ],
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "images": [
+        {
+          "filename": "image(20261105-091334).png",
+          "sha256": "dd4ffc41ca78fd0952a3469f2a424aa0db598eb1eba3a97665ea786b85e488db",
+          "bytes": 414895,
+          "width": 2048,
+          "height": 775,
+          "view": "full dimensions and solid overhead silhouette",
+          "binaryVerifiedInGitHubArchive": false
+        },
+        {
+          "filename": "image(20261105-091405).png",
+          "sha256": "c39ee97cd357775e9076a7540af9d9ea3f3c31e14f1494d6b2a8fd48989a37f0",
+          "bytes": 448457,
+          "width": 2048,
+          "height": 770,
+          "view": "transparent 3D both visible seams and connector symbols",
+          "binaryVerifiedInGitHubArchive": false
+        },
+        {
+          "filename": "image(20261105-091422).png",
+          "sha256": "445e04fd2b66351963e6646d9e9d4bea1d634d6f53449abc79a44a6223ad1535",
+          "bytes": 510164,
+          "width": 2047,
+          "height": 677,
+          "view": "detail of seam B and opposite seam symbols",
+          "binaryVerifiedInGitHubArchive": false
+        },
+        {
+          "filename": "image(20261105-091439).png",
+          "sha256": "db9f4d5c865151cd27d05ae84925d2a9494c5972f5b5166ca232df62771ab2c8",
+          "bytes": 523232,
+          "width": 2047,
+          "height": 684,
+          "view": "detail of seam A and seam B connector symbols",
+          "binaryVerifiedInGitHubArchive": false
+        }
+      ]
+    }
+  }
+}

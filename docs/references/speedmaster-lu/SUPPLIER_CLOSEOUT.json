@@ -91,6 +91,20 @@
           "docs/phase-l-fertigungsabgleich-20261102.md"
         ],
         "note": "Eckteil nur illustrativ; reale Schnittgeometrie und Stoesse nicht dokumentiert"
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json"
+        ],
+        "note": "Im Herstellerbeispiel L3 sind drei grafische Teilbereiche und zwei Anschlüsse sichtbar. Keine bestätigten CNC-Teilzuschnitte, echte Lieferstückzahl, Packstückgrößen, Zuschnittkanten oder Fertigungsfreigabe. Die Modellprofil-Ausführung der historischen L3-Aufnahmen ist nicht vollständig abgeglichen."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json"
+        ],
+        "note": "Im transparenten Speedmaster-Bild L3 werden bei beiden Stoßlinien Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbole gezeigt. Genaue Verbindertypen, Anzahl, Abstand und Fräs-/Bohrkoordinaten nicht bestätigt."
       }
     },
     "L4": {
@@ -109,6 +123,20 @@
           "docs/references/speedmaster-lu/L4_B5_USER_20261102.json"
         ],
         "note": "Sechs Bilddaten sind noch NICHT binaer im GitHub-Archiv; keine Fertigungsfreigabe"
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json"
+        ],
+        "note": "Im Herstellerbeispiel L4 sind drei grafische Teilbereiche und zwei Anschlüsse sichtbar. Keine bestätigten CNC-Teilzuschnitte, echte Lieferstückzahl, Packstückgrößen, Zuschnittkanten oder Fertigungsfreigabe. B5-Grundmaß=600mm gilt nur für diesen Bilddatensatz."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json"
+        ],
+        "note": "Im transparenten Speedmaster-Bild L4 werden bei beiden Stoßlinien Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbole gezeigt. Genaue Verbindertypen, Anzahl, Abstand und Fräs-/Bohrkoordinaten nicht bestätigt."
       }
     },
     "U1": {},
