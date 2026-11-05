@@ -197,6 +197,77 @@ try{
     await page.screenshot({path:'dist/l-review-L4-B5-'+b5+'-'+width+'.png',fullPage:true});
     console.log('PASS L4 B5='+b5+' mm '+width+' px: outer='+verdict.outer+' mm, no checkout');
   }
+  // PR48: synthetic L4 edge-case (NOT a supplier reference image).
+  // A top strip can disappear when L1=B3. Its removed Stoß A must not
+  // silently rename the remaining lower Stoß B during live editing.
+  for(const [id,mm] of [['B1',300],['B3',950],['L1',950]])
+    await change('dim-'+id,mm);
+  await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    s.getElementById('view-parts').click();
+  });
+  const seamState=()=>page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    const svg=s.querySelector('#drawing svg');
+    return {
+      ids:[...s.querySelectorAll('#seam-choices [data-seam]')].map(b=>b.dataset.seam),
+      names:[...s.querySelectorAll('#seam-choices [data-seam]')].map(b=>b.textContent),
+      pressed:[...s.querySelectorAll('#seam-choices [data-seam][aria-pressed="true"]')].map(b=>b.dataset.seam),
+      highlighted:[...svg.querySelectorAll('.apl-preview-part[data-seam-neighbor="true"]')].map(p=>p.dataset.partId),
+      partCount:svg.querySelectorAll('.apl-preview-part').length,
+      cartDisabled:s.getElementById('cart').disabled,
+      overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
+    };
+  });
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.getElementById('view-parts')?.getAttribute('aria-pressed')==='true'
+      && s?.querySelectorAll('#seam-choices [data-seam]').length===1
+      && s?.querySelector('#seam-choices [data-seam="seam-2"]')!==null
+      && s?.querySelectorAll('#drawing svg .apl-preview-part').length===2;
+  },null,{timeout:25000});
+  let state=await seamState();
+  assert.deepEqual(state.ids,['seam-2'],'only lower illustrated joint retains its original key');
+  assert.ok(state.names[0].includes('Stoß B'),'lower seam remains named B');
+  assert.equal(state.cartDisabled,true);
+  assert.ok(state.overflow<=1);
+  await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    s.querySelector('#seam-choices [data-seam="seam-2"]').click();
+  });
+  state=await seamState();
+  assert.deepEqual(state.pressed,['seam-2']);
+  assert.deepEqual(state.highlighted,['corner','leg']);
+  // Return to a three-piece layout and select upper Stoß A.
+  await change('dim-L1',2000);
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.querySelectorAll('#seam-choices [data-seam]').length===2
+      && !!s.querySelector('#seam-choices [data-seam="seam-1"]');
+  },null,{timeout:25000});
+  await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    s.querySelector('#seam-choices [data-seam="seam-1"]').click();
+  });
+  state=await seamState();
+  assert.deepEqual(state.pressed,['seam-1']);
+  assert.deepEqual(state.highlighted,['top','corner']);
+  // When that upper strip vanishes again, the selected A becomes invalid.
+  // It must NOT auto-select lower B or retain stale neighboring highlights.
+  await change('dim-L1',950);
+  await page.waitForFunction(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+    return s?.querySelectorAll('#seam-choices [data-seam]').length===1
+      && !!s.querySelector('#seam-choices [data-seam="seam-2"]')
+      && !s.querySelector('#seam-choices [aria-pressed="true"]');
+  },null,{timeout:25000});
+  state=await seamState();
+  assert.deepEqual(state.ids,['seam-2']);
+  assert.deepEqual(state.pressed,[]);
+  assert.deepEqual(state.highlighted,[]);
+  assert.equal(state.cartDisabled,true);
+  assert.deepEqual(errors,[]);
+  console.log('PASS L4 '+width+'px: synthetic collapse/restore preserves Stoß A/B identity, clears stale highlight, cart blocked');
   await page.close();
  }
 }finally{
