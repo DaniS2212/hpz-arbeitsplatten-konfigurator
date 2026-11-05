@@ -81,7 +81,7 @@ test('U2-U4 source metadata records all nine original PNG hashes and unverified 
  const expectedPrice={U2:'687.36',U3:'691.49',U4:'691.49'};
  for(const [shape,caseData] of Object.entries(data.cases)){
   assert.deepEqual(caseData.dimensionsMm,base);
-  assert.equal(caseData.originalBinaryInGitHub,false);
+  assert.equal(caseData.originalBinaryInGitHub,true);
   assert.equal(caseData.images.length,3);
   assert.equal(caseData.displayedPriceEUR,expectedPrice[shape]);
   assert.match(caseData.priceInterpretation,/net-and-tax-not-independently-confirmed/);
