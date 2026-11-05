@@ -77,6 +77,7 @@ def render_report(cases, source_images, previews, commit):
             if data is None:
                 raise ReportError(str(width) + " px Draufsicht missing for " + cid)
             own.append((f"Eigene Admin-Draufsicht {width} px",
+                        f"Eigene {cid} Draufsicht {width} px",
                         _png_uri(data, cid + " Draufsicht " + str(width))))
             for seam_number in range(1, illustrated_seam_count + 1):
                 letter = chr(ord("A") + seam_number - 1)
@@ -86,6 +87,7 @@ def render_report(cases, source_images, previews, commit):
                         f"Stoß {letter} screenshot missing for {cid}, {width} px")
                 own.append((
                     f"Schematische Aufteilung – Stoß {letter} ({width} px), nur zur Orientierung, nicht für CNC",
+                    f"Eigene {cid} Aufteilung, Stoß {letter} markiert, {width} px",
                     _png_uri(data, f"{cid} Stoß {letter}, {width} px"),
                 ))
         desc = html.escape(str(case.get("note", "")), quote=True)
@@ -100,7 +102,7 @@ def render_report(cases, source_images, previews, commit):
           <div class="pair"><figure><figcaption>Original Speedmaster – Quelle: {file_name}</figcaption>
             <img alt="Original Speedmaster {html.escape(cid)}" src="{reference}"></figure>
           <div class="previews">
-            {''.join(f'<figure><figcaption>{html.escape(caption)}</figcaption><img alt="Eigene {html.escape(cid)} Vorschau: {html.escape(caption)}" src="{uri}"></figure>' for caption, uri in own)}
+            {''.join(f'<figure><figcaption>{html.escape(caption)}</figcaption><img alt="{html.escape(alt)}" src="{uri}"></figure>' for caption, alt, uri in own)}
           </div></div>
         </section>''')
     return '''<!doctype html><html lang="de"><head><meta charset="utf-8">
