@@ -39,15 +39,19 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
   const drawing=geometry(config);
   const visual={config,geometry:drawing,quote:{purchasable:false,referenceMatched:false,ruleVersion:'admin-visual-only'}};
   onVisual?.(visual);
-  if(product.family!=='straight'||!pricePreview?.url||!pricePreview?.nonce)return visual;
+  if(!pricePreview?.url||!pricePreview?.nonce)return visual;
   try{
     await settleInput(signal);
     const endpoint=new URL(pricePreview.url,typeof location==='undefined'?undefined:location.href);
     if(typeof location!=='undefined'&&endpoint.origin!==location.origin)
       return unavailable(visual,'Ungültige Preisverbindung. Bitte Produktseite neu laden.');
+    // One PHP price endpoint contract, shape-specific geometry fields.
+    // No client-provided EK, shipping cost, checkout approval or price.
     const request={schemaVersion:raw.schemaVersion,inputUnit:raw.inputUnit,productId:raw.productId,sku:raw.sku,
       product:raw.product,geometry:raw.geometry,corner:raw.corner,dimensions:raw.dimensions,
-      straightCorner:raw.straightCorner,material:raw.material,decor:raw.decor,quantity:raw.quantity};
+      ...(product.family==='straight'?{straightCorner:raw.straightCorner}:{})
+      ,...(product.family==='l'?{lCorner:raw.lCorner}:{})
+      ,material:raw.material,decor:raw.decor,edge:raw.edge,quantity:raw.quantity};
     for(let attempt=0;attempt<2;attempt++){
       if(signal?.aborted)return visual;
       try{
