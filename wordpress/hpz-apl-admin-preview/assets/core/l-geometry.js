@@ -349,11 +349,32 @@ export function lGeometry(config){
     &&config.corner==='square'
     &&corner.side==='none'&&corner.treatment===null
     &&Object.keys(corner.parameters).length===0;
+  // L3's 02.11 PR39 originals show three illustrated regions with two
+  // connection-icon seams; the complete model edge PROFILE is NOT confirmed.
+  // L4's FOUR 05.11 originals show the 600mm B5 case with two such seams.
+  // Neither is a supplier CNC, connector-count or shipped-piece commitment.
+  const angledWitnessEligible=angled&&w===2000&&h===2000
+    &&b1===600&&b2===600&&b3===900&&b4===900
+    &&(variant!=='L4'||b5===600)
+    &&config.material==='APL38'&&config.decor==='W980'
+    &&config.edge==='matching-1.5'&&config.corner==='square'
+    &&corner.side==='none'&&corner.treatment===null
+    &&Object.keys(corner.parameters).length===0;
   const assemblyPhotoObservation=assemblyWitnessEligible?{
     status:'photo-observation-only',
     caseId:variant+'-W980-38-2000x1200-20261105',
     visiblePanelRegions:2,
     illustratedSeamId:'seam-1',
+    connectorSymbols:['biscuit-symbols','worktop-connector-symbols'],
+    connectorCount:null,machiningCoordinates:null,verifiedCutList:false
+  }:angledWitnessEligible?{
+    status:'photo-observation-only',
+    caseId:variant==='L3'?'L3-base-2000-2000-600-900-20261102'
+      :'L4-W980-38-2000x2000-B5-600-20261105',
+    capturedDate:variant==='L3'?'2026-11-02':'2026-11-05',
+    observationScope:variant==='L3'?'layout-and-symbols-profile-not-fully-matched':'exact-visible-example-only',
+    visiblePanelRegions:3,
+    illustratedSeamIds:['seam-1','seam-2'],
     connectorSymbols:['biscuit-symbols','worktop-connector-symbols'],
     connectorCount:null,machiningCoordinates:null,verifiedCutList:false
   }:null;
