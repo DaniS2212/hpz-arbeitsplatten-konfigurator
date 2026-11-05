@@ -38,7 +38,7 @@ test('photographed assembly witness never leaks to changed dimensions, decor or 
  assert.equal(make({material:'APL17.5'}).assemblyPhotoObservation,null);
  assert.equal(make({decor:'H1145'}).assemblyPhotoObservation,null);
  assert.equal(make({corner:'round',special:100}).assemblyPhotoObservation,undefined);
- for(const shape of ['U2','U3','U4'])assert.equal(make({shape}).previewParts,undefined);
+ for(const shape of ['U2','U3','U4'])assert.equal(make({shape}).previewParts.length,3);
 });
 test('U1 screenshot metadata records source hashes but cannot imply supplier clearance',()=>{
  const data=JSON.parse(readFileSync(new URL('../../docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json',import.meta.url),'utf8'));

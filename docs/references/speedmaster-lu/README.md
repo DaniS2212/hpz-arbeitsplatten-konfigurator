@@ -72,3 +72,5 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 `shop-ui` im Manifest = unser eigener WooCommerce-/Konfigurator-Screenshot, keine Hersteller-Referenz.
 
 - [U1 05.11.2026: drei neue Speedmaster-Ansichten, sechs Maße, drei Teilbereiche und zwei Stöße](../../phase-u1-speedmaster-20261105.md) – [Bildprüfsummen](U1_JOINT_USER_20261105.json). Original-PNGs sind noch nicht als GitHub-Binärdateien hinterlegt; keine Fertigungsfreigabe.
+
+- [PR U2–U4 05.11.2026: U-Formen alle vier Stoßvarianten (Quer/Längs) mit je drei Herstelleraufnahmen](../../phase-u2-u4-speedmaster-20261105.md) – [neun Original-PNG-Hashes](U2_U4_JOINT_USER_20261105.json); noch kein Originalbild-Byteimport und keine Produktionsfreigabe.

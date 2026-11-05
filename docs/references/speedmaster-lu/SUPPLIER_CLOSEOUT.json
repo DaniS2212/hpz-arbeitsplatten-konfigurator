@@ -140,12 +140,96 @@
       }
     },
     "U1": {
-      "contour": {"status":"observed","sourceRefs":["docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"],"note":"Nur Grundform eines U1-Beispiels bestätigt; andere Ecken und Grenzwerte ungeprüft."},
-      "real-parts": {"status":"observed","sourceRefs":["docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"],"note":"Drei grafische Regionen, keine realen Teilezuschnitte oder Packstücke bestätigt."},
-      "connectors": {"status":"observed","sourceRefs":["docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"],"note":"Zwei Verbindersymbol-Gruppen erkennbar; tatsächlicher Typ, Menge und Fräspositionen nicht bestätigt."}
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"
+        ],
+        "note": "Nur Grundform eines U1-Beispiels bestätigt; andere Ecken und Grenzwerte ungeprüft."
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"
+        ],
+        "note": "Drei grafische Regionen, keine realen Teilezuschnitte oder Packstücke bestätigt."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json"
+        ],
+        "note": "Zwei Verbindersymbol-Gruppen erkennbar; tatsächlicher Typ, Menge und Fräspositionen nicht bestätigt."
+      }
     },
-    "U2": {},
-    "U3": {},
-    "U4": {}
+    "U2": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "U2 U-Kontur im Beispiel L1=2000, L2=1200, L3=1800, B1/B2/B3=600 beobachtet; andere Maße nicht explizit belegt."
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "Drei getrennte Grafikregionen; wirkliche Zuschnitte, Fertigmaße, reale Lieferstückzahl und Verpackung nicht bestätigt."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "Zwei Foto-Fugen mit sichtbaren Lamello- und Arbeitsplattenverbinder-Symbolen, kein Nachweis für Typ, Stückzahl oder Maschinenfräsung."
+      }
+    },
+    "U3": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "U3 U-Kontur im Beispiel L1=2000, L2=1200, L3=1800, B1/B2/B3=600 beobachtet; andere Maße nicht explizit belegt."
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "Drei getrennte Grafikregionen; wirkliche Zuschnitte, Fertigmaße, reale Lieferstückzahl und Verpackung nicht bestätigt."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "Zwei Foto-Fugen mit sichtbaren Lamello- und Arbeitsplattenverbinder-Symbolen, kein Nachweis für Typ, Stückzahl oder Maschinenfräsung."
+      }
+    },
+    "U4": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "U4 U-Kontur im Beispiel L1=2000, L2=1200, L3=1800, B1/B2/B3=600 beobachtet; andere Maße nicht explizit belegt."
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "Drei getrennte Grafikregionen; wirkliche Zuschnitte, Fertigmaße, reale Lieferstückzahl und Verpackung nicht bestätigt."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json"
+        ],
+        "note": "Zwei Foto-Fugen mit sichtbaren Lamello- und Arbeitsplattenverbinder-Symbolen, kein Nachweis für Typ, Stückzahl oder Maschinenfräsung."
+      }
+    }
   }
 }

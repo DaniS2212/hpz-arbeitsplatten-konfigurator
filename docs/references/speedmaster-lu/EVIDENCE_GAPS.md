@@ -27,4 +27,4 @@ Diese Liste ist **kein Hindernis** für weitere dokumentierende, prüfende oder 
 
 ### U-Formen (05.11.2026)
 - U1: drei neue Speedmaster-Bilder, sechs Grundmaße, zwei sichtbare Fugen und drei grafische Bereiche dokumentiert. Noch keine echten CNC-Teilzuschnitte, Fräsabstände, verbindlichen Verbindermengen, Packstücke oder vollständigen Liefer-/Preisnachweise. Original-PNG-Bytes bisher nicht im GitHub-Archiv.
-- U2–U4: vollständige Speedmaster-Maße und transparente 3D-Verbindungsbilder fehlen. Weiterhin nur schematische Ansichten und nicht kaufbar.
+- U2–U4: **Grundmaße und je drei Fotos vorhanden (05.11.2026)**. Die vier unterschiedlichen Stoßrichtungen sind visuell belegt. Offen bleiben reale Zuschnittpläne, Verbindertypen und -anzahlen, Packstücke, Lieferanten-Grenzfälle, EKs für weitere Maße/Dekore/Stärken und die Netto-Preisbestätigung. Original-PNG-Binärdateien sind noch nicht im GitHub-Archiv. Weiterhin nicht kaufbar.
