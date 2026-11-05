@@ -91,6 +91,74 @@ try{
    assert.deepEqual(errors,[],c.id+' script errors');
    await page.screenshot({path:'dist/l-review-'+c.id+'-'+width+'.png',fullPage:true});
    console.log('PASS '+c.id+' '+width+' px input fixture; image for human supplier comparison, no cart');
+   // Separate private snapshots for the parts and seam selector introduced
+   // in PR32/45/46. These are user-interface illustrations, never evidence
+   // of supplier CNC joints, actual number of shipped pieces or connector
+   // locations. The original supplier reference image remains unchanged.
+   const illustratedSeams=['L1','L2'].includes(c.shape)?1:2;
+   await page.evaluate(()=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     s.getElementById('view-parts').click();
+   });
+   await page.waitForFunction(({shape,count})=>{
+     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+     const svg=s?.querySelector('#drawing svg');
+     return s?.getElementById('view-parts')?.getAttribute('aria-pressed')==='true'
+       && svg?.querySelector('title')?.textContent.startsWith(shape+' ·')
+       && svg.querySelectorAll('.apl-preview-seam').length===count
+       && svg.querySelectorAll('.apl-preview-part').length===(count===1?2:3)
+       && s.querySelectorAll('#seam-choices [data-seam]').length===count;
+   },{shape:c.shape,count:illustratedSeams},{timeout:25000});
+   for(let n=1;n<=illustratedSeams;n++){
+     const seamId='seam-'+n;
+     await page.evaluate(id=>{
+       const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       const button=s.querySelector('#seam-choices [data-seam="'+id+'"]');
+       if(!button)throw Error('Missing illustrated '+id);
+       button.click();
+     },seamId);
+     const expectedNeighbors=illustratedSeams===1?['top','leg']
+       :n===1?['top','corner']:['corner','leg'];
+     await page.waitForFunction(({id,neighbors})=>{
+       const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+       const svg=s?.querySelector('#drawing svg');
+       return s?.getElementById('drawing')?.getAttribute('aria-busy')==='false'
+         && s.querySelector('#seam-choices [data-seam="'+id+'"]')?.getAttribute('aria-pressed')==='true'
+         && svg?.querySelector('[data-seam-id="'+id+'"]')?.getAttribute('data-selected')==='true'
+         && [...svg.querySelectorAll('.apl-preview-part[data-seam-neighbor="true"]')]
+              .map(p=>p.dataset.partId).join('|')===neighbors.join('|');
+     },{id:seamId,neighbors:expectedNeighbors},{timeout:25000});
+     const splitState=await page.evaluate(()=>{
+       const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+       return {cart:s.getElementById('cart').disabled,
+         numbers:s.querySelectorAll('#drawing svg .apl-part-number').length,
+         labels:s.querySelectorAll('#drawing svg .apl-measure').length,
+         selectedParts:s.querySelectorAll('#drawing svg .apl-preview-part[data-selected="true"]').length,
+         note:s.getElementById('seam-explain').textContent,
+         overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth};
+     });
+     assert.equal(splitState.cart,true,'L must remain unsaleable in illustrated seam view');
+     assert.equal(splitState.numbers,illustratedSeams===1?2:3,'preview piece number count');
+     assert.equal(splitState.labels,0,'dimension callouts should be hidden in parts review');
+     assert.equal(splitState.selectedParts,0,'seam highlight cannot pretend a single real piece was chosen');
+     assert.match(splitState.note,/ungeprüft|unbestätigt|Skizze|Lage/i);
+     assert.ok(splitState.overflow<=1,'no mobile overflow while selecting '+seamId);
+     assert.deepEqual(errors,[],'no browser error in '+c.shape+' '+seamId);
+     await page.screenshot({path:'dist/l-review-'+c.id+'-'+width+'-'+seamId+'.png',fullPage:true});
+     console.log('PASS '+c.shape+' '+width+'px '+seamId+': illustrated parts only, cart blocked');
+   }
+   // Restore the measured plan BEFORE applying the next reference fixture.
+   // Otherwise the next case's corner-dimension readiness test would only
+   // see the hidden-measure parts view and time out.
+   await page.evaluate(()=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     s.getElementById('view-plan').click();
+   });
+   await page.waitForFunction(()=>{
+     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+     return s?.getElementById('view-plan')?.getAttribute('aria-pressed')==='true'
+       && !!s.querySelector('#drawing svg .apl-measure');
+   },null,{timeout:25000});
   }
   // PR #44: exact customer-provided Speedmaster L4 B5 pair. Both
   // dimensions and the selected contour have to change on mobile/desktop.

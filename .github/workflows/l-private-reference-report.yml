@@ -14,6 +14,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'scripts/l_reference_report.py'
+      - 'scripts/test_l_reference_report.py'
+      - 'wordpress/l-reference-browser-runner.mjs'
+      - 'docs/l-private-speedmaster-review-guide-20261102.md'
       - 'local/core/l-geometry.mjs'
       - 'local/core/geometry.mjs'
       - 'wordpress/hpz-apl-admin-preview/assets/**'

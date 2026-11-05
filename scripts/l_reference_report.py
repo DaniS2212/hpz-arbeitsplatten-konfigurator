@@ -69,11 +69,27 @@ def render_report(cases, source_images, previews, commit):
             raise ReportError("Original Speedmaster PNG missing: " + cid)
         reference = _png_uri(source_images[cid], "Original " + cid)
         own = []
+        # L1/L2 have one illustrated seam, L3/L4 have two. These are
+        # screenshot REVIEW states only, never the number of real CNC joints.
+        illustrated_seam_count = 1 if cid in ("L1", "L2") else 2
         for width in (1366, 390):
             data = previews.get((cid, width))
             if data is None:
-                raise ReportError(str(width) + " px local preview missing for " + cid)
-            own.append((width, _png_uri(data, cid + " " + str(width))))
+                raise ReportError(str(width) + " px Draufsicht missing for " + cid)
+            own.append((f"Eigene Admin-Draufsicht {width} px",
+                        f"Eigene {cid} Draufsicht {width} px",
+                        _png_uri(data, cid + " Draufsicht " + str(width))))
+            for seam_number in range(1, illustrated_seam_count + 1):
+                letter = chr(ord("A") + seam_number - 1)
+                data = previews.get((cid, width, f"seam-{seam_number}"))
+                if data is None:
+                    raise ReportError(
+                        f"Stoß {letter} screenshot missing for {cid}, {width} px")
+                own.append((
+                    f"Schematische Aufteilung – Stoß {letter} ({width} px), nur zur Orientierung, nicht für CNC",
+                    f"Eigene {cid} Aufteilung, Stoß {letter} markiert, {width} px",
+                    _png_uri(data, f"{cid} Stoß {letter}, {width} px"),
+                ))
         desc = html.escape(str(case.get("note", "")), quote=True)
         file_name = html.escape(str(case.get("source", "")), quote=True)
         dims = ", ".join(f"{html.escape(str(k))}={html.escape(str(v))}" for k, v in case["dimensions"].items())
@@ -86,7 +102,7 @@ def render_report(cases, source_images, previews, commit):
           <div class="pair"><figure><figcaption>Original Speedmaster – Quelle: {file_name}</figcaption>
             <img alt="Original Speedmaster {html.escape(cid)}" src="{reference}"></figure>
           <div class="previews">
-            {''.join(f'<figure><figcaption>Eigene Admin-Vorschau {width} px</figcaption><img alt="Eigene {html.escape(cid)} Vorschau {width} px" src="{uri}"></figure>' for width, uri in own)}
+            {''.join(f'<figure><figcaption>{html.escape(caption)}</figcaption><img alt="{html.escape(alt)}" src="{uri}"></figure>' for caption, alt, uri in own)}
           </div></div>
         </section>''')
     return '''<!doctype html><html lang="de"><head><meta charset="utf-8">
@@ -105,7 +121,7 @@ img{display:block;max-width:100%;height:auto;border:1px solid #d3d9da;border-rad
 </style></head><body><main>
 <h1>Speedmaster / L1–L4 – interner Sichtvergleich</h1>
 <p>GitHub-Commit: ''' + html.escape(str(commit)) + '''. Alle Bilder sind in dieser HTML-Datei eingebettet. Keine Netzwerkverbindungen nötig.</p>
-<p class="warning"><strong>Keine automatische Herstellerfreigabe.</strong> Der Bericht zeigt dokumentierte Beispielwerte und dazu erzeugte Vorschauen. Die Übereinstimmung der Eingabewerte, Geometrie, Teilung, Verbinder, Kanten und Bemaßung muss anhand der Originalbilder weiterhin manuell geprüft werden. Die L/U-Produkte bleiben nicht bestellbar.</p>
+<p class="warning"><strong>Keine automatische Herstellerfreigabe.</strong> Der Bericht zeigt dokumentierte Beispielwerte und dazu erzeugte Vorschauen. Stoß A/B und die eingefärbten Bereiche sind reine eigene Planungsgrafiken, keine echten Fertigungs- oder Lieferstücke. Die Übereinstimmung der Eingabewerte, Geometrie, Teilung, Verbinder, Kanten und Bemaßung muss anhand der Originalbilder weiterhin manuell geprüft werden. Die L/U-Produkte bleiben nicht bestellbar.</p>
 ''' + "\n".join(sections) + '''</main></body></html>'''
 
 
@@ -125,11 +141,17 @@ def main():
         images = {case["id"]: zip_file.read(ARCHIVE_PREFIX + case["source"]) for case in cases}
     previews = {}
     for case in cases:
+        illustrated_seam_count = 1 if case["id"] in ("L1", "L2") else 2
         for width in (1366, 390):
             filename = ROOT / "dist" / f"l-review-{case['id']}-{width}.png"
             if not filename.is_file():
-                raise ReportError(f"{width} px preview missing: {filename}")
+                raise ReportError(f"{width} px Draufsicht missing: {filename}")
             previews[(case["id"], width)] = filename.read_bytes()
+            for seam_number in range(1, illustrated_seam_count + 1):
+                seam_file = ROOT / "dist" / f"l-review-{case['id']}-{width}-seam-{seam_number}.png"
+                if not seam_file.is_file():
+                    raise ReportError(f"Stoß {chr(ord('A') + seam_number - 1)} screenshot missing: {seam_file}")
+                previews[(case["id"], width, f"seam-{seam_number}")] = seam_file.read_bytes()
     content = render_report(cases, images, previews, commit=args.commit)
     output = args.output.resolve()
     # The report must never be placed inside the installable WordPress assets.
