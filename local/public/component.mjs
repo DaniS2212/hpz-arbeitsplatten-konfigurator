@@ -299,12 +299,22 @@ function renderSeamChoices(){
  const selected=seams.find(s=>s.id===selectedSeam);
  if(selected){
   const labels=selected.partIds.map(id=>lastGeometry.previewParts.find(p=>p.id===id)?.label).filter(Boolean);
-  // Photo-icon classes are observed ONLY in the exact 05.11.2026
-  // L1/L2 reference cases. These are NOT machining instructions.
+  // Only an exact documented photo observation may appear at a seam.
+  // L3's historical 02.11 reference does NOT establish the identical model
+  // profile; L4's B5=600 case is distinct from the earlier B5=300 pair.
+  // Neither visual note supplies CNC, binding connector counts or cut lists.
   const photo=lastGeometry.assemblyPhotoObservation;
-  const imageWitness=photo?.status==='photo-observation-only'&&photo.illustratedSeamId===selected.id
-   ?' Speedmaster-Referenz 05.11.2026 (nur identische Beispielmaße, W980, 38 mm): Zwei sichtbare Plattenbereiche mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.'
-   :'';
+  const photoMatches=photo?.status==='photo-observation-only'
+   &&(photo.illustratedSeamId===selected.id||photo.illustratedSeamIds?.includes(selected.id));
+  const profileNote=photo?.observationScope==='layout-and-symbols-profile-not-fully-matched'
+   ?' Die L3-Modellprofil-Ausführung ist nicht vollständig abgeglichen.':'';
+  const imageWitness=!photoMatches?'':photo.illustratedSeamIds?.length
+   ?' Speedmaster-Referenz '+(photo.capturedDate==='2026-11-02'?'02.11.2026':'05.11.2026')
+     +' (nur beobachtete 2000×2000-mm-Grundform, B1/B2=600 mm, B3/B4=900 mm'
+     +(photo.caseId.startsWith('L4')?', B5-Grundmaß=600 mm':'')
+     +'): Drei sichtbare Plattenbereiche, zwei Stoßstellen mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.'
+     +profileNote
+   :' Speedmaster-Referenz 05.11.2026 (nur identische Beispielmaße, W980, 38 mm): Zwei sichtbare Plattenbereiche mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.';
   seamExplain.textContent=selected.label+': '+(labels.length?labels.join(' / ')+' · ':'')+'Die Lage folgt der Bildskizze. Verbinder, Fräsungen, echte Teilplatten und Versandstücke sind noch ungeprüft.'+imageWitness;
  }else seamExplain.textContent='Wähle '+(seams.length===1?seams[0].label:'Stoß A/B')+', um die gezeigte Stelle zu markieren. Lage aus Speedmaster-Bildern nur zur Orientierung – keine CNC-, Verbinder- oder Teilefreigabe.';
 }
