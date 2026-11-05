@@ -22,6 +22,11 @@ ck(!HPZ_APL_WP_Straight_Runtime_09::canSell(),'public sale option disabled by de
 HPZ_APL_WP_Straight_Runtime_09::register();
 ck(!isset($actions['wp_ajax_nopriv_hpz_apl_public_quote']),'no guest quote endpoint');
 ck(!isset($actions['wp_ajax_nopriv_hpz_apl_add_configured']),'no guest cart endpoint');
+HPZ_APL_WP_LU_Runtime_11::register();
+ck(!HPZ_APL_WP_LU_Runtime_11::canSell(1000080),'L-form remains unavailable by default');
+ck(!HPZ_APL_WP_LU_Runtime_11::canSell(1000081),'U-form remains unavailable by default');
+ck(!isset($actions['wp_ajax_nopriv_hpz_apl_lu_quote']),'no unaudited L/U quote route');
+ck(!isset($actions['wp_ajax_nopriv_hpz_apl_lu_add']),'no unaudited L/U cart route');
 ck(!isset($filters['woocommerce_store_api_cart_item_quantity_validation']),'no new purchase filters');
 ck(isset($actions['init']),'runtime planned only at WordPress init');
 ck(isset($filters['woocommerce_is_purchasable']),'old purchase gate retained');
