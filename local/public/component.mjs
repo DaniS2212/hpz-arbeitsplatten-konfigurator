@@ -513,9 +513,9 @@ function refresh(){
   shell.dataset.corner=corner;
   $('special-wrap').hidden=!['round','chamfer'].includes(corner);
   $('corner-note').textContent=['round','chamfer'].includes(corner)?'Eckmuster oben links. Größe im Schritt „Maße“ anpassen; Ausführung noch zu prüfen.':corner==='continuous'?'Kontur und Verbindung dieser Ausführung sind noch zu prüfen.':'Klare, rechtwinklige Ecken. Die Außenkante ist im gleichen Dekor vorgesehen.';
-  if(product==='l'||product==='u'){
+  if(product==='l'){
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=product==='u'?'U1-Grundkontur ohne Eckbearbeitung belegt. Andere Eckoptionen sind nur schematisch.':lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · gerade Abschrägung; Kantenverlauf noch zu prüfen.';
+    $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · gerade Abschrägung; Kantenverlauf noch zu prüfen.';
     $('parts-note').querySelector('strong').textContent='Teilflächen zur Orientierung · keine Zuschnittdaten';
     $('parts-note').querySelector('p').textContent='Wähle eine Teilfläche aus. Die Stoßlinien zeigen nur die aus Speedmaster-Bildern erkennbare Lage. Exakte Fräsungen, Verbinder und Teileabmessungen bleiben ungeprüft.';
   }
