@@ -1,0 +1,19 @@
+name: Speedmaster U1-U4 original PNG archive integrity
+
+on:
+  pull_request:
+    paths:
+      - 'docs/references/speedmaster-lu/U_20261105_SOURCE_MANIFEST.csv'
+      - 'docs/references/speedmaster-lu/Speedmaster_U1-U4_20261105_Originale.zip'
+      - 'scripts/verify_u_20261105_archive.py'
+      - '.github/workflows/u-originals-archive-check.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-source-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact ZIP bytes and each of 12 original screenshots
+        run: python3 scripts/verify_u_20261105_archive.py --require

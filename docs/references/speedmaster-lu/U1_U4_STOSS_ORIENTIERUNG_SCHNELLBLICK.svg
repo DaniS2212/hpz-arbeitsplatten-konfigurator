@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="905" viewBox="0 0 820 905" role="img" aria-label="Illustrative U1 bis U4 Stoßrichtungen aus Speedmaster-Beispielen">
+<title>U1–U4: stoßliniengetreue 2D-Orientierung, keine Fertigungszeichnung</title>
+<rect width="820" height="905" fill="#f7f8fa"/>
+<text x="30" y="40" font-family="Arial,sans-serif" font-size="21" font-weight="bold" fill="#122436">U1–U4 · Stoßvarianten (Quelle: Speedmaster 05.11.2026)</text>
+<text x="30" y="66" font-family="Arial,sans-serif" font-size="12" fill="#545e68">Nur visuelle Ableitung aus 12 Originalen · 2000 / 1200 / 1800 mm · B1/B2/B3=600 mm</text>
+<text x="30" y="85" font-family="Arial,sans-serif" font-size="12" fill="#a13333">KEINE CNC-Zeichnung · KEINE Zuschnittliste oder Hersteller-/Versandfreigabe</text><g transform="translate(30 112)" font-family="Arial,sans-serif">
+<rect x="0" y="0" width="365" height="365" rx="12" fill="#fff" stroke="#b8c2c9" stroke-width="1.5"/>
+<text x="20" y="35" font-size="19" font-weight="bold" fill="#112d42">U1</text>
+<text x="20" y="59" font-size="13" fill="#415366">Stoß links: quer · rechts: quer</text>
+<g transform="translate(79 91)">
+<path d="M0 0 H200 V180 H140 V60 H60 V120 H0 Z" fill="#adaba3" stroke="#5f645f" stroke-width="1.5"/>
+<path d="M0 60 H60" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<path d="M140 60 H200" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<text x="30" y="135" font-size="10" fill="#415366">L2=1200</text>
+<text x="150" y="195" font-size="10" fill="#415366">L3=1800</text>
+<text x="75" y="-9" font-size="12" fill="#415366">L1=2000</text>
+<text x="79" y="36" font-size="9" fill="#415366">B1=600</text>
+</g>
+<text x="20" y="345" font-size="12" fill="#6f4541">Rot gestrichelt: optisch sichtbare Stoßlinie</text>
+</g><g transform="translate(424 112)" font-family="Arial,sans-serif">
+<rect x="0" y="0" width="365" height="365" rx="12" fill="#fff" stroke="#b8c2c9" stroke-width="1.5"/>
+<text x="20" y="35" font-size="19" font-weight="bold" fill="#112d42">U2</text>
+<text x="20" y="59" font-size="13" fill="#415366">Stoß links: längs · rechts: längs</text>
+<g transform="translate(79 91)">
+<path d="M0 0 H200 V180 H140 V60 H60 V120 H0 Z" fill="#adaba3" stroke="#5f645f" stroke-width="1.5"/>
+<path d="M60 0 V60" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<path d="M140 0 V60" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<text x="30" y="135" font-size="10" fill="#415366">L2=1200</text>
+<text x="150" y="195" font-size="10" fill="#415366">L3=1800</text>
+<text x="75" y="-9" font-size="12" fill="#415366">L1=2000</text>
+<text x="79" y="36" font-size="9" fill="#415366">B1=600</text>
+</g>
+<text x="20" y="345" font-size="12" fill="#6f4541">Rot gestrichelt: optisch sichtbare Stoßlinie</text>
+</g><g transform="translate(30 501)" font-family="Arial,sans-serif">
+<rect x="0" y="0" width="365" height="365" rx="12" fill="#fff" stroke="#b8c2c9" stroke-width="1.5"/>
+<text x="20" y="35" font-size="19" font-weight="bold" fill="#112d42">U3</text>
+<text x="20" y="59" font-size="13" fill="#415366">Stoß links: längs · rechts: quer</text>
+<g transform="translate(79 91)">
+<path d="M0 0 H200 V180 H140 V60 H60 V120 H0 Z" fill="#adaba3" stroke="#5f645f" stroke-width="1.5"/>
+<path d="M60 0 V60" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<path d="M140 60 H200" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<text x="30" y="135" font-size="10" fill="#415366">L2=1200</text>
+<text x="150" y="195" font-size="10" fill="#415366">L3=1800</text>
+<text x="75" y="-9" font-size="12" fill="#415366">L1=2000</text>
+<text x="79" y="36" font-size="9" fill="#415366">B1=600</text>
+</g>
+<text x="20" y="345" font-size="12" fill="#6f4541">Rot gestrichelt: optisch sichtbare Stoßlinie</text>
+</g><g transform="translate(424 501)" font-family="Arial,sans-serif">
+<rect x="0" y="0" width="365" height="365" rx="12" fill="#fff" stroke="#b8c2c9" stroke-width="1.5"/>
+<text x="20" y="35" font-size="19" font-weight="bold" fill="#112d42">U4</text>
+<text x="20" y="59" font-size="13" fill="#415366">Stoß links: quer · rechts: längs</text>
+<g transform="translate(79 91)">
+<path d="M0 0 H200 V180 H140 V60 H60 V120 H0 Z" fill="#adaba3" stroke="#5f645f" stroke-width="1.5"/>
+<path d="M0 60 H60" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<path d="M140 0 V60" fill="none" stroke="#bf3a2c" stroke-width="3" stroke-dasharray="6 4"/>
+<text x="30" y="135" font-size="10" fill="#415366">L2=1200</text>
+<text x="150" y="195" font-size="10" fill="#415366">L3=1800</text>
+<text x="75" y="-9" font-size="12" fill="#415366">L1=2000</text>
+<text x="79" y="36" font-size="9" fill="#415366">B1=600</text>
+</g>
+<text x="20" y="345" font-size="12" fill="#6f4541">Rot gestrichelt: optisch sichtbare Stoßlinie</text>
+</g></svg>
