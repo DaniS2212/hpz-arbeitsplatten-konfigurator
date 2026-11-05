@@ -338,6 +338,25 @@ export function lGeometry(config){
       from:[...seam.from],to:[...seam.to],partIds:allVisible?neighbors:[],
       status:'illustration-only',connectorType:null,connectorCount:null,machiningCoordinates:null};
   });
+  // Six REAL Speedmaster photos from 05.11.2026 show TWO visible panels
+  // and symbols resembling biscuits and worktop connectors for THESE EXACT
+  // L1/L2 values. This is a screen observation, never a production BOM:
+  // symbol counts, real connector types and milling coordinates are unknown.
+  const assemblyWitnessEligible=(variant==='L1'||variant==='L2')
+    &&w===2000&&h===1200&&b1===600&&b2===600
+    &&config.material==='APL38'&&config.decor==='W980'
+    &&config.edge==='matching-1.5'
+    &&config.corner==='square'
+    &&corner.side==='none'&&corner.treatment===null
+    &&Object.keys(corner.parameters).length===0;
+  const assemblyPhotoObservation=assemblyWitnessEligible?{
+    status:'photo-observation-only',
+    caseId:variant+'-W980-38-2000x1200-20261105',
+    visiblePanelRegions:2,
+    illustratedSeamId:'seam-1',
+    connectorSymbols:['biscuit-symbols','worktop-connector-symbols'],
+    connectorCount:null,machiningCoordinates:null,verifiedCutList:false
+  }:null;
   const warnings=[
     'L'+variant.slice(1)+' nach Speedmaster-Screenshots vom 30.10.2026: nur Maßskizze, keine Fertigungs- oder Preisfreigabe.',
     'Aufteilung illustriert die sichtbaren Anschlussrichtungen; exakte Dübel-/Verbinderfräsungen und Lieferantengrenzen bleiben offen.'
@@ -350,7 +369,7 @@ export function lGeometry(config){
     version:'speedmaster-l-screenshot-20261030',title:variant+' · L-Arbeitsplatte nach Speedmaster-Bild',
     points:result.points,path:result.path,areaMm2:area(result.points)+roundArcCorrection,width:w,height:h,dimensions:dims,
     edges:result.points.map((p,i)=>({from:p,to:result.points[(i+1)%result.points.length],finish:'matching-1.5',status:'planned',kind:'line'})),
-    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewSeamDetails,previewParts,
+    corner:'square',cornerSizeMm:null,contourMarkers:result.markers,cornerCuts,cornerDimensions,cornerArcs,previewSeams,previewSeamDetails,previewParts,assemblyPhotoObservation,
     softIndices,contourStatus:softIndices.length?'schematic':null,
     joints:null,shippingParts:null,supplierMappingVerified:false,warnings
   };
