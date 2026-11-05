@@ -7,7 +7,7 @@
       "contour": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-02/06",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115001).png",
           "docs/l-speedmaster-screenshot-evidence-20261102.md"
         ],
         "note": "Foto und transkribierte Grundform, keine Herstellerfreigabe"
@@ -15,7 +15,7 @@
       "outer-corners": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-06",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115001).png",
           "docs/l-speedmaster-visual-parity-20261102.md"
         ],
         "note": "Abschraegungen und Massachsen aus Bildern, Endradien nicht nachgewiesen"
@@ -33,7 +33,7 @@
       "contour": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-02/06",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115024).png",
           "docs/l-speedmaster-screenshot-evidence-20261102.md"
         ],
         "note": "L2 gespiegelter Grundriss aus Herstellerbildern"
@@ -41,7 +41,7 @@
       "outer-corners": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-06",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115024).png",
           "docs/l-speedmaster-visual-parity-20261102.md"
         ],
         "note": "Achszuordnung visuell beobachtet, technische Fertigung offen"
@@ -51,7 +51,7 @@
       "contour": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-02/03",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114354).png",
           "docs/l-speedmaster-screenshot-evidence-20261102.md"
         ],
         "note": "Innen-Diagonale nur an Beispielwerten beobachtet"
@@ -59,7 +59,7 @@
       "diagonal-piece": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-03",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114354).png",
           "docs/phase-l-fertigungsabgleich-20261102.md"
         ],
         "note": "Eckteil nur illustrativ; reale Schnittgeometrie und Stoesse nicht dokumentiert"
@@ -69,7 +69,7 @@
       "contour": {
         "status": "observed",
         "sourceRefs": [
-          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#block-02/03",
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114510).png",
           "docs/l-speedmaster-screenshot-evidence-20261102.md"
         ],
         "note": "L4 Beispielkonturen, keine allgemeine B5 Formel nachgewiesen"
