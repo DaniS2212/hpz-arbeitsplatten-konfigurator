@@ -162,7 +162,7 @@ class PrivateReferenceReportTests(unittest.TestCase):
                                unpaired_sources=[item])
         self.assertIn("&lt;script&gt;",document)
         self.assertNotIn("<script>",document)
-        self.assertIn("keine Fertigungsfreigabe",document.lower())
+        self.assertIn("keine fertigungsfreigabe",document.lower())
 
     def test_stoss_screenshot_must_be_valid_png_not_arbitrary_bytes(self):
         case = self.cases[0]
