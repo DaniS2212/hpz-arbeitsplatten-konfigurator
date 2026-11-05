@@ -78,11 +78,22 @@ export function auditLReference(config,drawing) {
   check('visible-seam-count',!identical||seams.length===sample.visualSeams),
   check('seam-ends-on-contour',seams.every(s=>validPoint(s.from)&&validPoint(s.to)
    &&onContour(s.from,outline)&&onContour(s.to,outline))),
-  check('seam-evidence-unapproved',details.length===seams.length&&details.every((detail,i)=>
-   detail?.id==='seam-'+(i+1)&&detail.status==='illustration-only'
-   &&detail.connectorType===null&&detail.connectorCount===null&&detail.machiningCoordinates===null
-   &&samePoints([detail.from,detail.to],[seams[i]?.from,seams[i]?.to])
-   &&Array.isArray(detail.partIds)&&detail.partIds.every(id=>regions.some(p=>p.id===id)))),
+  // Stoß A/B belong to their physical drawing guides, NOT array order.
+  // PR48 keeps lower horizontal Stoß B as seam-2 even when the upper
+  // preview strip vanishes. Never accept a silent A↔B reassignment.
+  check('seam-evidence-unapproved',details.length===seams.length
+   &&new Set(details.map(d=>d?.id)).size===details.length
+   &&details.every((detail,i)=>{
+    const seam=seams[i];
+    const angled=config.geometry==='L3'||config.geometry==='L4';
+    const vertical=seam&&near(seam.from?.[0],seam.to?.[0]);
+    const slot=angled?(vertical?1:2):1;
+    return detail?.id==='seam-'+slot&&detail.label==='Stoß '+(slot===1?'A':'B')
+     &&detail.status==='illustration-only'
+     &&detail.connectorType===null&&detail.connectorCount===null&&detail.machiningCoordinates===null
+     &&samePoints([detail.from,detail.to],[seam?.from,seam?.to])
+     &&Array.isArray(detail.partIds)&&detail.partIds.every(id=>regions.some(p=>p.id===id));
+   })),
   check('preview-region-coverage',regions.length>0&&regions.every(p=>
    p.status==='illustration-only'&&Array.isArray(p.polygon)&&p.polygon.length>=3
    &&p.polygon.every(validPoint)&&Math.abs(signedArea(p.polygon))>1)
