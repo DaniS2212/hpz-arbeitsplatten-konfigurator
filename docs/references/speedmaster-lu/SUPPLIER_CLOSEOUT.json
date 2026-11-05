@@ -27,6 +27,20 @@
           "docs/price-reference-cases.csv"
         ],
         "note": "Vier echte L1-Referenzen, keine allgemein gueltige Preistabelle"
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L1_L2_JOINT_USER_20261105.json"
+        ],
+        "note": "Nur ZWEI grafisch getrennte Bereiche am Beispiel L1 2000x1200 B1/B2=600 erkennbar. Keine reale Lieferstückzahl, Maschinenzuschnittgeometrie, Packstückmaße oder Fertigungsfreigabe bestätigt."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L1_L2_JOINT_USER_20261105.json"
+        ],
+        "note": "Im transparenten Speedmaster-Bild für L1 sind Flachdübel-/Lamello-Symbole und Arbeitsplattenverbinder-Symbole sichtbar; genaue Anzahl, echter Typ und Fräs-/Bohrpositionen sind NICHT bestätigt."
       }
     },
     "L2": {
@@ -45,6 +59,20 @@
           "docs/l-speedmaster-visual-parity-20261102.md"
         ],
         "note": "Achszuordnung visuell beobachtet, technische Fertigung offen"
+      },
+      "real-parts": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L1_L2_JOINT_USER_20261105.json"
+        ],
+        "note": "Nur ZWEI grafisch getrennte Bereiche am Beispiel L2 2000x1200 B1/B2=600 erkennbar. Keine reale Lieferstückzahl, Maschinenzuschnittgeometrie, Packstückmaße oder Fertigungsfreigabe bestätigt."
+      },
+      "connectors": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L1_L2_JOINT_USER_20261105.json"
+        ],
+        "note": "Im transparenten Speedmaster-Bild für L2 sind Flachdübel-/Lamello-Symbole und Arbeitsplattenverbinder-Symbole sichtbar; genaue Anzahl, echter Typ und Fräs-/Bohrpositionen sind NICHT bestätigt."
       }
     },
     "L3": {
