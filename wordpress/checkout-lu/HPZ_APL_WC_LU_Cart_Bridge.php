@@ -93,15 +93,15 @@ final class HPZ_APL_WC_LU_Cart_Bridge
             $dims[$k] = (string)$v;
         }
         $productId = $c['productId'];
-        return [
+        $raw = [
             'schemaVersion'=>2,'inputUnit'=>'mm','productId'=>$productId,
             'sku'=>self::SKUS[$productId],
             'product'=>$c['product'],'geometry'=>$c['geometry'],'corner'=>'square',
             'dimensions'=>$dims,'material'=>$c['material'],'decor'=>$c['decor'],
             'edge'=>'matching-1.5','quantity'=>$c['quantity'],
-            ...($c['product']==='l'
-                ? ['lCorner'=>['side'=>'none','treatment'=>null,'parameters'=>[]]] : []),
         ];
+        if ($c['product']==='l') $raw['lCorner']=['side'=>'none','treatment'=>null,'parameters'=>[]];
+        return $raw;
     }
 
     /**
