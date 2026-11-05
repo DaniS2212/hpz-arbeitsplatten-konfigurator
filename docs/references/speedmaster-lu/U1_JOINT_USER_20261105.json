@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "caseId": "U1-W980-38-2000x1200x1800-B1B2B3-600-20261105",
+  "source": "user-supplied Speedmaster screenshots",
+  "capturedDate": "2026-11-05",
+  "status": "observed-not-reviewed",
+  "originalBinaryInGitHub": false,
+  "dimensionsMm": {
+    "L1": 2000,
+    "L2": 1200,
+    "L3": 1800,
+    "B1": 600,
+    "B2": 600,
+    "B3": 600
+  },
+  "material": "APL38",
+  "decorSupplierCode": "W980 ST7",
+  "edge": "1.5mm matching decor",
+  "images": [
+    {
+      "file": "image(20261105-095405).png",
+      "role": "top-view",
+      "bytes": 430535,
+      "width": 2047,
+      "height": 687,
+      "sha256": "9c204cac26ae761a42376096595f9e07088ba8201e1f9297510492a08a9c9a06"
+    },
+    {
+      "file": "image(20261105-095432).png",
+      "role": "transparent-overview",
+      "bytes": 502495,
+      "width": 2048,
+      "height": 681,
+      "sha256": "101bbec9a9140d664989b358f620b4bb845158cc1937c9845e545e0e56c16626"
+    },
+    {
+      "file": "image(20261105-095508).png",
+      "role": "two-seam-closeup",
+      "bytes": 775466,
+      "width": 2048,
+      "height": 696,
+      "sha256": "ed4193ad0b85ad087cf8fb54494678c2f9e6597a7046a2b29eb7e4b656115871"
+    }
+  ],
+  "visiblePanelRegions": 3,
+  "visibleSeams": [
+    "seam-1",
+    "seam-2"
+  ],
+  "observedAdjacency": {
+    "seam-1": [
+      "top",
+      "left"
+    ],
+    "seam-2": [
+      "top",
+      "right"
+    ]
+  },
+  "connectorSymbolClasses": [
+    "biscuit-symbols",
+    "worktop-connector-symbols"
+  ],
+  "connectorCountVerified": false,
+  "machiningCoordinatesVerified": false,
+  "actualCutListVerified": false,
+  "shippingPartsVerified": false,
+  "manufacturingApproval": false,
+  "salesApproval": false,
+  "supplierShownPriceEUR": "691.49",
+  "supplierShownPriceTaxTreatment": "not independently established"
+}
