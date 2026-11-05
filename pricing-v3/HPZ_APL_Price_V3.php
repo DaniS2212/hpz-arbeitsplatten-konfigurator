@@ -197,6 +197,31 @@ final class HPZ_APL_Price_V3
     }
 
     /**
+     * Shared commercial price POLICY for a supplier-priced worktop.
+     *
+     * Straight continues to use its existing V3 dimension/decor price curve.
+     * L/U may call this ONLY after their exact supplier and shipping evidence
+     * is verified on the server. Same company rules as Straight: 10% cost
+     * reserve, 40% target margin and German 19%-VAT reference gross.
+     * Discounts are guarded separately by checkNetMargin() below.
+     *
+     * All inputs in net EUR cents per configured unit; returns gross DE
+     * reference cents rounded UP to EUR 10. No Woo tax/sale approval implied.
+     */
+    public static function targetGrossForVerifiedCosts(int $supplierNetCents, int $inboundNetCents, int $otherNetCents): int
+    {
+        if ($supplierNetCents < 1 || $supplierNetCents > 10000000
+            || $inboundNetCents < 0 || $inboundNetCents > 10000000
+            || $otherNetCents < 0 || $otherNetCents > 10000000) {
+            throw new InvalidArgumentException('Verifizierte Stückkosten in EUR-Cent erforderlich.');
+        }
+        $totalNetCosts = $supplierNetCents + $inboundNetCents + $otherNetCents;
+        // Exact integer ceil: cost * (1+10%) * (1+19% VAT) / (1-40% margin)
+        // = cost*1309/600; rounding UP to the next 1000 cents.
+        return intdiv($totalNetCosts * 1309 + 600000 - 1, 600000) * 1000;
+    }
+
+    /**
      * Preferred sale-margin guard. Exact supplier EK, verified shipping-part
      * lengths, and post-discount NET revenue must ALL come from the server.
      * Work per configured unit or use consistent totals for every input.
