@@ -1,10 +1,10 @@
-# PR #43 – Privater visueller Abgleich Speedmaster gegen L1–L4
+# PR #43 / #47 – Privater visueller Abgleich Speedmaster gegen L1–L4
 
-Stand 02.11.2026 · **Internes Review-Werkzeug**. Keine WordPress-Oberflächen-, Produkt-, Preis- oder Freigabeänderung.
+Aktualisiert 05.11.2026 (PR #47) · **Internes Review-Werkzeug**. Keine WordPress-Oberflächen-, Produkt-, Preis- oder Freigabeänderung.
 
 ## Ziel
 
-Die bereits mit PR #39 privat archivierten **60 unveränderten Originalbilder** bleiben die Quelle. Damit jede spätere Codeänderung an der L-Geometrie kontrolliert beurteilt werden kann, generiert `.github/workflows/l-private-reference-report.yml` einen **vollständig offline nutzbaren HTML-Bericht** mit vier Speedmaster-Originalscreenshots und je einer aktuellen Desktop- (1366 px) und Smartphone-Vorschau (390 px), direkt nebeneinander.
+Die bereits mit PR #39 privat archivierten **60 unveränderten Originalbilder** bleiben die Quelle. Damit jede spätere Codeänderung an der L-Geometrie kontrolliert beurteilt werden kann, generiert `.github/workflows/l-private-reference-report.yml` einen **vollständig offline nutzbaren HTML-Bericht** mit vier Speedmaster-Originalscreenshots und je einer aktuellen **Draufsicht sowie Einzelansichten der schematischen Stoßmarkierungen** auf Desktop (1366 px) und Smartphone (390 px), direkt nebeneinander.
 
 Das ist ein **Sichtvergleich**, kein maschineller Pixel-Gleichheitsbeweis. Speedmaster und WooCommerce haben verschiedene Kamerawinkel, Zoom, Dekore und Maßbeschriftungen. Darüber hinaus muss bei der finalen manuellen Sichtung erst geprüft werden, ob die aus den historischen Chat-/Screenshot-Notizen übernommenen Beispielwerte exakt zum einzelnen Originalfoto passen.
 
@@ -14,7 +14,7 @@ Das ist ein **Sichtvergleich**, kein maschineller Pixel-Gleichheitsbeweis. Speed
 - Bilder: `docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip`; unveränderte SHA-256-Prüfsummen aus `SOURCE_MANIFEST.csv`.
 - Der Python-Importer `scripts/import_speedmaster_reference_zip.py` prüft **alle 60 Quellen** und den gesamten ZIP-Hash. Der neue Reportgenerator `scripts/l_reference_report.py` bindet **nur** Fälle mit `source_type=speedmaster` ein und blockiert Originalbilder der `shop-ui`-Kategorie als vermeintlichen Lieferantenbeleg.
 - Die Prüfkonfigurationen (W980, APL38) werden von `wordpress/l-reference-browser-runner.mjs` in der unverkäuflichen Vorschau gerendert. Für L3/L4 bleiben verknüpfte B1/B2 und B3/B4 Eingabewerte sowie die getrennte L4-B5-Grundmaß-/B5-Eckmaß-Logik bestehen.
-- Ausgabe ausschließlich als **privates GitHub-Actions-Artefakt** `l-private-speedmaster-reference-review`: `dist/l-reference-report.html` plus acht Bildbelege `dist/l-review-L1-1366.png` usw. Keine Links zu externen CDNs, keine Eingabeformulare oder Scripts; Originalbilder als in HTML eingebettete Data-URIs. Das Archiv bleibt im privaten Repo.
+- Ausgabe ausschließlich als **privates GitHub-Actions-Artefakt** `l-private-speedmaster-reference-review`: `dist/l-reference-report.html` plus **20 eigene Bildbelege**: je vier Draufsichten (vier Formen × 2 Breiten = 8), je Stoß A für L1–L4 (8) und je Stoß B für L3/L4 (4). Dateimuster `dist/l-review-L1-1366.png`, `dist/l-review-L1-1366-seam-1.png`, `dist/l-review-L4-390-seam-2.png`. Keine Links zu externen CDNs, keine Eingabeformulare oder Scripts; Originalbilder als in HTML eingebettete Data-URIs. Das Archiv bleibt im privaten Repo.
 - Ablauf: GitHub → Actions → **Speedmaster private L visual comparison (never publish)** → Lauf öffnen → Artefakt. Bei Bedarf manuell `workflow_dispatch` erneut ausführen. GitHub-Actions-Artefakte werden nach **30 Tagen** entfernt, die Originaldateien im Repo bleiben erhalten.
 
 ## Anwendungsfall und Grenzen
@@ -22,7 +22,8 @@ Das ist ein **Sichtvergleich**, kein maschineller Pixel-Gleichheitsbeweis. Speed
 Für das spätere **einmalige Gesamt-Review**, das der Auftraggeber nach Abschluss der selbstständigen, belegbaren Entwicklungsbausteine machen möchte, eröffnet man diesen Bericht. Pro Form ist sichtbar:
 
 - Soll-Eingabewerte der dokumentierten Beispielkonfiguration und archivierte Herstelleraufnahme.
-- Eigene 2D-Vorschau Desktop und Smartphone nach derselben dokumentierten Eingabematrix.
+- Eigene 2D-Draufsicht auf Desktop und Smartphone nach derselben dokumentierten Eingabematrix.
+- **Neu mit PR #47:** Bei L1/L2 der ausgewählte **schematische Stoß A**, bei L3/L4 zusätzlich jeweils Stoß A und B in **getrennten** Aufteilungsansichten mit ihren eingefärbten Nachbarregionen (PR #45/#46). Alle Bilder benutzen denselben Referenzeingabesatz; eine Aufteilung ist damit **keine reale Zuschnittfreigabe**.
 - Unterschiede in Kontur, Achse, Eckbearbeitung, Maßangaben, inneren Diagonalen, Stoßverläufen und Dekor.
 - **Keine** erfundenen Steckverbindungs-/CNC-Daten. Die L/U-Warenkorbfreigabe bleibt unberührt und gesperrt.
 
@@ -32,8 +33,10 @@ Ein grüner Workflow beweist nur: korrekte Bildherkunft, reproduzierbare Screens
 
 ## Absicherung
 
-- Python-Unittests `scripts/test_l_reference_report.py`: eindeutige Quellen, kein `shop-ui`-Missbrauch, drei eingebettete Bilder pro Fall, Fehlermeldungen bei fehlenden Quellen/Browserscreenshots, HTML-Escaping und keine externen Bildlinks.
-- Browsertest: alle vier festgeschriebenen Datensätze auf 1366/390 px, tatsächlich angezeigte Maße, beide Außenecken, stabile SVG-Draufsicht, kein horizontaler Überlauf, keine JavaScript-Fehler, **kein Warenkorb**.
+- Python-Unittests `scripts/test_l_reference_report.py`: eindeutige Quellen, kein `shop-ui`-Missbrauch, **5 eingebettete Bilder pro L1/L2-Fall bzw. 7 pro L3/L4-Fall**, harte Fehler bei fehlenden oder ungültigen Stoßbildern, HTML-Escaping und keine externen Bildlinks.
+- Browsertest: alle vier festgeschriebenen Datensätze auf 1366/390 px, tatsächlich angezeigte Maße, beide Außenecken, stabile SVG-Draufsicht und zusätzlich ausgewählte **Stoß-Nachbarregionen**, keine Maßtexte in der technischen Aufteilung, kein horizontaler Überlauf, keine JavaScript-Fehler, **kein Warenkorb**.
 - Der Workflow hat ausschließlich `contents: read`; Veröffentlichungs-, Merge- oder Hosting-Schritte existieren nicht. Der Bericht enthält nur Bilder aus einem verifizierten internen, privaten GitHub-Repository.
+
+**Die sechs neueren L4-B5-Binäroriginale aus dem separaten Screenshotpaket sind weiterhin nicht im GitHub-Archiv enthalten; PR #47 behauptet hierfür keinen zusätzlichen Originalbildbeleg.**
 
 **Nach Fertigstellung der offenen Herstellerdaten** werden die Beispielpaare bei Bedarf um neue unabhängige Speedmaster-Aufnahmen ergänzt. Keine stillschweigende Umschreibung eines ungeprüften Geometriemodells.
