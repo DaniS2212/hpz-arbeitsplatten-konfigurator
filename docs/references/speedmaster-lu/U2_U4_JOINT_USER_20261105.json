@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "source": "user-provided Speedmaster screenshots",
+  "capturedDate": "2026-11-05",
+  "scope": "three-matched-configurations",
+  "cases": {
+    "U2": {
+      "caseId": "U2-W980-38-2000x1200x1800-B1B2B3-600-20261105",
+      "status": "observed-not-reviewed",
+      "originalBinaryInGitHub": false,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "material": "APL38",
+      "decorSupplierCode": "W980 ST7",
+      "edge": "matching-1.5-mm-decor",
+      "leftSeamDirection": "length",
+      "rightSeamDirection": "length",
+      "visiblePanelRegions": 3,
+      "visibleSeams": [
+        "seam-1",
+        "seam-2"
+      ],
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "displayedPriceEUR": "687.36",
+      "priceInterpretation": "screenshot-displayed-only-net-and-tax-not-independently-confirmed",
+      "manufacturingApproval": false,
+      "salesApproval": false,
+      "images": [
+        {
+          "file": "image(20261105-101444).png",
+          "role": "top-view",
+          "bytes": 453704,
+          "width": 2048,
+          "height": 686,
+          "sha256": "871e9fbd6d56dfd17751093da3c04409115a0074a2d4b18913176e5e270aa327"
+        },
+        {
+          "file": "image(20261105-101457).png",
+          "role": "transparent-3d",
+          "bytes": 497732,
+          "width": 2048,
+          "height": 691,
+          "sha256": "da3c5ccd3eef02b25c1beb2685ec39d23e17efcbd5515de017e7fa1d2b5f6b66"
+        },
+        {
+          "file": "image(20261105-101543).png",
+          "role": "joint-close-up",
+          "bytes": 678886,
+          "width": 2048,
+          "height": 726,
+          "sha256": "5d9ccf1e8ca782565d0f9570d4989c492155be474cbef0bd9eaedb1eb3db7f42"
+        }
+      ]
+    },
+    "U3": {
+      "caseId": "U3-W980-38-2000x1200x1800-B1B2B3-600-20261105",
+      "status": "observed-not-reviewed",
+      "originalBinaryInGitHub": false,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "material": "APL38",
+      "decorSupplierCode": "W980 ST7",
+      "edge": "matching-1.5-mm-decor",
+      "leftSeamDirection": "length",
+      "rightSeamDirection": "cross",
+      "visiblePanelRegions": 3,
+      "visibleSeams": [
+        "seam-1",
+        "seam-2"
+      ],
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "displayedPriceEUR": "691.49",
+      "priceInterpretation": "screenshot-displayed-only-net-and-tax-not-independently-confirmed",
+      "manufacturingApproval": false,
+      "salesApproval": false,
+      "images": [
+        {
+          "file": "image(20261105-101602).png",
+          "role": "top-view",
+          "bytes": 461909,
+          "width": 2048,
+          "height": 691,
+          "sha256": "ebea97bc0f818b2fbe56e81aae72a4077fd323a59535e01fbec3743765d444ee"
+        },
+        {
+          "file": "image(20261105-101621).png",
+          "role": "transparent-3d",
+          "bytes": 487393,
+          "width": 2047,
+          "height": 690,
+          "sha256": "0086e773b8656194d10ec214ef86517eadf17879bfb5d9fa49f59ccf89cc0107"
+        },
+        {
+          "file": "image(20261105-101636).png",
+          "role": "joint-close-up",
+          "bytes": 679167,
+          "width": 2048,
+          "height": 681,
+          "sha256": "eb4ab42699fce24cc97aadf9a4ecdb8935f8d3342d0c78e28b2ce0c2a9600a80"
+        }
+      ]
+    },
+    "U4": {
+      "caseId": "U4-W980-38-2000x1200x1800-B1B2B3-600-20261105",
+      "status": "observed-not-reviewed",
+      "originalBinaryInGitHub": false,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "material": "APL38",
+      "decorSupplierCode": "W980 ST7",
+      "edge": "matching-1.5-mm-decor",
+      "leftSeamDirection": "cross",
+      "rightSeamDirection": "length",
+      "visiblePanelRegions": 3,
+      "visibleSeams": [
+        "seam-1",
+        "seam-2"
+      ],
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "displayedPriceEUR": "691.49",
+      "priceInterpretation": "screenshot-displayed-only-net-and-tax-not-independently-confirmed",
+      "manufacturingApproval": false,
+      "salesApproval": false,
+      "images": [
+        {
+          "file": "image(20261105-101654).png",
+          "role": "top-view",
+          "bytes": 458451,
+          "width": 2047,
+          "height": 687,
+          "sha256": "95e480f767784f2b821e1a2e80036c6893a730abe205b78f00a55233e452cae3"
+        },
+        {
+          "file": "image(20261105-101706).png",
+          "role": "transparent-3d",
+          "bytes": 507244,
+          "width": 2048,
+          "height": 674,
+          "sha256": "16d8cd0e1022b5794921b8757f6567d0a1975d0d3272e0641844a5c3864d4ac8"
+        },
+        {
+          "file": "image(20261105-101721).png",
+          "role": "joint-close-up",
+          "bytes": 681982,
+          "width": 2048,
+          "height": 691,
+          "sha256": "adb88dd159b78076f66acd1166928095956499b0397d876c653d917a220be3c3"
+        }
+      ]
+    }
+  }
+}
