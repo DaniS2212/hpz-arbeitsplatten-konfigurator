@@ -1,10 +1,12 @@
 import {straightGeometry} from './straight-geometry.mjs';
 import {lGeometry} from './l-geometry.mjs';
+import {u1Geometry} from './u1-geometry.mjs';
 import {mmToCmText} from './customer-measures.mjs';
-// L/U are explicitly generic family sketches. They are not Speedmaster L1–L4/U1–U4 definitions.
+// U1 square and L1-L4 have image-based previews; U2-U4 remain generic.
 export function geometry(config) {
   if(config.product==='straight'&&config.straightCorner)return straightGeometry(config);
   if(config.product==='l'&&config.lCorner)return lGeometry(config);
+  if(config.product==='u'&&config.geometry==='U1'&&config.corner==='square')return u1Geometry(config);
   const {L1:w,L2:left,L3:right,B1:depth,B2:leg,B3:legRight}=config.dimensions;
   const isStraight=config.product==='straight', isU=config.product==='u';
   if(!isStraight && (left<=depth || leg>=w || (isU && (right<=depth || leg+legRight>=w))))
