@@ -78,7 +78,7 @@ foreach(['L1','L2','L3','L4','U1','U2','U3','U4'] as $shape){
  $lookup=function($k)use($key,$proof){return $k===$key?$proof:null;};
  $cart=HPZ_APL_WC_LU_Cart_Bridge::issue($raw,$lookup,$secret,$now);
  luCheck(array_keys($cart)===[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY],$shape.' separate cart key');
- luCheck(!str_contains(json_encode($cart),'supplierNetCents'),$shape.' no EK in signed cart');
+ luCheck(strpos(json_encode($cart),'supplierNetCents')===false,$shape.' no EK in signed cart');
  $checked=HPZ_APL_WC_LU_Cart_Bridge::inspect($cart,1,$lookup,$secret,$now);
  luCheck($checked['quote']['unitGrossReferenceCents']===164000,$shape.' V3 target gross');
  $result=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(),$secret,$now);
@@ -100,7 +100,7 @@ foreach(['L1','L2','L3','L4','U1','U2','U3','U4'] as $shape){
     && $order->meta['_hpz_apl_manufacturing_v2']['form']===$shape,$shape.' HPOS order record');
  luCheck(isset($order->meta['_hpz_apl_supplier_parts']),$shape.' verified cut list preserved privately');
  luCheck($order->meta['_hpz_apl_supplier_reference']==='TEST-SYNTHETIC-NEVER-ORDER',$shape.' supplier reference');
- luCheck(!str_contains(json_encode($order->meta),'supplierNetCents'),$shape.' no supplier EK on Woo order');
+ luCheck(strpos(json_encode($order->meta),'supplierNetCents')===false,$shape.' no supplier EK on Woo order');
  $manual=HPZ_APL_WC_LU_Cart_Bridge::manualSpeedmasterText($result);
  luCheck(strpos($manual,'Menge: 1')!==false&&strpos($manual,'SPEEDMASTER – MANUELLE')!==false,$shape.' manual handoff');
 }
