@@ -54,6 +54,7 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 - [Neue L4-B5-Paarbilder (300/600 mm): reproduzierbare Konturmessung, SHA-256 und offener Original-Binärimport](L4-B5-VISUAL-20261102.md)
 - [PR #45: auswählbare L4-Stoßstellen A/B mit markierten angrenzenden Teilbereichen, nur schematische Vorschau](../../phase-l4-seam-neighbors-20261102.md)
 - [PR #46: abgegrenzte und nummerierte Vorschau-Teilflächen folgen L1–L4-Abschrägungen und Rundungen](../../phase-l-preview-part-contour-alignment-20261102.md)
+- [PR #47: privater Speedmaster-Bericht mit Draufsicht und markierten, rein schematischen Stoßstellen A/B auf Desktop und Smartphone](../../l-private-speedmaster-review-guide-20261102.md)
 
 ## Verbindliche Nutzung
 1. Original-Speedmaster-Bild (nicht eigener Shop-Screenshot) per Manifest finden.
