@@ -38,7 +38,6 @@ function proof(array $raw, array $extra=[]): array {
         'supplier'=>'speedmaster','verifiedNetPrice'=>true,'manufacturable'=>true,
         'decorAndThicknessAvailable'=>true,'cutListVerified'=>true,
         'connectorPlanVerified'=>true,'packagingAndCostsVerified'=>true,
-        'operatorPricingPolicy'=>'margin40-reserve10-floor35','operatorPolicyReviewed'=>true,
         'supplierReference'=>'SYNTHETIC-NOT-REAL-EK','supplierNetCents'=>69149,
         'maxQuantity'=>3,'checkedOn'=>'2026-11-05',
         // Separate physical proof keys are hypothetical and CANNOT be
@@ -87,7 +86,6 @@ must(strpos(json_encode($good),'supplierNetCents')===false,'no supplier costs in
 foreach ([
     ['verifiedNetPrice'=>false],['manufacturable'=>false],['cutListVerified'=>false],
     ['connectorPlanVerified'=>false],['packagingAndCostsVerified'=>false],
-    ['operatorPricingPolicy'=>'legacy30'],['operatorPolicyReviewed'=>false],
     ['supplierReference'=>''],['supplierNetCents'=>0],['maxQuantity'=>0],
     ['checkedOn'=>'2026-09-01'],['checkedOn'=>'2026-02-30'],
     ['verifiedCutParts'=>[]],['verifiedShippingPartLengthsMm'=>[]],
@@ -150,9 +148,15 @@ $thresholdPackage=proof($raw,[
 ]);
 $thresholdCase=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$thresholdPackage],checkout(),$now);
 must($thresholdCase['unitGrossReferenceCents']===164000,'1900-mm packed unit uses 60 EUR inbound');
-$old30=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,['operatorPricingPolicy'=>'legacy30'])],checkout(),$now);
-must(!$old30['preflightComplete'],'legacy 30 pct cannot be silently used');
-$fromClient=rawU('U1',['supplierNetCents'=>1,'approved'=>true,'customerPrice'=>1,'proof'=>proof($raw)]);
+$old30=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
+    'operatorPricingPolicy'=>'legacy30','operatorPolicyReviewed'=>false
+])],checkout(),$now);
+must($old30['preflightComplete']===true
+    && $old30['pricingPolicyId']==='margin40-reserve10-floor35'
+    && $old30['unitGrossReferenceCents']===$good['unitGrossReferenceCents'],
+    'stale per-SKU 30 pct flags cannot override centrally approved 40 pct policy');
+$fromClient=rawU('U1',['supplierNetCents'=>1,'approved'=>true,
+    'operatorPricingPolicy'=>'legacy30','customerPrice'=>1,'proof'=>proof($raw)]);
 $stillBlocked=HPZ_APL_LU_Price_Readiness::review($fromClient,[],checkout(),$now);
 must(!$stillBlocked['preflightComplete'],'malicious browser supplier fields ignored');
 foreach (['L1','L2','L3','L4'] as $shape) {
