@@ -265,6 +265,7 @@ final class HPZ_APL_LU_Price_Readiness
 
         return [
             'ruleVersion'=>self::VERSION,'configurationKey'=>$key,
+            'pricingPolicyId'=>$evidenceOkay ? self::PRICE_POLICY : null,
             'status'=>count($blocked) === 0 ? 'manual-release-review-ready' : 'blocked',
             'preflightComplete'=>count($blocked) === 0,'purchasable'=>false,
             'unitGrossReferenceCents'=>$unitGross,'totalGrossReferenceCents'=>$grossExpected,
