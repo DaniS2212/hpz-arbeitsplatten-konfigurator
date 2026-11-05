@@ -49,9 +49,9 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
     // No client-provided EK, shipping cost, checkout approval or price.
     const request={schemaVersion:raw.schemaVersion,inputUnit:raw.inputUnit,productId:raw.productId,sku:raw.sku,
       product:raw.product,geometry:raw.geometry,corner:raw.corner,dimensions:raw.dimensions,
-      ...(product.family==='straight'?{straightCorner:raw.straightCorner}:{})
-      ,...(product.family==='l'?{lCorner:raw.lCorner}:{})
-      ,material:raw.material,decor:raw.decor,edge:raw.edge,quantity:raw.quantity};
+      ...(product.family==='straight'?{straightCorner:raw.straightCorner}:{}),
+      ...(product.family==='l'?{lCorner:raw.lCorner}:{}),
+      material:raw.material,decor:raw.decor,edge:raw.edge,quantity:raw.quantity};
     for(let attempt=0;attempt<2;attempt++){
       if(signal?.aborted)return visual;
       try{
