@@ -77,15 +77,15 @@ final class HPZ_APL_Admin_Preview {
             && get_post_status($id)==='draft' && current_user_can('edit_post', $id);
     }
     public static function no_cache() {
-        if (!self::allowed() && !HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        if (!self::allowed() && !self::can_public_configurator(get_queried_object_id())) return;
         if (!defined('DONOTCACHEPAGE')) define('DONOTCACHEPAGE', true);
         nocache_headers();
     }
     /**
      * The standard WooCommerce form cannot attach signed dimensions, decor or
      * a trusted V3 quote. Keep one buying path: the configurator below.
-     * This is conditional to the published straight product only; it never
-     * alters a default product, the cart/checkout, or L/U previews.
+     * The identical CTA is shown on a separately published, audited L/U
+     * product only; it never enables another SKU or changes other products.
      */
     private static function can_public_configurator($id) {
         return HPZ_APL_WP_Straight_Runtime_09::canRenderPublic($id)
@@ -153,7 +153,7 @@ final class HPZ_APL_Admin_Preview {
                 .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_add')).'"'
                 .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_add_'.$id)).'"';
         }
-        $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p>':'';
+        $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Stoßstellen sind Bildbeobachtungen, keine CNC-Freigabe.</p>':'';
         return $css.'<section class="hpz-apl-admin-preview" id="hpz-apl-konfigurator" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
     public static function price_preview_allowed($id, $nonce) {
@@ -204,8 +204,8 @@ final class HPZ_APL_Admin_Preview {
     public static function message() { return 'Diese Arbeitsplatte ist noch in Prüfung und kann nicht bestellt werden.'; }
     public static function add_to_cart($passed, $product_id, $quantity) {
         if (!self::target($product_id)) return $passed;
-        // Earlier 0.9 server-verification hook (priority 50) is responsible
-        // for all signed straight-product validation if sale is ever released.
+        // Earlier audited cart-verification hooks (Straight priority 50,
+        // L/U priority 60) are responsible for signed raw configurations.
         if ((int)$product_id===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()) return $passed;
         // Earlier priority-60 L/U signed-cart hook strictly validates raw
         // configurations. This late gate cannot bypass that validation.
