@@ -39,6 +39,8 @@ jobs:
         run: node wordpress/invalid-measures-browser-runner.mjs
       - name: "L-/U-Form: grouped measures, verified-only parts, mobile and drawing states"
         run: node wordpress/family-browser-runner.mjs
+      - name: U1 Speedmaster screenshot browser test
+        run: node wordpress/u1-photo-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
