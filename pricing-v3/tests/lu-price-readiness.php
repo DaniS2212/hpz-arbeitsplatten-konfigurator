@@ -122,6 +122,30 @@ $two=HPZ_APL_LU_Price_Readiness::review($qty,[$key=>proof($raw)],checkout(['preD
 must($two['preflightComplete']===true&&$two['quantity']===2,'quantity costs and price multiplier');
 $three=HPZ_APL_LU_Price_Readiness::review(rawU('U1',['quantity'=>4]),[$key=>proof($raw)],checkout(['preDiscountGrossCents'=>656000,'actualNetLineRevenueCents'=>551260]),$now);
 must(in_array('supplier-quantity-unverified',$three['blockers'],true),'quantity ceiling');
+// A malicious/mistaken 1800-mm "shipping length" must not suppress
+// the 1900-mm freight surcharge when the *real package* is 2070 mm.
+$understated=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
+  'verifiedShippingPartLengthsMm'=>[1800]
+])],checkout(),$now);
+must($understated['unitGrossReferenceCents']===164000,'use actual 2070-mm package, not understated shipping length');
+$notFitting=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
+  'verifiedCutParts'=>[['partId'=>'test-piece','lengthMm'=>3000,'widthMm'=>600]]
+])],checkout(),$now);
+must(!$notFitting['preflightComplete'],'verified 3000-mm cut cannot fit 2070-mm package');
+$shortPackage=proof($raw,[
+  'verifiedCutParts'=>[['partId'=>'test-piece','lengthMm'=>1500,'widthMm'=>600]],
+  'verifiedShippingPartLengthsMm'=>[1500],
+  'verifiedPackages'=>[['lengthMm'=>1899,'widthMm'=>670,'heightMm'=>110,'weightGrams'=>30000]]
+]);
+$shortCase=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$shortPackage],checkout(),$now);
+must($shortCase['unitGrossReferenceCents']===154000,'1899-mm packed unit uses 10 EUR inbound');
+$thresholdPackage=proof($raw,[
+  'verifiedCutParts'=>[['partId'=>'test-piece','lengthMm'=>1500,'widthMm'=>600]],
+  'verifiedShippingPartLengthsMm'=>[1500],
+  'verifiedPackages'=>[['lengthMm'=>1900,'widthMm'=>670,'heightMm'=>110,'weightGrams'=>30000]]
+]);
+$thresholdCase=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$thresholdPackage],checkout(),$now);
+must($thresholdCase['unitGrossReferenceCents']===164000,'1900-mm packed unit uses 60 EUR inbound');
 $old30=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,['operatorPricingPolicy'=>'legacy30'])],checkout(),$now);
 must(!$old30['preflightComplete'],'legacy 30 pct cannot be silently used');
 $fromClient=rawU('U1',['supplierNetCents'=>1,'approved'=>true,'customerPrice'=>1,'proof'=>proof($raw)]);
