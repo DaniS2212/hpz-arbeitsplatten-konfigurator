@@ -6,7 +6,7 @@ import {mmToCmText} from './customer-measures.mjs';
 export function geometry(config) {
   if(config.product==='straight'&&config.straightCorner)return straightGeometry(config);
   if(config.product==='l'&&config.lCorner)return lGeometry(config);
-  if(config.product==='u'&&config.geometry==='U1'&&config.corner==='square')return u1Geometry(config);
+  if(config.product==='u'&&['U1','U2','U3','U4'].includes(config.geometry)&&config.corner==='square')return u1Geometry(config);
   const {L1:w,L2:left,L3:right,B1:depth,B2:leg,B3:legRight}=config.dimensions;
   const isStraight=config.product==='straight', isU=config.product==='u';
   if(!isStraight && (left<=depth || leg>=w || (isU && (right<=depth || leg+legRight>=w))))
