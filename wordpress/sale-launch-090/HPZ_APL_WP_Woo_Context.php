@@ -29,10 +29,17 @@ final class HPZ_APL_WP_Woo_Context_09 {
             // blocked. 19% applies only to verified German standard tax rate.
             if ($country!=='DE') return $blocked;
             $product=$line['data'] ?? null;
+            // Reuse ONE Woo tax/shipping verification for all three worktop
+            // products, with exact ID/SKU matching. Straight remains unchanged.
+            $allowedSkus=[
+                1000083=>'HPZ-APL-GERADE-2026',
+                1000080=>'HPZ-APL-L-FORM-2026',
+                1000081=>'HPZ-APL-U-FORM-2026',
+            ];
             if (!is_object($product) || !method_exists($product,'get_id')
-                || (int)$product->get_id()!==1000083
+                || !isset($allowedSkus[(int)$product->get_id()])
                 || !method_exists($product,'get_sku')
-                || $product->get_sku()!=='HPZ-APL-GERADE-2026'
+                || $product->get_sku()!==$allowedSkus[(int)$product->get_id()]
                 || !method_exists($product,'is_taxable') || !$product->is_taxable()
                 || (method_exists($customer,'get_is_vat_exempt') && $customer->get_is_vat_exempt())
                 || !function_exists('wc_tax_enabled') || !wc_tax_enabled()
