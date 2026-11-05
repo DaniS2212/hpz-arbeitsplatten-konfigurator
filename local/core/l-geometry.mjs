@@ -253,7 +253,23 @@ export function lGeometry(config){
   // chamfer. The long main chamfer remains straight; no CNC radius is implied.
   const softIndices=result.markers.filter(m=>m.treatment==='chamfer_continuous')
     .flatMap(m=>[m.from,m.to].map(p=>result.points.findIndex(q=>q[0]===p[0]&&q[1]===p[1])));
-  const previewParts=previewPartRegions(base,variant,b1,b2,b3,b4);
+  // The selected/numbered preview pieces must be built from the SAME
+  // corner-edited silhouette as the visible wood surface, not the uncut
+  // base outline. For rounded corners result.points are the inward chord;
+  // the existing SVG path clip still draws the actual circular arc.
+  // These regions remain illustrative, never production cut coordinates.
+  const fittedParts=previewPartRegions(result.points,variant,b1,b2,b3,b4);
+  // For round arcs the polygon uses the inward chord to calculate centroid
+  // and projected area. The SVG still needs to paint the narrow area between
+  // that chord and the actual arc. Supply the old uncut region ONLY as a
+  // clip-mask paint cover; it is never a piece outline or CNC coordinate.
+  const arcPaintParts=corner.treatment==='round'
+    ?new Map(previewPartRegions(base,variant,b1,b2,b3,b4).map(p=>[p.id,p.polygon]))
+    :null;
+  const previewParts=fittedParts.map(p=>{
+    const maskPaintPolygon=arcPaintParts?.get(p.id);
+    return maskPaintPolygon?{...p,maskPaintPolygon}:p;
+  });
   const dims=[
     {id:'L1',mm:w,from:pt(0,0),to:pt(w,0),side:-1},
     {id:'L2',mm:h,from:pt(left?0:w,0),to:pt(left?0:w,h),side:left?-1:2},
