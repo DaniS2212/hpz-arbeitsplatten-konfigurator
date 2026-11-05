@@ -1,4 +1,4 @@
-> **Weiterführung 05.11.2026:** [Zentrale Projektübergabe](../../CURRENT_PROJECT_HANDOFF_20261105.md), [aktueller Netto-EK-/Bildbetragsüberblick](PRICE_EVIDENCE_CURRENT.csv). Die folgenden 60 PR39-Originale sind tatsächlich in GitHub. **12 zusätzliche U1–U4-PNGs sind erst nach separatem ZIP-Binärimport archiviert**; dazu kommt eine Upload-Matrix im neuen PR. Ältere 16 L-PNGs stehen weiterhin aus.\n\n# Speedmaster L/U – dauerhafter Referenzkatalog
+> **Weiterführung 05.11.2026:** [Zentrale Projektübergabe](../../CURRENT_PROJECT_HANDOFF_20261105.md), [aktueller Netto-EK-/Bildbetragsüberblick](PRICE_EVIDENCE_CURRENT.csv). Die folgenden 60 PR39-Originale sind tatsächlich in GitHub. **12 zusätzliche U1–U4-PNGs sind seit PR #57 separat als Original-ZIP binär in GitHub vorhanden**; Integritätsprüfung der gesamten ZIP und aller zwölf Bilder grün. Ältere 16 L-PNGs stehen weiterhin aus.\n\n# Speedmaster L/U – dauerhafter Referenzkatalog
 
 Stand: 02.11.2026. **Privates internes Material, keine Kunden-/Fertigungsfreigabe.**
 
@@ -71,6 +71,8 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 
 `shop-ui` im Manifest = unser eigener WooCommerce-/Konfigurator-Screenshot, keine Hersteller-Referenz.
 
-- [U1 05.11.2026: drei neue Speedmaster-Ansichten, sechs Maße, drei Teilbereiche und zwei Stöße](../../phase-u1-speedmaster-20261105.md) – [Bildprüfsummen](U1_JOINT_USER_20261105.json). Original-PNGs sind noch nicht als GitHub-Binärdateien hinterlegt; keine Fertigungsfreigabe.
+- [U1 05.11.2026: drei neue Speedmaster-Ansichten, sechs Maße, drei Teilbereiche und zwei Stöße](../../phase-u1-speedmaster-20261105.md) – [Bildprüfsummen](U1_JOINT_USER_20261105.json). Original-PNGs sind als ZIP aus PR #57 binär vorhanden; weiterhin keine Fertigungsfreigabe.
 
-- [PR U2–U4 05.11.2026: U-Formen alle vier Stoßvarianten (Quer/Längs) mit je drei Herstelleraufnahmen](../../phase-u2-u4-speedmaster-20261105.md) – [neun Original-PNG-Hashes](U2_U4_JOINT_USER_20261105.json); noch kein Originalbild-Byteimport und keine Produktionsfreigabe.
+- [PR U2–U4 05.11.2026: U-Formen alle vier Stoßvarianten (Quer/Längs) mit je drei Herstelleraufnahmen](../../phase-u2-u4-speedmaster-20261105.md) – [neun Original-PNG-Hashes](U2_U4_JOINT_USER_20261105.json); Original-Binärarchiv durch PR #57 bestätigt; weiterhin keine Produktionsfreigabe.
+
+- **Originalarchiv U1–U4 (PR #57):** [Speedmaster_U1-U4_20261105_Originale.zip](Speedmaster_U1-U4_20261105_Originale.zip), 6.699.368 Bytes, Git-Blob SHA1 `b6948a55d8cebcc55fdd21069515e9b095c2635b`. [12 Bild-SHA256](U_20261105_SOURCE_MANIFEST.csv), [Verifikationsskript](../../../scripts/verify_u_20261105_archive.py). Erst die überprüften Bytes (nicht das reine Text-Manifest) machen dieses Archiv dauerhaft; die neue ZIP wird niemals in den WordPress-Build aufgenommen.
