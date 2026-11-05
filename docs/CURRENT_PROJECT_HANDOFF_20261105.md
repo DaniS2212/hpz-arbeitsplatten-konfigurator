@@ -39,9 +39,9 @@
 | L4-B5-Vergleich 02.11 | 6 | **Nein** | `L4_B5_USER_20261102.json` |
 | L1/L2-Stoßbilder 05.11 | 6 | **Nein** | `L1_L2_JOINT_USER_20261105.json` |
 | L4-Stoßbilder 05.11 | 4 | **Nein** | `L3_L4_JOINT_USER_20261105.json` (L3 frühere PR39-Bilder vorhanden) |
-| U1–U4 je 3 Bilder 05.11 | 12 | **Noch nicht auf GitHub**; **in diesem Chat original vorhanden und als ZIP vorbereitet** | `U1_JOINT_USER_20261105.json`, `U2_U4_JOINT_USER_20261105.json`, `U_20261105_SOURCE_MANIFEST.csv` |
+| U1–U4 je 3 Bilder 05.11 | 12 | **Ja, seit gemergtem PR #57** – Original-ZIP samt 12/12 geprueften PNGs | `U1_JOINT_USER_20261105.json`, `U2_U4_JOINT_USER_20261105.json`, `U_20261105_SOURCE_MANIFEST.csv` |
 
-**Nächster Binärarchiv-Schritt:** geprüfte Datei `Speedmaster_U1-U4_20261105_Originale.zip` (12 unveränderte PNGs, zwei ältere Chat-Kontexte, Prüfsummen), **6.699.368 Bytes**, SHA256 `1b1caa59a791e189192eb411387daaa8236a5963f6af4384816dff0cdff9d9c9`, Git-Blob-SHA1 `b6948a55d8cebcc55fdd21069515e9b095c2635b`, in `docs/references/speedmaster-lu/` auf dem eigens dafür vorgesehenen PR-Branch hochladen. Erst wenn GitHub den binären Blob enthält und alle 12 SHA256-Prüfungen erfolgreich sind, darf hier **„Originalbilder dauerhaft im Repo“** stehen. Die alten 16 fehlenden L-Originalbilder müssen separat aus den alten Chats/Bilddateien archiviert werden.
+**Abgeschlossener Binärarchiv-Schritt (PR #57 gemergt; GitHub-CI grün):** geprüfte Datei `Speedmaster_U1-U4_20261105_Originale.zip` (12 unveränderte PNGs, zwei ältere Chat-Kontexte, Prüfsummen), **6.699.368 Bytes**, SHA256 `1b1caa59a791e189192eb411387daaa8236a5963f6af4384816dff0cdff9d9c9`, Git-Blob-SHA1 `b6948a55d8cebcc55fdd21069515e9b095c2635b`, liegt **auf main** unter `docs/references/speedmaster-lu/`. GitHub hat den binären Blob und die 12 originalen SHA256-Prüfungen erfolgreich bestätigt; **U1–U4-Originalbilder sind dauerhaft im Repo**. Die alten 16 fehlenden L-Originalbilder müssen separat aus den alten Chats/Bilddateien archiviert werden.
 
 **Wichtig:** Ein SHA256-Manifest ersetzt **nie** die Original-PNGs. Chat-/Sandbox-Downloads sind kein GitHub-Archiv. Neue Originalaufnahmen sofort unter unverändertem Namen, mit vollständiger Konfiguration, aufgenommenem Anzeigepreis, Dateigröße/SHA256 und **nachweislich hochgeladenen Binärbytes** erfassen. Bilder/ZIPs nie in den öffentlich auslieferbaren Plugin-Build aufnehmen.
 
@@ -66,3 +66,11 @@
 - Hinweise in alten Dateien „alle Bestellungen gesperrt“ oder „Gerade bereits live“ betreffen **unterschiedliche Zeitpunkte**. Live-Freigaben und installierte WordPress-Version sind ohne erneuten Shop-Check **unbekannt**.
 - L/U-Manifeste enthalten **Foto-Beobachtungen**, kein „reviewed“/„manufacturingReady“. `SUPPLIER_CLOSEOUT.json` niemals aus einem Screenshot heraus automatisch grün setzen.
 - Der nächste Coding-Chat soll **zuerst das hier dokumentierte Wissen prüfen, nicht die U-Geometrien erneut erfinden**. Unbekannte Fakten als offen kennzeichnen, nicht erraten.
+
+
+## 8. Update nach PR #57 – L/U-Preis- und Checkout-Vorprüfung (neuer PR #58)
+
+- **PR #57** (05.11.2026) ist auf `main` gemergt; 12/12 neue U1–U4-PNGs im ZIP mit originalem SHA256 und Git-Blob SHA1 verifiziert. Die 16 neueren L-Originale sind noch immer offen.
+- **PR #58** (nach Freigabe/Merge erneut prüfen) führt `pricing-v3/HPZ_APL_LU_Price_Readiness.php` mit eigenen PHP-Regressionen ein. Er ermöglicht die vollständige **nicht kaufbare** Preis-/Bestellvorprüfung anhand eines **vertrauenswürdigen aktuellen EKs, verifizierter echter Zuschnitt-/Packstücke, Zusatzkosten, WooCommerce-Steuer-/Coupon-/Mengen-/Versandkontext und aktiver Operator-Policy**. Bisher keine WordPress-Anbindung oder Verkaufsschaltung.
+- Die **historische 30-%-EK-Aufschlagsregel** und die jüngere **40-%-Zielmarge mit 10-%-Reserve und 35-%-Coupon-Floor** bleiben unterschiedliche Betriebsentscheidungen. Der neue Vorprüfungsmodus nutzt 40 % nur bei ausdrücklich als `margin40-reserve10-floor35` markierter, serverseitig überprüfter Betriebs-Policy. Ohne diese bleibt die Konfiguration gesperrt.
+- Die nächsten Herstellerdaten sollen **zuerst die realen Teile, Verpackung, Gewicht, Lieferpreis und echte Netto-EK-Bestätigung der Hauptreferenzen** liefern. Für noch nicht freigegebene Maße niemals interpolierte Shop-Preise anzeigen. Speedmaster-Bestellungen werden zunächst **manuell** ausgelöst.
