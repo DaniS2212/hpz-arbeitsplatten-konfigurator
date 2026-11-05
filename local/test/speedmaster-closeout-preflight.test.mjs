@@ -28,7 +28,7 @@ test('exact eight L/U variants and differentiated supplier proof requirements',(
  assert.ok(!REQUIREMENTS.L1.includes('u-variant-topology'));
 });
 
-test('repo handoff only marks existing L screenshots/4 EK witnesses observed, never supplier-reviewed',()=>{
+test('repo handoff records L evidence and U1 screenshots as observed, never supplier-reviewed',()=>{
  const doc=baseline(),result=scan(doc);
  assert.equal(doc.schemaVersion,1);
  assert.deepEqual(Object.keys(doc.shapes),all);
@@ -41,7 +41,7 @@ test('repo handoff only marks existing L screenshots/4 EK witnesses observed, ne
  assert.ok(result.shapes.every(s=>!s.evidenceComplete&&s.missing.length>=7));
  assert.ok(result.shapes.find(s=>s.shape==='L1').observed.includes('exact-ek'));
  assert.ok(result.shapes.find(s=>s.shape==='L4').observed.includes('b5-controlled-comparison'));
- assert.equal(result.shapes.find(s=>s.shape==='U1').observed.length,0);
+ assert.deepEqual(result.shapes.find(s=>s.shape==='U1').observed,['contour','real-parts','connectors']);
  assert.ok(result.shapes.every(s=>s.missing.includes('real-parts')&&s.missing.includes('connectors')&&s.missing.includes('parcels')));
 });
 
