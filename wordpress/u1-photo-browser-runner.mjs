@@ -16,6 +16,17 @@ try{
    return s?.getElementById('geometry')?.value==='U1'
     &&!!s.querySelector('#drawing svg')&&s.getElementById('drawing')?.getAttribute('aria-busy')==='false';
   },null,{timeout:25000});
+  // The normal studio starts with H1145; the exact supplier photo uses W980.
+  await page.evaluate(()=>{
+   const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+   const r=s.querySelector('input[name="decor"][value="W980"]');
+   r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  await page.waitForFunction(()=>{
+   const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
+   return s?.getElementById('drawing')?.getAttribute('aria-busy')==='false'
+    &&s.querySelector('input[name="decor"][value="W980"]')?.checked===true;
+  },null,{timeout:25000});
   await page.evaluate(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
    s.getElementById('view-parts').click();
