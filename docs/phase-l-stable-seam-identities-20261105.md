@@ -21,7 +21,7 @@ Die IDs und Bezeichnungen werden für L3/L4 jetzt aus der schematischen **Ausric
 | Nur unten | **B** | Nicht automatisch als A umdeuten |
 | Keine | Keine A/B-Auswahl | Keine fiktiven Stoßstellen |
 
-Für L1/L2 bleibt die einzelne Hilfsfuge unverändert als Stoß A beschriftet. Die sichtbaren Vorschau-Polygone, Außenkontur, B5-Projektion und Teilnummerierung ändern sich nicht. Ein gespeicherter UI-Fokus auf eine verschwundene Fuge wird wie bisher gelöscht; er darf nicht auf die andere Fuge übergehen.
+Für L1/L2 bleibt die einzelne Hilfsfuge unverändert als Stoß A beschriftet. Die sichtbaren Vorschau-Polygone, Außenkontur, B5-Projektion und Teilnummerierung ändern sich nicht. Ein gespeicherter UI-Fokus auf eine verschwundene Fuge wird wie bisher gelöscht; er darf nicht auf die andere Fuge übergehen. Der Hilfetext im Reiter **Aufteilung** bietet nur die tatsächlich verfügbare Stoßstelle an (beispielsweise allein **„Wähle Stoß B“** statt „Stoß A/B“).
 
 ## Reproduzierbare, nur mathematische L4-Grenzfälle
 
