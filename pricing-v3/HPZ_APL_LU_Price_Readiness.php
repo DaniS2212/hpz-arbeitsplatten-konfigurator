@@ -258,7 +258,8 @@ final class HPZ_APL_LU_Price_Readiness
         $grossExpected = $unitGross === null ? null : $unitGross * $c['quantity'];
         $gross = $checkout['preDiscountGrossCents'] ?? null;
         $net = $checkout['actualNetLineRevenueCents'] ?? null;
-        if ($grossExpected === null || !is_int($gross) || $gross !== $grossExpected
+        if ($grossExpected === null || !is_int($gross)
+            || abs($gross-$grossExpected) > max(1,$c['quantity'])
             || !is_int($net) || $net <= 0 || $net > $grossExpected) {
             $blocked[] = 'woocommerce-line-price-unverified';
         } else {
