@@ -1,4 +1,4 @@
-# Speedmaster L/U – dauerhafter Referenzkatalog
+> **Weiterführung 05.11.2026:** [Zentrale Projektübergabe](../../CURRENT_PROJECT_HANDOFF_20261105.md), [aktueller Netto-EK-/Bildbetragsüberblick](PRICE_EVIDENCE_CURRENT.csv). Die folgenden 60 PR39-Originale sind tatsächlich in GitHub. **12 zusätzliche U1–U4-PNGs sind erst nach separatem ZIP-Binärimport archiviert**; dazu kommt eine Upload-Matrix im neuen PR. Ältere 16 L-PNGs stehen weiterhin aus.\n\n# Speedmaster L/U – dauerhafter Referenzkatalog
 
 Stand: 02.11.2026. **Privates internes Material, keine Kunden-/Fertigungsfreigabe.**
 
