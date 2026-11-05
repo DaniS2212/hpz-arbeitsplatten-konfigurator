@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "sourceType": "speedmaster",
+  "capturedDate": "2026-11-05",
+  "originalBinaryInGitHub": false,
+  "sourceContext": "User-uploaded six Speedmaster PNG images in conversation; hash and byte size verified from actual pixels. The six new PNG files are NOT in the earlier 60-image PR39 archive. Do not treat SHA256 metadata as binary archive.",
+  "observationScope": "Exact pictured 2000x1200 mm L1/L2 W980 APL38 only; connector ICONS, NOT count/positions/machining or physical shipping units.",
+  "cases": {
+    "L1": {
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "material": "APL38",
+      "decor": "W980",
+      "edge": "matching-1.5",
+      "status": "observed-not-reviewed",
+      "visiblePanelRegions": 2,
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "photoPricesAreNotNetEkApproval": true,
+      "caseId": "L1-W980-38-2000x1200-20261105",
+      "screenshotShape": "left-hand L with illustrated seam across left leg",
+      "images": [
+        {
+          "filename": "image(20261105-084611).png",
+          "sha256": "35f12e1974dd24bb00f0e8107f869611c1d2fba2af640fa0c1a1d85e57d17b24",
+          "bytes": 590272,
+          "width": 2048,
+          "height": 846,
+          "view": "oblique transparent view"
+        },
+        {
+          "filename": "image(20261105-084634).png",
+          "sha256": "9aea6ccb8a3b5327eb77c628a5cd272120b4d4fb7b575593307a6d35db68ea0b",
+          "bytes": 932923,
+          "width": 2048,
+          "height": 681,
+          "view": "close-up of translucent seam and visual hardware"
+        },
+        {
+          "filename": "image(20261105-084711).png",
+          "sha256": "afdbccb676e7bb431f0304c5a30e05799c2de9c3d4a99b7c7502813f19b91fd2",
+          "bytes": 448284,
+          "width": 2047,
+          "height": 788,
+          "view": "supplier input list and overview"
+        }
+      ]
+    },
+    "L2": {
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "material": "APL38",
+      "decor": "W980",
+      "edge": "matching-1.5",
+      "status": "observed-not-reviewed",
+      "visiblePanelRegions": 2,
+      "connectorSymbolClasses": [
+        "biscuit-symbols",
+        "worktop-connector-symbols"
+      ],
+      "connectorCountVerified": false,
+      "machiningCoordinatesVerified": false,
+      "actualCutListVerified": false,
+      "shippingPartsVerified": false,
+      "photoPricesAreNotNetEkApproval": true,
+      "caseId": "L2-W980-38-2000x1200-20261105",
+      "screenshotShape": "mirrored right-hand L with illustrated seam across right leg",
+      "images": [
+        {
+          "filename": "image(20261105-084919).png",
+          "sha256": "2774d4aaf13bf2da3d5183fe1b815701f1f8f7c9ade9aea2c02b368acfe37671",
+          "bytes": 425633,
+          "width": 2047,
+          "height": 781,
+          "view": "supplier input list and transparent oblique view"
+        },
+        {
+          "filename": "image(20261105-084934).png",
+          "sha256": "187d7675672dfda6c88b928cd9f07e3d05da56e995259f2183a692ed2ecadc88",
+          "bytes": 504261,
+          "width": 2048,
+          "height": 684,
+          "view": "closer seam and hardware view"
+        },
+        {
+          "filename": "image(20261105-085007).png",
+          "sha256": "0f6ef6af18dbcaec529756f6b0bba4578e8361897340ff23ea68be0e0d208111",
+          "bytes": 359349,
+          "width": 2047,
+          "height": 764,
+          "view": "near-top view and supplier dimensions"
+        }
+      ]
+    }
+  }
+}

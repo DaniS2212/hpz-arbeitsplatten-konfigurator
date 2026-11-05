@@ -299,7 +299,13 @@ function renderSeamChoices(){
  const selected=seams.find(s=>s.id===selectedSeam);
  if(selected){
   const labels=selected.partIds.map(id=>lastGeometry.previewParts.find(p=>p.id===id)?.label).filter(Boolean);
-  seamExplain.textContent=selected.label+': '+(labels.length?labels.join(' / ')+' · ':'')+'Die Lage folgt der Bildskizze. Verbinder, Fräsungen, echte Teilplatten und Versandstücke sind noch ungeprüft.';
+  // Photo-icon classes are observed ONLY in the exact 05.11.2026
+  // L1/L2 reference cases. These are NOT machining instructions.
+  const photo=lastGeometry.assemblyPhotoObservation;
+  const imageWitness=photo?.status==='photo-observation-only'&&photo.illustratedSeamId===selected.id
+   ?' Speedmaster-Referenz 05.11.2026 (nur identische Beispielmaße, W980, 38 mm): Zwei sichtbare Plattenbereiche mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.'
+   :'';
+  seamExplain.textContent=selected.label+': '+(labels.length?labels.join(' / ')+' · ':'')+'Die Lage folgt der Bildskizze. Verbinder, Fräsungen, echte Teilplatten und Versandstücke sind noch ungeprüft.'+imageWitness;
  }else seamExplain.textContent='Wähle '+(seams.length===1?seams[0].label:'Stoß A/B')+', um die gezeigte Stelle zu markieren. Lage aus Speedmaster-Bildern nur zur Orientierung – keine CNC-, Verbinder- oder Teilefreigabe.';
 }
 function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');

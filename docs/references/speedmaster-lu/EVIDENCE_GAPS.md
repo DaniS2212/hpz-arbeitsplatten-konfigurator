@@ -10,7 +10,7 @@ Diese Liste ist **kein Hindernis** für weitere dokumentierende, prüfende oder 
    - **PR #41 konkretisiert den Belegbedarf:** Im Herstellerfoto zu L2 erscheint B3 als 60–2000 mm, während unsere konservative Kontur bei B2=600 mm nur 60–580 mm zeichnet. Bei L1/L3/L4 liegen mehrere B-Eckfoto-Maxima bei 600 mm, unsere Zeichnung endet bei 580 mm. Benötigt werden Fotos mit tatsächlich eingestellten 600 mm, nicht nur der angezeigten Eingabefeldobergrenze. Siehe [PR-41-Referenzmatrix](../../l-speedmaster-dynamic-corner-limits-20261102.md).
 
 ### Teilplatten, Stoß und Fertigung
-4. **L1/L2**: Stoßverbindung stark vergrößert von oben und schräg; echte Verbinderzahl/-typen, Fräsungen und Kanten, tatsächliche Zuschnitte/Stückzahl der angelieferten Teile.
+4. **L1/L2 – erste sechs Nah-/Übersichtsbilder vorhanden (05.11.2026):** Je drei Speedmaster-Ansichten für L1/L2 bei 2000×1200 mm, B1/B2=600 mm, APL38 W980 zeigen **zwei grafisch getrennte Bereiche, eine Hilfsfuge sowie Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbole**. [Quellmanifest und Interpretation](../../phase-l1-l2-joint-photos-20261105.md). **Immer noch erforderlich:** echte Verbindertypen und -anzahl je Maßbereich, Maßzeichnung der CNC-Fräs-/Bohrpositionen und Tiefen, Kantenaufbau der echten Einzelzuschnitte, bestätigte Lieferstückzahl sowie getrennte Packstücke. Eine vergrößerte 3D-Grafik beweist diese Fertigungsangaben nicht.
 5. **L3/L4**: beide Stoßstellen separat im Detail, besonders das diagonale Eckstück und die Verbindung zu den Schenkeln. Technische Abmessungen/Verbinder nicht aus Transparenzansichten schätzen.
 6. **Packstücke/Versand**: tatsächliche Länge, Breite, Höhe und Gewicht der versandfertigen Einheiten, Stückzahl und praktikable Speditionslösung.
 
