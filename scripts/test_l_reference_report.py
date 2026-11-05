@@ -14,6 +14,14 @@ MANIFEST = ROOT / "docs/references/speedmaster-lu/SOURCE_MANIFEST.csv"
 PNG = b"\x89PNG\r\n\x1a\n" + b"test-only"
 
 
+def complete_previews(cid):
+    """One plan and each documented illustrative seam per screen width."""
+    seams = (1,) if cid in ("L1", "L2") else (1, 2)
+    result = {(cid, width): PNG for width in (1366, 390)}
+    result.update({(cid, width, f"seam-{n}"): PNG for width in (1366, 390) for n in seams})
+    return result
+
+
 class PrivateReferenceReportTests(unittest.TestCase):
     def setUp(self):
         self.cases = json.loads(FIXTURE.read_text(encoding="utf-8"))["cases"]
@@ -33,9 +41,9 @@ class PrivateReferenceReportTests(unittest.TestCase):
     def test_report_embeds_source_and_both_preview_views_without_network_links(self):
         case = self.cases[0]
         html = render_report([case], {case["id"]: PNG},
-                             {(case["id"], 1366): PNG, (case["id"], 390): PNG},
+                             complete_previews(case["id"]),
                              "abc123")
-        self.assertEqual(html.count("data:image/png;base64,"), 3)
+        self.assertEqual(html.count("data:image/png;base64,"), 5)
         self.assertIn("Keine automatische Herstellerfreigabe", html)
         self.assertIn("L1", html)
         self.assertNotIn("<script", html)
@@ -46,14 +54,14 @@ class PrivateReferenceReportTests(unittest.TestCase):
     def test_report_fails_if_supplier_or_preview_file_is_missing(self):
         case = self.cases[0]
         with self.assertRaisesRegex(ReportError, "Original"):
-            render_report([case], {}, {(case["id"], 1366): PNG, (case["id"], 390): PNG}, "a")
+            render_report([case], {}, complete_previews(case["id"]), "a")
         with self.assertRaisesRegex(ReportError, "390"):
             render_report([case], {case["id"]: PNG}, {(case["id"], 1366): PNG}, "a")
 
     def test_report_escapes_description_and_keeps_original_image_content_separate(self):
         case = dict(self.cases[0], note="<script>alert(1)</script>")
         html = render_report([case], {case["id"]: PNG},
-                             {(case["id"], 1366): PNG, (case["id"], 390): PNG},
+                             complete_previews(case["id"]),
                              "a")
         self.assertIn("&lt;script&gt;", html)
         self.assertNotIn("<script>", html)
