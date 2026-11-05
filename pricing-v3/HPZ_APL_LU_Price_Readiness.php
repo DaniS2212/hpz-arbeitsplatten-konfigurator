@@ -138,7 +138,7 @@ final class HPZ_APL_LU_Price_Readiness
             || !is_string($r['supplierReference'] ?? null)
             || strlen(trim($r['supplierReference'])) < 4
             || strlen($r['supplierReference']) > 128
-            || !is_int($r['supplierNetCents'] ?? null) || $r['supplierNetCents'] < 1
+            || !is_int($r['supplierNetCents'] ?? null) || $r['supplierNetCents'] < 1 || $r['supplierNetCents'] > 10000000
             || !is_int($r['maxQuantity'] ?? null) || $r['maxQuantity'] < 1
             || !is_string($r['checkedOn'] ?? null)
             || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $r['checkedOn'])) {
@@ -177,6 +177,18 @@ final class HPZ_APL_LU_Price_Readiness
                 || !is_int($p['widthMm']) || $p['widthMm'] < 1 || $p['widthMm'] > 100000
                 || !is_int($p['heightMm']) || $p['heightMm'] < 1 || $p['heightMm'] > 100000
                 || !is_int($p['weightGrams']) || $p['weightGrams'] < 100 || $p['weightGrams'] > 250000) return false;
+        }
+        // Every supplier-verified cut rectangle must fit at least one real
+        // packed unit. Graphic preview regions are never substituted here.
+        foreach ($cuts as $cut) {
+            $fits = false;
+            foreach ($packages as $pack) {
+                $fits = $fits || (
+                    ($cut['lengthMm'] <= $pack['lengthMm'] && $cut['widthMm'] <= $pack['widthMm'])
+                    || ($cut['widthMm'] <= $pack['lengthMm'] && $cut['lengthMm'] <= $pack['widthMm'])
+                );
+            }
+            if (!$fits) return false;
         }
         foreach (['packagingNetCents','outboundNetCostCents','paymentAndHandlingNetCents'] as $cost) {
             if (!is_int($r[$cost] ?? null) || $r[$cost] < 0 || $r[$cost] > 10000000) return false;
@@ -219,7 +231,15 @@ final class HPZ_APL_LU_Price_Readiness
         if (!$evidenceOkay) {
             $blocked[] = 'exact-supplier-cut-list-or-price-proof-missing';
         } else {
-            $inboundCents = HPZ_APL_Price_V3::inboundCostForVerifiedParts($r['verifiedShippingPartLengthsMm']);
+            // Use the physical longest PACKAGED side, not a potentially
+            // shorter declared cutting length: freight tier is 1900 mm.
+            $verifiedPackageLengths = array_map(
+                static function (array $package): int {
+                    return max($package['lengthMm'], $package['widthMm']);
+                },
+                $r['verifiedPackages']
+            );
+            $inboundCents = HPZ_APL_Price_V3::inboundCostForVerifiedParts($verifiedPackageLengths);
             $unitCosts = $r['supplierNetCents'] + $inboundCents + $r['packagingNetCents']
                 + $r['outboundNetCostCents'] + $r['paymentAndHandlingNetCents'];
             $unitGross = self::roundUp10Euro(self::ceilDiv($unitCosts * 11 * 119, 600));
