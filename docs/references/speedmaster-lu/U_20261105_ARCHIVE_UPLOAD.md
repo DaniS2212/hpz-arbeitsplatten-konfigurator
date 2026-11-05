@@ -2,9 +2,9 @@
 
 ## Status
 
-Die ursprünglichen **zwölf PNG-Bilddateien** aus der Nutzernachricht vom 05.11.2026 sind **noch NICHT** Teil von GitHub. Die aktuellen Fotoregister enthalten nur Werte und SHA256-Prüfsummen; diese sind **kein Ersatz** für Bildpixel.
+**ABGESCHLOSSEN (PR #57 gemergt, 05.11.2026):** Die zwölf Original-PNGs sind im GitHub-Repository als binäres ZIP archiviert. Der Pull Request ist gemergt, die Git-Blob SHA-1 und alle Original-SHA-256 stimmen überein, der GitHub-Action-Prüflauf ist grün. Dies ist ein Bildnachweis, keine CNC-/Produktionsfreigabe.
 
-**Vorbereitete Quelle:** `Speedmaster_U1-U4_20261105_Originale.zip`
+**Dauerhaft archivierte Quelle:** `Speedmaster_U1-U4_20261105_Originale.zip`
 
 - Größe exakt **6.699.368 Bytes**.
 - SHA-256 exakt `1b1caa59a791e189192eb411387daaa8236a5963f6af4384816dff0cdff9d9c9`.
@@ -12,7 +12,7 @@ Die ursprünglichen **zwölf PNG-Bilddateien** aus der Nutzernachricht vom 05.11
 - Inhalt: **12 unveränderte Speedmaster-PNGs** (je U1–U4 eine Draufsicht, eine transparente Gesamtansicht, eine Stoß-Nahaufnahme); CSV-Bildmanifest; README; zwei in den früheren Chats gelieferte Text-Kontexte.
 - Alle 12 Bildbytes und PNG-Abmessungen lokal gegen `U_20261105_SOURCE_MANIFEST.csv` geprüft.
 
-## Einmaliger Upload (wie beim Archiv-PR #39)
+## Historischer Uploadablauf (bereits durch PR #57 abgeschlossen)
 
 1. Lade die vorbereitete ZIP aus dem aktuellen Chat herunter.
 2. Öffne das GitHub-Repository und wähle **Branch `docs/pr57-u1-u4-originals-binary-20261105`**.
@@ -21,7 +21,7 @@ Die ursprünglichen **zwölf PNG-Bilddateien** aus der Nutzernachricht vom 05.11
 5. **Commit changes** auf **diesem Branch**, nicht direkt auf `main`.
 6. Erst **nachdem** `python3 scripts/verify_u_20261105_archive.py --require` (auch automatisch in GitHub Actions) komplett grün ist, das Archiv im Code-/Dokumentenstatus als „binär gespeichert“ bezeichnen. Danach kann der PR nach Freigabe gemergt werden.
 
-**Absichtlich roter Archive-CI-Check vor dem Upload ist kein Produktionsfehler.** Der Binärimport ist der noch fehlende Schritt. Niemals Platzhalter-Dateien mit gleichem Namen schreiben.
+**Der zuvor absichtlich rote CI-Check ist seit dem Originalbild-Upload grün.** Der Binärimport ist abgeschlossen. Keine Platzhalterdateien verwenden und nicht erneut hochladen.
 
 ## Nutzung durch zukünftige Chats
 
