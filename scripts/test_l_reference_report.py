@@ -56,7 +56,8 @@ class PrivateReferenceReportTests(unittest.TestCase):
         with self.assertRaisesRegex(ReportError, "Original"):
             render_report([case], {}, complete_previews(case["id"]), "a")
         with self.assertRaisesRegex(ReportError, "390"):
-            render_report([case], {case["id"]: PNG}, {(case["id"], 1366): PNG}, "a")
+            render_report([case], {case["id"]: PNG},
+                          {(case["id"], 1366): PNG, (case["id"], 1366, "seam-1"): PNG}, "a")
 
     def test_report_escapes_description_and_keeps_original_image_content_separate(self):
         case = dict(self.cases[0], note="<script>alert(1)</script>")
