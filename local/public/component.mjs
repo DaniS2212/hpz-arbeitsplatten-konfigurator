@@ -194,7 +194,7 @@ function updateFamilyCopy(){
   shadow.querySelector('[data-step="1"] .section-intro').textContent=product==='straight'
     ?'In cm, auf 0,1 cm genau. Tippe ein Maß an, um es in der Zeichnung hervorzuheben.'
     :product==='l'?'In cm: Tippe ein Maß an, um die passende Strecke in der Zeichnung hervorzuheben.'
-    :'Maße deiner schematischen Arbeitsplattenform. Tippe ein Feld an, um die passende Strecke in der Zeichnung hervorzuheben.';
+    :'Die sechs Außenmaße bestimmen die U-Kontur. U1–U4 unterscheiden sich in den sichtbaren Stoßrichtungen; genaue CNC-Zuschnitte bleiben offen.';
   if(product==='l'){
     infoDialog.querySelector('h2').textContent='Deine L-Arbeitsplatte';
     const guidance=[
@@ -202,6 +202,15 @@ function updateFamilyCopy(){
       'B1/B2 ist die gemeinsame Schenkelbreite, B3/B4 die gemeinsame Eckbreite. Bei L4 markiert B5 den Abstand zwischen den Diagonalen.',
       'Eckmaße folgen der Schenkelausrichtung: Bei L1 links unten ist L3 vertikal und B3 horizontal, rechts L4 horizontal und B4 vertikal. L2 ist gespiegelt; L3/L4 verwenden L5/B5 und L6/B6 entsprechend. Alle Eckgeometrien bleiben bis zum vollständigen Speedmaster-Abgleich Vorschauwerte.',
       'Für die Fertigung und Verbindungen fehlen noch Freigaben. Die L-Form ist derzeit nicht bestellbar.'
+    ];
+    infoDialog.querySelectorAll('p').forEach((p,i)=>{p.textContent=guidance[i]??'';});
+  }else if(product==='u'){
+    infoDialog.querySelector('h2').textContent='Deine U-Arbeitsplatte';
+    const guidance=[
+      'U1 bis U4 haben die gleiche Außenkontur. Die Herstellerbilder zeigen unterschiedliche Verbindungsrichtungen links und rechts.',
+      'U1: quer/quer; U2: längs/längs; U3: längs/quer; U4: quer/längs. L1 ist die obere Gesamtbreite, L2/L3 die Schenkellängen und B1/B2/B3 die drei Breiten.',
+      'Aufteilung zeigt drei rein zeichnerische Teilbereiche und zwei auswählbare Stoßstellen. Eine Screenshot-Fuge ist noch kein bestätigter CNC-Zuschnitt.',
+      'Es fehlen verbindliche Lieferteile, Fräs- und Verbinderpositionen sowie Paketmaße und freigegebene Preise. U-Formen bleiben nicht kaufbar.'
     ];
     infoDialog.querySelectorAll('p').forEach((p,i)=>{p.textContent=guidance[i]??'';});
   }
@@ -231,9 +240,10 @@ function rebuild(){
   shell.dataset.product=product;
   if(product==='straight'||product==='l')corner='square';
   renderChoices();$('variant-wrap').hidden=product==='straight';
-  const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · zwei Schenkel'};
+  const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · quer/quer',U2:'U2 · längs/längs',U3:'U3 · längs/quer',U4:'U4 · quer/längs'};
   $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
   if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent=['L3','L4'].includes(variants.l)?'B1/B2 sowie B3/B4 werden gemeinsam eingegeben. Bearbeitung und Bestellung bleiben in Prüfung.':'Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
+  if(product==='u')$('variant-wrap').querySelector('.microcopy').textContent='Vier Speedmaster-Varianten mit unterschiedlichen Stoßrichtungen. Echte Zuschnitte und Bestellungen noch in Prüfung.';
   $('dimensions').replaceChildren();
   const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
@@ -308,8 +318,8 @@ function renderSeamChoices(){
    &&(photo.illustratedSeamId===selected.id||photo.illustratedSeamIds?.includes(selected.id));
   const profileNote=photo?.observationScope==='layout-and-symbols-profile-not-fully-matched'
    ?' Die L3-Modellprofil-Ausführung ist nicht vollständig abgeglichen.':'';
-  const imageWitness=!photoMatches?'':photo.caseId.startsWith('U1-')
-   ?' Speedmaster-Referenz 05.11.2026 (nur U1 L1=2000, L2=1200, L3=1800, B1/B2/B3=600 mm, W980, 38 mm): Drei sichtbare Teilbereiche, zwei Stoßstellen mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.'
+  const imageWitness=!photoMatches?'':/^U[1-4]-/.test(photo.caseId)
+   ?' Speedmaster-Referenz 05.11.2026 (nur '+photo.caseId.slice(0,2)+' L1=2000, L2=1200, L3=1800, B1/B2/B3=600 mm, W980, 38 mm): Drei sichtbare Teilbereiche, zwei Stoßstellen mit Flachdübel-/Lamello- und Arbeitsplattenverbinder-Symbolen. Echter Typ, Anzahl, Fräspositionen und Lieferstückzahl nicht bestätigt.'
    :photo.illustratedSeamIds?.length
    ?' Speedmaster-Referenz '+(photo.capturedDate==='2026-11-02'?'02.11.2026':'05.11.2026')
      +' (nur beobachtete 2000×2000-mm-Grundform, B1/B2=600 mm, B3/B4=900 mm'
@@ -454,7 +464,7 @@ function applyVisual(result){
     ?(straightTreatment==='chamfer_continuous'
        ?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.'
        :'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.')
-    :(product==='l'?`${variants.l}: Kontur nach Speedmaster-Fotos · Stöße und Diagonalzusatzmaße vorläufig.`:((product==='u'&&variants.u==='U1'&&result.geometry.version.startsWith('speedmaster-u1'))?'U1: Grundkontur und zwei Stoßstellen nach Speedmaster-Fotos · CNC/Versand offen.':`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`));
+    :(product==='l'?`${variants.l}: Kontur nach Speedmaster-Fotos · Stöße und Diagonalzusatzmaße vorläufig.`:((product==='u'&&result.geometry.version.startsWith('speedmaster-u'))?variants.u+': Grundkontur und Stoßrichtungen nach Speedmaster-Fotos · CNC/Versand offen.':`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`));
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});const response=await fetch('/api/preview',{signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.error);return result;},
   onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
@@ -518,6 +528,13 @@ function refresh(){
     $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · gerade Abschrägung; Kantenverlauf noch zu prüfen.';
     $('parts-note').querySelector('strong').textContent='Teilflächen zur Orientierung · keine Zuschnittdaten';
     $('parts-note').querySelector('p').textContent='Wähle eine Teilfläche aus. Die Stoßlinien zeigen nur die aus Speedmaster-Bildern erkennbare Lage. Exakte Fräsungen, Verbinder und Teileabmessungen bleiben ungeprüft.';
+  }
+  if(product==='u'){
+    $('corner-note').textContent=corner==='square'
+      ?'Grundform nach Speedmaster-Fotos. Zwei Stoßstellen sind nur als Lagebeobachtung belegt.'
+      :'Eckbearbeitung derzeit nur schematisch; Speedmaster-Referenzen dafür fehlen.';
+    $('parts-note').querySelector('strong').textContent='Drei sichtbare Teilflächen · keine Zuschnittdaten';
+    $('parts-note').querySelector('p').textContent='U1–U4: Wähle Teilbereiche oder Stoß A/B. Verbindersymbole, Lieferstückzahl, Fräsmaße und Packstücke sind noch nicht geprüft.';
   }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
