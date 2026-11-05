@@ -87,7 +87,7 @@ try{
     assert.match(v.text,/nicht bestätigt|ungeprüft/);
     assert.equal(v.cartDisabled,true);
     assert.ok(v.overflow<=1,shape+' '+width+'px no horizontal overflow');
-    if(shape==='L3')assert.match(v.text,/Profil.*nicht vollständig/);
+    if(shape==='L3')assert.match(v.text,/profil.*nicht vollständig/i);
     else assert.match(v.text,/B5-Grundmaß=600 mm/);
     await page.screenshot({path:'dist/l-joint-photo-'+shape+'-'+width+'-'+seam+'.png',fullPage:true});
    }
