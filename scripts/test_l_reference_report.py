@@ -59,5 +59,54 @@ class PrivateReferenceReportTests(unittest.TestCase):
         self.assertNotIn("<script>", html)
 
 
+    # The PR32/45/46 illustrative part and seam views must be reviewable
+    # beside the *independently archived* supplier shot. A green regression
+    # cannot turn these own screenshots into manufacturer's originals.
+    def test_L1_L2_offline_board_includes_draufsicht_and_stoss_A_at_both_widths(self):
+        for case in self.cases[:2]:
+            cid = case["id"]
+            previews = {(cid, width): PNG for width in (1366, 390)}
+            previews.update({(cid, width, "seam-1"): PNG for width in (1366, 390)})
+            markup = render_report([case], {cid: PNG}, previews, "abc123")
+            self.assertEqual(markup.count("data:image/png;base64,"), 5, cid)
+            self.assertEqual(markup.count("Schematische Aufteilung – Stoß A"), 2, cid)
+            self.assertNotIn("Stoß B markiert", markup)
+            self.assertIn("nicht für CNC", markup)
+            self.assertNotIn("<script", markup)
+            self.assertNotIn('src="https://', markup)
+
+    def test_L3_L4_offline_board_includes_both_individual_seam_selections(self):
+        for case in self.cases[2:]:
+            cid = case["id"]
+            previews = {(cid, width): PNG for width in (1366, 390)}
+            previews.update({(cid, width, seam): PNG
+                             for width in (1366, 390)
+                             for seam in ("seam-1", "seam-2")})
+            markup = render_report([case], {cid: PNG}, previews, "abc123")
+            self.assertEqual(markup.count("data:image/png;base64,"), 7, cid)
+            self.assertEqual(markup.count("Schematische Aufteilung – Stoß A"), 2, cid)
+            self.assertEqual(markup.count("Schematische Aufteilung – Stoß B"), 2, cid)
+            self.assertEqual(markup.count("Original Speedmaster"), 2, cid)
+            self.assertIn("keine echten Fertigungs- oder Lieferstücke", markup)
+
+    def test_offline_board_never_silently_omits_a_required_seam_screenshot(self):
+        case = self.cases[2]  # L3 requires A and B
+        cid = case["id"]
+        previews = {(cid, width): PNG for width in (1366, 390)}
+        previews.update({(cid, width, "seam-1"): PNG for width in (1366, 390)})
+        previews[(cid, 1366, "seam-2")] = PNG
+        with self.assertRaisesRegex(ReportError, "Stoß B"):
+            render_report([case], {cid: PNG}, previews, "abc123")
+
+    def test_stoss_screenshot_must_be_valid_png_not_arbitrary_bytes(self):
+        case = self.cases[0]
+        cid = case["id"]
+        previews = {(cid, width): PNG for width in (1366, 390)}
+        previews.update({(cid, width, "seam-1"): PNG for width in (1366, 390)})
+        previews[(cid, 390, "seam-1")] = b"not-a-png"
+        with self.assertRaisesRegex(ReportError, "Stoß A"):
+            render_report([case], {cid: PNG}, previews, "abc123")
+
+
 if __name__ == "__main__":
     unittest.main()
