@@ -38,7 +38,6 @@ function proof(array $raw, array $extra=[]): array {
         'supplier'=>'speedmaster','verifiedNetPrice'=>true,'manufacturable'=>true,
         'decorAndThicknessAvailable'=>true,'cutListVerified'=>true,
         'connectorPlanVerified'=>true,'packagingAndCostsVerified'=>true,
-        'operatorPricingPolicy'=>'margin40-reserve10-floor35','operatorPolicyReviewed'=>true,
         'supplierReference'=>'SYNTHETIC-NOT-REAL-EK','supplierNetCents'=>69149,
         'maxQuantity'=>3,'checkedOn'=>'2026-11-05',
         // Separate physical proof keys are hypothetical and CANNOT be
@@ -75,6 +74,10 @@ must($good['preflightComplete']===true,'complete synthetic preflight');
 must($good['status']==='manual-release-review-ready','not salable status');
 must($good['purchasable']===false,'even all-synthetic green cannot buy');
 must($good['unitGrossReferenceCents']===164000,'U1 691.49 net, 60 inbound, 40 pct, 10 pct reserve');
+must(
+    $good['unitGrossReferenceCents']===HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,6000,0),
+    'L/U preflight must call V3 shared commercial cost calculation'
+);
 must($good['pricingPolicyId']==='margin40-reserve10-floor35','auditable selected operator policy');
 must($good['blockers']===[],'all synthetic proofs accounted for');
 must($good['production']['form']==='U1'&&$good['production']['dimensionsMm']['L3']===1800,'manual order exact data');
@@ -83,7 +86,6 @@ must(strpos(json_encode($good),'supplierNetCents')===false,'no supplier costs in
 foreach ([
     ['verifiedNetPrice'=>false],['manufacturable'=>false],['cutListVerified'=>false],
     ['connectorPlanVerified'=>false],['packagingAndCostsVerified'=>false],
-    ['operatorPricingPolicy'=>'legacy30'],['operatorPolicyReviewed'=>false],
     ['supplierReference'=>''],['supplierNetCents'=>0],['maxQuantity'=>0],
     ['checkedOn'=>'2026-09-01'],['checkedOn'=>'2026-02-30'],
     ['verifiedCutParts'=>[]],['verifiedShippingPartLengthsMm'=>[]],
@@ -146,9 +148,15 @@ $thresholdPackage=proof($raw,[
 ]);
 $thresholdCase=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$thresholdPackage],checkout(),$now);
 must($thresholdCase['unitGrossReferenceCents']===164000,'1900-mm packed unit uses 60 EUR inbound');
-$old30=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,['operatorPricingPolicy'=>'legacy30'])],checkout(),$now);
-must(!$old30['preflightComplete'],'legacy 30 pct cannot be silently used');
-$fromClient=rawU('U1',['supplierNetCents'=>1,'approved'=>true,'customerPrice'=>1,'proof'=>proof($raw)]);
+$old30=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
+    'operatorPricingPolicy'=>'legacy30','operatorPolicyReviewed'=>false
+])],checkout(),$now);
+must($old30['preflightComplete']===true
+    && $old30['pricingPolicyId']==='margin40-reserve10-floor35'
+    && $old30['unitGrossReferenceCents']===$good['unitGrossReferenceCents'],
+    'stale per-SKU 30 pct flags cannot override centrally approved 40 pct policy');
+$fromClient=rawU('U1',['supplierNetCents'=>1,'approved'=>true,
+    'operatorPricingPolicy'=>'legacy30','customerPrice'=>1,'proof'=>proof($raw)]);
 $stillBlocked=HPZ_APL_LU_Price_Readiness::review($fromClient,[],checkout(),$now);
 must(!$stillBlocked['preflightComplete'],'malicious browser supplier fields ignored');
 foreach (['L1','L2','L3','L4'] as $shape) {
