@@ -205,16 +205,6 @@ final class HPZ_APL_LU_Price_Readiness
         return true;
     }
 
-    private static function roundUp10Euro(int $cents): int
-    {
-        return intdiv($cents + 999, 1000) * 1000;
-    }
-
-    private static function ceilDiv(int $n, int $d): int
-    {
-        return intdiv($n + $d - 1, $d);
-    }
-
     /**
      * No preflight report can purchase: true. This is deliberately not a
      * WordPress price adapter. $checkout must contain WooSERVER values only.
@@ -240,9 +230,13 @@ final class HPZ_APL_LU_Price_Readiness
                 $r['verifiedPackages']
             );
             $inboundCents = HPZ_APL_Price_V3::inboundCostForVerifiedParts($verifiedPackageLengths);
-            $unitCosts = $r['supplierNetCents'] + $inboundCents + $r['packagingNetCents']
-                + $r['outboundNetCostCents'] + $r['paymentAndHandlingNetCents'];
-            $unitGross = self::roundUp10Euro(self::ceilDiv($unitCosts * 11 * 119, 600));
+            $additionalNetCents = $r['packagingNetCents'] + $r['outboundNetCostCents']
+                + $r['paymentAndHandlingNetCents'];
+            // Reuse the exact same verified-cost commercial policy as V3:
+            // reserve 10%, target margin 40%, 19% DE gross reference.
+            $unitGross = HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
+                $r['supplierNetCents'], $inboundCents, $additionalNetCents
+            );
         }
 
         if (($checkout['country'] ?? null) !== 'DE') $blocked[] = 'destination-not-released';
@@ -272,8 +266,14 @@ final class HPZ_APL_LU_Price_Readiness
         } else {
             // Minimum 35% AFTER 10% reserve, quantity, discounts, freight
             // and processing; 40% remains the initial target, not the floor.
-            $totalCosts = $unitCosts * $c['quantity'];
-            $marginPasses = ($totalCosts * 110 <= $net * 65);
+            // Same strict post-discount 35%-minimum as Straight V3. Add
+            // verified packing/outbound/payment expenses to the cost base.
+            $marginReview = HPZ_APL_Price_V3::checkNetMargin(
+                $r['supplierNetCents'] * $c['quantity'],
+                ($inboundCents + $additionalNetCents) * $c['quantity'],
+                $net
+            );
+            $marginPasses = $marginReview['passesMinimum35'];
             if (!$marginPasses) $blocked[] = 'margin-below-35-after-discounts';
         }
         if (($checkout['checkoutIntegrationVerified'] ?? null) !== true)
