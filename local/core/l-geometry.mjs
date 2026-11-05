@@ -325,11 +325,16 @@ export function lGeometry(config){
   ]:variant==='L1'?[{from:pt(0,b2),to:pt(b1,b2)}]:[{from:pt(w-b1,b2),to:pt(w,b2)}];
   // Reference photos show an approximate surface seam, not a manufacturer
   // connector, milling operation, genuine part split or shipping item.
-  const previewSeamDetails=previewSeams.map((seam,index)=>{
+  const previewSeamDetails=previewSeams.map(seam=>{
     const vertical=Math.abs(seam.from[0]-seam.to[0])<1e-7;
     const neighbors=angled?(vertical?['top','corner']:['corner','leg']):['top','leg'];
+    // A is ALWAYS the upper/vertical illustrated guide, B the lower/
+    // horizontal guide. If one region collapses, the remaining physical
+    // guide must keep its identity rather than inherit array index zero.
+    // This is ONLY a stable UI mapping, not a confirmed factory seam.
+    const slot=angled?(vertical?1:2):1;
     const allVisible=neighbors.every(id=>previewParts.some(p=>p.id===id));
-    return {id:'seam-'+(index+1),label:'Stoß '+String.fromCharCode(65+index),
+    return {id:'seam-'+slot,label:'Stoß '+(slot===1?'A':'B'),
       from:[...seam.from],to:[...seam.to],partIds:allVisible?neighbors:[],
       status:'illustration-only',connectorType:null,connectorCount:null,machiningCoordinates:null};
   });

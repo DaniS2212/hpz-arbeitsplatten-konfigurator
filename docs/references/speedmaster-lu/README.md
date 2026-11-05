@@ -55,6 +55,7 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 - [PR #45: auswählbare L4-Stoßstellen A/B mit markierten angrenzenden Teilbereichen, nur schematische Vorschau](../../phase-l4-seam-neighbors-20261102.md)
 - [PR #46: abgegrenzte und nummerierte Vorschau-Teilflächen folgen L1–L4-Abschrägungen und Rundungen](../../phase-l-preview-part-contour-alignment-20261102.md)
 - [PR #47: privater Speedmaster-Bericht mit Draufsicht und markierten, rein schematischen Stoßstellen A/B auf Desktop und Smartphone](../../l-private-speedmaster-review-guide-20261102.md)
+- [PR #48: stabile Bezeichnungen der L4-Stoßstellen A/B bei verschwindenden Vorschau-Teilflächen](../../phase-l-stable-seam-identities-20261105.md)
 
 ## Verbindliche Nutzung
 1. Original-Speedmaster-Bild (nicht eigener Shop-Screenshot) per Manifest finden.
