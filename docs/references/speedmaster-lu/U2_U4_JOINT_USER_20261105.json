@@ -7,7 +7,7 @@
     "U2": {
       "caseId": "U2-W980-38-2000x1200x1800-B1B2B3-600-20261105",
       "status": "observed-not-reviewed",
-      "originalBinaryInGitHub": false,
+      "originalBinaryInGitHub": true,
       "dimensionsMm": {
         "L1": 2000,
         "L2": 1200,
@@ -68,7 +68,7 @@
     "U3": {
       "caseId": "U3-W980-38-2000x1200x1800-B1B2B3-600-20261105",
       "status": "observed-not-reviewed",
-      "originalBinaryInGitHub": false,
+      "originalBinaryInGitHub": true,
       "dimensionsMm": {
         "L1": 2000,
         "L2": 1200,
@@ -129,7 +129,7 @@
     "U4": {
       "caseId": "U4-W980-38-2000x1200x1800-B1B2B3-600-20261105",
       "status": "observed-not-reviewed",
-      "originalBinaryInGitHub": false,
+      "originalBinaryInGitHub": true,
       "dimensionsMm": {
         "L1": 2000,
         "L2": 1200,
