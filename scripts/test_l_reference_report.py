@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from l_reference_report import ReportError, validate_cases, render_report
+from l_reference_report import ReportError, validate_cases, render_report, list_unpaired_originals
 
 FIXTURE = ROOT / "docs/references/speedmaster-lu/REVIEW_CASES.json"
 MANIFEST = ROOT / "docs/references/speedmaster-lu/SOURCE_MANIFEST.csv"
@@ -106,6 +106,63 @@ class PrivateReferenceReportTests(unittest.TestCase):
         previews[(cid, 1366, "seam-2")] = PNG
         with self.assertRaisesRegex(ReportError, "Stoß B"):
             render_report([case], {cid: PNG}, previews, "abc123")
+
+    def test_unpaired_originals_cover_entire_verified_supplier_archive_without_shop_ui(self):
+        unmatched = list_unpaired_originals(self.rows, self.cases)
+        self.assertEqual(sum(row["source_type"] == "speedmaster" for row in self.rows), 48)
+        self.assertEqual(len(unmatched), 44, "Four matched examples leave 44 supplier originals")
+        matched = {case["source"] for case in self.cases}
+        self.assertTrue(all(row["source_type"] == "speedmaster" for row in unmatched))
+        self.assertFalse(any(row["path"] in matched for row in unmatched))
+        self.assertEqual(len({row["path"] for row in unmatched}), 44)
+        self.assertTrue(any("U1" in row["description"] for row in unmatched),
+                        "Supplier Grundformkarten remain available, NOT a proven U geometry")
+
+    def test_unpaired_gallery_embeds_remaining_supplier_originals_offline_not_shop_images(self):
+        case = self.cases[0]
+        unmatched = list_unpaired_originals(self.rows, self.cases)[:2]
+        evidence = [{**row, "image": PNG} for row in unmatched]
+        document = render_report([case], {case["id"]: PNG},
+                                 complete_previews(case["id"]), "abc123",
+                                 unpaired_sources=evidence)
+        self.assertIn("Weitere Speedmaster-Originale", document)
+        self.assertIn("2 weitere Originale ohne", document)
+        self.assertIn("<details", document)
+        self.assertEqual(document.count("data:image/png;base64,"), 7)
+        self.assertNotIn('src="https://', document)
+        self.assertNotIn("<script", document)
+        for row in unmatched:
+            self.assertIn(row["path"], document)
+
+    def test_unpaired_gallery_refuses_shop_ui_duplicate_source_and_invalid_png(self):
+        case = self.cases[0]
+        images={case["id"]: PNG}
+        previews=complete_previews(case["id"])
+        cases=[case]
+        bad = {"source_type": "shop-ui", "path": "originals/block-01/example.png",
+               "description": "Our own screenshot", "image": PNG}
+        with self.assertRaisesRegex(ReportError, "Speedmaster"):
+            render_report(cases, images, previews, "abc", unpaired_sources=[bad])
+        duplicate = {"source_type": "speedmaster", "path": case["source"],
+                     "description": "Duplicated", "image": PNG}
+        with self.assertRaisesRegex(ReportError, "already paired|duplicate"):
+            render_report(cases, images, previews, "abc", unpaired_sources=[duplicate])
+        broken = {"source_type": "speedmaster",
+                  "path": "originals/block-02/valid-unpaired.png",
+                  "description": "Not PNG", "image": b"invalid"}
+        with self.assertRaisesRegex(ReportError, "Invalid or missing PNG"):
+            render_report(cases, images, previews, "abc", unpaired_sources=[broken])
+
+    def test_unpaired_description_is_escaped_and_never_reclassified_as_manufacturing_proof(self):
+        case=self.cases[0]
+        item={"source_type":"speedmaster","path":"originals/block-02/unpaired.png",
+              "description":"<script>alert('fake approval')</script>","image":PNG}
+        document=render_report([case],{case["id"]:PNG},
+                               complete_previews(case["id"]),"abc",
+                               unpaired_sources=[item])
+        self.assertIn("&lt;script&gt;",document)
+        self.assertNotIn("<script>",document)
+        self.assertIn("keine fertigungsfreigabe",document.lower())
 
     def test_stoss_screenshot_must_be_valid_png_not_arbitrary_bytes(self):
         case = self.cases[0]

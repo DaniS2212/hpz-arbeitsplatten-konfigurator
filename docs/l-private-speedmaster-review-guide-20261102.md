@@ -8,6 +8,15 @@ Die bereits mit PR #39 privat archivierten **60 unveränderten Originalbilder** 
 
 Das ist ein **Sichtvergleich**, kein maschineller Pixel-Gleichheitsbeweis. Speedmaster und WooCommerce haben verschiedene Kamerawinkel, Zoom, Dekore und Maßbeschriftungen. Darüber hinaus muss bei der finalen manuellen Sichtung erst geprüft werden, ob die aus den historischen Chat-/Screenshot-Notizen übernommenen Beispielwerte exakt zum einzelnen Originalfoto passen.
 
+### Erweiterung PR #50: 44 weitere Hersteller-Originale direkt mit ansehen
+
+Im archivierten 60-PNG-Paket sind **48 echte Speedmaster-Aufnahmen** sowie **12 eigene Shop-/UI-Screenshots**. Vor PR #50 wurden lediglich **vier** Herstelleraufnahmen als Gegenstück zu reproduzierbaren eigenen L1–L4-Vorschauen angezeigt.
+
+Der private HTML-Bericht ergänzt jetzt einen **aufklappbaren Galerieabschnitt** mit den verbleibenden **44 Speedmaster-Originalen**, jeweils mit der archivierten Bezeichnung und dem unveränderten Bild. Das erspart eine separate Suche im ZIP und hilft, vorhandene 3D-Ansichten, Formen, transparente Teilungsdetails und ältere Varianten bei der weiteren Entwicklung zu sichten. Das Archiv selbst wird weiterhin anhand von SHA-/Manifestnachweisen geprüft.
+
+**Wesentliche Einschränkung:** Diese 44 Bilder haben **noch keine exakt belegte Gegenkonfiguration im eigenen Shop**. Sie werden nicht zu falschen 1:1-Vergleichspaaren umetikettiert; der Bericht kann ihren Konfigurationsdatensatz nicht automatisch erraten. Auch ein Bild mit sichtbaren U1–U4-Auswahlkarten stellt keine vollständige U-Fertigungsgeometrie dar. Kein Herstellerbeleg aus `shop-ui` wird aufgenommen. Galerie ausschließlich im **privaten Actions-Artefakt**, niemals im WooCommerce-/WordPress-Paket.
+
+
 ## Quellen, Zuordnung, Ausgabe
 
 - Konfigurationsmatrix: `docs/references/speedmaster-lu/REVIEW_CASES.json`. Grundlage: `docs/l-speedmaster-screenshot-evidence-20261102.md`.
