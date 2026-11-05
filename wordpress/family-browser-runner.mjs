@@ -175,7 +175,7 @@ try{
       assert.deepEqual(changed.pressed,['all'],'switching L layout resets part selection');
       assert.ok(changed.cartDisabled,'L never becomes purchasable');
     }
-   else{assert.equal(parts.seamCount,0);assert.match(parts.warning,/noch nicht|Lieferant/);}
+   else{assert.equal(parts.seamCount,2);assert.match(parts.warning,/Fräs|fräs|Verbinder|Stoß/);}
    await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#view-plan').click());
    const restored=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
      const s=el.shadowRoot;return {labels:s.querySelector('#drawing').querySelectorAll('.apl-measure').length,
