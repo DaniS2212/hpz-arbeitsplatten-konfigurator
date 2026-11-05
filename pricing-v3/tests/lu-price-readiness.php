@@ -75,6 +75,10 @@ must($good['preflightComplete']===true,'complete synthetic preflight');
 must($good['status']==='manual-release-review-ready','not salable status');
 must($good['purchasable']===false,'even all-synthetic green cannot buy');
 must($good['unitGrossReferenceCents']===164000,'U1 691.49 net, 60 inbound, 40 pct, 10 pct reserve');
+must(
+    $good['unitGrossReferenceCents']===HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,6000,0),
+    'L/U preflight must call V3 shared commercial cost calculation'
+);
 must($good['pricingPolicyId']==='margin40-reserve10-floor35','auditable selected operator policy');
 must($good['blockers']===[],'all synthetic proofs accounted for');
 must($good['production']['form']==='U1'&&$good['production']['dimensionsMm']['L3']===1800,'manual order exact data');
