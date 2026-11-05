@@ -300,7 +300,7 @@ function renderSeamChoices(){
  if(selected){
   const labels=selected.partIds.map(id=>lastGeometry.previewParts.find(p=>p.id===id)?.label).filter(Boolean);
   seamExplain.textContent=selected.label+': '+(labels.length?labels.join(' / ')+' · ':'')+'Die Lage folgt der Bildskizze. Verbinder, Fräsungen, echte Teilplatten und Versandstücke sind noch ungeprüft.';
- }else seamExplain.textContent='Wähle Stoß A/B, um die gezeigte Stelle zu markieren. Lage aus Speedmaster-Bildern nur zur Orientierung – keine CNC-, Verbinder- oder Teilefreigabe.';
+ }else seamExplain.textContent='Wähle '+(seams.length===1?seams[0].label:'Stoß A/B')+', um die gezeigte Stelle zu markieren. Lage aus Speedmaster-Bildern nur zur Orientierung – keine CNC-, Verbinder- oder Teilefreigabe.';
 }
 function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
