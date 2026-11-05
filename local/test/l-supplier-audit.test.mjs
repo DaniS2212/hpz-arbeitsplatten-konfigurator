@@ -153,3 +153,22 @@ test('supplier audit rejects vendor connector claims smuggled into picture-only 
   assert.equal(auditLReference(config,moved).geometryConsistent,false,'seam metadata must match drawn line');
  }
 });
+
+
+test('PR49: L4 audit keeps lower visual Stoß B when upper piece vanishes after PR48',()=>{
+ const c=normalize({
+  schemaVersion:2,inputUnit:'mm',product:'l',geometry:'L4',
+  corner:'square',material:'APL38',decor:'W980',quantity:1,
+  dimensions:{L1:'950',L2:'2000',B1:'300',B2:'300',B3:'950',B4:'950',B5:'300'},
+  lCorner:defaultLCorner('L4')
+ });
+ const g=geometry(c),result=auditLReference(c,g);
+ assert.deepEqual(g.previewSeamDetails.map(s=>s.id),['seam-2']);
+ assert.equal(result.matchedReference,false,'this synthetic input is not a supplier witness');
+ assert.equal(result.geometryConsistent,true,'valid visual-only seam B must not fail the old sequential-ID assumption');
+ assert.deepEqual(result.checks.filter(x=>!x.ok),[]);
+ assert.equal(result.manufacturingReady,false);
+ const impostor=structuredClone(g);
+ impostor.previewSeamDetails[0].id='seam-1';
+ assert.equal(auditLReference(c,impostor).geometryConsistent,false,'renaming B to A must be detected');
+});

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "scope": "private-supplier-handoff",
+  "explanation": "Nur belegte Beobachtungen; fehlende Datensaetze bleiben ABSICHTLICH leer. Keine automatische Produktfreigabe.",
+  "shapes": {
+    "L1": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115001).png",
+          "docs/l-speedmaster-screenshot-evidence-20261102.md"
+        ],
+        "note": "Foto und transkribierte Grundform, keine Herstellerfreigabe"
+      },
+      "outer-corners": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115001).png",
+          "docs/l-speedmaster-visual-parity-20261102.md"
+        ],
+        "note": "Abschraegungen und Massachsen aus Bildern, Endradien nicht nachgewiesen"
+      },
+      "exact-ek": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/phase-l-price-evidence-20261102.md",
+          "docs/price-reference-cases.csv"
+        ],
+        "note": "Vier echte L1-Referenzen, keine allgemein gueltige Preistabelle"
+      }
+    },
+    "L2": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115024).png",
+          "docs/l-speedmaster-screenshot-evidence-20261102.md"
+        ],
+        "note": "L2 gespiegelter Grundriss aus Herstellerbildern"
+      },
+      "outer-corners": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-06/image(20261102-115024).png",
+          "docs/l-speedmaster-visual-parity-20261102.md"
+        ],
+        "note": "Achszuordnung visuell beobachtet, technische Fertigung offen"
+      }
+    },
+    "L3": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114354).png",
+          "docs/l-speedmaster-screenshot-evidence-20261102.md"
+        ],
+        "note": "Innen-Diagonale nur an Beispielwerten beobachtet"
+      },
+      "diagonal-piece": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114354).png",
+          "docs/phase-l-fertigungsabgleich-20261102.md"
+        ],
+        "note": "Eckteil nur illustrativ; reale Schnittgeometrie und Stoesse nicht dokumentiert"
+      }
+    },
+    "L4": {
+      "contour": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/Speedmaster_PR39_GitHub_Upload.zip#originals/block-03/image(20261102-114510).png",
+          "docs/l-speedmaster-screenshot-evidence-20261102.md"
+        ],
+        "note": "L4 Beispielkonturen, keine allgemeine B5 Formel nachgewiesen"
+      },
+      "b5-controlled-comparison": {
+        "status": "observed",
+        "sourceRefs": [
+          "docs/references/speedmaster-lu/L4-B5-VISUAL-20261102.md",
+          "docs/references/speedmaster-lu/L4_B5_USER_20261102.json"
+        ],
+        "note": "Sechs Bilddaten sind noch NICHT binaer im GitHub-Archiv; keine Fertigungsfreigabe"
+      }
+    },
+    "U1": {},
+    "U2": {},
+    "U3": {},
+    "U4": {}
+  }
+}
