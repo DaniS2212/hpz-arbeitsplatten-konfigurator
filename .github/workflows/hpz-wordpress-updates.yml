@@ -75,6 +75,7 @@ jobs:
           node wordpress/l-visual-fidelity-browser-runner.mjs
           node wordpress/l-dynamic-limits-browser-runner.mjs
           node wordpress/l1-l2-photo-browser-runner.mjs
+          node wordpress/l3-l4-photo-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
