@@ -8,6 +8,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {normalize} from '../core/config.mjs';
+import {DECOR_CATALOG} from '../core/decor-catalog.mjs';
 import {geometry,svg} from '../core/geometry.mjs';
 import {defaultLCorner} from '../core/l-geometry.mjs';
 
@@ -51,18 +52,14 @@ for(const [shape,caseId,date] of cases){
   }
  });
  test(shape+' photo evidence must disappear on any different dimensions, thickness, decor or corner option',()=>{
-  const variations=[{dims:{L1:2100}},{dims:{L2:1900}},{dims:{B1:610}},{dims:{B3:950}},
-   {material:'APL17.5'},{decor:'DUMMY'}, {side:'both',treatment:'chamfer_square'}];
+  const variations=[{dims:{L1:2100}},{dims:{L2:1900}},{dims:{B1:610,B2:610}},{dims:{B3:950,B4:950}},
+   {material:'APL17.5'},{decor:DECOR_CATALOG.find(d=>d.id!=='W980').id}, {side:'both',treatment:'chamfer_square'}];
   if(shape==='L4')variations.push({dims:{B5:300}});
   for(const v of variations){
-   try{
-    const g=candidate(shape,v);
-    assert.equal(g.assemblyPhotoObservation,null,'cannot extrapolate exact photo to '+JSON.stringify(v));
-    assert.equal(g.joints,null);
-    assert.equal(g.shippingParts,null);
-   }catch(e){
-    if(!String(e.message).includes('Dekor'))throw e;
-   }
+   const g=candidate(shape,v);
+   assert.equal(g.assemblyPhotoObservation,null,'cannot extrapolate exact photo to '+JSON.stringify(v));
+   assert.equal(g.joints,null);
+   assert.equal(g.shippingParts,null);
   }
  });
 }
