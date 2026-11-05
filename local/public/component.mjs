@@ -384,7 +384,7 @@ function summary(config,invalid=false){
   $('summary').replaceChildren(...rows.map(([key,value])=>{const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;}));
 }
 let saleReady=false,purchaseBusy=false;
-function purchaseState(enabled){saleReady=enabled&&!!adapters.purchase&&product==='straight'&&valid&&!purchaseBusy;$('cart').disabled=!saleReady;if(adapters.purchase)$('cart').textContent=saleReady?'In den Warenkorb →':'Konfiguration wird geprüft';}
+function purchaseState(enabled){saleReady=enabled&&!!adapters.purchase&&valid&&!purchaseBusy;$('cart').disabled=!saleReady;if(adapters.purchase)$('cart').textContent=saleReady?'In den Warenkorb →':'Konfiguration wird geprüft';}
 function priceDisplay(value,label){$('price').textContent=value;$('price-label').textContent=label;$('mobile-price').textContent=value;$('mobile-price-label').textContent=label;}
 function updateLRangeHints(){
   if(product!=='l'||lSide==='none')return;
@@ -470,7 +470,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
   onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
    onVisual:applyVisual,
   onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);retryPriceButton.hidden=result.quote.status!=='unavailable';
-     if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase&&product==='straight'){
+     if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Bruttopreis · ${result.config.quantity} Stück`);
       $('tax-note').textContent=result.quote.taxNote||'inkl. 19 % MwSt. · zzgl. Versand';
       $('price-note').textContent='Maße und Ausführung werden beim Hinzufügen und an der Kasse erneut geprüft.';
@@ -562,7 +562,7 @@ $('geometry').addEventListener('change',()=>{variants[product]=$('geometry').val
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{
-  if(!saleReady||purchaseBusy||!adapters.purchase||!valid||product!=='straight')return;
+  if(!saleReady||purchaseBusy||!adapters.purchase||!valid)return;
   const raw=payload();
   purchaseBusy=true;purchaseState(false);
   $('cart').textContent='Wird zum Warenkorb hinzugefügt …';
@@ -590,7 +590,7 @@ rebuild();showStep(0);refresh();
 
 if(embedded){
  shell.querySelector('#products').hidden=true;
- if(product==='straight'&&!adapters.purchase)$('cart').textContent='Bestellung gesperrt · Admin-Test';
+ if(!adapters.purchase)$('cart').textContent='Bestellung gesperrt · Admin-Test';
 }
 const handle={destroy(){if(disposed)return;disposed=true;controller.cancel();abort.abort();for(const d of shadow.querySelectorAll('dialog'))if(d.open)d.close();shadow.replaceChildren();mounts.delete(root);},updateContext(next){return mountConfigurator(root,{...context,...next},adapters);}};
 mounts.set(root,handle);return handle;
