@@ -1,4 +1,4 @@
-# Küchenarbeitsplatten-Konfigurator
+> **Aktueller Einstieg für neue Entwicklungschats (05.11.2026):** [**Projektübergabe – CURRENT_PROJECT_HANDOFF_20261105.md**](docs/CURRENT_PROJECT_HANDOFF_20261105.md). Nach PR #55 sind U1–U4 grafisch mit ihren Stoßvarianten umgesetzt und die rein private L/U-Kalkulation vorhanden. Beide haben **keine Fertigungs- oder Verkaufsfreigabe**. Die neue U1–U4-Originalbild-ZIP liegt bis zum getrennten Binär-Upload noch nicht im Repository. Alte datierte Abschnitte unten sind teilweise historisch.\n\n# Küchenarbeitsplatten-Konfigurator
 
 **Version 1.0.3:** Der native obere WooCommerce-Button wird bei der Geraden durch „Jetzt konfigurieren“ ersetzt. Eine vorübergehend gescheiterte PHP-Preisabfrage kann automatisch einmal wiederholt oder manuell neu gestartet werden. **Weder V3-Formel noch Versand/Kaufprüfung geändert.** [Details und Testfälle](docs/phase-103-price-network.md).
 

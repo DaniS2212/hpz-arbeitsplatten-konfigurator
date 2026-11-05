@@ -1,4 +1,4 @@
-# Status – 26.10.2026
+> **AKTUALISIERUNG 05.11.2026:** Dieses Dokument beginnt mit einem historischen Stand vom 26.10.2026 und ist NICHT der aktuelle Projektstatus. Verbindlichen Tagesstand und nächsten Entwicklungsschritt siehe [docs/CURRENT_PROJECT_HANDOFF_20261105.md](docs/CURRENT_PROJECT_HANDOFF_20261105.md): PR #53/#54/#55 bereits gemergt, U1–U4 visueller Grundriss/Stoßaufteilung plus interne Kalkulationsszenarien; noch fehlende realen Fertigungs-/Packstückbelege und L/U-Checkout. Kein Live-Status aus GitHub ableiten.\n\n# Status – 26.10.2026
 
 ## Aktuell: Zwischenversion 0.6.0 – Küchenstudio-Oberfläche
 

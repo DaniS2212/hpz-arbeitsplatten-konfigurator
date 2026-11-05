@@ -1,0 +1,11 @@
+variant,L1_mm,L2_mm,L3_mm,B1_mm,B2_mm,B3_mm,B4_mm,B5_base_mm,thickness_mm,decor,edge,amount_eur,amount_type,source,status
+L1,2000,1200,,600,600,,,,17.5,W980,matching_1_5mm,307.67,verified_net_EK,docs/price-reference-cases.csv,exact_reference_only
+L1,2000,1200,,600,600,,,,38,W980,matching_1_5mm,464.45,verified_net_EK,docs/price-reference-cases.csv,exact_reference_only
+L1,2500,1200,,600,600,,,,17.5,W980,matching_1_5mm,342.41,verified_net_EK,docs/price-reference-cases.csv,exact_reference_only
+L1,2500,1200,,600,600,,,,38,W980,matching_1_5mm,511.56,verified_net_EK,docs/price-reference-cases.csv,exact_reference_only
+U1,2000,1200,1800,600,600,600,,,17.5,W980,matching_1_5mm,459.29,verified_net_EK,docs/price-reference-cases.csv,exact_reference_only
+U1,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,691.49,verified_net_EK,docs/price-reference-cases.csv,exact_reference_only
+U2,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,687.36,supplier_screen_display_only,docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json,net_status_unverified
+U3,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,691.49,supplier_screen_display_only,docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json,net_status_unverified
+U4,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,691.49,supplier_screen_display_only,docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json,net_status_unverified
+L4,2000,2000,,600,600,900,900,600,38,W980,matching_1_5mm,658.61,prior_chat_transcribed_display_only,docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json,not_verified_net_EK
