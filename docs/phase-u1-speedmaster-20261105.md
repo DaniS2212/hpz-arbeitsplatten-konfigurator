@@ -2,7 +2,7 @@
 
 **Status: visuelle Foto-Beobachtung, keine CNC-/Liefer-/Verkaufsfreigabe.**
 
-Drei vom Nutzer bereitgestellte Originalbilder: Draufsicht mit vollständigen sechs Maßfeldern, transparente 3D-Gesamtansicht, vergrößerte Darstellung beider Verbindungen. [Original-SHA-256 und Dateigrößen](references/speedmaster-lu/U1_JOINT_USER_20261105.json). Die drei tatsächlichen Bildbytes liegen noch **nicht** in GitHub bzw. PR39-ZIP, nur die dokumentierten Prüfsummen.
+Drei vom Nutzer bereitgestellte Originalbilder: Draufsicht mit vollständigen sechs Maßfeldern, transparente 3D-Gesamtansicht, vergrößerte Darstellung beider Verbindungen. [Original-SHA-256 und Dateigrößen](references/speedmaster-lu/U1_JOINT_USER_20261105.json). Die drei Originalbilder liegen seit dem verifiziert gemergten PR #57 **binär** im separaten U1–U4-ZIP in GitHub (nicht im alten PR39-ZIP).
 
 ## Exakt beobachtete Referenz
 

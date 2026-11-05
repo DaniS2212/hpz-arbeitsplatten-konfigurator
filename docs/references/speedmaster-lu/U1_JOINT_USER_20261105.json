@@ -4,7 +4,7 @@
   "source": "user-supplied Speedmaster screenshots",
   "capturedDate": "2026-11-05",
   "status": "observed-not-reviewed",
-  "originalBinaryInGitHub": false,
+  "originalBinaryInGitHub": true,
   "dimensionsMm": {
     "L1": 2000,
     "L2": 1200,

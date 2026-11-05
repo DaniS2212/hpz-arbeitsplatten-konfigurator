@@ -1,6 +1,6 @@
 # U2–U4 Speedmaster-Bildabgleich – 05.11.2026
 
-**Ausschließlich visuelle Referenz für drei konkrete Herstellerkonfigurationen.** Die neun Original-PNGs sind mit SHA-256, Byteanzahl und Bildgröße in [U2_U4_JOINT_USER_20261105.json](references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json) registriert. Die Binärdateien liegen noch nicht im historischen PR39-GitHub-Archiv.
+**Ausschließlich visuelle Referenz für drei konkrete Herstellerkonfigurationen.** Die neun Original-PNGs sind mit SHA-256, Byteanzahl und Bildgröße in [U2_U4_JOINT_USER_20261105.json](references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json) registriert. Die neun Originalbilder liegen seit PR #57 binär im separaten U1–U4-ZIP auf GitHub-main; sie sind nicht Bestandteil des historischen PR39-Archivs.
 
 ## Identische Grundmaße, vier unterschiedliche Stoßbilder
 
