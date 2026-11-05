@@ -133,8 +133,6 @@ final class HPZ_APL_LU_Price_Readiness
             || ($r['cutListVerified'] ?? null) !== true
             || ($r['connectorPlanVerified'] ?? null) !== true
             || ($r['packagingAndCostsVerified'] ?? null) !== true
-            || ($r['operatorPricingPolicy'] ?? null) !== self::PRICE_POLICY
-            || ($r['operatorPolicyReviewed'] ?? null) !== true
             || !is_string($r['supplierReference'] ?? null)
             || strlen(trim($r['supplierReference'])) < 4
             || strlen($r['supplierReference']) > 128
