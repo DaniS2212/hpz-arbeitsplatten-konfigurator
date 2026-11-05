@@ -26,6 +26,19 @@ function input(string $mat = 'APL17.5', string $decor = 'W980', int $l = 2000, i
     ];
 }
 function gross(array $c): int { return HPZ_APL_Price_V3::quote($c)['unitGrossReferenceCents']; }
+// Shared 40% target / 35% discount floor / 10% reserve for supplier-priced L/U.
+// New shared helper must not change the historic Straight V3 price curve.
+check(HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,6000,0)===164000,'U1 verified-cost target EUR 1640');
+check(HPZ_APL_Price_V3::targetGrossForVerifiedCosts(68736,1000,0)===153000,'U2 assumed-cost example EUR 1530');
+check(HPZ_APL_Price_V3::targetGrossForVerifiedCosts(46445,6000,0)===115000,'L1 verified-cost target EUR 1150');
+check(HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,6000,5000)>164000,'actual extras increase price');
+expectFail(function(){HPZ_APL_Price_V3::targetGrossForVerifiedCosts(0,6000,0);},'zero EK rejected');
+expectFail(function(){HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,-1,0);},'negative inbound rejected');
+expectFail(function(){HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,1000,-1);},'negative other costs rejected');
+$minimumNetCents=intdiv((69149+6000)*110+64,65);
+check(HPZ_APL_Price_V3::checkNetMargin(69149,6000,$minimumNetCents)['passesMinimum35']===true,'discount floor exact pass');
+check(HPZ_APL_Price_V3::checkNetMargin(69149,6000,$minimumNetCents-1)['passesMinimum35']===false,'discount floor one-cent below rejected');
+
 // Every material/decor pair in the agreed catalog.
 $names=['W980','U999','H1145','H3303','F021','F095','F121','F128','F186','F235','F302','F629','F661','F812','44375','44405'];
 foreach ($names as $decor) foreach (['APL17.5','APL38'] as $material) {
