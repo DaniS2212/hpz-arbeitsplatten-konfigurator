@@ -21,3 +21,5 @@
 
 
 The verified screenshot ZIP was uploaded on PR #39: GitHub blob SHA-1 `e3237c4adc831bdfcbdf7778ed25d13ee20c8b78` equals the independently computed Git object SHA-1 for the 16,780,349-byte local original. This proves source identity, **not** correctness of any unverified CNC/price geometry. Future chats must check the current repository/branch and extract the images in a binary-capable development environment for visual analysis. Never add the archive to WordPress distributions.
+
+**U1 Speedmaster photos (05 Nov 2026):** 3 new source PNGs with original SHA-256 listed in `docs/references/speedmaster-lu/U1_JOINT_USER_20261105.json`, U1 only, L1/L2/L3=2000/1200/1800, B1/B2/B3=600, APL38 W980, two illustrated seams and three visible regions. Actual image bytes NOT yet archived in PR39 ZIP. No CNC counts, machining, cut lists, packaging, checkout or supplier approval. U2-U4 remain generic.
