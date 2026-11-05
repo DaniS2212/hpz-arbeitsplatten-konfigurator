@@ -215,6 +215,7 @@ try{
       pressed:[...s.querySelectorAll('#seam-choices [data-seam][aria-pressed="true"]')].map(b=>b.dataset.seam),
       highlighted:[...svg.querySelectorAll('.apl-preview-part[data-seam-neighbor="true"]')].map(p=>p.dataset.partId),
       partCount:svg.querySelectorAll('.apl-preview-part').length,
+      guidance:s.getElementById('seam-explain').textContent,
       cartDisabled:s.getElementById('cart').disabled,
       overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth
     };
@@ -229,6 +230,8 @@ try{
   let state=await seamState();
   assert.deepEqual(state.ids,['seam-2'],'only lower illustrated joint retains its original key');
   assert.ok(state.names[0].includes('Stoß B'),'lower seam remains named B');
+  assert.match(state.guidance,/Wähle Stoß B/,'help text must offer only the remaining seam');
+  assert.doesNotMatch(state.guidance,/Stoß A\/B/,'help must not mention an absent upper seam');
   assert.equal(state.cartDisabled,true);
   assert.ok(state.overflow<=1);
   await page.evaluate(()=>{
