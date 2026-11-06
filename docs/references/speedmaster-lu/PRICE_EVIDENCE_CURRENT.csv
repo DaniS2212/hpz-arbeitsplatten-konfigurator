@@ -14,3 +14,11 @@ U1,2250,1200,1800,600,600,600,,,38,W980,matching_1_5mm,715.04,supplier_screen_di
 L2,2250,1200,,600,600,,,,38,W980,matching_1_5mm,488.01,supplier_screen_display_only,docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json,net_status_unverified
 U2,2250,1200,1800,600,600,600,,,38,W980,matching_1_5mm,710.91,supplier_screen_display_only,docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json,net_status_unverified
 L1,2250,1200,,600,600,,,,38,W980,left_chamfer_150x150_edge_continuous,510.02,supplier_screen_display_only,docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json,corner_geometry_changed_net_status_unverified
+L2,2500,1200,,600,600,,,,38,W980,matching_1_5mm,511.56,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
+U2,2500,1200,1800,600,600,600,,,38,W980,matching_1_5mm,734.46,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
+L3,2000,2000,,600,600,900,900,,38,W980,matching_1_5mm,798.52,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
+L3,2500,2000,,600,600,900,900,,38,W980,matching_1_5mm,845.62,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
+L4,2000,2000,,600,600,900,900,600,38,W980,matching_1_5mm,658.61,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified_reconfirmed
+L4,2500,2000,,600,600,900,900,600,38,W980,matching_1_5mm,705.71,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
+U3,2500,1200,1800,600,600,600,,,38,W980,matching_1_5mm,738.59,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
+U4,2500,1200,1800,600,600,600,,,38,W980,matching_1_5mm,738.59,user_supplied_text_display_only,docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json,net_status_unverified
