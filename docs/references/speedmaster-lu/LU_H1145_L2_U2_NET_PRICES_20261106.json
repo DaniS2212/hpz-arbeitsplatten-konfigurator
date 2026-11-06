@@ -1,0 +1,186 @@
+{
+  "schema": "lu-h1145-l2-u2-net-exact-controls-v1",
+  "date": "2026-11-06",
+  "sourceType": "operator_supplied_speedmaster_net_text",
+  "sourceImageRequired": false,
+  "currency": "EUR",
+  "supplier": "Speedmaster",
+  "fixedConfiguration": {
+    "decor": "H1145 ST10 Bardolino Eiche",
+    "edges": "all profile and outside edges exactly 1.5mm decor-matched",
+    "corner": "square, no additional machining"
+  },
+  "cases": [
+    {
+      "caseId": "H1145-L2-APL17_5-L1-2500-20261106",
+      "shape": "L2",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "decor": "H1145",
+      "supplierDecor": "H1145 ST10 Bardolino Eiche",
+      "edgeProfile": "1.5mm decor-matched on profile and all exterior edges",
+      "cornerTreatment": "none",
+      "supplierNetEUR": "346.93",
+      "supplierNetCents": 34693,
+      "sameDecorFormComparison": {
+        "shape": "L1",
+        "netEUR": "346.93",
+        "netDifferenceEUR": "0.00",
+        "isUniversalRule": false
+      },
+      "sameGeometryW980Reference": {
+        "decor": "W980 ST7 Platinweiß",
+        "netEUR": "342.41",
+        "netDecorDeltaEUR": "4.52",
+        "isUniversalDecorRule": false
+      },
+      "source": "operator direct text from Speedmaster on 2026-11-06; supplier net basis confirmed earlier by operator",
+      "priceTaxBasis": "net-eur-excluding-vat",
+      "manufacturingCutListVerified": false,
+      "partLengthShippingVerified": false,
+      "formalCurrentSupplierQuoteVerified": false,
+      "checkoutPriceApproved": false
+    },
+    {
+      "caseId": "H1145-L2-APL38-L1-2500-20261106",
+      "shape": "L2",
+      "material": "APL38",
+      "thicknessMm": 38,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "decor": "H1145",
+      "supplierDecor": "H1145 ST10 Bardolino Eiche",
+      "edgeProfile": "1.5mm decor-matched on profile and all exterior edges",
+      "cornerTreatment": "none",
+      "supplierNetEUR": "516.49",
+      "supplierNetCents": 51649,
+      "sameDecorFormComparison": {
+        "shape": "L1",
+        "netEUR": "516.49",
+        "netDifferenceEUR": "0.00",
+        "isUniversalRule": false
+      },
+      "sameGeometryW980Reference": {
+        "decor": "W980 ST7 Platinweiß",
+        "netEUR": "511.56",
+        "netDecorDeltaEUR": "4.93",
+        "isUniversalDecorRule": false
+      },
+      "source": "operator direct text from Speedmaster on 2026-11-06; supplier net basis confirmed earlier by operator",
+      "priceTaxBasis": "net-eur-excluding-vat",
+      "manufacturingCutListVerified": false,
+      "partLengthShippingVerified": false,
+      "formalCurrentSupplierQuoteVerified": false,
+      "checkoutPriceApproved": false
+    },
+    {
+      "caseId": "H1145-U2-APL17_5-L1-2500-20261106",
+      "shape": "U2",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "decor": "H1145",
+      "supplierDecor": "H1145 ST10 Bardolino Eiche",
+      "edgeProfile": "1.5mm decor-matched on profile and all exterior edges",
+      "cornerTreatment": "none",
+      "supplierNetEUR": "499.74",
+      "supplierNetCents": 49974,
+      "sameDecorFormComparison": {
+        "shape": "U1",
+        "netEUR": "499.74",
+        "netDifferenceEUR": "0.00",
+        "isUniversalRule": false
+      },
+      "sameGeometryW980Reference": {
+        "decor": "W980 ST7 Platinweiß",
+        "netEUR": "494.03",
+        "netDecorDeltaEUR": "5.71",
+        "isUniversalDecorRule": false
+      },
+      "source": "operator direct text from Speedmaster on 2026-11-06; supplier net basis confirmed earlier by operator",
+      "priceTaxBasis": "net-eur-excluding-vat",
+      "manufacturingCutListVerified": false,
+      "partLengthShippingVerified": false,
+      "formalCurrentSupplierQuoteVerified": false,
+      "checkoutPriceApproved": false
+    },
+    {
+      "caseId": "H1145-U2-APL38-L1-2500-20261106",
+      "shape": "U2",
+      "material": "APL38",
+      "thicknessMm": 38,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "decor": "H1145",
+      "supplierDecor": "H1145 ST10 Bardolino Eiche",
+      "edgeProfile": "1.5mm decor-matched on profile and all exterior edges",
+      "cornerTreatment": "none",
+      "supplierNetEUR": "740.19",
+      "supplierNetCents": 74019,
+      "sameDecorFormComparison": {
+        "shape": "U1",
+        "netEUR": "744.32",
+        "netDifferenceEUR": "-4.13",
+        "isUniversalRule": false
+      },
+      "sameGeometryW980Reference": {
+        "decor": "W980 ST7 Platinweiß",
+        "netEUR": "734.46",
+        "netDecorDeltaEUR": "5.73",
+        "isUniversalDecorRule": false
+      },
+      "source": "operator direct text from Speedmaster on 2026-11-06; supplier net basis confirmed earlier by operator",
+      "priceTaxBasis": "net-eur-excluding-vat",
+      "manufacturingCutListVerified": false,
+      "partLengthShippingVerified": false,
+      "formalCurrentSupplierQuoteVerified": false,
+      "checkoutPriceApproved": false
+    }
+  ],
+  "technicalFindings": [
+    "L2 equals L1 at L1=2500 for H1145 both thicknesses, as previously seen in W980 at tested lengths; not a universal proof.",
+    "U2 equals U1 at L1=2500 for H1145 APL17.5 and W980 APL17.5; not a universal proof.",
+    "U2 APL38 is EUR 4.13 net cheaper than U1 at L1=2500 in H1145, matching W980 at L1=2000/2250/2500 for identical other axes; not a universal proof.",
+    "H1145 decor price increment vs W980: L2 APL17.5 +4.52 EUR, L2 APL38 +4.93 EUR, U2 APL17.5 +5.71 EUR, U2 APL38 +5.73 EUR, at these exact conditions only."
+  ],
+  "tax": {
+    "supplierNet": true,
+    "germanVATAlreadyInV3OncePercent": 19
+  },
+  "launchPolicy": {
+    "doNotEnablePublicPurchase": true,
+    "doNotSendSupplierOrder": true,
+    "existingMargin40Floor35Reserve10": true,
+    "inboundNetEUR": "10 plus one-time 50 if any verified actual shipping part >=1900mm; total 60 rather than 70",
+    "prelaunchDependencies": [
+      "document restricted SKU/decor/dimension/edge scope",
+      "manufacturer cut-list connectors and actual packed-part lengths",
+      "verified total cost and target margin on bound",
+      "WooCommerce real checkout journey test with safe no-live capture",
+      "merchant approval for release"
+    ]
+  }
+}
