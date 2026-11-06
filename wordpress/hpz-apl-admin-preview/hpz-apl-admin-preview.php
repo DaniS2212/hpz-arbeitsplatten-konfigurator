@@ -25,6 +25,10 @@ require_once __DIR__.'/includes/woo-hooks.php';
 require_once __DIR__.'/includes/supplier-proofs.php';
 require_once __DIR__.'/includes/woo-context.php';
 require_once __DIR__.'/includes/straight-runtime.php';
+// Same plugin, same WooCommerce store; L/U is separately gated and defaults OFF.
+require_once __DIR__.'/includes/lu-price-readiness.php';
+require_once __DIR__.'/includes/lu-cart-bridge.php';
+require_once __DIR__.'/includes/lu-runtime.php';
 // Exact supplier approval UI disabled.
 
 final class HPZ_APL_Admin_Preview {
@@ -37,6 +41,7 @@ final class HPZ_APL_Admin_Preview {
         // Safe by default: self-registers no public route or Woo hooks without
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
+        add_action('init', array('HPZ_APL_WP_LU_Runtime_11','register'), 31);
         HPZ_APL_WP_Admin_Supplier_Decor::register();
         HPZ_APL_GitHub_Updater::init();
         // No individual supplier approvals.
@@ -72,29 +77,33 @@ final class HPZ_APL_Admin_Preview {
             && get_post_status($id)==='draft' && current_user_can('edit_post', $id);
     }
     public static function no_cache() {
-        if (!self::allowed() && !HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        if (!self::allowed() && !self::can_public_configurator(get_queried_object_id())) return;
         if (!defined('DONOTCACHEPAGE')) define('DONOTCACHEPAGE', true);
         nocache_headers();
     }
     /**
      * The standard WooCommerce form cannot attach signed dimensions, decor or
      * a trusted V3 quote. Keep one buying path: the configurator below.
-     * This is conditional to the published straight product only; it never
-     * alters a default product, the cart/checkout, or L/U previews.
+     * The identical CTA is shown on a separately published, audited L/U
+     * product only; it never enables another SKU or changes other products.
      */
+    private static function can_public_configurator($id) {
+        return HPZ_APL_WP_Straight_Runtime_09::canRenderPublic($id)
+            || HPZ_APL_WP_LU_Runtime_11::canRenderPublic((int)$id);
+    }
     public static function prepare_top_configurator_cta() {
         if (!function_exists('get_queried_object_id')
-            || !HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+            || !self::can_public_configurator(get_queried_object_id())) return;
         remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
         add_action('woocommerce_single_product_summary', array(__CLASS__, 'top_configurator_cta'), 30);
         add_action('wp_head', array(__CLASS__, 'top_configurator_style'), 30);
     }
     public static function top_configurator_cta() {
-        if (!HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        if (!self::can_public_configurator(get_queried_object_id())) return;
         echo '<a class="button alt hpz-apl-top-cta" href="#hpz-apl-konfigurator">Jetzt konfigurieren <span aria-hidden="true">↓</span></a>';
     }
     public static function top_configurator_style() {
-        if (!HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id())) return;
+        if (!self::can_public_configurator(get_queried_object_id())) return;
         // Flatsome and third-party themes may print the Woo form directly.
         // Defensive CSS is emitted only on this exact, publicly enabled product.
         echo '<style id="hpz-apl-cta-103">body.single-product form.cart{display:none!important}'
@@ -114,7 +123,9 @@ final class HPZ_APL_Admin_Preview {
     }
     public static function render() {
         $adminTest=self::allowed();
-        $publicSale=HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id());
+        $publicStraight=HPZ_APL_WP_Straight_Runtime_09::canRenderPublic(get_queried_object_id());
+        $publicLU=HPZ_APL_WP_LU_Runtime_11::canRenderPublic((int)get_queried_object_id());
+        $publicSale=$publicStraight||$publicLU;
         if ((!$adminTest && !$publicSale) || self::$rendered) return '';
         $id=(int)get_queried_object_id();
         $decor = HPZ_APL_Decor_Catalog::resolve('H1145');
@@ -128,14 +139,21 @@ final class HPZ_APL_Admin_Preview {
         $priceAttrs=$adminTest && $id===1000083
             ? ' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_price_preview')).'" data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_price_'.$id)).'"'
             : '';
-        if($publicSale){
+        if($publicStraight){
             $priceAttrs=' data-public-sale="true"'
                 .' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_public_quote')).'"'
                 .' data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_public_quote_'.$id)).'"'
                 .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_add_configured')).'"'
                 .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_add_configured_'.$id)).'"';
         }
-        $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Varianten sind bislang schematisch.</p>':'';
+        if($publicLU){
+            $priceAttrs=' data-public-sale="true"'
+                .' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_quote')).'"'
+                .' data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_quote_'.$id)).'"'
+                .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_add')).'"'
+                .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_add_'.$id)).'"';
+        }
+        $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Stoßstellen sind Bildbeobachtungen, keine CNC-Freigabe.</p>':'';
         return $css.'<section class="hpz-apl-admin-preview" id="hpz-apl-konfigurator" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
     public static function price_preview_allowed($id, $nonce) {
@@ -179,22 +197,29 @@ final class HPZ_APL_Admin_Preview {
         if (!self::target($product->get_id())) return $allowed;
         if ((int)$product->get_id()===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()
             && HPZ_APL_WP_Straight_Runtime_09::validPublishedProduct($product)) return true;
+        if (HPZ_APL_WP_LU_Runtime_11::canSell((int)$product->get_id())
+            && HPZ_APL_WP_LU_Runtime_11::validPublishedProduct($product,(int)$product->get_id())) return true;
         return false;
     }
     public static function message() { return 'Diese Arbeitsplatte ist noch in Prüfung und kann nicht bestellt werden.'; }
     public static function add_to_cart($passed, $product_id, $quantity) {
         if (!self::target($product_id)) return $passed;
-        // Earlier 0.9 server-verification hook (priority 50) is responsible
-        // for all signed straight-product validation if sale is ever released.
+        // Earlier audited cart-verification hooks (Straight priority 50,
+        // L/U priority 60) are responsible for signed raw configurations.
         if ((int)$product_id===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()) return $passed;
+        // Earlier priority-60 L/U signed-cart hook strictly validates raw
+        // configurations. This late gate cannot bypass that validation.
+        if (HPZ_APL_WP_LU_Runtime_11::canSell((int)$product_id)) return $passed;
         wc_add_notice(self::message(), 'error');
         return false;
     }
     private static function contains_target($cart) {
         if (!$cart) return false;
         foreach ($cart->get_cart() as $item) {
-            if (self::target($item['product_id'])
-                && !(HPZ_APL_WP_Straight_Runtime_09::canSell() && (int)$item['product_id']===1000083)) return true;
+            $id=(int)$item['product_id'];
+            if (self::target($id)
+                && !(HPZ_APL_WP_Straight_Runtime_09::canSell() && $id===1000083)
+                && !HPZ_APL_WP_LU_Runtime_11::canSell($id)) return true;
         }
         return false;
     }

@@ -41,6 +41,9 @@ await mkdir(new URL('../includes/',out),{recursive:true});
 await copyFile(new URL('pricing-v3/HPZ_APL_Price_V3.php',base),new URL('../includes/price-v3.php',out));
 for(const [source,target] of [
  ['pricing-v3/HPZ_APL_Straight_Sale_Readiness.php','sale-readiness.php'],
+ ['pricing-v3/HPZ_APL_LU_Price_Readiness.php','lu-price-readiness.php'],
+ ['wordpress/checkout-lu/HPZ_APL_WC_LU_Cart_Bridge.php','lu-cart-bridge.php'],
+ ['wordpress/checkout-lu/HPZ_APL_WP_LU_Runtime.php','lu-runtime.php'],
  ['wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php','cart-bridge.php'],
  ['wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php','woo-hooks.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php','supplier-proofs.php'],
