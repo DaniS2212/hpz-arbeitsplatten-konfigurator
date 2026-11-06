@@ -67,15 +67,18 @@ final class HPZ_APL_LU_Price_Readiness
         $wanted=array_merge($side==='right'?[]:$left,$side==='left'?[]:$right);
         if (!self::exactKeys($v['parameters'],$wanted))
             throw new InvalidArgumentException('Eckmaße unvollständig oder fremd.');
-        $limits=match ($shape) {
-            'L1'=>['left'=>[$d['L2']-$d['B2'],$d['B1']],
-                   'right'=>[$d['L1']-$d['B1'],$d['B2']]],
-            'L2'=>['left'=>[$d['L1']-$d['B1'],$d['B2']],
-                   'right'=>[$d['L2']-$d['B2'],$d['B1']]],
-            'L3','L4'=>['left'=>[$d['L2']-$d['B4'],$d['B1']],
-                         'right'=>[$d['L1']-$d['B3'],$d['B2']]],
-            default=>throw new InvalidArgumentException('Eckvariante unbekannt.'),
-        };
+        if ($shape==='L1') {
+            $limits=['left'=>[$d['L2']-$d['B2'],$d['B1']],
+                     'right'=>[$d['L1']-$d['B1'],$d['B2']]];
+        } elseif ($shape==='L2') {
+            $limits=['left'=>[$d['L1']-$d['B1'],$d['B2']],
+                     'right'=>[$d['L2']-$d['B2'],$d['B1']]];
+        } elseif ($shape==='L3'||$shape==='L4') {
+            $limits=['left'=>[$d['L2']-$d['B4'],$d['B1']],
+                     'right'=>[$d['L1']-$d['B3'],$d['B2']]];
+        } else {
+            throw new InvalidArgumentException('Eckvariante unbekannt.');
+        }
         $parameters=[];
         foreach ($wanted as $key) {
             $mm=self::mm($v['parameters'][$key], 'Ecke '.$key);
@@ -83,7 +86,7 @@ final class HPZ_APL_LU_Price_Readiness
             if ($mm%10!==0||$mm<($rounded?10:60)||$mm>($rounded?1000:2000)) {
                 throw new InvalidArgumentException('Eckmaß außerhalb der erlaubten Abstufung.');
             }
-            $pair=str_starts_with($key,'R')
+            $pair=strpos($key,'R')===0
                 ? $limits[$key==='R1'?'left':'right']
                 : $limits[in_array($key,$left,true)?'left':'right'];
             if (!$rounded) {
