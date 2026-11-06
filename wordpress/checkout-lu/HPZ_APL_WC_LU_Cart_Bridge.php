@@ -237,7 +237,7 @@ final class HPZ_APL_WC_LU_Cart_Bridge
         foreach (self::displayFields($production) as $name=>$value) $out[]=$name.': '.$value;
         $out[]='Menge: '.$production['quantity'];
         // Supplier-cut and join evidence remains a separate referenced source.
-        $out[]='Bestätigte Lieferteile/Fräsungen: siehe Lieferantenreferenz und geschützte Positionsmetadaten.';
+        $out[]='Fertigungszuschnitte und Verbindungen: bei manueller Speedmaster-Bestellung prüfen.';
         return implode("\n",$out);
     }
 }
