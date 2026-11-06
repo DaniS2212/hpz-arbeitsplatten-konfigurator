@@ -54,3 +54,8 @@ Der Nutzer hat ausschließlich **dekorgleiche 1,5-mm-Kanten** zur angebotenen Va
 4. Danach vereinbarter UI-Feinschliff: Produktkopf nur H1+Kurzbeschreibung, B5-„Einstellung“ kundenfreundlich, stabiler SVG-Grundriss bei Eckwechsel.
 
 **Offener Zugriffsweg:** Cloud-Browser kann den WebGL-Konfigurator aktuell nicht zuverlässig bedienen. Vorerst gebündelte Lieferanten-Preiswerte als reinen Text erfassen – **keine weiteren ZIPs** und keine fälschlich als selbstständig abgerufenen Preise kennzeichnen.
+
+
+### Nachtrag 06.11.2026: Steuerbasis ist geklärt
+
+Die Speedmaster-Produktpreise sind laut ausdrücklicher Betreiberbestätigung **NETTO ohne Mehrwertsteuer**. Historische `display-only`-Belege bleiben als **Quellenarten** erhalten, die Umsatzsteuerfrage ist hingegen beantwortet. **19 % deutsche USt. werden im vorhandenen V3-Bruttorechner genau einmal berücksichtigt**, nicht doppelt. Die sechs neuen **17,5-mm-Genaupreisanker** sind separat als `operator_confirmed_net_EK` erfasst, siehe [Referenztabelle](phase-lu-175-net-price-anchors-20261106.md). Keine allgemeine Preisfreigabe für ungetestete Größen.
