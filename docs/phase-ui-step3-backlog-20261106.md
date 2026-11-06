@@ -6,7 +6,7 @@
 
 - Vom Nutzer am **06.11.2026** mitgesendet: `image(20261106-074841).png`, **1101 × 800 px**, 261.942 Bytes.
 - SHA-256 des Original-PNG: `2115f5f7678413c445ec9f321157a19158f325ab09e92c9b2300271d1d500d9e`.
-- **Original-PNG ist NOCH NICHT als GitHub-Binärdatei gespeichert**. Metadaten und Reproduktionsweg sind hier erfasst; bei späterem Archiv-Upload denselben SHA prüfen. Reiner SHA-/Textbeleg ersetzt das Bild nicht.
+- **Original-PNG ist seit dem gemergten PR #61 unverändert im GitHub-Binär-ZIP gespeichert**. Die 4/4 Einzelprüfungen sowie die ZIP- und Manifestprüfung liefen in CI erfolgreich. SHA-Nachweis und ursprüngliches Bild sind jetzt gemeinsam vorhanden.
 - Sichtbarer Fall: L4, L1=200 cm, L2=200 cm, B1/B2=90 cm, B3/B4=105 cm, B5=60 cm, rechts Abschrägung L6=15 cm, B6=15 cm, 38 mm Bardolino Eiche.
 
 ### UI-Punkt A – „B5: 60 cm · Einstellung“
@@ -33,4 +33,4 @@ Bereits am 05.11.2026 ausdrücklich gewünscht: Auf den WooCommerce-Produktseite
 
 ## Archivplanung 06.11.2026
 
-Die zuvor nur per Dateihash erfassten UI-Originale (`image(20261106-074841).png` und `image(20261105-113713).png`) sind zusammen mit den zwei neuen Speedmaster-Preisoriginalen **unverändert** im vorbereiteten privaten ZIP `Speedmaster_L1_U1_2250_UI_20261106_Originale.zip`. [SHA-/Dateiregister](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv). **Es ist noch nicht in GitHub hochgeladen**; erst nach byteverifiziertem Import sind die Visuals für neue Chats wieder direkt verfügbar.
+Die zuvor nur per Dateihash erfassten UI-Originale (`image(20261106-074841).png` und `image(20261105-113713).png`) sind zusammen mit den zwei neuen Speedmaster-Preisoriginalen **unverändert** im vorbereiteten privaten ZIP `Speedmaster_L1_U1_2250_UI_20261106_Originale.zip`. [SHA-/Dateiregister](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv). **Es ist seit PR #61 (06.11.2026) auf GitHub main byteverifiziert vorhanden.** Neue Chats mit Binär-Checkout können das ZIP entpacken und das SVG-/Produktkopf-Feedback anhand der Originalbilder prüfen.
