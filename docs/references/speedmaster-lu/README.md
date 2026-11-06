@@ -97,3 +97,8 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 ### 06.11.2026 – 17,5-mm-Preise netto (PR #66)
 
 **Speedmaster-Anzeigen sind netto ohne Umsatzsteuer**, ausdrücklich bestätigt. Im DE-V3-Bruttoverkaufspreis ist **19 % USt. bereits enthalten**. [Sechs neue Text-Netto-EKs](LU_175_NET_PRICES_20261106.json), [Preisberechnung und Grenzen](../../phase-lu-175-net-price-anchors-20261106.md): L2 342,41 €, L3 523,29 €, L4 465,68 €, U2/U3/U4 je 494,03 €, nur für dokumentierte W980-/17,5-mm-/2500-mm-Maße. Exakte Belege sind keine allgemeine Formel und keine Shopfreigabe. Keine Bilder oder ZIPs erforderlich.
+
+
+### Vier zusätzliche 2000-mm-17,5-mm-Netto-EKs (06.11.2026)
+
+[Strukturierte Original-Textangaben mit sämtlichen mm-Maßen](LU_175_2000_NET_PRICES_20261106.json) und [aktualisierte Preis-/Modelltabelle](../../phase-lu-175-net-price-anchors-20261106.md): L2 307,67 €, L3 488,55 €, L4 430,94 €, U2 459,29 € netto. Jeweils ein zweiter L1-Längenanker gegenüber 2500 mm (alle vier +34,74 € netto je 500 mm). Damit dürfen in der Offline-Kalibrierung **nur** diese vier 17,5-mm-Standard-Varianten zwischen 2000 und 2500 mm entlang L1 modelliert werden; keine breiten-/dekorabhängigen Übertragungen oder Kauf-Freigaben. U3/U4 bei 17,5 mm haben weiterhin nur einen 2500-mm-Anker. **Keine Bilder/ZIP-Pflicht.**
