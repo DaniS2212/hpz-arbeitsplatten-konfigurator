@@ -93,3 +93,8 @@ Diese Werte wurden **nicht bei Speedmaster angefragt** und werden ausdrücklich 
 ### Nächste Erkenntnisse Richtung Veröffentlichung
 
 **Nicht** dieselben Längen nochmals abfragen. Höherer Erkenntniswert: Zuerst **gezielte Breitenänderungen** bei L1/L3/U1, weil selbst bei U1 APL38 eine größere Breite *günstiger* sein kann und daher Flächenformeln unsicher sind; dann **ein neues repräsentatives Dekor** mit identischen Maßen in beiden Dicken zur Validierung der Dekorübertragung. Für 17,5-mm-U3/U4 ein weiterer **2000-mm-Beleg** nur falls diese separat kalkuliert werden müssen. Hersteller-Teillängen/Verbinder und die Woo-Testbestellung bleiben gesondert abzusichern. **Nur strukturierte Texte, keine ZIPs/Bilder.**
+
+
+## Breiten-Nachtrag vom 06.11.2026 (PR #68)
+
+Die im vorherigen Abschnitt vorgeschlagenen **gezielten Breitenkontrollen** sind inzwischen eingegangen. **U1 mit B1=650 bei 17,5 mm: 534,33 € netto, bei 38 mm: 776,40 € netto** (L1=2500/L2=1700/L3=1800/B2=B3=600); **L3 17,5 mm B3=B4=1000: 534,98 €**, **L4 17,5 mm B5=700: 478,19 €** (übrige Maße analog den Grundfällen). Die U1-38-mm-Breite **senkt** den Preis, die 17,5-mm-Breite **erhöht** ihn. Ausführliche Daten, Preisunterschiede und begrenzte Modelle: [Vier-Breiten-Auswertung](phase-lu-four-width-prices-20261106.md). Hieraus weder universelle Zuschläge noch reale Shoppreise ableiten. **Nächste Preisabfrage sinnvollerweise für ein neues Dekor**, nicht mehr dieselben vier W980-Breiten.
