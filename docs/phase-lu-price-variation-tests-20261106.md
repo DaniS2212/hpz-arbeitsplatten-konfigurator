@@ -1,24 +1,38 @@
-# Speedmaster – gezielte Preisprüfung für Kanten und Form-/Stoßvarianten
+# Speedmaster – kontrollierte L-/U-Preisvergleiche, 06.11.2026
 
-**Stand 06.11.2026, nach gemergtem PR #61.** Zwei original archivierte Speedmaster-Preise L1 2250 mm (**488,01 €**) und U1 2250 mm (**715,04 €**) treffen die zuvor berechneten Längen-Zwischenwerte auf den Cent genau. Der Import ist **vollständig**: Original-ZIP mit vier PNGs auf GitHub main, Git-Blob `3d1af1ea00d426a5456e97142d40111491911efd`, ZIP-Test `verify-original-pngs` für PR #61 **grün**. Kein Re-Upload nötig.
+**Stand:** Drei **echte neue Speedmaster-Screenshots** eingegangen, Preisregister und Original-SHA manifestiert. Alle Beträge sind **Bildanzeigen**, keine gesondert bestätigten aktuellen Netto-EKs, weder Fertigungs- noch Woo-Verkaufsfreigabe. Der bereits gemergte PR #61 enthält zwei vorherige L1/U1-Ausgangsreferenzen; diese sind unverändert.
 
-## Jetzt drei kontrollierte Speedmaster-Abfragen – keine neue Preisengine
+## Alle drei neuen Kontrollwerte
 
-Alle drei Tests verwenden **38 mm, W980 ST7 Platinweiß, die jeweils bekannten Maßfelder in mm, Standard-Dickkante 1,5 mm dekorgleich**; Fotos mit den vollständig sichtbaren Grundeinstellungen, dem Preis sowie ggf. der geänderten Kantenauswahl liefern.
+| Test | Herstellermaße / Standard | Ausgangsreferenz | Herstelleranzeige | Delta | Fachlich belastbare Aussage |
+|---|---|---:|---:|---:|---|
+| L1 → **L2** | L1=2250, L2=1200, B1=B2=600; 38 mm W980 ST7, 1,5-mm-Dickkanten alle dekorgleich | L1 **488,01 €** | L2 **488,01 €** | **0,00 €** | Beim **genau getesteten** Form-/Stoßwechsel keine Preisabweichung |
+| U1 → **U2** | L1=2250, L2=1200, L3=1800, B1/B2/B3=600; 38 mm W980 ST7, 1,5-mm-Dickkanten alle dekorgleich | U1 **715,04 €** | U2 **710,91 €** | **−4,13 €** | U2 ist hier 4,13 € günstiger |
+| L1 → **L1 links abgeschrägt („Kante durchlaufend“)** | L1=2250, L2=1200, B1=B2=600; **Abstand L3=150, B3=150**; 38 mm W980 ST7; Modell/andere sichtbare Kanten dekorgleich | L1 eckig **488,01 €** | abgeschrägt **510,02 €** | **+22,01 €** | **Eckgeometrie mit durchlaufender Kante**, kein Test einer isoliert anders beschichteten linken Kante |
 
-1. **L1 → L2, identische Maße:** L2: L1=2250, L2=1200, B1=B2=600; die gleichen Standardkanten. Vergleichsreferenz **L1 488,01 €**. Isoliert den **Form-/Stoßvariantenwechsel**, keine Maßänderung.
-2. **U1 → U2, identische Maße:** U2: L1=2250, L2=1200, L3=1800, B1=B2=B3=600; die gleichen Standardkanten. Vergleichsreferenz **U1 715,04 €**. Isoliert eine andere **U-Stoßvariante**.
-3. **L1 nur eine Kante ändern:** L1 unverändert L1=2250, L2=1200, B1=B2=600; ändere in Speedmaster **genau eine** bisher 1,5 mm dekorgleich eingestellte Außenkante links auf eine **dort tatsächlich wählbare andere Einstellung** (z. B. „ohne“ nur falls wirklich verfügbar). **Exakten Optionsnamen notieren**. Vergleich **L1 488,01 €**. Kein gleichzeitiger Form-/Dekor-/Eckwechsel.
+Originalbilder aus dem aktuellen Chat: `image(20261106-085123).png` (L2), `image(20261106-085256).png` (U2), `image(20261106-085351).png` (L1 abgeschrägt). Exakte Preise, Maße, SHA-256 und Quellstatus: [Kontrollbeleg-JSON](references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json), [SHA-/Pixel-Manifest](references/speedmaster-lu/LU_3_20261106_SOURCE_MANIFEST.csv), [zentrale Preisliste](references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv), [Kontrollmatrix](references/speedmaster-lu/PRICE_VARIANT_CONTROL_20261106.csv).
 
-**Anschließend** die gleiche Kontrollaufnahme für U3/U4 (sonst identisch zu U1); L3 und L4 separat als neue Grundreferenzen, da diese andere Maßfelder besitzen. Die Werte aus früheren U2/U3/U4-/L4-Screenshots bleiben **nur Bildbeträge** und werden erst nach identischer Kanten-/Maßprüfung und Netto-Zuordnung zu einem Preisbeleg.
+### Zusätzlicher Befund: U2 −4,13 € bei zwei unterschiedlichen Längen
 
-Dazu liegt die maschinenlesbare [Testmatrix](references/speedmaster-lu/PRICE_VARIANT_CONTROL_20261106.csv) mit **noch offenen Preisen bewusst leer**. Belege anschließend im zentralen `PRICE_EVIDENCE_CURRENT.csv` und mit Original-PNG-SHA/ZIP abspeichern. Jede neue Referenz erhält Form, alle L/B-Maße, Dicke, Dekor, alle Kanten, Bilddatum und genau beobachteten Betrag. Preisunterschiede als **Delta**, nicht als pauschale feste Zuschläge, interpretieren; zusätzliche Kontrollpunkte prüfen, bevor eine Regel generalisiert wird.
+Ein **älteres, unabhängig dokumentiertes Speedmaster-Bild** für 38 mm W980 mit L1=2000, L2=1200, L3=1800, B1/B2/B3=600 zeigt **U2 687,36 €** bei **U1 691,49 €** (= −4,13 €). Bei L1=2250 mm beträgt die neue Abweichung **U2 710,91 €** zu **U1 715,04 €** (= **erneut −4,13 €**). Dies stützt in der **engen, getesteten W980/38-mm-Konfiguration** eine konstante U-Form-/Stoßdifferenz über diesen 250-mm-Abschnitt, aber rechtfertigt **noch keine universelle −4,13-€-Regel** für andere Längen, Breiten, Dicken, Dekore oder Eckvarianten.
 
-## Versand und Verkauf bleiben unverändert
+L2 hat bisher nur den **einen** Nachweis bei 2250 mm für Gleichheit mit L1. Eine generelle L1=L2-Kalkulation wäre verfrüht.
 
-- Speedmaster interne Anlieferung: **10 € netto Standard**, einmalig **+50 €**, sobald mindestens ein nachgewiesenes physisches Liefer-/Packteil **≥1.900 mm** Länge hat; also **60 € netto gesamt**. Bestehende V3-Funktion unverändert. Eine 2250-mm-Außenlänge **allein** ist kein Nachweis, wie lang jedes tatsächlich gelieferte Teil ist.
-- 40 % Zielmarge, 35 % Rabatt-Minimum und 10 % Kostenreserve weiterhin in **`HPZ_APL_Price_V3`**, keine zweite Pricing-Engine.
-- Screenshotbeträge **nicht** automatisch als nachgewiesene Nettopreise oder fertigungserlaubte Preise behandeln. Keine Freigabe von L/U-Live-Checkout oder automatische Speedmaster-Bestellung.
-- Sobald Kanten-/Stoßdeltas für kontrollierte Fälle belegt sind, diese in die vorhandene interne Kalibrierung übernehmen und vor Freigabe mit weiteren echten Speedmaster-Referenzen validieren. `Gerade` unverändert lassen.
+### Wichtige Abweichung von der ursprünglichen dritten Testanforderung
 
-**Nächster Chat:** Zuerst `AGENTS.md`, `docs/CURRENT_PROJECT_HANDOFF_20261105.md`, diesen Testplan und das CSV-Register lesen, dann konkrete neue Nutzerbilder mit den Kontrollfall-IDs abgleichen. Offene Werte nicht erfinden.
+Der dritte Screenshot zeigt eindeutig **„Arbeitsplatte L1 links abgeschrägt (Kante durchlaufend)”** mit zwei zusätzlichen 150-mm-Abständen. Die ursprünglich gewünschte Prüfung „**nur eine linke Kante** anders einstellen, **ohne Änderung an der Grundform**” wurde daher **nicht** durchgeführt. Die +22,01 € gehören zu **diesem Eckfall** (Geometrie und durchlaufende Kante) und dürfen **nicht** als pauschaler Kantenaufpreis gespeichert werden.
+
+## Nächste Preisbelege, minimal und gezielt
+
+1. **L2 bei L1=2500 mm**, ansonsten L2=1200, B1/B2=600, 38 mm W980, alle 1,5-mm-Dickkanten: prüft die vorläufige Preisgleichheit L1/L2 außerhalb des einen Bildpunkts (L1-Referenz **511,56 €**).
+2. **U2 bei L1=2500 mm**, ansonsten L2=1200, L3=1800, B1/B2/B3=600, 38 mm W980, alle 1,5-mm-Dickkanten: prüft, ob der beobachtete −4,13-€-Unterschied auch am dritten Längenpunkt gilt (U1-Referenz **738,59 €**).
+3. **L1 eckig** mit L1=2250, L2=1200, B1=B2=600, 38 mm W980: **nur eine in Speedmaster tatsächlich angebotene Standard-Kantenoption** links ändern, ohne „links abgeschrägt“ oder neue L3/B3-Eckabstände; so wird der reine Kantenaufpreis isoliert.
+
+Erst danach ggf. L3/L4-Basismuster, U3/U4 und weitere Dekore/Dicken. Kein neues Modell für L/U auf Basis bloßer Universalzuschläge. Beobachtungen müssen mit Nettostatus/aktuellem Lieferanten-EK und tatsächlichen Teil-/Packstücklängen separat verifiziert werden.
+
+## Feste Grenzen
+
+- **Preise im WordPress-Konfigurator unverändert**: L-/U-Live-Verkauf nicht freischalten. Die interne PHP-V3-Kalibrierung kann die neuen **Standard**-L2/U2-Bildbeträge vergleichen, aber weder daraus einen aktuellen Netto-EK noch eine Woo-Preissignatur ableiten. Der Sonderfall „L1 links abgeschrägt“ bleibt **explizit außerhalb** der serverseitig nur für eckige Grundformen geltenden Preisfreigabe.
+- **Versand unverändert:** Speedmaster 10 € netto Grundkosten, einmalig +50 € bei mindestens einem **nachgewiesenen tatsächlich langen Liefer-/Packstück ≥1900 mm**, insgesamt 60 € netto, nicht 70 €.
+- **Betriebsregeln unverändert:** 40 % Zielmarge, 35 % Mindestmarge nach Rabatt, 10 % Kostenreserve, einzige Regelimplementierung in `HPZ_APL_Price_V3`.
+- **UI-Arbeit später:** B5-Label ohne technischen Wortzusatz, stabile SVG-Grundrissgröße beim Eckwechsel, kurzer Woo-Produktkopf nur H1 + Kurzbeschreibung.
