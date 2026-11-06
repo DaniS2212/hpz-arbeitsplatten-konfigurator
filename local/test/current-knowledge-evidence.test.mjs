@@ -75,7 +75,8 @@ test('central L/U price evidence is typed and exact, no new screen display accep
    assert.match(row.status,/net_status_unverified/);
    assert.equal(row.source,'docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json');
    const sourceRow=controls.sourceArchive;
-   assert.equal(sourceRow.archivedInGitHub,false,'source ZIP needs real binary upload first');
+   assert.equal(sourceRow.gitBlobSha1,'deec662cfea4509eb98c0a58ad692762115da794',
+     'prepared ZIP identifies exact original bytes independent of archive state');
    assert.equal(c.image.sha256.length,64);
    for(const [k,v] of Object.entries(c.dimensionsMm)){
      assert.equal(row[k+'_mm'],String(v),'correct control dimension '+c.caseId+' '+k);
