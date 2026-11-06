@@ -67,4 +67,7 @@ Der Betreiber hat die **bereits implementierte** Regel ausdrücklich als korrekt
 
 Die zwei 2250-mm-Punkte zeigen eine **0-Cent-Abweichung** zur im Repo bereits angelegten linearen Längeninterpolation. Das reicht für eine Grundmodellvalidierung, aber nicht für allgemeine Preisfreigabe. Beim nächsten Speedmaster-Abgleich gezielt **jeweils nur eine Variable** ändern (alle anderen Maße, Dekor W980, Dicke 38 mm konstant): 1,5-mm-Kante an einem Ende anders konfigurieren, danach L1 ↔ L2 und U1 ↔ U2/U3/U4 sowie ggf. abgerundet ↔ abgeschrägt. Jede Abweichung als eigene Preis-/Geometrieannahme dokumentieren, bevor der Checkout sie zulässt.
 
-Die zugehörigen zwei Preis-PNGs und zwei früheren UI-Screenshots sind unverändert in einer ZIP mit SHA-Manifest vorbereitet. **Binärarchiv-Upload nach GitHub ist noch offen**; reiner Manifesttext ist kein Bildarchiv.
+Die zugehörigen zwei Preis-PNGs und zwei früheren UI-Screenshots sind unverändert in einer ZIP mit SHA-Manifest vorbereitet. **Binärarchiv ist seit gemergtem PR #61 in GitHub main vorhanden und mit 4/4 PNG-Prüfsummen grün verifiziert**; Nachbelege für Netto-EK, Kanten und Fertigung bleiben unabhängig erforderlich.
+
+
+**Nächste konkrete Herstellervergleiche (nach PR #61):** [Ein-Variable-Testmatrix für L1→L2, U1→U2 und Kante links](phase-lu-price-variation-tests-20261106.md); zuerst drei kontrollierte Speedmaster-Screenshots, alle Maße/Dekore unverändert lassen. Keine weiteren Platzhalter-/Archiv-PRs für die bereits vorhandenen Bilder.
