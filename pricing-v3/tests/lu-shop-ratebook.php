@@ -226,4 +226,89 @@ try {
     testRate(true,'L3 B3/B4 pair must be rejected by normalization');
 }
 
+// L-corner price coverage: one supplier-screen witness, all other values
+// commercial ASSUMPTIONS behind an independent operator approval switch.
+$lReference=testRaw('L1','W980','APL38',2250);
+$lReference['lCorner']=[
+    'side'=>'left','treatment'=>'chamfer_continuous',
+    'parameters'=>['L3'=>'150','B3'=>'150'],
+];
+$lNormalized=HPZ_APL_LU_Price_Readiness::normalize($lReference);
+$lBase=HPZ_APL_LU_Price_Readiness::normalize(testRaw('L1','W980','APL38',2250));
+testRate(HPZ_APL_LU_Price_Readiness::configurationKey($lNormalized)
+    !==HPZ_APL_LU_Price_Readiness::configurationKey($lBase),'machining cannot share square proof fingerprint');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate($lNormalized)===null,'corners must not inherit base supplier quote');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($lNormalized)===null,'corner bypass of extended quote denied');
+$corner=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate($lNormalized);
+testRate($corner['supplierNetCents']===51002,'Speedmaster L1 left continuous 150x150 witnessed EK EUR 510.02');
+testRate($corner['cornerNetModelCents']===2201,'exact observed +22.01 EUR only under exact dimensions');
+testRate($corner['priceBasis']==='operator-confirmed-single-corner-reference','single evidence not mislabeled');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::operatorProof($lNormalized,$policy)===null,'no corner offer from general price approval');
+$cornerPolicy=$policy;$cornerPolicy['corner_model_approved']=true;
+$cornerProof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($lNormalized,$cornerPolicy);
+testRate($cornerProof!==null&&$cornerProof['supplierNetCents']===51002,'separate operator corner switch');
+testRate($cornerProof['verifiedCutParts']===[],'no fabricated Speedmaster CNC parts for corner');
+
+$baseRound=testRaw('L1','W980','APL38',2250);
+$baseRound['lCorner']=['side'=>'left','treatment'=>'round','parameters'=>['R1'=>'100']];
+$round=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate(
+    HPZ_APL_LU_Price_Readiness::normalize($baseRound)
+);
+testRate($round!==null&&$round['supplierNetCents']===53201,'radius commercial minimum cost model');
+testRate($round['priceBasis']==='owner-review-l-corner-cost-estimate','radius is NOT a supplier EK');
+$baseRound['lCorner']=['side'=>'both','treatment'=>'round','parameters'=>['R1'=>'100','R2'=>'100']];
+$both=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate(
+    HPZ_APL_LU_Price_Readiness::normalize($baseRound)
+);
+testRate($both['cornerNetModelCents']===10000,'both rounds with second-setup allowance');
+$baseRound['lCorner']=[
+    'side'=>'both','treatment'=>'chamfer_square',
+    'parameters'=>['L3'=>'150','B3'=>'150','L4'=>'150','B4'=>'150']
+];
+$both=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate(
+    HPZ_APL_LU_Price_Readiness::normalize($baseRound)
+);
+testRate($both['cornerNetModelCents']===9000,'both straight chamfers separately modeled');
+$l4=testRaw('L4','W980','APL17.5',2500);
+$l4['lCorner']=[
+    'side'=>'left','treatment'=>'chamfer_continuous',
+    'parameters'=>['L5'=>'150','B5'=>'150']
+];
+$c4=HPZ_APL_LU_Price_Readiness::normalize($l4);
+testRate($c4['dimensions']['B5']===600 && $c4['lCorner']['parameters']['B5']===150,
+    'L4 base B5 and corner B5 remain separate');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate($c4)['priceBasis']
+    ==='owner-review-l-corner-cost-estimate','L4 corner not falsely supplier approved');
+
+$changedCorner=$lReference;
+$changedCorner['lCorner']['parameters']['B3']='160';
+$cChanged=HPZ_APL_LU_Price_Readiness::normalize($changedCorner);
+testRate(HPZ_APL_LU_Price_Readiness::configurationKey($cChanged)
+    !==HPZ_APL_LU_Price_Readiness::configurationKey($lNormalized),
+    'corner millimeter change invalidates quote');
+$changedCorner=$lReference;
+$changedCorner['lCorner']['parameters']['B3']='990';
+try {
+    HPZ_APL_LU_Price_Readiness::normalize($changedCorner);
+    testRate(false,'oversized chamfer should fail');
+} catch (InvalidArgumentException $e) {
+    testRate(true,'oversized chamfer rejected by shape-bound PHP limits');
+}
+$changedCorner=$lReference;
+$changedCorner['lCorner']['parameters']['unknown']='100';
+try {
+    HPZ_APL_LU_Price_Readiness::normalize($changedCorner);
+    testRate(false,'foreign Eckmaß accepted');
+} catch (InvalidArgumentException $e) {
+    testRate(true,'injected Eckmaß rejected');
+}
+$changedCorner=$lReference;
+$changedCorner['lCorner']['parameters']=['B3'=>'150'];
+try {
+    HPZ_APL_LU_Price_Readiness::normalize($changedCorner);
+    testRate(false,'incomplete Eckmaß accepted');
+} catch (InvalidArgumentException $e) {
+    testRate(true,'incomplete Eckmaß rejected');
+}
+
 echo "PASS $n L/U shape/decor/price/margin/190cm regression tests (no live sale)\n";
