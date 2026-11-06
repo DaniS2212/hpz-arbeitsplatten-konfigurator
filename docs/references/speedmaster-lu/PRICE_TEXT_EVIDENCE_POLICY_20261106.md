@@ -48,3 +48,8 @@ Vorgesehener Arbeitsweg:
 **Tatsächliche Browser-Grenze:** Speedmaster Shop ist zwar erreichbar, doch die Bedienung seines WebGL-Konfigurators über den vorhandenen Cloud-Browser war im anderen Chat nicht zuverlässig möglich. Das gilt nicht als vollständiger programmatischer Shopzugriff. Deshalb vorerst **gebündelte vom Betreiber als Text übermittelte Speedmaster-Preise** erfassen; keine weiteren Screenshots oder ZIPs anfordern und keine selbstständig durchgeführte Abfrage behaupten.
 
 **Aktuelle acht Textpreise:** [LU_EIGHT_TEXT_PRICES_20261106.json](LU_EIGHT_TEXT_PRICES_20261106.json), [Preisregister](PRICE_EVIDENCE_CURRENT.csv), [enge Modellvergleiche](../../phase-lu-eight-text-prices-model-20261106.md). Alle Beträge weiterhin nicht ausdrücklich netto bestätigt; keine Woo-Freigabe.
+
+
+## Netto-Steuerbasis: verbindliche Betreiberbestätigung (06.11.2026)
+
+Speedmaster zeigt **Produktpreise NETTO ohne USt.**. Dies gilt laut Betreiber auch für frühere Bilder und Texte, deren historischer `display-only`-Typ weiter die Belegart bezeichnet. `HPZ_APL_Price_V3::targetGrossForVerifiedCosts()` berücksichtigt die **19 % deutsche USt. genau einmal**; andere Ländersteuern werden in WooCommerce berechnet. Neue [17,5-mm-Netto-EKs](LU_175_NET_PRICES_20261106.json) liegen als sechs Textbelege vor. Keine Preisbild-ZIP-Pflicht. Steuerbasis ist nicht gleich aktuelle Zuschnitt-, Verpackungs- oder Verkaufsfreigabe.
