@@ -35,6 +35,74 @@ final class HPZ_APL_LU_Price_Readiness
         return $found === $expected;
     }
 
+    /**
+     * Shape-bound L corner measurements, independently checked on the PHP
+     * pricing path. The top-level contour still uses corner=square: the
+     * additional operation lives exclusively inside lCorner.
+     *
+     * One field name may also be a base L4 dimension (B5): keep the two
+     * namespaces separate in fingerprints and manufacturing records.
+     */
+    private static function lCorner(array $raw, string $shape, array $d): array
+    {
+        $none=['side'=>'none','treatment'=>null,'parameters'=>[]];
+        $v=$raw['lCorner'] ?? $none;
+        if (!is_array($v)||!self::exactKeys($v,['side','treatment','parameters'])
+            ||!is_array($v['parameters'])) {
+            throw new InvalidArgumentException('Ungültige L-Eckfelder.');
+        }
+        $side=$v['side'];
+        $treatment=$v['treatment'];
+        if ($side==='none') {
+            if ($treatment!==null || count($v['parameters'])!==0)
+                throw new InvalidArgumentException('Bearbeitung ohne Eckauswahl.');
+            return $none;
+        }
+        if (!in_array($side,['left','right','both'],true)
+            ||!in_array($treatment,['round','chamfer_square','chamfer_continuous'],true))
+            throw new InvalidArgumentException('Unbekannte L-Eckausführung.');
+        $first=in_array($shape,['L1','L2'],true);
+        $left=$treatment==='round'?['R1']:($first?['L3','B3']:['L5','B5']);
+        $right=$treatment==='round'?['R2']:($first?['L4','B4']:['L6','B6']);
+        $wanted=array_merge($side==='right'?[]:$left,$side==='left'?[]:$right);
+        if (!self::exactKeys($v['parameters'],$wanted))
+            throw new InvalidArgumentException('Eckmaße unvollständig oder fremd.');
+        $limits=match ($shape) {
+            'L1'=>['left'=>[$d['L2']-$d['B2'],$d['B1']],
+                   'right'=>[$d['L1']-$d['B1'],$d['B2']]],
+            'L2'=>['left'=>[$d['L1']-$d['B1'],$d['B2']],
+                   'right'=>[$d['L2']-$d['B2'],$d['B1']]],
+            'L3','L4'=>['left'=>[$d['L2']-$d['B4'],$d['B1']],
+                         'right'=>[$d['L1']-$d['B3'],$d['B2']]],
+            default=>throw new InvalidArgumentException('Eckvariante unbekannt.'),
+        };
+        $parameters=[];
+        foreach ($wanted as $key) {
+            $mm=self::mm($v['parameters'][$key], 'Ecke '.$key);
+            $rounded=$treatment==='round';
+            if ($mm%10!==0||$mm<($rounded?10:60)||$mm>($rounded?1000:2000)) {
+                throw new InvalidArgumentException('Eckmaß außerhalb der erlaubten Abstufung.');
+            }
+            $pair=str_starts_with($key,'R')
+                ? $limits[$key==='R1'?'left':'right']
+                : $limits[in_array($key,$left,true)?'left':'right'];
+            if (!$rounded) {
+                $vertical=in_array($key,['L3','L4','L5','L6'],true);
+                // L3/L5 may represent a different physical segment from L4/L6.
+                // The PHP formula mirrors the two axes of local l-geometry.
+                $available=$pair[$vertical?0:1];
+            } else {
+                $available=min($pair);
+            }
+            $previewMax=max(0,min($rounded?1000:2000,
+                ((int)ceil(($available-10)/10)-1)*10));
+            if ($mm>$previewMax)
+                throw new InvalidArgumentException('Eckmaß passt nicht zu den Schenkeln.');
+            $parameters[$key]=$mm;
+        }
+        return ['side'=>$side,'treatment'=>$treatment,'parameters'=>$parameters];
+    }
+
     /** Validate the limited SQUARE L/U launch candidate independently of JS. */
     public static function normalize(array $raw): array
     {
@@ -72,12 +140,6 @@ final class HPZ_APL_LU_Price_Readiness
             $dimensions[$key] = self::mm($raw['dimensions'][$key], $key);
         }
         if ($isL) {
-            $lc = $raw['lCorner'] ?? ['side'=>'none','treatment'=>null,'parameters'=>[]];
-            if (!is_array($lc) || !self::exactKeys($lc, ['side','treatment','parameters'])
-                || $lc['side'] !== 'none' || $lc['treatment'] !== null
-                || !is_array($lc['parameters']) || count($lc['parameters']) !== 0) {
-                throw new InvalidArgumentException('L-Eckbearbeitung braucht eigene Herstellerpreisfreigabe.');
-            }
             if ($dimensions['L1'] <= $dimensions['B1']
                 || $dimensions['L2'] <= $dimensions['B2']) {
                 throw new InvalidArgumentException('Die L-Innenöffnung muss positiv sein.');
@@ -96,17 +158,21 @@ final class HPZ_APL_LU_Price_Readiness
             || $dimensions['B2'] + $dimensions['B3'] >= $dimensions['L1']) {
             throw new InvalidArgumentException('U-Maßkopplung und Innenöffnung prüfen.');
         }
+        $lc=$isL?self::lCorner($raw,$shape,$dimensions):null;
         $quantity = $raw['quantity'] ?? null;
         if (!is_int($quantity) || $quantity < 1 || $quantity > 1000) {
             throw new InvalidArgumentException('Ungültige Stückzahl.');
         }
-        return [
+        $normalized=[
             'schemaVersion'=>2,'unit'=>'mm','product'=>$product,'productId'=>$expectedId,
             'geometry'=>$shape,'corner'=>'square','dimensions'=>$dimensions,
             'material'=>$raw['material'],'decor'=>$decor['id'],
             'supplierDecorCode'=>$decor['supplierCode'],
             'decorName'=>$decor['displayName'],'edge'=>'matching-1.5','quantity'=>$quantity,
         ];
+        // Preserve the *existing* fingerprint for all unmachined L/U plates.
+        if ($isL && $lc['side']!=='none') $normalized['lCorner']=$lc;
+        return $normalized;
     }
 
     /** Quantity-independent exact configuration fingerprint (not a signed token). */
@@ -116,10 +182,12 @@ final class HPZ_APL_LU_Price_Readiness
             || !in_array($c['product'] ?? null, ['l','u'], true)) {
             throw new InvalidArgumentException('Only normalized L/U V2 configurations.');
         }
-        return hash('sha256', json_encode([
+        $identity=[
             self::VERSION,$c['productId'],$c['product'],$c['geometry'],
             $c['dimensions'],$c['material'],$c['decor'],$c['edge'],$c['corner'],
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        ];
+        if (isset($c['lCorner'])) $identity[]=$c['lCorner'];
+        return hash('sha256',json_encode($identity,JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     /** Only an actual supplier/packaging record may enable a pricing review. */
@@ -322,13 +390,13 @@ final class HPZ_APL_LU_Price_Readiness
             'preflightComplete'=>count($blocked) === 0,'purchasable'=>false,
             'unitGrossReferenceCents'=>$unitGross,'totalGrossReferenceCents'=>$grossExpected,
             'quantity'=>$c['quantity'],'blockers'=>array_values(array_unique($blocked)),
-            'production'=>[
+            'production'=>array_merge([
                 'schemaVersion'=>2,'productId'=>$c['productId'],'form'=>$c['geometry'],
                 'dimensionsMm'=>$c['dimensions'],'thicknessMm'=>$c['material']==='APL38'?38:17.5,
                 'decorId'=>$c['decor'],'decorName'=>$c['decorName'],
                 'supplierDecorCode'=>$c['supplierDecorCode'],'edge'=>'1,5 mm dekorgleich',
                 'corner'=>'square','quantity'=>$c['quantity'],
-            ],
+            ],isset($c['lCorner'])?['lCorner'=>$c['lCorner']]:[]),
         ];
     }
 }
