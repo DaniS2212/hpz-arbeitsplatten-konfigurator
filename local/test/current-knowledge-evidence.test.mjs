@@ -172,7 +172,7 @@ test('central L/U price evidence is typed and exact, no new screen display accep
    assert.equal(c.netBasisExplicitlyConfirmedByOperator,true);
    assert.equal(c.cutListVerified,false);
    assert.equal(c.woocommerceSaleApproved,false);
-   assert.equal(c.oneAxisComparison.lengthIncrementTo2500,'34.74');
+   assert.equal(c.oneAxisComparison.differenceEUR,'34.74');
    const row=data.find(x=>x.variant===c.geometry&&x.thickness_mm==='17.5'
      && x.L1_mm==='2000'&&x.source==='docs/references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json');
    assert.ok(row,'2000mm 17.5mm net-EK in central CSV: '+c.geometry);
