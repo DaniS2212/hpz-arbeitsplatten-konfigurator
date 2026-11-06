@@ -87,3 +87,8 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 
 
 **PR #63 tatsächlich gemergt am 06.11.2026:** die drei neuen Bild-originale liegen historisch im privaten GitHub-ZIP (1.110.446 Bytes, Git-Blob `deec662cfea4509eb98c0a58ad692762115da794`, `verify-three-price-originals` success). Keine künftigen Bild-/ZIP-Uploads für Preisentwicklung mehr verlangen; Preisregister `PRICE_EVIDENCE_CURRENT.csv` ist fortan die dauerhafte Quelle.
+
+
+### 06.11.2026 – acht neue Preise nur als Text, nach PR #64
+
+[**Vollständige acht Preis-/Maß-/Kantenbelege (JSON)**](LU_EIGHT_TEXT_PRICES_20261106.json) und [**modellierte Preisbeziehungen**](../../phase-lu-eight-text-prices-model-20261106.md). Die Textwerte vervollständigen für W980 ST7/38 mm erstmals L1–L4 und U1–U4 bei ihren dokumentierten Grundmaßen. **Keine neuen Bildarchive oder ZIP-Pflichttests.** Alle Ausgangspreise bleiben je nach Zeile historische Netto-Referenz oder *unbestätigte Hersteller-Anzeige*; keine automatische Gleichstellung. Der Cloud-Browser konnte den WebGL-Konfigurator nicht verlässlich bedienen, daher erfolgt die Preiserhebung vorläufig über gebündelte vollständige Textangaben des Betreibers. **Nur 1,5-mm-dekorgleiche Kanten anbieten**, „ohne Kante“ entfällt.
