@@ -1,0 +1,19 @@
+name: L/U three original Speedmaster price screenshots 2026-11-06
+on:
+  pull_request:
+    paths:
+      - 'docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json'
+      - 'docs/references/speedmaster-lu/LU_3_20261106_SOURCE_MANIFEST.csv'
+      - 'docs/references/speedmaster-lu/Speedmaster_LU_3_Preisvergleiche_20261106_Originale.zip'
+      - 'scripts/verify_lu_three_prices_20261106_archive.py'
+      - '.github/workflows/lu-three-price-originals-20261106.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-three-price-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require exact three original supplier PNGs with source hash matches
+        run: python3 scripts/verify_lu_three_prices_20261106_archive.py --require
