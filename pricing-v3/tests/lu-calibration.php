@@ -86,6 +86,41 @@ foreach ([
         'modeled values never checkout');
 }
 
+// Independent manufacturer screenshots supplied on 06.11.2026 show
+// precisely the modeled midpoints, but do NOT independently state net EK.
+// The comparison must preserve the source, and never promote a display amount
+// into a supplier-verified Woo price.
+foreach ([
+    ['L1',['L1'=>2250],48801],
+    ['U1',['L1'=>2250],71504],
+] as [$shape,$dimensions,$shownCents]) {
+    $holdout=reviewLU($shape,'APL38',$dimensions);
+    expectCal($holdout['estimatedSupplierNetCents']===$shownCents,
+        $shape.' interpolation same as supplier screenshot');
+    expectCal($holdout['supplierDisplayOnlyCents']===$shownCents,
+        $shape.' exactly observed original screenshot');
+    expectCal($holdout['modelVsSupplierDisplayDifferenceCents']===0,
+        $shape.' holdout deviation is exactly zero cents');
+    expectCal($holdout['modelVsSupplierDisplayStatus']==='display-matches-estimate-net-unverified',
+        $shape.' holdout is independent display evidence, net not proven');
+    expectCal($holdout['displayEvidenceSource']===
+        'docs/references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json',
+        $shape.' holdout source survives handoff');
+    expectCal(!$holdout['supplierNetQuoteVerifiedForExactTarget']
+        && !$holdout['checkoutPriceApproved'] && !$holdout['purchasable'],
+        $shape.' cannot buy based on a model even if screenshots match');
+}
+
+// User clarified that the EXISTING V3 inbound rule is correct:
+// 10 EUR base net + 50 EUR additional at >=1900 mm per verified delivered
+// part = 60 EUR TOTAL, not 10 + 60. Never charge freight per shape arm.
+expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===1000,
+    'inbound 1899 mm only EUR 10 net');
+expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===6000,
+    'inbound at 1900 mm EUR 10 + EUR 50 net = EUR 60 TOTAL');
+expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1000,1900,2200])===6000,
+    'only one EUR 50 surcharge, never EUR 50 per long part');
+
 // The known 38-mm U1 width counterexample: 600 -> 700 mm is cheaper.
 // MUST NOT infer any 650-mm price between these records.
 foreach ([
