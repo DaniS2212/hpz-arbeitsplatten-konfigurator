@@ -107,23 +107,90 @@ foreach (['U2','U3','U4'] as $shape) {
 }
 expectCal(52329-46568===5761,'L3 minus L4 is EUR 57.61 at 17.5mm, not a universal shape surcharge');
 
-// No second same-shape 17.5mm length quote: bounded display interpolation
-// for 38mm must NEVER transfer to 17.5mm or extrapolate.
+// Four new exact 2000mm owner-confirmed NET supplier quotes, all W980,
+// 17.5mm and matching 1.5mm decor edges. These establish ONLY bounded
+// interpolation along L1=2000..2500 for the four shapes with two endpoints.
 foreach ([
-    ['L2',['L1'=>2250]],
-    ['L3',['L1'=>2250]],
-    ['L4',['L1'=>2250]],
-    ['U2',['L1'=>2250]],
-    ['U3',['L1'=>2250]],
-    ['U4',['L1'=>2250]],
-] as [$shape,$dimensions]) {
-    $candidate=reviewLU($shape,'APL17.5',$dimensions);
-    expectCal($candidate['priceStatus']==='missing-evidence',
-        $shape.' no inferred 17.5mm interpolation from lone 2500 net anchor');
-    expectCal($candidate['netSupplierReferenceCents']===null
-        && $candidate['estimatedSupplierNetCents']===null
-        && $candidate['supplierDisplayOnlyCents']===null,
-        $shape.' cannot borrow 38mm prices for 17.5mm');
+    ['L2',['L1'=>2000],30767],
+    ['L3',['L1'=>2000],48855],
+    ['L4',['L1'=>2000],43094],
+    ['U2',['L1'=>2000],45929],
+] as [$shape,$dimensions,$net]) {
+    $result=reviewLU($shape,'APL17.5',$dimensions);
+    expectCal($result['priceStatus']==='exact-operator-confirmed-net-reference',
+        $shape.' 2000mm exact net anchor');
+    expectCal($result['netSupplierReferenceCents']===$net,
+        $shape.' 2000mm net amount preserved as cents');
+    expectCal($result['supplierPriceTaxBasis']==='net-eur-operator-confirmed-2026-11-06'
+        && $result['germanGrossReferenceTaxRate']==='0.19',
+        'no second 19pct VAT layer');
+    expectCal($result['grossDEWith10or60EURInboundScenario']['inbound60EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($net,6000,0),
+        $shape.' same V3 gross policy, hypothetical shipping only');
+    expectCal(!$result['supplierNetQuoteVerifiedForExactTarget']
+        && !$result['checkoutPriceApproved'] && !$result['purchasable']
+        && !$result['realPackedDimensionsVerified'],
+        $shape.' supplier net price is never WooCommerce sale approval');
+}
+// Exactly identical +34.74 EUR supplier net difference over the verified
+// 500mm L1 interval for L1/U1 historic and L2/L3/L4/U2 new owner quotes.
+foreach ([
+    ['L1',30767,34241],['L2',30767,34241],
+    ['L3',48855,52329],['L4',43094,46568],
+    ['U1',45929,49403],['U2',45929,49403],
+] as [$shape,$at2000,$at2500]) {
+    $from=reviewLU($shape,'APL17.5',['L1'=>2000]);
+    $to=reviewLU($shape,'APL17.5',['L1'=>2500]);
+    expectCal($from['netSupplierReferenceCents']===$at2000
+        && $to['netSupplierReferenceCents']===$at2500,
+        $shape.' exact 2000/2500mm anchors');
+    expectCal($at2500-$at2000===3474,
+        $shape.' exactly 34.74 EUR per tested 500mm interval');
+}
+foreach ([
+    ['L2',32504],['L3',50592],['L4',44831],['U2',47666],
+] as [$shape,$expected]) {
+    $r=reviewLU($shape,'APL17.5',['L1'=>2250]);
+    expectCal($r['priceStatus']==='bounded-one-axis-estimate-not-verified',
+        $shape.' internal 17.5mm modeled net quote is NOT verified');
+    expectCal($r['estimatedSupplierNetCents']===$expected,
+        $shape.' bounded 2250mm interpolation from two exact net anchors');
+    expectCal($r['axisInterpolated']==='L1'
+        && $r['boundedByMm']===[2000,2500]
+        && count($r['referenceCaseIds'])===2,
+        $shape.' 2000/2500mm reference provenance and axis');
+    expectCal($r['netSupplierReferenceCents']===null
+        && !$r['checkoutPriceApproved'] && !$r['purchasable']
+        && !$r['realPackedDimensionsVerified'],
+        $shape.' modeled internal price remains not manufacturer-verified');
+}
+foreach ([2000,2500] as $length) {
+    $l3=reviewLU('L3','APL17.5',['L1'=>$length]);
+    $l4=reviewLU('L4','APL17.5',['L1'=>$length]);
+    expectCal($l3['netSupplierReferenceCents']-$l4['netSupplierReferenceCents']===5761,
+        'L3 is 57.61 EUR net higher than L4 at both observed lengths');
+    expectCal(reviewLU('L2','APL17.5',['L1'=>$length])['netSupplierReferenceCents']===
+        reviewLU('L1','APL17.5',['L1'=>$length])['netSupplierReferenceCents'],
+        'L1/L2 equal only at recorded W980 17.5mm sizes');
+    expectCal(reviewLU('U2','APL17.5',['L1'=>$length])['netSupplierReferenceCents']===
+        reviewLU('U1','APL17.5',['L1'=>$length])['netSupplierReferenceCents'],
+        'U1/U2 equal only at recorded W980 17.5mm sizes');
+}
+// U3/U4 have only their 2500mm net endpoint and no 2000mm source.
+// Unlike U2, no 17.5mm U3/U4 interpolation should be inferred.
+foreach (['U3','U4'] as $shape) {
+    $r=reviewLU($shape,'APL17.5',['L1'=>2250]);
+    expectCal($r['priceStatus']==='missing-evidence'
+        && $r['estimatedSupplierNetCents']===null,
+        $shape.' one exact net endpoint insufficient for interpolation');
+}
+foreach ([
+    ['L2',1950],['L3',1900],['L4',2600],['U2',2550],
+] as [$shape,$target]) {
+    $r=reviewLU($shape,'APL17.5',['L1'=>$target]);
+    expectCal($r['priceStatus']==='missing-evidence'
+        && $r['estimatedSupplierNetCents']===null,
+        $shape.' no extrapolation outside 2000..2500mm');
 }
 expectCal(reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>700])['priceStatus']
     ==='missing-evidence','L4 17.5mm B5=700 never transferred from B5=600');
@@ -132,7 +199,7 @@ expectCal(reviewLU('L3','APL38',['L1'=>2500,'B1'=>700,'B2'=>700])['priceStatus']
 expectCal(reviewLU('L3','APL17.5',['L1'=>2500],'H1145')['priceStatus']
     ==='missing-evidence','17.5mm W980 price never substitutes another decor');
 
-// Only L1/U1 variable-length models within proven same-thickness brackets.
+// Earlier L1/U1 variable-length models within proven same-thickness brackets.
 foreach ([
     ['L1','APL17.5',['L1'=>2250],32504,'L1',[2000,2500]],
     ['L1','APL38',['L1'=>2250],48801,'L1',[2000,2500]],
@@ -205,7 +272,7 @@ foreach ([
     ['L1','APL38',['L2'=>1300]],
     ['L1','APL38',['B1'=>700]],
     ['L2','APL38',[]],
-    ['L3','APL17.5',[]],
+    ['L3','APL17.5',['L1'=>2600]],
 ] as $case) {
     $result=reviewLU($case[0],$case[1],$case[2]);
     expectCal($result['priceStatus']==='missing-evidence','no width/shape/large-length extrapolation');
@@ -226,8 +293,8 @@ expectCal($l4['priceStatus']==='unverified-speedmaster-screen-amount','L4 suppli
 expectCal($l4['supplierDisplayOnlyCents']===65861,'L4 screenshot 658.61 EUR preserved');
 expectCal(reviewLU('L1','APL38',[],'H1145')['priceStatus']==='missing-evidence',
     'straight decor price grid may NOT be copied to L/U');
-expectCal(reviewLU('U2','APL17.5')['priceStatus']==='missing-evidence',
-    'one 38-mm screenshot cannot certify 17.5-mm U2');
+expectCal(reviewLU('U2','APL17.5',['B2'=>650])['priceStatus']==='missing-evidence',
+    '17.5mm U2 exact references cannot infer unseen widths');
 
 // Three new independent supplier-screen controls (06.11.2026).
 // The L2/U2 display amounts are NOT verified net EK and must NEVER unlock
