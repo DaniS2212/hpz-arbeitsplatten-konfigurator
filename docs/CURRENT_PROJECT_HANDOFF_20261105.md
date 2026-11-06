@@ -104,3 +104,17 @@ Der Betreiber hat ausdrücklich **Bestellfähigkeit vor Produktseiten-Redesign**
 - Der Betreiber hat am 06.11.2026 zwei **UI-Punkte für Schritt 3 nach Preis und Testbestellung** hinterlegt: L4 zeigt `B5: 60 cm · Einstellung`, und in Schritt 1 „Grundriss“ ändert sich die optische Größe der Platte beim Wechsel rund/abgeschrägt. **Im Code verifiziert:** B5-`settingOnly` wird als solche Textbeschriftung ausgegeben; das SVG-`viewBox` variiert mit Eck-/Maßbeschriftungen. [Konkrete Reproduktions- und Abnahmekriterien](phase-ui-step3-backlog-20261106.md). Zusätzlich bleibt der Wunsch nach nur H1+Kurzbeschreibung direkt am Konfigurator bestehen.
 - Screenshot zum neuen UI-Feedback: `image(20261106-074841).png`, SHA256 `2115f5f7678413c445ec9f321157a19158f325ab09e92c9b2300271d1d500d9e`, **PNG noch nicht binär in GitHub archiviert**. Eine SHA-Provenienz ist kein Bild-Byte-Upload.
 - **Nächste Priorität:** Preis-Modellvergleich mit den im Preisplan genannten gezielten Speedmaster-EKs, anschließend Woo-Preisaktivierung für ausreichend bestätigte Maßkombinationen samt Testbestellung. **Nicht** unaufgefordert Layout und Preisengine gleichzeitig umbauen.
+
+## 12. Nachtrag 06.11.2026 – bestätigter 10+50-Freight-Tier, zwei Preisbild-Holdouts
+
+**Zwei neue Original-Screenshots** aus Speedmaster zeigen für **38 mm W980/1,5-mm-Dickkante**:
+- **L1** 2250×1200, B1/B2=600 mm: angezeigte **488,01 €**.
+- **U1** L1=2250, L2=1200, L3=1800, B1/B2/B3=600 mm: angezeigte **715,04 €**.
+
+Beide Bildbeträge entsprechen den **vor den neuen Screenshots berechneten** V1-Längen-Zwischenwerten auf den Cent genau; `HPZ_APL_LU_Calibration_11` protokolliert **sowohl Modellpreis als auch unabhängigen Bildbetrag** und eine 0-Cent-Abweichung. Das ist gute Evidenz für diese beiden Längenintervalle, **keine** allgemeine Form-/Kantenpreisregel und noch keine unabhängig bestätigte Nettopreisspezifikation des Bildbetrags. Quelle: [JSON-Originalbeleg](references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json) + [Bild-SHA256-Manifest](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv).
+
+**Der Betreiber hat die bereits vorhandene Code-Versandregel ausdrücklich bestätigt**: 10 € netto Speedmaster-Standardversand **plus einmalig 50 € netto Speditionszuschlag**, sobald mindestens ein tatsächliches Liefer-/Packteil **≥ 1900 mm** erreicht; **60 € netto Gesamt**, nicht 70 €. Kein Code-Preis- oder Versandregelwechsel nötig. Die Ein-/Ausgangsprüfung im PR #61 testet 1899/1900 mm und mehrere lange Teile.
+
+**Wichtiger Binärnachtrag, derzeit noch ausstehend:** [Quelle und Uploadschritte](references/speedmaster-lu/L1_U1_2250_ARCHIVE_UPLOAD.md) für vier unveränderte Bilder (zwei aktuelle Preis-Screenshots, ein L4-B5-UI-Bild, ein vereinfachungsbedürftiger Woo-Produktkopf) im ZIP `Speedmaster_L1_U1_2250_UI_20261106_Originale.zip`, 1.059.629 Bytes, SHA256 `e8f5fc1aef4947f642089f4f46c4947e7b95e1a83ad0474b51869ecc011f1531`. Bilder stehen **erst nach verifiziertem GitHub-Binärupload** im Repo; SHA-Texte allein reichen nicht. Das CI-Gate wurde bewusst so eingerichtet, dass PR #61 vor dem manuellen ZIP-Upload rot bleibt.
+
+**Als Nächstes nach dem Archivimport:** gezielte Speedmaster-Vergleiche für exakt eine veränderte Kantenbearbeitung und je eine geänderte L-/U-Stoßvariante; fehlende L2/L3- und U2–U4-Netto-EKs erfassen, bevor eine verallgemeinerte Woo-Shoppreisfreigabe möglich ist.
