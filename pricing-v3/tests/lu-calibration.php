@@ -473,7 +473,7 @@ foreach ([
         && $result['estimatedSupplierNetCents']===null,
         $shape.' incomplete dimension or outside bracket no price');
 }
-expectCal(reviewLU('L3','APL17.5',['L2'=>2000,'B3'=>900,'B4'=>900])['priceStatus']
+expectCal(reviewLU('L3','APL17.5',['L2'=>2000,'B3'=>950,'B4'=>950])['priceStatus']
     ==='missing-evidence','38mm L3 cannot price a 17.5mm L3');
 expectCal(reviewLU('L4','APL38',['L2'=>2000,'B3'=>900,'B4'=>900,'B5'=>600],'H1145')['priceStatus']
     ==='missing-evidence','W980 L4 cannot price other decor');
