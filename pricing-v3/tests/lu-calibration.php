@@ -127,8 +127,8 @@ foreach ([
 }
 expectCal(reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>700])['priceStatus']
     ==='missing-evidence','L4 17.5mm B5=700 never transferred from B5=600');
-expectCal(reviewLU('L3','APL38',['L1'=>2500])['priceStatus']
-    ==='missing-evidence','17.5mm L3 price never substitutes 38mm dimensions');
+expectCal(reviewLU('L3','APL38',['L1'=>2500,'B2'=>700])['priceStatus']
+    ==='missing-evidence','17.5mm L3 price cannot be transferred to unrelated 38mm widths');
 expectCal(reviewLU('L3','APL17.5',['L1'=>2500],'H1145')['priceStatus']
     ==='missing-evidence','17.5mm W980 price never substitutes another decor');
 
