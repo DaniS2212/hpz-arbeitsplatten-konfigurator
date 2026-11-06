@@ -46,3 +46,8 @@ Offen sind echte Netto-/Brutto-Einordnung, reale Teilzuschnitte/Packstücke/Verb
 ### Netto-Basis bestätigt und 17,5-mm-Abdeckung erweitert (06.11.2026)
 
 Alle Speedmaster-Produktpreise sind **ohne MwSt.**; V3 enthält 19 % DE-USt. genau einmal. Sechs neue [exakte 17,5-mm-Netto-EKs](LU_175_NET_PRICES_20261106.json) L2 342,41 €, L3 523,29 €, L4 465,68 €, U2/U3/U4 494,03 € bei dokumentierten 2500-mm-Standardmaßen. Noch fehlt jeweils ein zweiter 17,5-mm-Längenpunkt, vorzugsweise L1=2000 mm. Ungeklärt bleiben andere Breiten/Dekore, aktuelle echte Stück-/Packmaße, Zusatzkosten und Woo-Test. Netto-Klärung ersetzt keine Hersteller- oder Shopfreigabe.
+
+
+### Vier neue Netto-Längenanker (06.11.2026, PR #67)
+
+Die zuvor fehlenden **17,5-mm-L1=2000**-Preise liegen jetzt als [Text-JSON](LU_175_2000_NET_PRICES_20261106.json) vor: L2 **307,67 €**, L3 **488,55 €**, L4 **430,94 €**, U2 **459,29 €**, jeweils mit denselben anderen Maßen wie der 2500-mm-Gegenpunkt. In diesem engen W980-Standardbereich steigt **jede L1/L2/L3/L4/U1/U2-Variante um 34,74 € netto pro 500 mm L1**. Interpolation nur innerhalb 2000..2500 mm L1; für **U3/U4 17,5 mm** und andere Breiten/Dekore fehlen weiterhin Gegenpunkte. Außenmaß sagt nichts über tatsächliche physische Lieferteile; Woo/Versand/Gesamtkosten noch zu prüfen. **Keine Screenshots/ZIPs für Preise**.
