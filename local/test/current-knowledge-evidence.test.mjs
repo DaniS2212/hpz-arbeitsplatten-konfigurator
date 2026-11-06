@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,29);
+ assert.equal(data.length,33);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -151,6 +151,36 @@ test('central L/U price evidence is typed and exact, no new screen display accep
    assert.equal(row.status,'net_basis_owner_confirmed_not_sale_approved');
    assert.equal(row.edge,'matching_1_5mm');
    for(const [key,value] of Object.entries(c.dimensionsMm)){
+     assert.equal(row[key==='B5'?'B5_base_mm':key+'_mm'],String(value));
+   }
+ }
+ // Four further 2000mm owner NET prices; only structured text, without
+ // additional image/hash/ZIP requirements. Exact shape axes are mandatory.
+ const fourNet=JSON.parse(text('docs/references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json'));
+ assert.equal(fourNet.cases.length,4);
+ assert.equal(fourNet.priceTaxBasis.includes('NET'),true);
+ assert.equal(fourNet.sourceImagesRequired,false);
+ const expectedNet2000=new Map([
+   ['L2','307.67'],['L3','488.55'],['L4','430.94'],['U2','459.29']
+ ]);
+ for(const c of fourNet.cases){
+   assert.equal(c.supplierNetEUR,expectedNet2000.get(c.geometry));
+   assert.equal(c.dimensionsMm.L1,2000);
+   assert.equal(c.thicknessMm,17.5);
+   assert.equal(c.decorCode,'W980');
+   assert.equal(c.priceIncludesVAT,false);
+   assert.equal(c.netBasisExplicitlyConfirmedByOperator,true);
+   assert.equal(c.cutListVerified,false);
+   assert.equal(c.woocommerceSaleApproved,false);
+   assert.equal(c.oneAxisComparison.differenceEUR,'34.74');
+   const row=data.find(x=>x.variant===c.geometry&&x.thickness_mm==='17.5'
+     && x.L1_mm==='2000'&&x.source==='docs/references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json');
+   assert.ok(row,'2000mm 17.5mm net-EK in central CSV: '+c.geometry);
+   assert.equal(row.amount_eur,c.supplierNetEUR);
+   assert.equal(row.amount_type,'operator_confirmed_net_EK');
+   assert.equal(row.status,'net_basis_owner_confirmed_not_sale_approved');
+   assert.equal(row.edge,'matching_1_5mm');
+   for(const [key,value]of Object.entries(c.dimensionsMm)){
      assert.equal(row[key==='B5'?'B5_base_mm':key+'_mm'],String(value));
    }
  }

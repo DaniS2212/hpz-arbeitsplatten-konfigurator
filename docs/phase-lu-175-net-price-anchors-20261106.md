@@ -1,5 +1,8 @@
 # L1–L4/U1–U4 – 17,5-mm-Netto-Einkaufspreise und Steuerbasis, 06.11.2026
 
+> **Aktualisiert nach vier weiteren 2.000-mm-Preisbelegen (PR #67):** Für **L2/L3/L4/U2** liegen jetzt **zwei exakte Netto-Längenanker 2000/2500 mm** mit derselben Steigung **+34,74 € / 500 mm** vor. Der folgende frühere Abschnitt über „nur einen“ Referenzpunkt ist **historisch**; der aktuelle Stand steht im Nachtrag unten. Das U3/U4-Modell bei 17,5 mm bleibt mangels zweitem Längenanker offen.
+
+
 **Verbindliche Betreiberbestätigung vom 06.11.2026:** **Alle Speedmaster-Produktpreise werden ohne Mehrwertsteuer angezeigt.** Für die Kalkulation sind Speedmaster-Beträge daher **Netto-EKs**. Die **19 % deutsche Umsatzsteuer** werden bereits vom vorhandenen `HPZ_APL_Price_V3::targetGrossForVerifiedCosts()` in die **deutsche Brutto-Referenz** einkalkuliert. **Kein doppelter MwSt.-Aufschlag.** Für tatsächliche Bestellungen übernimmt WooCommerce die zutreffende Steuer des Kunden/Lieferlands. Die Steuerbasis-Bestätigung ist **nicht** dasselbe wie eine Hersteller-CNC-Freigabe, aktuelle formelle Lieferantenzusage, tatsächliches Packmaß oder Checkout-Freigabe.
 
 ## Sechs neue genaue 17,5-mm-Netto-EKs (ohne Bilder/ZIPs)
@@ -55,3 +58,38 @@ Zum Validieren von Preisgleichheit und einem **zweiten** Längenanker bei 17,5 m
 5. Optional **U3/U4** bei L1=2000 mit U2-Daten, um die Varianten-Gleichheit vollständig gegenzuprüfen.
 
 **Danach** gezielte Breiten- und Dekorbelege, Hersteller-Teilzuschnitte und Checkout-Test. Keine eigenmächtige Extrapolation oder neue Preistabellenarchitektur.
+
+## Aktueller Nachtrag 06.11.2026 – vier weitere Original-Netto-Referenzen als Text
+
+Die anschließend vom Betreiber eingegebenen **vier Speedmaster-Netto-EKs** sind in [LU_175_2000_NET_PRICES_20261106.json](references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json) und der [zentralen Preis-CSV](references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv) erfasst. Sie verwenden **17,5 mm, W980 ST7, sämtliche Kanten 1,5 mm dekorgleich, keine zusätzlichen Eckbearbeitungen**.
+
+| Form | Maße (mm) | EK bei L1=2000 netto | EK bei L1=2500 netto | Netto-Delta |
+|---|---|---:|---:|---:|
+| L2 | L2=1200, B1/B2=600 | **307,67 €** | 342,41 € | +34,74 € |
+| L3 | L2=2000, B1/B2=600, B3/B4=900 | **488,55 €** | 523,29 € | +34,74 € |
+| L4 | L2=2000, B1/B2=600, B3/B4=900, **B5-Grundmaß=600** | **430,94 €** | 465,68 € | +34,74 € |
+| U2 | L2=1200, L3=1800, B1/B2/B3=600 | **459,29 €** | 494,03 € | +34,74 € |
+
+**Exakt kontrollierte Form-Relationen an beiden Längen:**
+
+- L1=L2 bei **2000 und 2500 mm** (307,67/342,41 €); U1=U2 bei beiden Längen (459,29/494,03 €).
+- L3-L4 = **57,61 €** bei **2000 und 2500 mm** (488,55−430,94 bzw. 523,29−465,68).
+- Alle **sechs** L1/L2/L3/L4/U1/U2-Standardfälle steigen in diesem konkreten 17,5-mm-W980-Korridor für +500 mm L1 um **34,74 € netto**. Das ist eine plausible gemeinsame Preiskomponente, **keine allgemeine Formel für andere Maße, Breiten oder Dekore**.
+- U3/U4 sind bei 17,5 mm weiterhin **nur bei L1=2500** belegt (494,03 €), darum **keine** Interpolation bei 2000..2500 mm für diese beiden Formen.
+
+### Interner Längen-Zwischenpunkt bei L1=2250 mm (noch keine Herstellerabfrage)
+
+Die vorhandene `HPZ_APL_LU_Calibration_11` bildet bei unveränderten übrigen Maßen innerhalb **L1=2000..2500 mm** jetzt streng begrenzte Netto-EK-*Schätzwerte*:
+
+| Form | Modell-EK netto bei 2250 mm |
+|---|---:|
+| L2 | **325,04 €** |
+| L3 | **505,92 €** |
+| L4 | **448,31 €** |
+| U2 | **476,66 €** |
+
+Diese Werte wurden **nicht bei Speedmaster angefragt** und werden ausdrücklich `bounded-one-axis-estimate-not-verified` zugeordnet. Sie dürfen keinen Shoppreis oder Herstellerauftrag unmittelbar auslösen. Die V3-DE-Bruttoreferenz berücksichtigt 19 % MwSt. bereits einmal; Versand bleibt **10 € netto Standard oder insgesamt 60 € netto ab tatsächlichem Lieferteil >=1900 mm**. Das sind nur Kostenszenarien, solange Packteile nicht nachgewiesen sind.
+
+### Nächste Erkenntnisse Richtung Veröffentlichung
+
+**Nicht** dieselben Längen nochmals abfragen. Höherer Erkenntniswert: Zuerst **gezielte Breitenänderungen** bei L1/L3/U1, weil selbst bei U1 APL38 eine größere Breite *günstiger* sein kann und daher Flächenformeln unsicher sind; dann **ein neues repräsentatives Dekor** mit identischen Maßen in beiden Dicken zur Validierung der Dekorübertragung. Für 17,5-mm-U3/U4 ein weiterer **2000-mm-Beleg** nur falls diese separat kalkuliert werden müssen. Hersteller-Teillängen/Verbinder und die Woo-Testbestellung bleiben gesondert abzusichern. **Nur strukturierte Texte, keine ZIPs/Bilder.**
