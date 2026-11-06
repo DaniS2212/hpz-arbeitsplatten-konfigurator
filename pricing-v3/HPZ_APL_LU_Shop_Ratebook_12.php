@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 final class HPZ_APL_LU_Shop_Ratebook_12
 {
-    public const VERSION = 'lu-ratebook-eight-shapes-16-decors-20261106-v2';
+    public const VERSION = 'lu-ratebook-eight-shapes-16-decors-extended-20261106-v3';
 
     private const W980 = [
         'L1'=>['APL17.5'=>[2000=>30767,2500=>34241],'APL38'=>[2000=>46445,2500=>51156]],
@@ -136,6 +136,86 @@ final class HPZ_APL_LU_Shop_Ratebook_12
     }
 
     /**
+     * Commercial *estimate* for variable dimensions. Separate, explicit
+     * extended_model_approved option required before Woo will even consider
+     * this path. No hidden supplier tariff is being invented.
+     *
+     * The current measured envelope still has the highest confidence.
+     * Outside that envelope, conservatively extend stock length and
+     * absolute width deltas with a 7% extra model-risk buffer. Dimension
+     * limits are shop business rules, not Speedmaster machining limits.
+     */
+    public static function extendedCandidate(array $c): ?array
+    {
+        $shape=$c['geometry'] ?? null;
+        $material=$c['material'] ?? null;
+        $decor=$c['decor'] ?? null;
+        $d=$c['dimensions'] ?? null;
+        if(!is_string($shape)||!isset(self::W980[$shape])
+            ||!is_string($material)||!isset(self::W980[$shape][$material])
+            ||!is_string($decor)||!is_array($d)
+            ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5')
+            return null;
+        $fixed=self::REFERENCE_SIZES[$shape];
+        if(count($d)!==count($fixed)+1)return null;
+        foreach($d as $axis=>$v){
+            if(!is_string($axis)||!is_int($v))return null;
+            if($axis==='L1'||$axis==='L2'||$axis==='L3'){
+                if($v<1000||$v>4000)return null;
+            }elseif(in_array($axis,['B1','B2','B3','B4','B5'],true)){
+                if($v<300||$v>1200)return null;
+            }else return null;
+        }
+        foreach($fixed as $axis=>$v){if(!array_key_exists($axis,$d))return null;}
+        try{
+            $delta=HPZ_APL_Price_V3::referenceDecorNetDifferenceCents($decor,$material);
+            if($delta<0)return null;
+        }catch(InvalidArgumentException $e){return null;}
+
+        $clampedL1=max(2000,min(2500,$d['L1']));
+        $reference=$c;
+        $reference['dimensions']=array_merge(['L1'=>$clampedL1],$fixed);
+        $base=self::candidate($reference);
+        if($base===null)return null;
+        $cost=$base['supplierNetCents'];
+        $pair=self::W980[$shape][$material];
+        $per500=$pair[2500]-$pair[2000];
+        $adjust=0;
+        foreach(['L1','L2','L3'] as $axis){
+            if(!isset($d[$axis]))continue;
+            $refLength=$axis==='L1'?$clampedL1:$fixed[$axis];
+            $change=$d[$axis]-$refLength;
+            if($change>0){
+                // Extrapolated lengths: 1.25x observed W980 per-axis slope.
+                $adjust+=intdiv($per500*$change*5+1999,2000);
+            }elseif($change<0){
+                // Shorter parts reduce modeled costs by no more than half
+                // the observed slope, a deliberate conservative floor.
+                $adjust-=intdiv($per500*(-$change)+999,1000);
+            }
+        }
+        $widthCentsPerMm=$material==='APL38'?30:15;
+        foreach(['B1','B2','B3','B4','B5'] as $axis){
+            if(!isset($d[$axis]))continue;
+            $adjust+=$widthCentsPerMm*abs($d[$axis]-$fixed[$axis]);
+        }
+        // For other decors only, do not subtract the material surcharge if
+        // the shop geometry is smaller; add the extra stock if it is larger.
+        $materialArea=max(0,self::decorCostReferenceAreaMm2($shape,$d)
+            -self::decorCostReferenceAreaMm2($shape,$reference['dimensions']));
+        $adjust+=intdiv($delta*$materialArea+1199999,1200000);
+        $cost=max(intdiv($base['supplierNetCents']*7+9,10),$cost+$adjust);
+        $cost+=intdiv($cost*7+99,100); // extra 7% model uncertainty
+        return [
+            'supplierNetCents'=>$cost,
+            'source'=>'V3 decor references + measured W980/H1145 shapes + explicit conservative dimensions model',
+            'priceBasis'=>'operator-review-extended-cost-estimate',
+            'priceWindow'=>'L axes 1000..4000; B axes 300..1200; no corners; conservative estimate only',
+            'ratebookVersion'=>self::VERSION,
+        ];
+    }
+
+    /**
      * Only privileged WP operator policy can allow estimated supplier costs
      * to be used as COMMERCIAL price assumptions in a Woo offer.
      * None of the below keys are accepted from customer/Store API JSON.
@@ -143,6 +223,8 @@ final class HPZ_APL_LU_Shop_Ratebook_12
     public static function operatorProof(array $c,array $policy): ?array
     {
         $candidate=self::candidate($c);
+        if ($candidate===null && ($policy['extended_model_approved']??null)===true)
+            $candidate=self::extendedCandidate($c);
         if ($candidate===null||($policy['model_price_approved']??null)!==true
             ||!is_int($policy['other_cost_net_cents']??null)
             ||$policy['other_cost_net_cents']<0||$policy['other_cost_net_cents']>10000000
