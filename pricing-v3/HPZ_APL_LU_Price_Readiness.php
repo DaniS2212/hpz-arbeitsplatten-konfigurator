@@ -251,11 +251,7 @@ final class HPZ_APL_LU_Price_Readiness
                 // Owner decision 06.11.2026: the shop rule is based on the
                 // configured lengths, independent of actual supplier parts.
                 // >=1900 mm on ANY L-axis triggers the one-time EUR 50 tier.
-                $configuredLengths=[];
-                foreach (['L1','L2','L3'] as $axis) {
-                    if (isset($c['dimensions'][$axis])) $configuredLengths[]=$c['dimensions'][$axis];
-                }
-                $inboundCents = HPZ_APL_Price_V3::inboundCostForVerifiedParts($configuredLengths);
+                $inboundCents = HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c);
             } else {
                 $verifiedPackageLengths = array_map(
                     static function (array $package): int {
