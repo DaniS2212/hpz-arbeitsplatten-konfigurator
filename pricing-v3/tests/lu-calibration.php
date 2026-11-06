@@ -170,17 +170,88 @@ foreach ([
         && !$h['supplierNetQuoteVerifiedForExactTarget'],
         'bounded H1145 model cannot be used for Woo price or supplier order');
 }
-// Fail closed: the eight observed H1145 anchors cannot license an unseen
+// Four new exact H1145 L2/U2 net price observations, 2500 mm,
+// isolate join geometry from already verified H1145 L1/U1 at equal axes.
+// A parity/delta is a tested comparison at THESE dimensions ONLY and
+// never a general form surcharge for unmeasured 2250 or 2000 cases.
+foreach ([
+    ['L2','APL17.5',34693,'L1',34693,34241,452],
+    ['L2','APL38',51649,'L1',51649,51156,493],
+    ['U2','APL17.5',49974,'U1',49974,49403,571],
+    ['U2','APL38',74019,'U1',74432,73446,573],
+] as [$shape,$material,$net,$baselineShape,$sameH1145,$w980Exact,$decorDelta]) {
+    $r=reviewLU($shape,$material,['L1'=>2500],'H1145');
+    $base=reviewLU($baselineShape,$material,['L1'=>2500],'H1145');
+    $other=reviewLU($shape,$material,['L1'=>2500],'W980');
+    expectCal($r['priceStatus']==='exact-operator-confirmed-net-reference'
+        && $r['netSupplierReferenceCents']===$net,
+        $shape.$material.' exact user-supplied H1145 net supplier price');
+    // Some 38-mm W980 counterparts were historically recorded as
+    // supplier-display-only source rows, even though the owner subsequently
+    // confirmed their NET tax basis. Do not silently promote their
+    // original source trust classification to a verified net-EK field.
+    $otherObserved=$other['netSupplierReferenceCents']
+        ?? $other['supplierDisplayOnlyCents'];
+    expectCal($base['netSupplierReferenceCents']===$sameH1145
+        && $otherObserved===$w980Exact,
+        'same-shape+thickness W980 comparison preserves source provenance');
+    expectCal($net-$w980Exact===$decorDelta,
+        $shape.$material.' decor delta anchored to exact W980 observation');
+    expectCal(count($r['referenceCaseIds'])===1
+        && str_ends_with($r['referenceCaseIds'][0],'-H1145'),
+        'source reference ID includes decor and shape');
+    expectCal($r['grossDEWith10or60EURInboundScenario']['inbound60EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($net,6000,0),
+        'exact supplier net uses V3 + 19 pct German VAT once only');
+    expectCal(!$r['purchasable'] && !$r['checkoutPriceApproved']
+        && !$r['supplierNetQuoteVerifiedForExactTarget']
+        && !$r['realPackedDimensionsVerified']
+        && !$r['additionalCostsVerified'],
+        'exact H1145 L2/U2 price does not enable real checkout');
+}
+// L2 equals L1 for both thicknesses; U2 equals U1 only at APL17.5;
+// at APL38 U2 is EUR 4.13 below U1 in BOTH H1145 and W980.
+foreach (['APL17.5','APL38'] as $mat) {
+    expectCal(reviewLU('L2',$mat,['L1'=>2500],'H1145')['netSupplierReferenceCents']
+      ===reviewLU('L1',$mat,['L1'=>2500],'H1145')['netSupplierReferenceCents'],
+      'H1145 L2=L1 only for exact tested length and thickness');
+}
+expectCal(reviewLU('U2','APL17.5',['L1'=>2500],'H1145')['netSupplierReferenceCents']
+    ===reviewLU('U1','APL17.5',['L1'=>2500],'H1145')['netSupplierReferenceCents'],
+    'H1145 U2=U1 only for exact tested 17.5mm');
+foreach (['H1145','W980'] as $decor) {
+    $u1Net=reviewLU('U1','APL38',['L1'=>2500],$decor);
+    $u2Ref=reviewLU('U2','APL38',['L1'=>2500],$decor);
+    $u2Observed=$u2Ref['netSupplierReferenceCents']
+        ?? $u2Ref['supplierDisplayOnlyCents'];
+    expectCal($u1Net['netSupplierReferenceCents']-$u2Observed===413,
+        '4.13 EUR U1/U2 delta is observed in both decors without upgrading W980 display-only provenance');
+}
+foreach ([
+  ['L2','APL17.5',['L1'=>2000],'H1145'],
+  ['L2','APL38',['L1'=>2250],'H1145'],
+  ['U2','APL17.5',['L1'=>2000],'H1145'],
+  ['U2','APL38',['L1'=>2250],'H1145'],
+  ['L2','APL17.5',['L1'=>2500,'B1'=>650],'H1145'],
+  ['U2','APL38',['L1'=>2500,'L2'=>1300],'H1145'],
+] as [$shape,$mat,$dimensions,$decor]) {
+    $r=reviewLU($shape,$mat,$dimensions,$decor);
+    expectCal($r['priceStatus']==='missing-evidence'
+        && $r['netSupplierReferenceCents']===null
+        && $r['estimatedSupplierNetCents']===null,
+        $shape.$mat.' no H1145 L2/U2 form formula beyond exact source geometry');
+}
+// Fail closed: the twelve observed H1145 anchors cannot license an unseen
 // H1145 shape, out-of-bracket length or width, or another decor ID.
 foreach ([
   ['L1','APL17.5',['L1'=>1900],'H1145'],
   ['L1','APL38',['L1'=>2600],'H1145'],
   ['U1','APL17.5',['L1'=>1900],'H1145'],
   ['U1','APL38',['L1'=>2500,'B1'=>650],'H1145'],
-  ['L2','APL17.5',['L1'=>2500],'H1145'],
+  ['L2','APL17.5',['L1'=>2250],'H1145'],
   ['L3','APL38',['L1'=>2500],'H1145'],
   ['L4','APL17.5',['L1'=>2500],'H1145'],
-  ['U2','APL17.5',['L1'=>2500],'H1145'],
+  ['U2','APL17.5',['L1'=>2250],'H1145'],
   ['U3','APL38',['L1'=>2500],'H1145'],
   ['U4','APL17.5',['L1'=>2500],'H1145'],
   ['U1','APL38',['L1'=>2500],'H1146'],

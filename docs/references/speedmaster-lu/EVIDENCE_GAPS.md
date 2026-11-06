@@ -66,3 +66,8 @@ Vier neue exakte **H1145 ST10 Bardolino**-Netto-Referenzen: L1 17,5/38 mm **346,
 ### H1145-Preislänge 2000–2500 intern belegt (PR #70, 06.11.2026)
 
 Vier neue [H1145-2000-mm-Netto-EKs](LU_H1145_2000_NET_PRICES_20261106.json) und [ausgewertete 2000-/2500-mm-Reihe](../../phase-lu-h1145-length-prices-20261106.md) für L1/U1 je 17,5/38 mm. H1145-EKs bei L1=2000: L1 **311,53/468,72 €**, U1 **464,34/696,55 €**. Die vorherigen 2500-mm-Punkte ermöglichen schmale 1D-Längeninterpolation ausschließlich bei exakt gleichen anderen Maßen, keine H1145-Form- oder Dekorübertragung und **keine** WooCommerce-Freigabe. H1145 L2/U2 und weitere Formen/Breiten sowie neue Dekore bleiben offen; ebenso tatsächliche Lieferstücke, Verbinder, CNC und Kontrolltestbestellung. Bilder/ZIPs werden für Preisdatenerfassung weiterhin nicht verlangt.
+
+
+### 06.11.2026 – Preisfaktoren genügend für eingeschränkten Pilot; reales Lieferstück ist der Blocker (PR #71)
+
+Vier neue H1145 L2/U2-Netto-EKs bei L1=2500: L2 **346,93/516,49 €** (17,5/38), U2 **499,74/740,19 €** (17,5/38), [Netto-Referenzen](LU_H1145_L2_U2_NET_PRICES_20261106.json). Reproduzierte Formrelation U2 38 **−4,13 €** gegenüber U1 in H1145 und W980. **Keine uneingeschränkte multivariate Preisfunktion aus diesen Ankern.** Höchste noch fehlende Nachweise für **begrenzten Shopstart:** echte Speedmaster-Zuschnitt- und Verbinderliste, verifizierte physische Liefer-/Packstückmaße, Fracht- und übrige Kosten, V3-Rabattmargencheck, WooCommerce-Testbestellung, Betreiberfreigabe. [Konkreter Pilotumfang und Freigabeplan](../../phase-lu-limited-launch-gates-20261106.md). Nicht blind weitere vier Preise pro PR abfragen; keine Preis-ZIPs.

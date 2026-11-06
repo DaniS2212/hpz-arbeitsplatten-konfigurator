@@ -47,3 +47,8 @@ Um die L1↔L2- und U1↔U2-Stoßvarianten **für H1145** mit demselben Dekor un
 | U2 | 38 mm | Wie oben | U1 **744,32 € netto** |
 
 Bei **allen**: H1145 ST10, dekorgleiche 1,5-mm-Kanten, keine Eckbearbeitung; Beträge wieder **nur als Text**, keine Screenshots/ZIPs. Weiterführende Dekor-Übertragungsregeln erst nach weiteren isolierten Prüfungen und danach Lieferteile/Fertigung/Testbestellung.
+
+
+## Danach geprüft: H1145 L2/U2 bei L1=2500 (06.11.2026, PR #71)
+
+Die oben angefragten vier H1145-Netto-EKs liegen jetzt vor: **L2 17,5/38 = 346,93/516,49 €** und **U2 17,5/38 = 499,74/740,19 €** bei denselben L1=2500-Standardmaßen, allseits dekorgleichen 1,5-mm-Kanten, ohne Eckbearbeitung. **L2=L1** in beiden Dicken und **U2 38 = U1 38 −4,13 €** im exakten H1145-Vergleich (wie W980). [Netto-Textquelle](references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json). Weitere reine Preisproben stehen **nicht mehr im Vordergrund**: [MVP-Kurs und drei Freigabe-Arbeitspakete](phase-lu-limited-launch-gates-20261106.md) haben Vorrang vor der uneingeschränkten 16-Dekore-/alle-Maße-Formel. Keine automatische Produktfreigabe oder Herstellerbestellung.
