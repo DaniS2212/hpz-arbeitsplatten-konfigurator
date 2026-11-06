@@ -243,7 +243,7 @@ final class HPZ_APL_LU_Price_Readiness
         $marginPasses = false;
         $evidenceOkay = is_array($r) && self::verifiedEvidence($r, $key, $now ?? time());
         if (!$evidenceOkay) {
-            $blocked[] = 'exact-supplier-price-or-operator-approval-missing';
+            $blocked[] = 'exact-supplier-cut-list-or-price-proof-missing';
         } else {
             // Use the physical longest PACKAGED side, not a potentially
             // shorter declared cutting length: freight tier is 1900 mm.
