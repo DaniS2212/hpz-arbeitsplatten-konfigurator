@@ -36,3 +36,6 @@ Erst danach ggf. L3/L4-Basismuster, U3/U4 und weitere Dekore/Dicken. Kein neues 
 - **Versand unverändert:** Speedmaster 10 € netto Grundkosten, einmalig +50 € bei mindestens einem **nachgewiesenen tatsächlich langen Liefer-/Packstück ≥1900 mm**, insgesamt 60 € netto, nicht 70 €.
 - **Betriebsregeln unverändert:** 40 % Zielmarge, 35 % Mindestmarge nach Rabatt, 10 % Kostenreserve, einzige Regelimplementierung in `HPZ_APL_Price_V3`.
 - **UI-Arbeit später:** B5-Label ohne technischen Wortzusatz, stabile SVG-Grundrissgröße beim Eckwechsel, kurzer Woo-Produktkopf nur H1 + Kurzbeschreibung.
+
+
+**Prozessänderung 06.11.2026:** PR #63 inzwischen gemergt, historisches Original-ZIP verifiziert. **Keine weiteren Preisbilder oder ZIP-Archive anfordern**; zukünftige Speedmaster-Browserabfragen samt vollständigen Parametern und Beträgen als GitHub-Text erfassen. [Verbindliche Policy](references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md).
