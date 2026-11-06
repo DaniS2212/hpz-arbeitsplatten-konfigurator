@@ -23,12 +23,12 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,10);
- const l=data.filter(x=>x.variant==='L1');
+ assert.equal(data.length,12);
+ const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
  assert.ok(l.every(x=>x.amount_type==='verified_net_EK'&&x.thickness_mm!==''));
- const u1=data.filter(x=>x.variant==='U1');
+ const u1=data.filter(x=>x.variant==='U1'&&x.amount_type==='verified_net_EK');
  assert.deepEqual(u1.map(x=>x.amount_eur),['459.29','691.49']);
  assert.ok(u1.every(x=>x.amount_type==='verified_net_EK'));
  const source=JSON.parse(text('docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json'));
@@ -40,6 +40,20 @@ test('central L/U price evidence is typed and exact, no new screen display accep
   for(const [key,value] of Object.entries(source.cases[v].dimensionsMm)){
    assert.equal(row[key+'_mm'],String(value),'wrong axis '+v+':'+key);
   }
+ }
+ const newPhotos=JSON.parse(text('docs/references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json'));
+ assert.equal(newPhotos.priceCases.length,2);
+ for(const evidence of newPhotos.priceCases){
+   const row=data.find(x=>x.variant===evidence.variant&&x.L1_mm==='2250');
+   assert.ok(row,'new independent supplier screen evidence');
+   assert.equal(row.amount_eur,evidence.displayedPriceEUR);
+   assert.equal(row.amount_eur,evidence.priorModelEUR);
+   assert.equal(row.amount_type,'supplier_screen_display_only');
+   assert.equal(row.status,'net_status_unverified');
+   assert.equal(evidence.displayedAmountIsNetVerified,false);
+   for(const [key,value] of Object.entries(evidence.dimensionsMm)){
+     assert.equal(row[key+'_mm'],String(value),'screenshot dimension '+key);
+   }
  }
  const l4=data.find(x=>x.variant==='L4');
  assert.equal(l4.amount_eur,'658.61');
