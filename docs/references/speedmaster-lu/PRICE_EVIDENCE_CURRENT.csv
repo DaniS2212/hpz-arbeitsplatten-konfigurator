@@ -9,3 +9,5 @@ U2,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,687.36,supplier_screen_di
 U3,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,691.49,supplier_screen_display_only,docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json,net_status_unverified
 U4,2000,1200,1800,600,600,600,,,38,W980,matching_1_5mm,691.49,supplier_screen_display_only,docs/references/speedmaster-lu/U2_U4_JOINT_USER_20261105.json,net_status_unverified
 L4,2000,2000,,600,600,900,900,600,38,W980,matching_1_5mm,658.61,prior_chat_transcribed_display_only,docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json,not_verified_net_EK
+L1,2250,1200,,600,600,,,,38,W980,matching_1_5mm,488.01,supplier_screen_display_only,docs/references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json,net_status_unverified
+U1,2250,1200,1800,600,600,600,,,38,W980,matching_1_5mm,715.04,supplier_screen_display_only,docs/references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json,net_status_unverified
