@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 final class HPZ_APL_LU_Calibration_11
 {
-    public const VERSION = 'lu-calibration-bounded-length-v3-operator-net-basis';
+    public const VERSION = 'lu-calibration-bounded-length-v4-175-two-length-net';
     private const REFERENCE_FILE = __DIR__.'/../docs/price-reference-cases.csv';
     private const OBSERVED_FILE = __DIR__.'/../docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv';
     private const AXES = ['L1','L2'];
@@ -109,7 +109,10 @@ final class HPZ_APL_LU_Calibration_11
                 || ($r['edge'] ?? '') !== 'matching_1_5mm'
                 || ($r['amount_type'] ?? '') !== 'operator_confirmed_net_EK'
                 || ($r['status'] ?? '') !== 'net_basis_owner_confirmed_not_sale_approved'
-                || ($r['source'] ?? '') !== 'docs/references/speedmaster-lu/LU_175_NET_PRICES_20261106.json') continue;
+                || !in_array($r['source'] ?? '', [
+                    'docs/references/speedmaster-lu/LU_175_NET_PRICES_20261106.json',
+                    'docs/references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json',
+                ], true)) continue;
             $dims=[];
             foreach ($c['dimensions'] as $key=>$value) {
                 $field = $key === 'B5' ? 'B5_base_mm' : $key.'_mm';
