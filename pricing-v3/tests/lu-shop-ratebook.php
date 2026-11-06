@@ -57,7 +57,7 @@ foreach($w980 as $shape=>$thicks){
             foreach($decors as $decor){
                 $copy=$c;$copy['decor']=$decor;
                 $q=HPZ_APL_LU_Shop_Ratebook_12::candidate($copy);
-                testRate(is_array($q)&&$q['supplierNetCents']>0,"all 16 decors / $shape / $material / $length");
+                testRate(is_array($q)&&$q['supplierNetCents']>0,"all 16 decors / $shape / $material / $length / $decor");
                 testRate($q['supplierNetCents']>=$expect,'decor cannot undercut W980');
                 $price=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($q['supplierNetCents'],6000,0);
                 testRate($price%1000===0 && $price>0,'common V3 margin and rounding');
