@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,12);
+ assert.equal(data.length,15);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -55,6 +55,42 @@ test('central L/U price evidence is typed and exact, no new screen display accep
      assert.equal(row[key+'_mm'],String(value),'screenshot dimension '+key);
    }
  }
+ // Three 06.11 supplier controls: L2, U2 and a LEFT CHAMFER (not merely
+ // a single left edge change). Exact screenshot source and no net approval.
+ const controls=JSON.parse(text('docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json'));
+ assert.equal(controls.cases.length,3);
+ const expected = new Map([
+   ['L2-2250-SAME','488.01'],['U2-2250-SAME','710.91'],
+   ['L1-2250-LEFT-CHAMFER','510.02']
+ ]);
+ for(const c of controls.cases){
+   assert.equal(c.displayPriceEUR,expected.get(c.caseId));
+   const expectedEdge=c.caseId==='L1-2250-LEFT-CHAMFER'
+     ? 'left_chamfer_150x150_edge_continuous':'matching_1_5mm';
+   const row=data.find(x=>x.variant===c.variant&&x.L1_mm==='2250'
+     && x.edge===expectedEdge);
+   assert.ok(row,'price evidence must distinguish corner chamfer '+c.caseId);
+   assert.equal(row.amount_eur,c.displayPriceEUR);
+   assert.equal(row.amount_type,'supplier_screen_display_only');
+   assert.match(row.status,/net_status_unverified/);
+   assert.equal(row.source,'docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json');
+   const sourceRow=controls.sourceArchive;
+   assert.equal(sourceRow.archivedInGitHub,false,'source ZIP needs real binary upload first');
+   assert.equal(c.image.sha256.length,64);
+   for(const [k,v] of Object.entries(c.dimensionsMm)){
+     assert.equal(row[k+'_mm'],String(v),'correct control dimension '+c.caseId+' '+k);
+   }
+ }
+ assert.deepEqual(controls.cases.map(c=>c.observedDifferenceEUR),['0.00','-4.13','+22.01']);
+ assert.equal(controls.cases[2].corner.parametersMm.L3,150);
+ assert.equal(controls.cases[2].corner.parametersMm.B3,150);
+ assert.match(controls.cases[2].changedFactor,/NOT a pure edge-finish change/);
+ // The 2000mm U2 screenshot independently confirms the SAME -4.13 EUR
+ // difference as the newly submitted 2250mm U2 screenshot.
+ const prevU2=data.find(x=>x.variant==='U2'&&x.L1_mm==='2000');
+ const prevU1=data.find(x=>x.variant==='U1'&&x.L1_mm==='2000');
+ assert.equal(Math.round((Number(prevU2.amount_eur)-Number(prevU1.amount_eur))*100),-413);
+ assert.equal(Math.round((Number(controls.cases[1].displayPriceEUR)-715.04)*100),-413);
  const l4=data.find(x=>x.variant==='L4');
  assert.equal(l4.amount_eur,'658.61');
  assert.equal(l4.amount_type,'prior_chat_transcribed_display_only');
