@@ -30,6 +30,9 @@ jobs:
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
           php wordpress/price-preview.test.php
           php wordpress/price-ajax.test.php
+          php pricing-v3/tests/lu-shop-ratebook.php
+          php pricing-v3/tests/lu-admin-price-preview.php
+          php wordpress/lu-price-ajax.test.php
           php wordpress/top-cta.test.php
           php wordpress/decor-catalog.test.php
           php wordpress/admin-supplier-decor.test.php
