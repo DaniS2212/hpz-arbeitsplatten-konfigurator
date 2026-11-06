@@ -44,3 +44,7 @@ L1,2000,1200,,600,600,,,,17.5,H1145,matching_1_5mm,311.53,operator_confirmed_net
 L1,2000,1200,,600,600,,,,38,H1145,matching_1_5mm,468.72,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_2000_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
 U1,2000,1200,1800,600,600,600,,,17.5,H1145,matching_1_5mm,464.34,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_2000_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
 U1,2000,1200,1800,600,600,600,,,38,H1145,matching_1_5mm,696.55,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_2000_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+L2,2500,1200,,600,600,,,,17.5,H1145,matching_1_5mm,346.93,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+L2,2500,1200,,600,600,,,,38,H1145,matching_1_5mm,516.49,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+U2,2500,1200,1800,600,600,600,,,17.5,H1145,matching_1_5mm,499.74,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+U2,2500,1200,1800,600,600,600,,,38,H1145,matching_1_5mm,740.19,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
