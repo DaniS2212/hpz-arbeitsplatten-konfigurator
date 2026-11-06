@@ -82,7 +82,8 @@ final class HPZ_APL_WP_LU_Runtime_11
             try {
                 $c=HPZ_APL_LU_Price_Readiness::normalize($raw);
                 $policy=get_option('hpz_apl_lu_price_window_v1',[]);
-                if (is_array($policy)) $candidate=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($c,$policy);
+                if (is_array($policy) && class_exists('HPZ_APL_LU_Shop_Ratebook_12'))
+                    $candidate=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($c,$policy);
             } catch (Throwable $ignored) { $candidate=null; }
         }
         return static function($key) use ($candidate) {
