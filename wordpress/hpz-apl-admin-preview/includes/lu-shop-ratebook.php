@@ -1,47 +1,52 @@
 <?php
 /**
- * Operator price candidates for a deliberately LIMITED L1/U1 shop pilot.
+ * L/U commercial price model: reuse EXISTING V3 straight decor EK references,
+ * V3 gross/margin calculator and measured L/U shape-specific W980/H1145
+ * length anchors. All 8 shapes / 16 decors / two thicknesses supported ONLY
+ * for the measured 2000..2500mm L1 interval at fixed reference other sizes.
  *
- * Source: owner-confirmed Speedmaster NET prices of 06.11.2026 in the
- * repository price register. No extrapolation, mixed axes, fabricated
- * supplier quotations or new WooCommerce tax/margin algorithm.
- *
- * This class cannot activate sales. WordPress must supply an explicit
- * operator-approved price policy and release the Woo product separately.
+ * Values away from exact supplier records are internal COST ESTIMATES, not
+ * confirmed Speedmaster purchase prices or supplier manufacturability.
+ * Purchasability remains behind independent Woo/operator release gates.
  */
 declare(strict_types=1);
 
 final class HPZ_APL_LU_Shop_Ratebook_12
 {
-    public const VERSION = 'lu-ratebook-w980-h1145-20261106-v1';
+    public const VERSION = 'lu-ratebook-eight-shapes-16-decors-20261106-v2';
 
-    private const ANCHORS = [
-        'L1' => [
-            'W980' => [
-                'APL17.5' => [2000 => 30767, 2500 => 34241],
-                'APL38' => [2000 => 46445, 2500 => 51156],
-            ],
-            'H1145' => [
-                'APL17.5' => [2000 => 31153, 2500 => 34693],
-                'APL38' => [2000 => 46872, 2500 => 51649],
-            ],
-        ],
-        'U1' => [
-            'W980' => [
-                'APL17.5' => [2000 => 45929, 2500 => 49403],
-                'APL38' => [2000 => 69149, 2500 => 73859],
-            ],
-            'H1145' => [
-                'APL17.5' => [2000 => 46434, 2500 => 49974],
-                'APL38' => [2000 => 69655, 2500 => 74432],
-            ],
-        ],
+    private const W980 = [
+        'L1'=>['APL17.5'=>[2000=>30767,2500=>34241],'APL38'=>[2000=>46445,2500=>51156]],
+        'L2'=>['APL17.5'=>[2000=>30767,2500=>34241],'APL38'=>[2000=>46445,2500=>51156]],
+        'L3'=>['APL17.5'=>[2000=>48855,2500=>52329],'APL38'=>[2000=>79852,2500=>84562]],
+        'L4'=>['APL17.5'=>[2000=>43094,2500=>46568],'APL38'=>[2000=>65861,2500=>70571]],
+        'U1'=>['APL17.5'=>[2000=>45929,2500=>49403],'APL38'=>[2000=>69149,2500=>73859]],
+        'U2'=>['APL17.5'=>[2000=>45929,2500=>49403],'APL38'=>[2000=>68736,2500=>73446]],
+        'U3'=>['APL17.5'=>[2000=>45929,2500=>49403],'APL38'=>[2000=>69149,2500=>73859]],
+        'U4'=>['APL17.5'=>[2000=>45929,2500=>49403],'APL38'=>[2000=>69149,2500=>73859]],
     ];
 
-    /**
-     * In-house freight: EUR 10 net, plus EUR 50 once if ANY configured
-     * L-axis is >=1900 mm. No supplier cut list or package guess.
-     */
+    // Direct H1145 operator-confirmed figures for L1,U1 at 2000/2500 and
+    // L2,U2 at 2500; the 2000 values of L2/U2 are MIRROR/DELTA estimates.
+    private const H1145 = [
+        'L1'=>['APL17.5'=>[2000=>31153,2500=>34693],'APL38'=>[2000=>46872,2500=>51649]],
+        'L2'=>['APL17.5'=>[2000=>31153,2500=>34693],'APL38'=>[2000=>46872,2500=>51649]],
+        'U1'=>['APL17.5'=>[2000=>46434,2500=>49974],'APL38'=>[2000=>69655,2500=>74432]],
+        'U2'=>['APL17.5'=>[2000=>46434,2500=>49974],'APL38'=>[2000=>69242,2500=>74019]],
+    ];
+
+    private const REFERENCE_SIZES = [
+        'L1'=>['L2'=>1200,'B1'=>600,'B2'=>600],
+        'L2'=>['L2'=>1200,'B1'=>600,'B2'=>600],
+        'L3'=>['L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900],
+        'L4'=>['L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,'B5'=>600],
+        'U1'=>['L2'=>1200,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],
+        'U2'=>['L2'=>1200,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],
+        'U3'=>['L2'=>1200,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],
+        'U4'=>['L2'=>1200,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],
+    ];
+
+    /** Internal inbound freight rule; user override of 06.11.2026. */
     public static function configuredInboundCents(array $c): int
     {
         $d=$c['dimensions'] ?? null;
@@ -49,73 +54,107 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         $lengths=[];
         foreach (['L1','L2','L3'] as $axis) {
             if (!array_key_exists($axis,$d)) continue;
-            if (!is_int($d[$axis]) || $d[$axis] < 1) {
-                throw new InvalidArgumentException('Ungültige Länge: '.$axis);
-            }
+            if (!is_int($d[$axis]) || $d[$axis]<1) throw new InvalidArgumentException('Ungültige Länge: '.$axis);
             $lengths[]=$d[$axis];
         }
         return HPZ_APL_Price_V3::inboundCostForVerifiedParts($lengths);
     }
 
-    /** Only L1 can vary; all other standard dimensions must match exactly. */
+    private static function lerpCents(array $pair,int $length): int
+    {
+        if (!isset($pair[2000],$pair[2500]) || $length<2000 || $length>2500) {
+            throw new InvalidArgumentException('Netto-Preisbereich überschritten.');
+        }
+        $difference=$pair[2500]-$pair[2000];
+        return $pair[2000]+intdiv($difference*($length-2000)+499,500);
+    }
+
+    /** Conservative gross material *reference* area, not CNC geometry. */
+    private static function decorCostReferenceAreaMm2(string $shape,array $d): int
+    {
+        $area = $d['L1']*$d['B1'] + $d['L2']*$d['B2'];
+        if ($shape[0]==='U') $area += $d['L3']*$d['B3'];
+        if ($shape==='L3'||$shape==='L4') $area += $d['B3']*$d['B4'];
+        return $area;
+    }
+
+    /**
+     * Model coverage: 8 L/U geometries, 16 V3 decors and both thicknesses,
+     * but only 200..250 cm L1 and exact form-specific reference dimensions.
+     * Other dimensions, corner work, non-matching edges => no commercial quote.
+     */
     public static function candidate(array $c): ?array
     {
-        $shape = $c['geometry'] ?? null;
-        $decor = $c['decor'] ?? null;
-        $material = $c['material'] ?? null;
-        $d = $c['dimensions'] ?? null;
-        if (!is_string($shape) || !is_string($decor) || !is_string($material)
-            || !is_array($d)
-            || !isset(self::ANCHORS[$shape][$decor][$material])
-            || ($c['corner'] ?? null) !== 'square'
-            || ($c['edge'] ?? null) !== 'matching-1.5') return null;
+        $shape=$c['geometry'] ?? null;
+        $decor=$c['decor'] ?? null;
+        $material=$c['material'] ?? null;
+        $d=$c['dimensions'] ?? null;
+        if (!is_string($shape)||!isset(self::W980[$shape])
+            || !is_string($decor)||!is_string($material)
+            || !isset(self::W980[$shape][$material])||!is_array($d)
+            ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5')
+            return null;
+        $fixed=self::REFERENCE_SIZES[$shape];
+        if(count($d)!==count($fixed)+1||!is_int($d['L1']??null))return null;
+        foreach($fixed as $key=>$value){if(($d[$key]??null)!==$value)return null;}
+        $length=$d['L1'];
+        if($length<2000||$length>2500)return null;
+        try {
+            // Also validates that the decor is one of the existing 16 from V3.
+            $decorDelta=HPZ_APL_Price_V3::referenceDecorNetDifferenceCents($decor,$material);
+        } catch (InvalidArgumentException $e) {return null;}
+        if($decorDelta<0)return null;
 
-        $fixed = $shape === 'L1'
-            ? ['L2'=>1200,'B1'=>600,'B2'=>600]
-            : ['L2'=>1200,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600];
-        if (count($d) !== count($fixed)+1 || !is_int($d['L1'] ?? null)) return null;
-        foreach ($fixed as $key=>$value) {
-            if (($d[$key] ?? null) !== $value) return null;
+        $explicit=self::H1145[$shape][$material]??null;
+        $baseline=self::lerpCents(self::W980[$shape][$material],$length);
+        if($decor==='W980'){
+            $cost=$baseline;
+        }elseif($decor==='H1145' && is_array($explicit)){
+            $cost=self::lerpCents($explicit,$length);
+        }else{
+            // One reference material difference multiplied by the sum of
+            // L/U rectangular stock spans. This tends to OVERcount the
+            // overlapping corner stock. It is an APPROXIMATION, not a
+            // Speedmaster material-specific EK.
+            $grossArea=self::decorCostReferenceAreaMm2($shape,$d);
+            $netPremium=intdiv($decorDelta*$grossArea+1199999,1200000);
+            $cost=$baseline+$netPremium;
         }
-        $length = $d['L1'];
-        if ($length < 2000 || $length > 2500) return null;
-        $a = self::ANCHORS[$shape][$decor][$material];
-        $delta = $a[2500] - $a[2000];
-        // Conservative integer-cent interpolation, rounded UP.
-        $netCents = $a[2000] + intdiv($delta*($length-2000)+499,500);
+
+        $twoPointMeasured=in_array($shape,['L1','U1'],true);
+        $confirmed = ($length===2000||$length===2500)
+            &&(($decor==='W980'&&$twoPointMeasured)
+                ||($decor==='H1145'&&$twoPointMeasured)
+                ||($decor==='H1145'&&$length===2500&&in_array($shape,['L2','U2'],true)));
         return [
-            'supplierNetCents'=>$netCents,
-            'source'=>'docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv',
-            'priceBasis'=>($length===2000 || $length===2500)
-                ? 'owner-confirmed-net-anchor' : 'bounded-interpolated-net-candidate',
-            'priceWindow'=>'L1 2000..2500 mm; other dimensions fixed',
+            'supplierNetCents'=>$cost,
+            'source'=>'docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv + pricing-v3/HPZ_APL_Price_V3.php',
+            'priceBasis'=>$confirmed?'confirmed-net-reference':'owner-review-commercial-cost-estimate',
+            'priceWindow'=>'L1 2000..2500 mm; other dimensions fixed to shape-specific reference',
             'ratebookVersion'=>self::VERSION,
         ];
     }
 
     /**
-     * Build a trusted server-side *candidate proof* from an explicit WP
-     * administrator policy, never from the customer's configuration JSON.
-     * No manufacturing or packaging assertion is made.
+     * Only privileged WP operator policy can allow estimated supplier costs
+     * to be used as COMMERCIAL price assumptions in a Woo offer.
+     * None of the below keys are accepted from customer/Store API JSON.
      */
-    public static function operatorProof(array $c, array $policy): ?array
+    public static function operatorProof(array $c,array $policy): ?array
     {
-        $candidate = self::candidate($c);
-        if ($candidate === null
-            || ($policy['model_price_approved'] ?? null) !== true
-            || !is_int($policy['other_cost_net_cents'] ?? null)
-            || $policy['other_cost_net_cents'] < 0
-            || $policy['other_cost_net_cents'] > 10000000
-            || !is_int($policy['max_quantity'] ?? null)
-            || $policy['max_quantity'] < 1 || $policy['max_quantity'] > 1000
-            || !is_string($policy['price_approved_on'] ?? null)
-            || !preg_match('/^\d{4}-\d{2}-\d{2}$/D',$policy['price_approved_on'])
-            || !is_array($policy['approved_shipping_rate_ids'] ?? null)) return null;
-
+        $candidate=self::candidate($c);
+        if ($candidate===null||($policy['model_price_approved']??null)!==true
+            ||!is_int($policy['other_cost_net_cents']??null)
+            ||$policy['other_cost_net_cents']<0||$policy['other_cost_net_cents']>10000000
+            ||!is_int($policy['max_quantity']??null)
+            ||$policy['max_quantity']<1||$policy['max_quantity']>1000
+            ||!is_string($policy['price_approved_on']??null)
+            ||!preg_match('/^\d{4}-\d{2}-\d{2}$/D',$policy['price_approved_on'])
+            ||!is_array($policy['approved_shipping_rate_ids']??null))return null;
         $rates=$policy['approved_shipping_rate_ids'];
-        if (count($rates)<1 || count($rates)>12) return null;
-        foreach ($rates as $rate) {
-            if (!is_string($rate) || !preg_match('/^[A-Za-z0-9_:-]{3,64}$/D',$rate)) return null;
+        if(count($rates)<1||count($rates)>12)return null;
+        foreach($rates as $rate){
+            if(!is_string($rate)||!preg_match('/^[A-Za-z0-9_:-]{3,64}$/D',$rate))return null;
         }
         return [
             'configurationKey'=>HPZ_APL_LU_Price_Readiness::configurationKey($c),
@@ -132,7 +171,7 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             'outboundNetCostCents'=>$policy['other_cost_net_cents'],
             'paymentAndHandlingNetCents'=>0,
             'approvedShippingRateIds'=>array_values(array_unique($rates)),
-            // Actual Speedmaster cut and package pieces remain unknown.
+            // Intentionally NOT pretending supplier cut/pack records exist.
             'verifiedCutParts'=>[],
             'verifiedPackages'=>[],
         ];
