@@ -36,6 +36,23 @@ final class HPZ_APL_Price_V3
     ];
 
     /**
+     * Reuse the ORIGINAL sixteen straight-worktop decor procurement references
+     * for experimental L/U decor uplifts. Returns NET cost difference, cents,
+     * relative to W980 at the original 2000x600 reference size.
+     *
+     * This exposes NO supplier tariff for a complete L/U geometry. The caller
+     * must clearly label scaled values as an estimate, not a verified EK.
+     */
+    public static function referenceDecorNetDifferenceCents(string $decor, string $material): int
+    {
+        $index=$material==='APL17.5'?0:($material==='APL38'?1:-1);
+        if ($index<0 || !isset(self::EK_REFERENCE_CENTS[$decor])) {
+            throw new InvalidArgumentException('Unknown V3 decor or material.');
+        }
+        return self::EK_REFERENCE_CENTS[$decor][$index]-self::EK_REFERENCE_CENTS['W980'][$index];
+    }
+
+    /**
      * Accepts a *normalized* V2 millimetre record (integer dimensions).
      * Returns calculation data only. Does NOT grant manufacturability or sale.
      * Client-supplied price, EK, supplier approval and flags are ignored.
