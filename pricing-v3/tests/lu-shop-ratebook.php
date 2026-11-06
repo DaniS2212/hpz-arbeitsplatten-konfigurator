@@ -128,4 +128,36 @@ $discount=$ctx;$discount['actualNetLineRevenueCents']=100000;
 testRate(!HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$discount,$now)['preflightComplete'],'35 percent floor');
 $bad=$ctx;$bad['selectedShippingRateId']='wrong';
 testRate(!HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$bad,$now)['preflightComplete'],'Woo shipping rate check');
+// Separate extended model for variable dimensions, no public sale approval.
+$short=HPZ_APL_LU_Price_Readiness::normalize(testRaw('L1','W980','APL38',1899));
+testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate($short)===null,'outside pilot needs extended approval');
+$extendedShort=HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($short);
+testRate(is_array($extendedShort)&&$extendedShort['supplierNetCents']>0,'short L1 commercially estimated');
+testRate($extendedShort['priceBasis']==='operator-review-extended-cost-estimate','no confirmed EK label for extension');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::operatorProof($short,$policy)===null,'no price extension unless explicitly approved');
+$extendedPolicy=$policy;$extendedPolicy['extended_model_approved']=true;
+$extendedProof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($short,$extendedPolicy);
+testRate(is_array($extendedProof)&&$extendedProof['supplierNetCents']===$extendedShort['supplierNetCents'],'extended price uses only operator option');
+$long=HPZ_APL_LU_Price_Readiness::normalize(testRaw('L1','W980','APL38',1900));
+$extendedLong=HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($long);
+$grossShort=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
+    $extendedShort['supplierNetCents'],HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($short),0
+);
+$grossLong=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
+    $extendedLong['supplierNetCents'],HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($long),0
+);
+testRate($grossLong>$grossShort+9000,'1900mm adds one-time freight to extended gross');
+$changed=HPZ_APL_LU_Price_Readiness::normalize(testRaw('U1','F128','APL17.5',2250));
+$changed['dimensions']['L2']=1700;
+$changed['dimensions']['B1']=700;
+testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate($changed)===null,'combined dimension requires extended mode');
+$wide=HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($changed);
+testRate($wide!==null && $wide['supplierNetCents']>1000,'longer arm and width repriced');
+$badDimensions=$changed;
+$badDimensions['dimensions']['B1']=1201;
+testRate(HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($badDimensions)===null,'very wide custom geometry blocked');
+$badDimensions=$short;
+$badDimensions['dimensions']['L1']=4001;
+testRate(HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($badDimensions)===null,'beyond four meters blocked');
+
 echo "PASS $n L/U shape/decor/price/margin/190cm regression tests (no live sale)\n";
