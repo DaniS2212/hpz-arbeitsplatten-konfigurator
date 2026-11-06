@@ -28,6 +28,7 @@ require_once __DIR__.'/includes/straight-runtime.php';
 // Same plugin, same WooCommerce store; L/U is separately gated and defaults OFF.
 require_once __DIR__.'/includes/lu-price-readiness.php';
 require_once __DIR__.'/includes/lu-shop-ratebook.php';
+require_once __DIR__.'/includes/lu-price-preview.php';
 require_once __DIR__.'/includes/lu-cart-bridge.php';
 require_once __DIR__.'/includes/lu-runtime.php';
 // Exact supplier approval UI disabled.
@@ -53,6 +54,8 @@ final class HPZ_APL_Admin_Preview {
         add_action('woocommerce_after_single_product_summary', array(__CLASS__, 'automatic'), 5);
         add_shortcode('hpz_apl_configurator', array(__CLASS__, 'shortcode'));
         add_action('wp_ajax_hpz_apl_price_preview', array(__CLASS__, 'price_preview'));
+        // ADMIN-ONLY scenario pricing; no nopriv hook, Woo order or sale flag.
+        add_action('wp_ajax_hpz_apl_lu_price_preview', array(__CLASS__, 'lu_price_preview'));
         // Always closed for the three targets, independent of settings or draft status.
         add_filter('woocommerce_is_purchasable', array(__CLASS__, 'purchasable'), PHP_INT_MAX, 2);
         add_filter('woocommerce_variation_is_purchasable', array(__CLASS__, 'purchasable'), PHP_INT_MAX, 2);
@@ -140,6 +143,10 @@ final class HPZ_APL_Admin_Preview {
         $priceAttrs=$adminTest && $id===1000083
             ? ' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_price_preview')).'" data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_price_'.$id)).'"'
             : '';
+        if($adminTest && ($id===1000080 || $id===1000081)) {
+            $priceAttrs=' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_price_preview')).'"'
+                .' data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_price_'.$id)).'"';
+        }
         if($publicStraight){
             $priceAttrs=' data-public-sale="true"'
                 .' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_public_quote')).'"'
@@ -157,6 +164,55 @@ final class HPZ_APL_Admin_Preview {
         $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Stoßstellen sind Bildbeobachtungen, keine CNC-Freigabe.</p>':'';
         return $css.'<section class="hpz-apl-admin-preview" id="hpz-apl-konfigurator" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
+    /**
+     * Separate authenticated price-only preview for draft L/U products.
+     * This must never register for guests, grant Woo purchasability or
+     * return supplier net EKs to the browser.
+     */
+    public static function lu_price_preview_allowed($id,$nonce) {
+        $o=self::options();
+        if (!is_int($id) || !isset(self::PRODUCTS[$id])
+            || !in_array($id,[1000080,1000081],true)
+            || !is_string($nonce) || $nonce===''
+            || !$o['enabled'] || !$o['test_mode'] || !is_user_logged_in()
+            || !current_user_can('manage_options') || !current_user_can('edit_post',$id)
+            || get_post_status($id)!=='draft' || get_post_type($id)!=='product'
+            || !function_exists('wc_get_product')
+            || !wp_verify_nonce($nonce,'hpz_apl_lu_price_'.$id))return false;
+        $product=wc_get_product($id);
+        return $product && $product->get_sku()===($id===1000080
+            ?'HPZ-APL-L-FORM-2026':'HPZ-APL-U-FORM-2026');
+    }
+
+    public static function lu_price_preview() {
+        if (($_SERVER['REQUEST_METHOD']??'')!=='POST'
+            || strtolower(trim(explode(';',$_SERVER['CONTENT_TYPE']??'')[0]))!=='application/json')
+            wp_send_json_error(['message'=>'JSON-Anfrage erforderlich.'],415);
+        $body=file_get_contents('php://input',false,null,0,16385);
+        if($body===false||strlen($body)>16384)
+            wp_send_json_error(['message'=>'Konfiguration zu groß.'],413);
+        $raw=json_decode($body,true);
+        if(!is_array($raw)||array_values($raw)===$raw)
+            wp_send_json_error(['message'=>'Konfiguration fehlt.'],400);
+        $id=$raw['productId']??null;
+        if(!self::lu_price_preview_allowed($id,$_SERVER['HTTP_X_WP_NONCE']??null))
+            wp_send_json_error(['message'=>'Nur für Administratoren in der Produkt-Testvorschau.'],403);
+        try {
+            $country='';
+            if(function_exists('WC')&&WC()&&WC()->customer)
+                $country=(string)WC()->customer->get_shipping_country();
+            $option=get_option('hpz_apl_lu_price_window_v1',[]);
+            $quote=HPZ_APL_LU_Admin_Price_Preview_13::quote(
+                $raw,$country,is_array($option)?$option:[]
+            );
+            wp_send_json_success(['quote'=>$quote],200);
+        }catch(InvalidArgumentException $e) {
+            wp_send_json_error(['message'=>$e->getMessage()],422);
+        }catch(Throwable $e) {
+            wp_send_json_error(['message'=>'L-/U-Preisvorschau derzeit nicht verfügbar.'],500);
+        }
+    }
+
     public static function price_preview_allowed($id, $nonce) {
         $o=self::options();
         if (!is_int($id) || $id!==1000083 || !is_string($nonce) || $nonce===''

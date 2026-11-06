@@ -100,7 +100,13 @@ final class HPZ_APL_WC_LU_Cart_Bridge
             'dimensions'=>$dims,'material'=>$c['material'],'decor'=>$c['decor'],
             'edge'=>'matching-1.5','quantity'=>$c['quantity'],
         ];
-        if ($c['product']==='l') $raw['lCorner']=['side'=>'none','treatment'=>null,'parameters'=>[]];
+        if ($c['product']==='l') {
+            $corner=$c['lCorner'] ?? ['side'=>'none','treatment'=>null,'parameters'=>[]];
+            $raw['lCorner']=[
+                'side'=>$corner['side'],'treatment'=>$corner['treatment'],
+                'parameters'=>array_map('strval',$corner['parameters']),
+            ];
+        }
         return $raw;
     }
 
@@ -189,6 +195,24 @@ final class HPZ_APL_WC_LU_Cart_Bridge
             'Kanten'=>$production['edge'],
             'Eckbearbeitung'=>'Keine',
         ];
+        $corner=$production['lCorner'] ?? null;
+        if ($id===1000080 && is_array($corner) && ($corner['side'] ?? null)!=='none') {
+            $sides=['left'=>'Links','right'=>'Rechts','both'=>'Beidseitig'];
+            $treatments=[
+                'round'=>'Rundung','chamfer_square'=>'Eckige Abschrägung',
+                'chamfer_continuous'=>'Durchlaufende Abschrägung',
+            ];
+            $side=$corner['side'] ?? '';
+            $treatment=$corner['treatment'] ?? '';
+            if (!isset($sides[$side],$treatments[$treatment])||!is_array($corner['parameters']??null))
+                throw new InvalidArgumentException('Eckdaten für Speedmaster unvollständig.');
+            $out['Eckbearbeitung']=$sides[$side].' · '.$treatments[$treatment];
+            foreach ($corner['parameters'] as $key=>$mm) {
+                if (!is_int($mm)||!preg_match('/^(R[12]|[LB][3-6])$/D',$key))
+                    throw new InvalidArgumentException('Eckmaß nicht verifiziert.');
+                $out['Eckmaß '.$key]=$mm.' mm';
+            }
+        }
         // Preserve all form-specific dimensions. L4's B5 is a BASE dimension
         // (not a corner B5). No fabrication geometry or join counts are guessed.
         foreach (['L1','L2','L3','B1','B2','B3','B4','B5'] as $k) {

@@ -150,4 +150,55 @@ $mix=rawLU('U2');luFails(function()use($mix,$lookup,$secret,$now){
 luCheck(HPZ_APL_WC_LU_Cart_Bridge::priceForWoo(164000,false,'DE')==='1378.151261','use existing straight Woo VAT adapter');
 luCheck(HPZ_APL_WC_LU_Cart_Bridge::priceForWoo(164000,true,'DE')==='1640.00','Woo tax-included store reference');
 luFails(function(){HPZ_APL_WC_LU_Cart_Bridge::priceForWoo(164000,false,'AT');},'foreign checkout blocked');
+// L corner parameters survive signed cart, Woo checkout and manual supplier
+// handoff; editing one corner mm or using an unverified clone MUST fail.
+$cornerRaw=rawLU('L1');
+$cornerRaw['lCorner']=[
+  'side'=>'left','treatment'=>'chamfer_continuous',
+  'parameters'=>['L3'=>'150','B3'=>'150'],
+];
+$cornerProof=syntheticProof($cornerRaw);
+$cornerKey=$cornerProof['configurationKey'];
+$cornerLookup=fn($key)=>$key===$cornerKey?$cornerProof:null;
+$cornerCart=HPZ_APL_WC_LU_Cart_Bridge::issue($cornerRaw,$cornerLookup,$secret,$now);
+$cornerChecked=HPZ_APL_WC_LU_Cart_Bridge::inspect($cornerCart,1,$cornerLookup,$secret,$now);
+luCheck(($cornerChecked['production']['lCorner']['parameters']['L3']??null)===150,
+    'signed L corner machining preserved in production');
+$cornerResult=HPZ_APL_WC_LU_Cart_Bridge::checkout(
+    $cornerCart,1,$cornerLookup,testCheckout(),$secret,$now
+);
+luCheck($cornerResult['validForReleaseReview']===true,'synthetic corner checkout preflight');
+$cornerFields=HPZ_APL_WC_LU_Cart_Bridge::displayFields($cornerResult['production']);
+luCheck($cornerFields['Eckbearbeitung']==='Links · Durchlaufende Abschrägung',
+    'manual order corner treatment explicit');
+luCheck($cornerFields['Eckmaß L3']==='150 mm'&&$cornerFields['Eckmaß B3']==='150 mm',
+    'manual order preserves both chamfer dimensions');
+$order=new DemoLUOrderItem();
+HPZ_APL_WC_LU_Cart_Bridge::writeOrderLine($order,$cornerResult);
+luCheck($order->meta['_hpz_apl_manufacturing_v2']['lCorner']['parameters']['B3']===150,
+    'Woo manufacturing metadata keeps L corner exact');
+$manual=HPZ_APL_WC_LU_Cart_Bridge::manualSpeedmasterText($cornerResult);
+luCheck(strpos($manual,'Eckmaß B3: 150 mm')!==false,'supplier manual text includes corner offset');
+luFails(function() use($cornerCart,$cornerLookup,$secret,$now) {
+    $tampered=$cornerCart;
+    $tampered[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY]['config']['lCorner']['parameters']['L3']=160;
+    HPZ_APL_WC_LU_Cart_Bridge::inspect($tampered,1,$cornerLookup,$secret,$now);
+},'corner edit invalidates HMAC signature');
+luFails(function() use($cornerCart,$lookup,$secret,$now) {
+    HPZ_APL_WC_LU_Cart_Bridge::inspect($cornerCart,1,$lookup,$secret,$now);
+},'unmachined existing supplier proof must not price machined corner');
+$cornerRaw=rawLU('L4');
+$cornerRaw['lCorner']=[
+    'side'=>'left','treatment'=>'chamfer_square',
+    'parameters'=>['L5'=>'150','B5'=>'150'],
+];
+$cornerProof=syntheticProof($cornerRaw);
+$cornerKey=$cornerProof['configurationKey'];
+$cornerLookup=fn($key)=>$key===$cornerKey?$cornerProof:null;
+$cornerCart=HPZ_APL_WC_LU_Cart_Bridge::issue($cornerRaw,$cornerLookup,$secret,$now);
+$checked=HPZ_APL_WC_LU_Cart_Bridge::inspect($cornerCart,1,$cornerLookup,$secret,$now);
+$fields=HPZ_APL_WC_LU_Cart_Bridge::displayFields($checked['production']);
+luCheck($fields['B5']==='600 mm','L4 base B5 remains unchanged');
+luCheck($fields['Eckmaß B5']==='150 mm','L4 independent corner B5 in Woo order');
+
 echo "PASS $n synthetic L/U cart/order bridge tests (no live sale)\n";

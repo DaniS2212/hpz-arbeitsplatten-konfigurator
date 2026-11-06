@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 final class HPZ_APL_LU_Shop_Ratebook_12
 {
-    public const VERSION = 'lu-ratebook-eight-shapes-16-decors-extended-20261106-v3';
+    public const VERSION = 'lu-ratebook-eight-shapes-16-decors-lcorners-20261106-v4';
 
     private const W980 = [
         'L1'=>['APL17.5'=>[2000=>30767,2500=>34241],'APL38'=>[2000=>46445,2500=>51156]],
@@ -171,7 +171,8 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         if (!is_string($shape)||!isset(self::W980[$shape])
             || !is_string($decor)||!is_string($material)
             || !isset(self::W980[$shape][$material])||!is_array($d)
-            ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5')
+            ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5'
+            ||isset($c['lCorner']))
             return null;
         $focused=self::focusedMeasuredWidth($c);
         if ($focused!==null) return $focused;
@@ -239,7 +240,8 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         if(!is_string($shape)||!isset(self::W980[$shape])
             ||!is_string($material)||!isset(self::W980[$shape][$material])
             ||!is_string($decor)||!is_array($d)
-            ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5')
+            ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5'
+            ||isset($c['lCorner']))
             return null;
         $fixed=self::REFERENCE_SIZES[$shape];
         if(count($d)!==count($fixed)+1)return null;
@@ -301,15 +303,98 @@ final class HPZ_APL_LU_Shop_Ratebook_12
     }
 
     /**
+     * L corner commercial-cost model only, independent of the straight
+     * countertop's fully separate price rules.
+     *
+     * ONE direct Speedmaster net example exists: L1, W980, 38mm,
+     * L1=2250/L2=1200/B1=B2=600, left chamfer_continuous 150x150:
+     * EUR 510.02 versus base EUR 488.01 => +EUR 22.01.
+     *
+     * The other corner forms and parameters are estimates with conservative
+     * operator-defined minimum cost assumptions. They are NOT claimed as
+     * supplier quotations; caller must separately approve corner_model_approved.
+     */
+    public static function cornerCandidate(array $c,bool $allowExtended=false): ?array
+    {
+        $corner=$c['lCorner']??null;
+        if (($c['product']??null)!=='l'||!is_array($corner)
+            ||!in_array($corner['side']??null,['left','right','both'],true)
+            ||!in_array($corner['treatment']??null,
+                ['round','chamfer_square','chamfer_continuous'],true)
+            ||!is_array($corner['parameters']??null))return null;
+        $base=$c;
+        unset($base['lCorner']);
+        $prior=self::candidate($base);
+        if($prior===null&&$allowExtended)$prior=self::extendedCandidate($base);
+        if($prior===null)return null;
+
+        $exact=($c['geometry']??null)==='L1'
+            &&($c['decor']??null)==='W980'
+            &&($c['material']??null)==='APL38'
+            &&$c['dimensions']===['L1'=>2250,'L2'=>1200,'B1'=>600,'B2'=>600]
+            &&$corner['side']==='left'
+            &&$corner['treatment']==='chamfer_continuous'
+            &&$corner['parameters']===['L3'=>150,'B3'=>150];
+        if ($exact) {
+            $netCorner=2201;
+            $basis='operator-confirmed-single-corner-reference';
+        } else {
+            // Conservative commercial assumptions, NOT supplier offers.
+            // By design the 22.01 EUR supplier witness cannot simply be
+            // copied to arbitrary shapes, left/right, or radii.
+            $netCorner=0;
+            foreach ($corner['side']==='both'?['left','right']:[$corner['side']] as $side) {
+                $values=$corner['parameters'];
+                $suffix=in_array($c['geometry'],['L1','L2'],true)
+                    ?($side==='left'?['L3','B3']:['L4','B4'])
+                    :($side==='left'?['L5','B5']:['L6','B6']);
+                if ($corner['treatment']==='round') {
+                    $radius=$values[$side==='left'?'R1':'R2']??null;
+                    if(!is_int($radius)||$radius<10||$radius>1000)return null;
+                    $netCorner+=4400+max(0,$radius-100)*10;
+                } else {
+                    $l=$values[$suffix[0]]??null;
+                    $b=$values[$suffix[1]]??null;
+                    if(!is_int($l)||!is_int($b)||$l<60||$b<60||$l>2000||$b>2000)
+                        return null;
+                    $netCorner+=($corner['treatment']==='chamfer_continuous'?3500:3900)
+                        +max(0,$l+$b-300)*7;
+                }
+                if(in_array($c['geometry'],['L3','L4'],true))$netCorner+=1200;
+            }
+            if($corner['side']==='both')$netCorner+=1200;
+            $basis='owner-review-l-corner-cost-estimate';
+        }
+        return [
+            'supplierNetCents'=>$prior['supplierNetCents']+$netCorner,
+            'source'=>$exact
+                ?'docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json'
+                :'V3 L/U baseline + explicitly unverified commercial L-corner cost policy',
+            'priceBasis'=>$basis,
+            'cornerNetModelCents'=>$netCorner,
+            'priceWindow'=>'L corner: '.$corner['side'].' / '.$corner['treatment']
+                .'; base: '.$prior['priceWindow'],
+            'ratebookVersion'=>self::VERSION,
+        ];
+    }
+
+    /**
      * Only privileged WP operator policy can allow estimated supplier costs
      * to be used as COMMERCIAL price assumptions in a Woo offer.
      * None of the below keys are accepted from customer/Store API JSON.
      */
     public static function operatorProof(array $c,array $policy): ?array
     {
-        $candidate=self::candidate($c);
-        if ($candidate===null && ($policy['extended_model_approved']??null)===true)
-            $candidate=self::extendedCandidate($c);
+        if (isset($c['lCorner'])) {
+            if (($policy['corner_model_approved']??null)!==true) return null;
+            $candidate=self::cornerCandidate(
+                $c,($policy['extended_model_approved']??null)===true
+            );
+        } else {
+            $candidate=self::candidate($c);
+            if ($candidate===null && ($policy['extended_model_approved']??null)===true)
+                $candidate=self::extendedCandidate($c);
+        }
         if ($candidate===null||($policy['model_price_approved']??null)!==true
             ||!is_int($policy['other_cost_net_cents']??null)
             ||$policy['other_cost_net_cents']<0||$policy['other_cost_net_cents']>10000000
