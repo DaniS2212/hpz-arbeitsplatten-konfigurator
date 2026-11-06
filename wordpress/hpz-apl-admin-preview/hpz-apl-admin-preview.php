@@ -27,6 +27,7 @@ require_once __DIR__.'/includes/woo-context.php';
 require_once __DIR__.'/includes/straight-runtime.php';
 // Same plugin, same WooCommerce store; L/U is separately gated and defaults OFF.
 require_once __DIR__.'/includes/lu-price-readiness.php';
+require_once __DIR__.'/includes/lu-shop-ratebook.php';
 require_once __DIR__.'/includes/lu-cart-bridge.php';
 require_once __DIR__.'/includes/lu-runtime.php';
 // Exact supplier approval UI disabled.
