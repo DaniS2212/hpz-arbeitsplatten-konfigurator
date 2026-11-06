@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "supplier-net-reference-v1",
+  "supplier": "Speedmaster",
+  "referenceRecordedDate": "2026-11-06",
+  "currency": "EUR",
+  "source": "user message in same project conversation, following PR #66 with 17.5mm L1=2000 request",
+  "sourceImagesRequired": false,
+  "sourceOriginals": false,
+  "priceTaxBasis": "supplier amounts are NET excluding VAT; explicitly confirmed by owner 2026-11-06",
+  "germanGrossVatReference": "0.19",
+  "quantity": 1,
+  "material": "APL17.5",
+  "thicknessMm": 17.5,
+  "decor": "W980 ST7 Platinweiß",
+  "edgePolicy": "all external edges and profile exactly 1.5mm decor matched; no unedged options",
+  "extraCornerTreatment": "none",
+  "cases": [
+    {
+      "caseId": "operator-net-20261106-L2-2000-175",
+      "geometry": "L2",
+      "product": "l",
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "decorCode": "W980",
+      "decorName": "W980 ST7 Platinweiß",
+      "edgeFinish": "1.5 mm dekorgleich on model/front and all exterior edges",
+      "specialCorner": "none",
+      "supplierNetEUR": "307.67",
+      "supplierNetCents": 30767,
+      "source": "user directly supplied four Speedmaster prices as text on 2026-11-06 for previously specified 2000mm cases",
+      "priceIncludesVAT": false,
+      "netBasisExplicitlyConfirmedByOperator": true,
+      "formalSupplierOfferVerified": false,
+      "cutListVerified": false,
+      "packingVerified": false,
+      "woocommerceSaleApproved": false,
+      "oneAxisComparison": {
+        "sameShapeL1_2500_netEUR": "342.41",
+        "differenceEUR": "34.74",
+        "baselineShapeAt2000": "L1 307.67",
+        "otherDimensionsHeldConstant": true,
+        "modelAppliesOnlyForObserved2000To2500Mm": true
+      }
+    },
+    {
+      "caseId": "operator-net-20261106-L3-2000-175",
+      "geometry": "L3",
+      "product": "l",
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900
+      },
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "decorCode": "W980",
+      "decorName": "W980 ST7 Platinweiß",
+      "edgeFinish": "1.5 mm dekorgleich on model/front and all exterior edges",
+      "specialCorner": "none",
+      "supplierNetEUR": "488.55",
+      "supplierNetCents": 48855,
+      "source": "user directly supplied four Speedmaster prices as text on 2026-11-06 for previously specified 2000mm cases",
+      "priceIncludesVAT": false,
+      "netBasisExplicitlyConfirmedByOperator": true,
+      "formalSupplierOfferVerified": false,
+      "cutListVerified": false,
+      "packingVerified": false,
+      "woocommerceSaleApproved": false,
+      "oneAxisComparison": {
+        "sameShapeL1_2500_netEUR": "523.29",
+        "differenceEUR": "34.74",
+        "baselineShapeAt2000": null,
+        "otherDimensionsHeldConstant": true,
+        "modelAppliesOnlyForObserved2000To2500Mm": true
+      }
+    },
+    {
+      "caseId": "operator-net-20261106-L4-2000-175",
+      "geometry": "L4",
+      "product": "l",
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900,
+        "B5": 600
+      },
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "decorCode": "W980",
+      "decorName": "W980 ST7 Platinweiß",
+      "edgeFinish": "1.5 mm dekorgleich on model/front and all exterior edges",
+      "specialCorner": "none",
+      "supplierNetEUR": "430.94",
+      "supplierNetCents": 43094,
+      "source": "user directly supplied four Speedmaster prices as text on 2026-11-06 for previously specified 2000mm cases",
+      "priceIncludesVAT": false,
+      "netBasisExplicitlyConfirmedByOperator": true,
+      "formalSupplierOfferVerified": false,
+      "cutListVerified": false,
+      "packingVerified": false,
+      "woocommerceSaleApproved": false,
+      "oneAxisComparison": {
+        "sameShapeL1_2500_netEUR": "465.68",
+        "differenceEUR": "34.74",
+        "baselineShapeAt2000": null,
+        "otherDimensionsHeldConstant": true,
+        "modelAppliesOnlyForObserved2000To2500Mm": true
+      }
+    },
+    {
+      "caseId": "operator-net-20261106-U2-2000-175",
+      "geometry": "U2",
+      "product": "u",
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "decorCode": "W980",
+      "decorName": "W980 ST7 Platinweiß",
+      "edgeFinish": "1.5 mm dekorgleich on model/front and all exterior edges",
+      "specialCorner": "none",
+      "supplierNetEUR": "459.29",
+      "supplierNetCents": 45929,
+      "source": "user directly supplied four Speedmaster prices as text on 2026-11-06 for previously specified 2000mm cases",
+      "priceIncludesVAT": false,
+      "netBasisExplicitlyConfirmedByOperator": true,
+      "formalSupplierOfferVerified": false,
+      "cutListVerified": false,
+      "packingVerified": false,
+      "woocommerceSaleApproved": false,
+      "oneAxisComparison": {
+        "sameShapeL1_2500_netEUR": "494.03",
+        "differenceEUR": "34.74",
+        "baselineShapeAt2000": "U1 459.29",
+        "otherDimensionsHeldConstant": true,
+        "modelAppliesOnlyForObserved2000To2500Mm": true
+      }
+    }
+  ],
+  "derivedComparisons": [
+    {
+      "scope": "17.5mm W980, 1.5mm decor matched, tested dimensions and only L1 2000/2500",
+      "facts": "all four L2/L3/L4/U2 increases are exactly 34.74 EUR net between L1=2000 and L1=2500",
+      "generalizedSupplierRuleProven": false
+    },
+    {
+      "scope": "17.5mm W980, standard U1/U2 and L1/L2",
+      "facts": "L2=L1 and U2=U1 at both tested L1=2000/2500",
+      "generalizedSupplierRuleProven": false
+    },
+    {
+      "scope": "17.5mm W980 L3/L4 tested L1=2000/2500, B3/B4=900, B5 L4=600",
+      "facts": "L3 minus L4 equals 57.61 EUR net at both tested lengths",
+      "generalizedSupplierRuleProven": false
+    }
+  ],
+  "safety": {
+    "manufacturerManufacturingAndCutListVerified": false,
+    "shippingPackSizesVerified": false,
+    "wooCheckoutApproved": false,
+    "priceScope": "exact standard cases plus bounded one-axis internal 2000-2500 interpolation only",
+    "commercialPricing": "existing V3 40pct target margin 35pct post coupon floor 10pct reserve; 19pct DE VAT once",
+    "inbound": "10 EUR net base + 50 EUR net only if any actual part >=1900 mm; total 60 EUR net in that case"
+  }
+}
