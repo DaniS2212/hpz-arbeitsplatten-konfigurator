@@ -1,0 +1,173 @@
+{
+  "schema": "four-width-net-price-controls-v1",
+  "recordedDate": "2026-11-06",
+  "supplier": "Speedmaster",
+  "taxBasis": "All supplier product prices net EUR, 19% DE VAT only once in HPZ_APL_Price_V3, owner-confirmed 2026-11-06",
+  "evidenceType": "operator_supplied_text_net_reference",
+  "allEdges": "1.5mm decor matched; no other edges offered",
+  "noExtraCornerTreatments": true,
+  "imagesOrZipRequired": false,
+  "threeWidthsObservedInU1": "U1 B1=600,650,700 at fixed L1=2500 L2=1700 L3=1800 B2/B3=600, both 17.5 and 38 mm",
+  "scope": "exact measurements only; narrow internal width-axis interpolation between same-shape same-thickness same-decor same-other-dimensions net quotes; NO public sale",
+  "cases": [
+    {
+      "caseId": "u1_250_170_180_175_b65",
+      "shape": "U1",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 1700,
+        "L3": 1800,
+        "B1": 650,
+        "B2": 600,
+        "B3": 600
+      },
+      "supplierNetEUR": "534.33",
+      "baseline": {
+        "B1_mm": 600,
+        "netEUR": "528.76",
+        "differenceEUR": "+5.57"
+      },
+      "otherReference": {
+        "B1_mm": 700,
+        "netEUR": "539.90"
+      },
+      "finding": "At 17.5 mm, width B1 600 -> 650 adds EUR 5.57; exact arithmetic midpoint of 600 and 700 EUR prices",
+      "decorCode": "W980",
+      "decor": "W980 ST7 Platinweiß",
+      "edgeProfile": "1.5 mm dekorgleich on profile and all outside edges",
+      "specialCorner": "none",
+      "quantity": 1,
+      "priceCurrency": "EUR",
+      "priceIsNet": true,
+      "source": "operator-provided Speedmaster price as chat text on 2026-11-06; original screenshots and ZIP not required",
+      "supplierManufacturingValidated": false,
+      "cutListVerified": false,
+      "packagingVerified": false,
+      "woocommerceSaleApproved": false
+    },
+    {
+      "caseId": "u1_250_170_180_38_b65",
+      "shape": "U1",
+      "material": "APL38",
+      "thicknessMm": 38,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 1700,
+        "L3": 1800,
+        "B1": 650,
+        "B2": 600,
+        "B3": 600
+      },
+      "supplierNetEUR": "776.40",
+      "baseline": {
+        "B1_mm": 600,
+        "netEUR": "785.69",
+        "differenceEUR": "-9.29"
+      },
+      "otherReference": {
+        "B1_mm": 700,
+        "netEUR": "767.12"
+      },
+      "finding": "At 38 mm, width B1 600 -> 650 DECREASES price EUR 9.29; midpoint of 600 and 700 reference is EUR 776.405, differing by half a cent before currency rounding",
+      "decorCode": "W980",
+      "decor": "W980 ST7 Platinweiß",
+      "edgeProfile": "1.5 mm dekorgleich on profile and all outside edges",
+      "specialCorner": "none",
+      "quantity": 1,
+      "priceCurrency": "EUR",
+      "priceIsNet": true,
+      "source": "operator-provided Speedmaster price as chat text on 2026-11-06; original screenshots and ZIP not required",
+      "supplierManufacturingValidated": false,
+      "cutListVerified": false,
+      "packagingVerified": false,
+      "woocommerceSaleApproved": false
+    },
+    {
+      "caseId": "l3_250_200_175_b3b4_1000",
+      "shape": "L3",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 1000,
+        "B4": 1000
+      },
+      "supplierNetEUR": "534.98",
+      "baseline": {
+        "B3_mm": 900,
+        "B4_mm": 900,
+        "netEUR": "523.29",
+        "differenceEUR": "+11.69"
+      },
+      "finding": "Both B3 and B4 were changed together; this is a COUPLED width change, not isolated B3 or B4",
+      "decorCode": "W980",
+      "decor": "W980 ST7 Platinweiß",
+      "edgeProfile": "1.5 mm dekorgleich on profile and all outside edges",
+      "specialCorner": "none",
+      "quantity": 1,
+      "priceCurrency": "EUR",
+      "priceIsNet": true,
+      "source": "operator-provided Speedmaster price as chat text on 2026-11-06; original screenshots and ZIP not required",
+      "supplierManufacturingValidated": false,
+      "cutListVerified": false,
+      "packagingVerified": false,
+      "woocommerceSaleApproved": false
+    },
+    {
+      "caseId": "l4_250_200_175_b5_700",
+      "shape": "L4",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2500,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900,
+        "B5": 700
+      },
+      "supplierNetEUR": "478.19",
+      "baseline": {
+        "B5_base_mm": 600,
+        "netEUR": "465.68",
+        "differenceEUR": "+12.51"
+      },
+      "finding": "Only L4 base dimension B5 changed 600 -> 700; B5 is not an L-corner geometry or finishing option",
+      "decorCode": "W980",
+      "decor": "W980 ST7 Platinweiß",
+      "edgeProfile": "1.5 mm dekorgleich on profile and all outside edges",
+      "specialCorner": "none",
+      "quantity": 1,
+      "priceCurrency": "EUR",
+      "priceIsNet": true,
+      "source": "operator-provided Speedmaster price as chat text on 2026-11-06; original screenshots and ZIP not required",
+      "supplierManufacturingValidated": false,
+      "cutListVerified": false,
+      "packagingVerified": false,
+      "woocommerceSaleApproved": false
+    }
+  ],
+  "limits": [
+    "Do not assume width price is increasing; U1 APL38 B1=600,650,700 decreases in price",
+    "L3 B3 and B4 move together and may not be priced independently",
+    "L4 B5 is only a base measure; not the corner chamfer offsets",
+    "Do not transfer any width slope between 17.5 and 38 mm, different decor, geometry, or other dimensions",
+    "A modeled intermediate is not a supplier confirmed price and never authorizes WooCommerce or manufacturing"
+  ],
+  "existingV3": {
+    "targetMarginPercent": 40,
+    "minMarginAfterDiscountPercent": 35,
+    "costReservePercent": 10,
+    "germanVatReferencePercent": 19,
+    "supplierInboundBasicNetEUR": 10,
+    "freightExtraOnceNetEUR": 50,
+    "freightOnlyIfActualDeliveryPartAtLeastMm": 1900,
+    "verifiedPartLengthsForTheseCases": false
+  }
+}
