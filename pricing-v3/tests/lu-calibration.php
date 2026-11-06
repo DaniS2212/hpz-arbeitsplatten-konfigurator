@@ -63,6 +63,75 @@ foreach ([
         'same company V3 commercial policy, no duplicate formula');
 }
 
+// Six NEW operator-confirmed 17.5mm NET Speedmaster amounts. The operator
+// explicitly stated that all Speedmaster amounts EXCLUDE VAT; 19% German VAT
+// belongs to the same V3 gross calculation, never the supplier's EK.
+foreach ([
+    ['L2',['L1'=>2500],34241],
+    ['L3',['L1'=>2500],52329],
+    ['L4',['L1'=>2500],46568],
+    ['U2',['L1'=>2500],49403],
+    ['U3',['L1'=>2500],49403],
+    ['U4',['L1'=>2500],49403],
+] as [$shape,$dimensions,$net]) {
+    $price=reviewLU($shape,'APL17.5',$dimensions);
+    expectCal($price['priceStatus']==='exact-operator-confirmed-net-reference',
+        $shape.' is operator-confirmed NET basis, not display-only');
+    expectCal($price['netSupplierReferenceCents']===$net,
+        $shape.' net EK cents unchanged');
+    expectCal($price['supplierPriceTaxBasis']==='net-eur-operator-confirmed-2026-11-06'
+        && $price['germanGrossReferenceTaxRate']==='0.19',
+        $shape.' supplier price excludes VAT, DE VAT reference is 19 pct');
+    expectCal($price['grossDEWith10or60EURInboundScenario']['inbound10EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($net,1000,0),
+        $shape.' same V3 margin + 19% German reference VAT with 10 EUR inbound');
+    expectCal($price['grossDEWith10or60EURInboundScenario']['inbound60EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($net,6000,0),
+        $shape.' same V3 margin + VAT with 60 EUR inbound');
+    expectCal(count($price['referenceCaseIds'])===1
+        && strpos($price['referenceCaseIds'][0], 'operator-net-20261106-')===0,
+        $shape.' typed source record survives new chat');
+    expectCal(!$price['supplierNetQuoteVerifiedForExactTarget']
+        && !$price['checkoutPriceApproved'] && !$price['purchasable']
+        && !$price['realPackedDimensionsVerified'] && !$price['additionalCostsVerified'],
+        $shape.' price net basis is not a manufacturing/checkout release');
+}
+// Form parity at only the exact known 17.5mm W980 2500mm case.
+$baseL1=reviewLU('L1','APL17.5',['L1'=>2500]);
+$baseU1=reviewLU('U1','APL17.5',['L1'=>2500]);
+expectCal(reviewLU('L2','APL17.5',['L1'=>2500])['netSupplierReferenceCents']===
+    $baseL1['netSupplierReferenceCents'],'17.5mm L1/L2 same at 2500');
+foreach (['U2','U3','U4'] as $shape) {
+    expectCal(reviewLU($shape,'APL17.5',['L1'=>2500])['netSupplierReferenceCents']===
+        $baseU1['netSupplierReferenceCents'],$shape.' 17.5mm matches U1 only at 2500');
+}
+expectCal(52329-46568===5761,'L3 minus L4 is EUR 57.61 at 17.5mm, not a universal shape surcharge');
+
+// No second same-shape 17.5mm length quote: bounded display interpolation
+// for 38mm must NEVER transfer to 17.5mm or extrapolate.
+foreach ([
+    ['L2',['L1'=>2250]],
+    ['L3',['L1'=>2250]],
+    ['L4',['L1'=>2250]],
+    ['U2',['L1'=>2250]],
+    ['U3',['L1'=>2250]],
+    ['U4',['L1'=>2250]],
+] as [$shape,$dimensions]) {
+    $candidate=reviewLU($shape,'APL17.5',$dimensions);
+    expectCal($candidate['priceStatus']==='missing-evidence',
+        $shape.' no inferred 17.5mm interpolation from lone 2500 net anchor');
+    expectCal($candidate['netSupplierReferenceCents']===null
+        && $candidate['estimatedSupplierNetCents']===null
+        && $candidate['supplierDisplayOnlyCents']===null,
+        $shape.' cannot borrow 38mm prices for 17.5mm');
+}
+expectCal(reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>700])['priceStatus']
+    ==='missing-evidence','L4 17.5mm B5=700 never transferred from B5=600');
+expectCal(reviewLU('L3','APL38',['L1'=>2500,'B1'=>700,'B2'=>700])['priceStatus']
+    ==='missing-evidence','17.5mm L3 price cannot be transferred to unrelated 38mm widths');
+expectCal(reviewLU('L3','APL17.5',['L1'=>2500],'H1145')['priceStatus']
+    ==='missing-evidence','17.5mm W980 price never substitutes another decor');
+
 // Only L1/U1 variable-length models within proven same-thickness brackets.
 foreach ([
     ['L1','APL17.5',['L1'=>2250],32504,'L1',[2000,2500]],

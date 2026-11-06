@@ -6,10 +6,11 @@
  * public WordPress plugin, never issues Woo quotes and never approves a sale.
  * Price V3 remains the one commercial margin calculator.
  *
- * Bounded one-dimensional interpolation is performed SEPARATELY for (a)
- * historically confirmed net-EK references and (b) newer, operator-supplied
- * DISPLAY amounts of unconfirmed net status. The latter NEVER populate an EK
- * field, gross scenario, verified price proof or WooCommerce purchase route.
+ * Bounded length interpolation separates (a) historical supplier NET-EK and
+ * NEW exact operator-confirmed NET references from (b) earlier display-only
+ * observations. On 06.11 the operator confirmed Speedmaster amounts EXCLUDE
+ * VAT; this tax-basis fact is distinct from exact current manufacturing or
+ * Woo sale approval. Display-only observations never bypass proof gates.
  * No extrapolation, decor transfer, shape transfer, width interpolation
  * or manufacturing assumptions. Only matching 1.5-mm decor edges are offered.
  */
@@ -17,7 +18,7 @@ declare(strict_types=1);
 
 final class HPZ_APL_LU_Calibration_11
 {
-    public const VERSION = 'lu-calibration-bounded-length-v2-text-display';
+    public const VERSION = 'lu-calibration-bounded-length-v3-operator-net-basis';
     private const REFERENCE_FILE = __DIR__.'/../docs/price-reference-cases.csv';
     private const OBSERVED_FILE = __DIR__.'/../docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv';
     private const AXES = ['L1','L2'];
@@ -88,6 +89,50 @@ final class HPZ_APL_LU_Calibration_11
             ];
         }
         return $matching;
+    }
+
+    /**
+     * New, strictly scoped owner-confirmed net-price records. The supplier's
+     * prices EXCLUDE VAT, explicitly verified by the operator 2026-11-06.
+     * This confirms only the tax basis and exact photographed/typed price,
+     * NOT a current supplier offer, cut list, packing or Woo sale approval.
+     */
+    private static function matchingOperatorNetReferences(array $c, array $rows): array
+    {
+        if ($c['decor'] !== 'W980') return [];
+        $thickness = $c['material'] === 'APL38' ? '38' : '17.5';
+        $refs = [];
+        foreach ($rows as $r) {
+            if (($r['variant'] ?? '') !== $c['geometry']
+                || ($r['thickness_mm'] ?? '') !== $thickness
+                || ($r['decor'] ?? '') !== 'W980'
+                || ($r['edge'] ?? '') !== 'matching_1_5mm'
+                || ($r['amount_type'] ?? '') !== 'operator_confirmed_net_EK'
+                || ($r['status'] ?? '') !== 'net_basis_owner_confirmed_not_sale_approved'
+                || ($r['source'] ?? '') !== 'docs/references/speedmaster-lu/LU_175_NET_PRICES_20261106.json') continue;
+            $dims=[];
+            foreach ($c['dimensions'] as $key=>$value) {
+                $field = $key === 'B5' ? 'B5_base_mm' : $key.'_mm';
+                $n=$r[$field] ?? '';
+                if (!is_string($n) || !preg_match('/^[0-9]{1,6}$/D', $n)) continue 2;
+                $dims[$key]=(int)$n;
+            }
+            // Reject rows carrying additional dimension axes not relevant for
+            // the current shape; an accidental leftover B5 must not qualify.
+            foreach (['L1','L2','L3','B1','B2','B3','B4','B5'] as $field) {
+                if (array_key_exists($field, $c['dimensions'])) continue;
+                $column=$field === 'B5' ? 'B5_base_mm' : $field.'_mm';
+                if (($r[$column] ?? '') !== '') continue 2;
+            }
+            $refs[]=[
+                'id'=>'operator-net-20261106-'.$c['geometry'].'-'.($dims['L1'] ?? 0),
+                'dimensions'=>$dims,
+                'supplierNetCents'=>self::cents($r['amount_eur']),
+                'source'=>$r['source'],
+                'operatorConfirmedNetBasis'=>true,
+            ];
+        }
+        return $refs;
     }
 
     private static function sameOtherAxes(array $left, array $right, string $axis): bool
@@ -225,6 +270,8 @@ final class HPZ_APL_LU_Calibration_11
             'decor'=>$c['decor'],
             'dimensionsMm'=>$c['dimensions'],
             'priceStatus'=>'missing-evidence',
+            'supplierPriceTaxBasis'=>'net-eur-operator-confirmed-2026-11-06',
+            'germanGrossReferenceTaxRate'=>'0.19',
             'netSupplierReferenceCents'=>null,
             'estimatedSupplierNetCents'=>null,
             'supplierDisplayOnlyCents'=>null,
@@ -269,14 +316,30 @@ final class HPZ_APL_LU_Calibration_11
             $base['displayEvidenceSources'] = $row['sources'];
             break;
         }
-        $confirmed = self::matchingNetReferences($c, self::rows(self::REFERENCE_FILE));
-        foreach ($confirmed as $row) {
-            if ($row['dimensions'] !== $c['dimensions']) continue;
-            $base['priceStatus']='exact-historical-net-reference';
-            $base['netSupplierReferenceCents']=$row['supplierNetCents'];
-            $base['referenceCaseIds']=[$row['id']];
-            $base['grossDEWith10or60EURInboundScenario']=self::scenarios($row['supplierNetCents']);
-            // Still requires fresh supplier validity, real packing & Woo review.
+        $confirmed = array_merge(
+            self::matchingNetReferences($c, self::rows(self::REFERENCE_FILE)),
+            self::matchingOperatorNetReferences($c, self::rows(self::OBSERVED_FILE))
+        );
+        $exact = array_values(array_filter($confirmed, static function (array $row) use ($c): bool {
+            return $row['dimensions'] === $c['dimensions'];
+        }));
+        if ($exact) {
+            // Never silently choose a contradictory net quote for the same
+            // dimensions. No shop price is generated on source conflict.
+            $prices = array_values(array_unique(array_column($exact, 'supplierNetCents')));
+            if (count($prices) !== 1) {
+                $base['priceStatus']='conflicting-operator-net-reference';
+                $base['referenceCaseIds']=array_values(array_unique(array_column($exact, 'id')));
+                return $base;
+            }
+            $first=$exact[0];
+            $base['priceStatus']=!empty($first['operatorConfirmedNetBasis'])
+                ? 'exact-operator-confirmed-net-reference'
+                : 'exact-historical-net-reference';
+            $base['netSupplierReferenceCents']=$first['supplierNetCents'];
+            $base['referenceCaseIds']=array_values(array_unique(array_column($exact, 'id')));
+            $base['grossDEWith10or60EURInboundScenario']=self::scenarios($first['supplierNetCents']);
+            // Still requires current supplier validity, real packing & Woo review.
             return $base;
         }
 
