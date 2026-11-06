@@ -30,3 +30,7 @@
 Bereits am 05.11.2026 ausdrücklich gewünscht: Auf den WooCommerce-Produktseiten **Galerie und großen Standard-Header entfernen**, H1 sowie kurze Einleitung **hochwertig direkt am Konfigurator** integrieren. Auf **Gerade, L und U** einheitlich anwenden, ohne vorhandene Woo-/SEO-/Warenkorbstrukturen zu brechen. Der Screenshot dieses früheren Feedbacks ist separat im Repo-Kontext dokumentiert und noch nicht binär archiviert.
 
 **Keine dieser drei Aufgaben blockiert PR #61.** Sie kommen nach den Preis- und Bestellprüfungen.
+
+## Archivplanung 06.11.2026
+
+Die zuvor nur per Dateihash erfassten UI-Originale (`image(20261106-074841).png` und `image(20261105-113713).png`) sind zusammen mit den zwei neuen Speedmaster-Preisoriginalen **unverändert** im vorbereiteten privaten ZIP `Speedmaster_L1_U1_2250_UI_20261106_Originale.zip`. [SHA-/Dateiregister](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv). **Es ist noch nicht in GitHub hochgeladen**; erst nach byteverifiziertem Import sind die Visuals für neue Chats wieder direkt verfügbar.
