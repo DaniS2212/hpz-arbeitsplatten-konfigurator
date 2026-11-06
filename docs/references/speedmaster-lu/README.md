@@ -112,3 +112,8 @@ Neue **reine Netto-TEXTbelege** [LU_FOUR_WIDTH_NET_PRICES_20261106.json](LU_FOUR
 ### 06.11.2026 – H1145 ST10 Bardolino Eiche: vier echte Netto-EK-Referenzen (PR #69)
 
 [Vier vollständige reine Text-EK-Belege](LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json) und [W980-Gegenüberstellung](../../phase-lu-h1145-decor-net-prices-20261106.md). L1 bei 2500 mm: H1145 **346,93 €** (17,5 mm) / **516,49 €** (38 mm) netto; U1 bei 2500 mm **499,74 €** (17,5 mm) / **744,32 €** (38 mm). Aufpreise zu W980 derselben Maße **+4,52 / +4,93 / +5,71 / +5,73 €**, also **kein allgemeiner Dekoraufschlag**. Die Offline-Kalibrierung erkennt ausschließlich diese vier exakten Fälle; keine Woo-Livefreigabe, keine Bilder-/ZIP-Pflicht.
+
+
+### 06.11.2026 – H1145-Zweitlänge bei 2000 mm (PR #70)
+
+[Vier neue Speedmaster-Netto-TEXTpreise mit allen Maßen](LU_H1145_2000_NET_PRICES_20261106.json), [aktuelle 8-Punkte-H1145-Längenanalyse](../../phase-lu-h1145-length-prices-20261106.md). L1 17,5 mm **311,53 €**, L1 38 mm **468,72 €**, U1 17,5 mm **464,34 €**, U1 38 mm **696,55 €** bei L1=2000 und allen Standardmaßen. Die vorherigen L1=2500-Vergleichswerte bleiben bestehen. Für **H1145 L1/U1** sind bei exakt gleicher Standardkonfiguration jetzt Längenmodelle **nur innerhalb 2000–2500 mm** intern möglich: H1145-Zunahme +35,40 € bzw. +47,77 € je 500 mm L1. Die Dekordifferenz zu W980 steigt zugleich um +0,66–0,67 €. Keine pauschale Form-/Dekorzulage, keine H1145-Breite, L2–L4/U2–U4 oder Woo-Verkaufspreis-Freigabe. Keine PNGs/ZIPs für Preise.

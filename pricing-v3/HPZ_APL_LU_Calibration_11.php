@@ -12,15 +12,17 @@
  * VAT; this tax-basis fact is distinct from exact current manufacturing or
  * Woo sale approval. Display-only observations never bypass proof gates.
  * No extrapolation, decor or shape transfer, generalized width interpolation
- * or manufacturing assumptions. H1145 has four exact L1/U1 net anchors only;
- * never infer a universal H1145 price premium. Narrow width brackets for
+ * or manufacturing assumptions. H1145 now has two exact L1/U1 net-length
+ * anchors per shape/thickness (2000, 2500mm); only interpolate the same
+ * decor, shape, thickness, edges and all other dimensions within that range.
+ * Never infer a universal H1145 price premium. Narrow width brackets for
  * U1 B1, L3 coupled B3/B4 and L4 B5; all edges decor matched 1.5 mm.
  */
 declare(strict_types=1);
 
 final class HPZ_APL_LU_Calibration_11
 {
-    public const VERSION = 'lu-calibration-v6-h1145-exact-decor-20261106';
+    public const VERSION = 'lu-calibration-v7-h1145-bounded-length-20261106';
     private const REFERENCE_FILE = __DIR__.'/../docs/price-reference-cases.csv';
     private const OBSERVED_FILE = __DIR__.'/../docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv';
     private const AXES = ['L1','L2'];
@@ -102,7 +104,8 @@ final class HPZ_APL_LU_Calibration_11
     private static function matchingOperatorNetReferences(array $c, array $rows): array
     {
         // Only already observed decor IDs may anchor the offline model.
-        // H1145 has four EXACT L1/U1 prices, no transferable decor premium.
+        // H1145 has eight EXACT L1/U1 references over two lengths,
+        // no transferable decor premium, width curve or form surcharge.
         if (!in_array($c['decor'], ['W980','H1145'], true)) return [];
         $thickness = $c['material'] === 'APL38' ? '38' : '17.5';
         $refs = [];
@@ -118,6 +121,7 @@ final class HPZ_APL_LU_Calibration_11
                     'docs/references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json',
                     'docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json',
                     'docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json',
+                    'docs/references/speedmaster-lu/LU_H1145_2000_NET_PRICES_20261106.json',
                 ], true)) continue;
             $dims=[];
             foreach ($c['dimensions'] as $key=>$value) {

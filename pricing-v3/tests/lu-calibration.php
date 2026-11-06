@@ -66,7 +66,7 @@ foreach ([
 // 06.11.2026: four EXACT H1145 ST10 Bardolino Eiche supplier NET
 // price points compared with identical W980 ST7 Platinweiß dimensions.
 // IMPORTANT: These are NOT a fixed decor surcharge or ratio and are
-// never available for unseen L2-L4/U2-U4 or 2000mm customer sizes.
+// never transferred to unseen L2-L4/U2-U4, width or extrapolated sizes.
 foreach ([
   ['L1','APL17.5',['L1'=>2500],34693,34241,452],
   ['L1','APL38',['L1'=>2500],51649,51156,493],
@@ -103,12 +103,79 @@ foreach ([
 expectCal(count(array_unique([452,493,571,573]))===4,
     'no globally uniform H1145 vs W980 surcharge across shape and thickness');
 
-// Fail closed: the four source observations cannot license an unseen
-// H1145 shape, different length or width, thickness transfer or decor ID.
+// Newly owner-confirmed exact H1145 prices at L1=2000mm; use the
+// previously paired W980 L1/U1 baseline at the SAME dimensions and edges.
+// Second length endpoints now permit 1D interpolation for H1145 only.
 foreach ([
-  ['L1','APL17.5',['L1'=>2000],'H1145'],
-  ['L1','APL38',['L1'=>2250],'H1145'],
-  ['U1','APL17.5',['L1'=>2250],'H1145'],
+  ['L1','APL17.5',31153,30767,34693,34241,386,3540,66],
+  ['L1','APL38',46872,46445,51649,51156,427,4777,66],
+  ['U1','APL17.5',46434,45929,49974,49403,505,3540,66],
+  ['U1','APL38',69655,69149,74432,73859,506,4777,67],
+] as [$shape,$material,$net2000,$w980Net2000,$net2500,$w980Net2500,$decorDelta2000,$h1145LengthDelta,$extraDecorDelta]) {
+    $at2000=reviewLU($shape,$material,['L1'=>2000],'H1145');
+    $at2500=reviewLU($shape,$material,['L1'=>2500],'H1145');
+    $w2000=reviewLU($shape,$material,['L1'=>2000],'W980');
+    $w2500=reviewLU($shape,$material,['L1'=>2500],'W980');
+    expectCal($at2000['priceStatus']==='exact-operator-confirmed-net-reference',
+        $shape.$material.' H1145 2000 is exact typed net quote');
+    expectCal($at2000['netSupplierReferenceCents']===$net2000
+        && $at2500['netSupplierReferenceCents']===$net2500,
+        $shape.$material.' exact independent H1145 net endpoints');
+    expectCal(count($at2000['referenceCaseIds'])===1
+        && str_ends_with($at2000['referenceCaseIds'][0],'-H1145'),
+        $shape.$material.' exact 2000 source includes H1145 decor ID');
+    expectCal($w2000['netSupplierReferenceCents']===$w980Net2000
+        && $w2500['netSupplierReferenceCents']===$w980Net2500,
+        $shape.$material.' W980 comparators are same thickness/geometry');
+    expectCal($net2000-$w980Net2000===$decorDelta2000,
+        $shape.$material.' exact net decor premium at 2000mm');
+    expectCal($net2500-$net2000===$h1145LengthDelta,
+        $shape.$material.' exact H1145 length increase over 500mm');
+    expectCal(($net2500-$w980Net2500)-($net2000-$w980Net2000)
+        ===$extraDecorDelta,
+        $shape.$material.' decor premium change across length is 66 or 67 cents');
+    expectCal($at2000['grossDEWith10or60EURInboundScenario']['inbound60EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($net2000,6000,0),
+        'H1145 gross reference uses V3 and German VAT exactly once');
+    expectCal(!$at2000['supplierNetQuoteVerifiedForExactTarget']
+        && !$at2000['checkoutPriceApproved']
+        && !$at2000['purchasable']
+        && !$at2000['realPackedDimensionsVerified'],
+        'net source never authorizes unverified manufacturing/checkout');
+}
+// Internal net midpoint in H1145 only: historical W980 interpolation must
+// remain separate, no fixed decor multiplier and no H1145 width/shape transfer.
+foreach ([
+  ['L1','APL17.5',32923,32504,419],
+  ['L1','APL38',49261,48801,460],
+  ['U1','APL17.5',48204,47666,538],
+  ['U1','APL38',72044,71504,540],
+] as [$shape,$material,$h1145Mid,$w980Mid,$difference]) {
+    $h=reviewLU($shape,$material,['L1'=>2250],'H1145');
+    $w=reviewLU($shape,$material,['L1'=>2250],'W980');
+    expectCal($h['priceStatus']==='bounded-one-axis-estimate-not-verified'
+        && $h['estimatedSupplierNetCents']===$h1145Mid
+        && $h['netSupplierReferenceCents']===null,
+        $shape.$material.' bounded H1145 2250 internal net estimate only');
+    expectCal($h['axisInterpolated']==='L1'
+        && $h['boundedByMm']===[2000,2500]
+        && count($h['referenceCaseIds'])===2
+        && count(array_filter($h['referenceCaseIds'],static function($id){return str_ends_with($id,'-H1145');}))===2,
+        $shape.$material.' both endpoints originate in same H1145 decor');
+    expectCal(($w['estimatedSupplierNetCents']??null)===$w980Mid
+        && $h1145Mid-$w980Mid===$difference,
+        $shape.$material.' no mixing H1145/W980 models');
+    expectCal(!$h['checkoutPriceApproved'] && !$h['purchasable']
+        && !$h['realPackedDimensionsVerified']
+        && !$h['supplierNetQuoteVerifiedForExactTarget'],
+        'bounded H1145 model cannot be used for Woo price or supplier order');
+}
+// Fail closed: the eight observed H1145 anchors cannot license an unseen
+// H1145 shape, out-of-bracket length or width, or another decor ID.
+foreach ([
+  ['L1','APL17.5',['L1'=>1900],'H1145'],
+  ['L1','APL38',['L1'=>2600],'H1145'],
+  ['U1','APL17.5',['L1'=>1900],'H1145'],
   ['U1','APL38',['L1'=>2500,'B1'=>650],'H1145'],
   ['L2','APL17.5',['L1'=>2500],'H1145'],
   ['L3','APL38',['L1'=>2500],'H1145'],
@@ -467,7 +534,7 @@ foreach ([
 $l4=reviewLU('L4');
 expectCal($l4['priceStatus']==='unverified-speedmaster-screen-amount','L4 supplier screenshot not net proof');
 expectCal($l4['supplierDisplayOnlyCents']===65861,'L4 screenshot 658.61 EUR preserved');
-expectCal(reviewLU('L1','APL38',[],'H1145')['priceStatus']==='missing-evidence',
+expectCal(reviewLU('L1','APL38',['L1'=>1900],'H1145')['priceStatus']==='missing-evidence',
     'straight decor price grid may NOT be copied to L/U');
 expectCal(reviewLU('U2','APL17.5',['B2'=>650])['priceStatus']==='missing-evidence',
     '17.5mm U2 exact references cannot infer unseen widths');
