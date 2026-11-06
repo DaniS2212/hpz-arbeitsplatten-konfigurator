@@ -136,7 +136,7 @@ foreach ([
     ['L1','APL38',['L2'=>1300]],
     ['L1','APL38',['B1'=>700]],
     ['L2','APL38',[]],
-    ['L3','APL38',[]],
+    ['L3','APL17.5',[]],
 ] as $case) {
     $result=reviewLU($case[0],$case[1],$case[2]);
     expectCal($result['priceStatus']==='missing-evidence','no width/shape/large-length extrapolation');
@@ -207,6 +207,140 @@ try {
     $chamferRejected=true;
 }
 expectCal($chamferRejected,'150x150 corner case must stay outside square-corner public price model');
+
+// NEW text-only supplier price observations, 06.11.2026. No PNGs and no
+// screenshots archived for these eight observations. Every observation is
+// a supplier DISPLAY, not a confirmed NET-EK or manufacturer cut-list.
+$eightTextCases = [
+ ['L2',['L1'=>2500],51156],
+ ['U2',['L1'=>2500],73446],
+ ['L3',['L1'=>2000,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900],79852],
+ ['L3',['L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900],84562],
+ ['L4',['L1'=>2000,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,'B5'=>600],65861],
+ ['L4',['L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,'B5'=>600],70571],
+ ['U3',['L1'=>2500],73859],
+ ['U4',['L1'=>2500],73859],
+];
+foreach ($eightTextCases as [$shape,$dimensions,$price]) {
+    $result=reviewLU($shape,'APL38',$dimensions);
+    expectCal($result['priceStatus']==='unverified-speedmaster-screen-amount',
+        $shape.' exact operator-text display must not be labeled net');
+    expectCal($result['supplierDisplayOnlyCents']===$price,
+        $shape.' original amount observed as text, exact cents');
+    expectCal(in_array('docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json',
+        $result['displayEvidenceSources'], true),$shape.' text source preserved');
+    expectCal($result['netSupplierReferenceCents']===null
+        && $result['estimatedSupplierNetCents']===null
+        && $result['estimatedSupplierDisplayCents']===null,
+        $shape.' exact display never promoted into verified net or estimate');
+    expectCal($result['grossDEWith10or60EURInboundScenario']===null
+        && !$result['supplierNetQuoteVerifiedForExactTarget']
+        && !$result['checkoutPriceApproved'] && !$result['purchasable'],
+        $shape.' no Woo price or manufacturing approval by text');
+}
+$l4Twice=reviewLU('L4','APL38',['L1'=>2000,'L2'=>2000,'B1'=>600,'B2'=>600,
+    'B3'=>900,'B4'=>900,'B5'=>600]);
+expectCal(count($l4Twice['displayEvidenceSources'])===2,
+    'L4 658.61 previously transcribed and independently re-confirmed in new text');
+
+// A bounded model may be built from two independent DISPLAY values, only
+// when EVERY non-changing dimension matches and only L1/L2 varies.
+// This is NOT a supplier net EK model and must never feed the Woo price.
+foreach ([
+    ['L2',['L1'=>2375],49979,'L1',[2250,2500]],
+    ['L3',['L1'=>2250,'L2'=>2000,'B3'=>900,'B4'=>900],82207,'L1',[2000,2500]],
+    ['L4',['L1'=>2250,'L2'=>2000,'B3'=>900,'B4'=>900,'B5'=>600],68216,'L1',[2000,2500]],
+    ['U2',['L1'=>2125],69914,'L1',[2000,2250]],
+    ['U2',['L1'=>2375],72269,'L1',[2250,2500]],
+    ['U3',['L1'=>2250],71504,'L1',[2000,2500]],
+    ['U4',['L1'=>2250],71504,'L1',[2000,2500]],
+] as [$shape,$dimensions,$price,$axis,$bounds]) {
+    $result=reviewLU($shape,'APL38',$dimensions);
+    expectCal($result['priceStatus']==='bounded-one-axis-display-estimate-not-net-verified',
+        $shape.' model must remain display-only');
+    expectCal($result['estimatedSupplierDisplayCents']===$price,
+        $shape.' bounded model from two observed prices');
+    expectCal($result['displayAxisInterpolated']===$axis
+        && $result['displayBoundedByMm']===$bounds,
+        $shape.' strict observed length interval');
+    expectCal(count($result['displayReferenceIds'])>=2,
+        $shape.' both source configurations retained');
+    expectCal($result['supplierDisplayOnlyCents']===null
+        && $result['netSupplierReferenceCents']===null
+        && $result['estimatedSupplierNetCents']===null,
+        $shape.' model must NEVER become an EK');
+    expectCal($result['grossDEWith10or60EURInboundScenario']===null
+        && !$result['checkoutPriceApproved'] && !$result['purchasable'],
+        $shape.' supplier display interpolation cannot authorize sale');
+}
+
+// Shape comparisons: validate EXACT observed points, not a global
+// pricing surcharge. Confirm that the earlier two U2 -4.13 cases still
+// match the third new case, and L3/L4 +47.10 length change agrees.
+foreach ([
+    [2000,69149,68736,-413],
+    [2250,71504,71091,-413],
+    [2500,73859,73446,-413],
+] as [$length,$u1,$u2,$diff]) {
+    $a=reviewLU('U1','APL38',['L1'=>$length]);
+    $b=reviewLU('U2','APL38',['L1'=>$length]);
+    $left=$a['netSupplierReferenceCents'] ?? $a['supplierDisplayOnlyCents']
+        ?? $a['estimatedSupplierNetCents'];
+    expectCal($left===$u1 && $b['supplierDisplayOnlyCents']===$u2,
+        'U1 vs U2 same dimensions and thickness at L1='.$length);
+    expectCal($u2-$u1===$diff,'U2 observed reduction 4.13 each of 3 L1 samples');
+}
+foreach (['L3','L4'] as $shape) {
+    $base=reviewLU($shape,'APL38',[
+        'L1'=>2000,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,
+    ]+($shape==='L4'?['B5'=>600]:[]));
+    $long=reviewLU($shape,'APL38',[
+        'L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,
+    ]+($shape==='L4'?['B5'=>600]:[]));
+    expectCal($long['supplierDisplayOnlyCents']-$base['supplierDisplayOnlyCents']===4710,
+        $shape.' exactly +47.10 over 500mm, for these same B and L2 values only');
+}
+foreach ([2000,2500] as $length) {
+    $u1=reviewLU('U1','APL38',['L1'=>$length]);
+    $u3=reviewLU('U3','APL38',['L1'=>$length]);
+    $u4=reviewLU('U4','APL38',['L1'=>$length]);
+    $ref=$u1['netSupplierReferenceCents'];
+    expectCal($u3['supplierDisplayOnlyCents']===$ref
+        && $u4['supplierDisplayOnlyCents']===$ref,
+        'U1/U3/U4 equal ONLY at documented length and W980 APL38');
+}
+
+// No borderless edge or different edge profile is an offered product,
+// including before a separately approved public checkout.
+$invalidEdge=fixtureLU('L1','APL38');
+$invalidEdge['edge']='without-edge';
+$edgeRejected=false;
+try {HPZ_APL_LU_Calibration_11::review($invalidEdge);}
+catch (InvalidArgumentException $e) {$edgeRejected=true;}
+expectCal($edgeRejected,'owner decided: all external edges 1.5 mm decor matched only');
+
+foreach ([
+    ['L2',['L1'=>2100]],
+    ['L2',['L1'=>2600]],
+    ['L3',['L1'=>1850,'L2'=>2000,'B3'=>900,'B4'=>900]],
+    ['L3',['L1'=>2700,'L2'=>2000,'B3'=>900,'B4'=>900]],
+    ['L3',['L1'=>2250,'L2'=>1900,'B3'=>900,'B4'=>900]],
+    ['L4',['L1'=>2250,'L2'=>2000,'B3'=>900,'B4'=>900,'B5'=>500]],
+    ['U2',['L1'=>2600]],
+    ['U3',['L2'=>1300]],
+    ['U4',['B2'=>700]],
+] as [$shape,$dimensions]) {
+    $result=reviewLU($shape,'APL38',$dimensions);
+    expectCal($result['priceStatus']==='missing-evidence',
+        $shape.' no unverified extrapolation or width/B5/second-axis transfer');
+    expectCal($result['estimatedSupplierDisplayCents']===null
+        && $result['estimatedSupplierNetCents']===null,
+        $shape.' incomplete dimension or outside bracket no price');
+}
+expectCal(reviewLU('L3','APL17.5',['L2'=>2000,'B3'=>900,'B4'=>900])['priceStatus']
+    ==='missing-evidence','38mm L3 cannot price a 17.5mm L3');
+expectCal(reviewLU('L4','APL38',['L2'=>2000,'B3'=>900,'B4'=>900,'B5'=>600],'H1145')['priceStatus']
+    ==='missing-evidence','W980 L4 cannot price other decor');
 
 // Never use browser-controlled EK or approved flags as source evidence.
 $adversarial=fixtureLU('U3');
