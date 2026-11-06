@@ -29,6 +29,12 @@ jobs:
           php -l pricing-v3/HPZ_APL_LU_Shop_Ratebook_12.php
           php -l wordpress/hpz-apl-admin-preview/includes/lu-shop-ratebook.php
           php pricing-v3/tests/lu-shop-ratebook.php
+      - name: Admin-only L/U gross-price preview incl. L corner scenarios
+        run: |
+          php -l pricing-v3/HPZ_APL_LU_Admin_Price_Preview_13.php
+          php -l wordpress/hpz-apl-admin-preview/includes/lu-price-preview.php
+          php pricing-v3/tests/lu-admin-price-preview.php
+          php wordpress/lu-price-ajax.test.php
       - name: L/U variable-price calibration from source CSV (no sales release)
         run: php -l pricing-v3/HPZ_APL_LU_Calibration_11.php && php pricing-v3/tests/lu-calibration.php
       - name: "L/U WooCommerce: eight shapes, signed cart snapshots and manual Speedmaster order"
