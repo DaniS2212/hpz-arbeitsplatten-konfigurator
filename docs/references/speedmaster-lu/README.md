@@ -117,3 +117,8 @@ Neue **reine Netto-TEXTbelege** [LU_FOUR_WIDTH_NET_PRICES_20261106.json](LU_FOUR
 ### 06.11.2026 – H1145-Zweitlänge bei 2000 mm (PR #70)
 
 [Vier neue Speedmaster-Netto-TEXTpreise mit allen Maßen](LU_H1145_2000_NET_PRICES_20261106.json), [aktuelle 8-Punkte-H1145-Längenanalyse](../../phase-lu-h1145-length-prices-20261106.md). L1 17,5 mm **311,53 €**, L1 38 mm **468,72 €**, U1 17,5 mm **464,34 €**, U1 38 mm **696,55 €** bei L1=2000 und allen Standardmaßen. Die vorherigen L1=2500-Vergleichswerte bleiben bestehen. Für **H1145 L1/U1** sind bei exakt gleicher Standardkonfiguration jetzt Längenmodelle **nur innerhalb 2000–2500 mm** intern möglich: H1145-Zunahme +35,40 € bzw. +47,77 € je 500 mm L1. Die Dekordifferenz zu W980 steigt zugleich um +0,66–0,67 €. Keine pauschale Form-/Dekorzulage, keine H1145-Breite, L2–L4/U2–U4 oder Woo-Verkaufspreis-Freigabe. Keine PNGs/ZIPs für Preise.
+
+
+### 06.11.2026 – H1145 L2/U2 Kontrollpreise und Shop-Freigabekurs (PR #71)
+
+[Vier vollständige Netto-EK-TEXTbelege](LU_H1145_L2_U2_NET_PRICES_20261106.json), [Priorisierte Freigabe-/MVP-Kriterien](../../phase-lu-limited-launch-gates-20261106.md). H1145 L2 bei 2500 mm: **346,93 € (17,5)** und **516,49 € (38)**, exakt wie L1 gleicher Maße; U2 **499,74 € (17,5)** wie U1 und **740,19 € (38)**, genau **4,13 € unter U1**, wie beim 38-mm-W980-Gegenbeleg. **Keine allgemeine Kosten-/Form-/Dekorübertragung über die real geprüften Maße hinaus.** Jetzt auf tatsächlich verifizierte Speedmaster-Cutlist/Packteile und begrenzten Woo-MVP wechseln, statt weitere Bild-/ZIP-/Vier-Preis-Runden. Öffentliche L-/U-Bestellung weiterhin gesperrt.
