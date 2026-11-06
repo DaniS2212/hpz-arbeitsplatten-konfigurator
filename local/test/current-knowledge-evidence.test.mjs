@@ -89,7 +89,7 @@ test('central L/U price evidence is typed and exact, no new screen display accep
  // The 2000mm U2 screenshot independently confirms the SAME -4.13 EUR
  // difference as the newly submitted 2250mm U2 screenshot.
  const prevU2=data.find(x=>x.variant==='U2'&&x.L1_mm==='2000');
- const prevU1=data.find(x=>x.variant==='U1'&&x.L1_mm==='2000');
+ const prevU1=data.find(x=>x.variant==='U1'&&x.L1_mm==='2000'&&x.thickness_mm==='38');
  assert.equal(Math.round((Number(prevU2.amount_eur)-Number(prevU1.amount_eur))*100),-413);
  assert.equal(Math.round((Number(controls.cases[1].displayPriceEUR)-715.04)*100),-413);
  const l4=data.find(x=>x.variant==='L4');
