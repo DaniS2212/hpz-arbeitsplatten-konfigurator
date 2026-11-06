@@ -41,3 +41,8 @@ Diese Liste ist **kein Hindernis** für weitere dokumentierende, prüfende oder 
 Für **alle L1–L4 / U1–U4** liegen jetzt mindestens **38-mm-W980-ST7-Anzeige- bzw. historische Netto-Referenzwerte** vor, siehe [Preistabelle](../../phase-lu-eight-text-prices-model-20261106.md). L2 bei 2500 = **511,56 €**, U2 bei 2500 = **734,46 €**, L3 2000/2500 = **798,52/845,62 €**, L4 2000/2500 bei B5=600 = **658,61/705,71 €**, U3/U4 bei 2500 je **738,59 €**. Keine dieser **acht neuen** Anzeigen wurde vom Lieferanten ausdrücklich als Netto-EK qualifiziert. Sie vervollständigen daher die **interne Anzeige-Kalibrierung**, nicht die Netto-/Herstellungs-/Shopfreigabe.
 
 Offen sind echte Netto-/Brutto-Einordnung, reale Teilzuschnitte/Packstücke/Verbinder, Kosten, Abhängigkeit von **anderen Maßen, 17,5 mm, Dekoren und Eckgeometrie**. Kantenentscheidung endgültig: **ausschließlich 1,5 mm dekorgleich**, die alte Testanfrage „ohne Kante“ ist gestrichen. WebGL macht eigenständige Cloud-Browser-Abfrage derzeit unzuverlässig; vorläufig **Textpreise**, keine neuen Preisbild-ZIPs.
+
+
+### Netto-Basis bestätigt und 17,5-mm-Abdeckung erweitert (06.11.2026)
+
+Alle Speedmaster-Produktpreise sind **ohne MwSt.**; V3 enthält 19 % DE-USt. genau einmal. Sechs neue [exakte 17,5-mm-Netto-EKs](LU_175_NET_PRICES_20261106.json) L2 342,41 €, L3 523,29 €, L4 465,68 €, U2/U3/U4 494,03 € bei dokumentierten 2500-mm-Standardmaßen. Noch fehlt jeweils ein zweiter 17,5-mm-Längenpunkt, vorzugsweise L1=2000 mm. Ungeklärt bleiben andere Breiten/Dekore, aktuelle echte Stück-/Packmaße, Zusatzkosten und Woo-Test. Netto-Klärung ersetzt keine Hersteller- oder Shopfreigabe.
