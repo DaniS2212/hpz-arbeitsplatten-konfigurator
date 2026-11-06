@@ -36,3 +36,7 @@ U1,2500,1700,1800,650,600,600,,,17.5,W980,matching_1_5mm,534.33,operator_confirm
 U1,2500,1700,1800,650,600,600,,,38,W980,matching_1_5mm,776.40,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
 L3,2500,2000,,600,600,1000,1000,,17.5,W980,matching_1_5mm,534.98,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
 L4,2500,2000,,600,600,900,900,700,17.5,W980,matching_1_5mm,478.19,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+L1,2500,1200,,600,600,,,,17.5,H1145,matching_1_5mm,346.93,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+L1,2500,1200,,600,600,,,,38,H1145,matching_1_5mm,516.49,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+U1,2500,1200,1800,600,600,600,,,17.5,H1145,matching_1_5mm,499.74,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
+U1,2500,1200,1800,600,600,600,,,38,H1145,matching_1_5mm,744.32,operator_confirmed_net_EK,docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json,net_basis_owner_confirmed_not_sale_approved
