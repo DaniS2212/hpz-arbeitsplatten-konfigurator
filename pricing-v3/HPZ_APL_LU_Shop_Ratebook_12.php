@@ -38,6 +38,25 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         ],
     ];
 
+    /**
+     * In-house freight: EUR 10 net, plus EUR 50 once if ANY configured
+     * L-axis is >=1900 mm. No supplier cut list or package guess.
+     */
+    public static function configuredInboundCents(array $c): int
+    {
+        $d=$c['dimensions'] ?? null;
+        if (!is_array($d)) throw new InvalidArgumentException('Konfigurierte Längen fehlen.');
+        $lengths=[];
+        foreach (['L1','L2','L3'] as $axis) {
+            if (!array_key_exists($axis,$d)) continue;
+            if (!is_int($d[$axis]) || $d[$axis] < 1) {
+                throw new InvalidArgumentException('Ungültige Länge: '.$axis);
+            }
+            $lengths[]=$d[$axis];
+        }
+        return HPZ_APL_Price_V3::inboundCostForVerifiedParts($lengths);
+    }
+
     /** Only L1 can vary; all other standard dimensions must match exactly. */
     public static function candidate(array $c): ?array
     {
