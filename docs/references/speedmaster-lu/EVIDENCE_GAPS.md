@@ -56,3 +56,8 @@ Die zuvor fehlenden **17,5-mm-L1=2000**-Preise liegen jetzt als [Text-JSON](LU_1
 ### Neuer Breiten-Kontrollstand (PR #68, 06.11.2026)
 
 Vier neue W980-ST7-Netto-EKs mit komplett dokumentierter Geometrie: [Netto-Preisdatei](LU_FOUR_WIDTH_NET_PRICES_20261106.json) und [Bewertung](../../phase-lu-four-width-prices-20261106.md). U1 B1=600/650/700 mm bei **17,5 mm** steigt 528,76→534,33→539,90 €, bei **38 mm** sinkt 785,69→776,40→767,12 €; keine generische positive Breitensteigerung oder Flächenpreisformel. L3 B3=B4 900→1000 **+11,69 €**; L4 B5 600→700 **+12,51 €**. Nur erste streng kontrollierte Breitenbereiche. **Rest offen:** Dekorübertragbarkeit, andere Maße/Stärken, 2D-Abhängigkeiten, Hersteller-Zuschnitt-/Pack-/Verbinderfakten, Woo-Testbestellung. Neue Daten nur als Text, keine Preisbild-ZIPs.
+
+
+### H1145-ST10-Dekorvergleich aufgenommen (PR #69, 06.11.2026)
+
+Vier neue exakte **H1145 ST10 Bardolino**-Netto-Referenzen: L1 17,5/38 mm **346,93/516,49 €** und U1 17,5/38 mm **499,74/744,32 €**, jeweils L1=2500 und vollständig dokumentierte übrige Standardmaße; [Textdaten](LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json), [Analyse](../../phase-lu-h1145-decor-net-prices-20261106.md). Abweichungen zum W980-Basismodell **+4,52/+4,93 € L1** und **+5,71/+5,73 € U1**; keine universelle Dekorregel. Noch offen: H1145 zweiter Längenpunkt 2000 mm, H1145 L2/U2-Stoßvergleich, weitere Dekore, variable Breiten auch bei H1145, exakte Lieferteil-/Pack-/Verbinderdaten und Woo-Testbestellung. Nur Texte, keine Screenshots/ZIPs; 19 % Steuer in V3 genau einmal, Shopfreigabe weiterhin aus.
