@@ -78,6 +78,85 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         return $area;
     }
 
+    /** ceil(a / positive denominator) preserving negative price slopes. */
+    private static function ceilRatio(int $numerator,int $denominator): int
+    {
+        if ($denominator <= 0) throw new InvalidArgumentException('Invalid interpolation span.');
+        return $numerator >= 0
+            ? intdiv($numerator+$denominator-1,$denominator)
+            : -intdiv(-$numerator,$denominator);
+    }
+
+    /**
+     * Operator-confirmed independent Speedmaster NET prices for individual
+     * cross-axis cases, plus interpolation ONLY between their exact same-form,
+     * same-decor, same-thickness, same-other-dimension measurements.
+     *
+     * In particular U1 / 38mm B1=600..700 has a NEGATIVE supplier slope;
+     * the general conservative absolute-width surcharge previously marked
+     * those real cases significantly too high. Never extrapolate this slope.
+     */
+    private static function focusedMeasuredWidth(array $c): ?array
+    {
+        $shape=$c['geometry'] ?? null;
+        $decor=$c['decor'] ?? null;
+        $material=$c['material'] ?? null;
+        $d=$c['dimensions'] ?? null;
+        if ($decor!=='W980' || !is_array($d)) return null;
+        $supplier=null;
+        $basis='bounded-single-axis-net-interpolation';
+        $label='';
+        if ($shape==='U1' && count($d)===6
+            && ($d['L1']??null)===2500 && ($d['L2']??null)===1700
+            && ($d['L3']??null)===1800 && ($d['B2']??null)===600
+            && ($d['B3']??null)===600 && is_int($d['B1']??null)
+            && $d['B1']>=600 && $d['B1']<=700) {
+            $measurements=[
+                'APL17.5'=>[600=>52876,650=>53433,700=>53990],
+                'APL38'=>[600=>78569,650=>77640,700=>76712],
+            ];
+            if (!isset($measurements[$material])) return null;
+            $prices=$measurements[$material];
+            $width=$d['B1'];
+            if (isset($prices[$width])) {
+                $supplier=$prices[$width];
+                $basis='confirmed-net-reference';
+            } else {
+                $lower=$width<650?600:650;
+                $higher=$width<650?650:700;
+                $supplier=$prices[$lower]+self::ceilRatio(
+                    ($prices[$higher]-$prices[$lower])*($width-$lower),
+                    $higher-$lower
+                );
+            }
+            $label='U1 B1 600..700mm; L1=2500 L2=1700 L3=1800 B2/B3=600mm';
+        } elseif ($shape==='L3' && $material==='APL17.5' && count($d)===6
+            && ($d['L1']??null)===2500 && ($d['L2']??null)===2000
+            && ($d['B1']??null)===600 && ($d['B2']??null)===600
+            && is_int($d['B3']??null) && ($d['B4']??null)===$d['B3']
+            && $d['B3']>=900 && $d['B3']<=1000) {
+            $supplier=52329+self::ceilRatio(1169*($d['B3']-900),100);
+            if ($d['B3']===900||$d['B3']===1000) $basis='confirmed-net-reference';
+            $label='L3 B3/B4 coupled 900..1000mm; L1=2500 L2=2000 B1/B2=600mm';
+        } elseif ($shape==='L4' && $material==='APL17.5' && count($d)===7
+            && ($d['L1']??null)===2500 && ($d['L2']??null)===2000
+            && ($d['B1']??null)===600 && ($d['B2']??null)===600
+            && ($d['B3']??null)===900 && ($d['B4']??null)===900
+            && is_int($d['B5']??null) && $d['B5']>=600 && $d['B5']<=700) {
+            $supplier=46568+self::ceilRatio(1251*($d['B5']-600),100);
+            if ($d['B5']===600||$d['B5']===700) $basis='confirmed-net-reference';
+            $label='L4 base B5 600..700mm; L1=2500 L2=2000 B1/B2=600 B3/B4=900mm';
+        }
+        if ($supplier===null) return null;
+        return [
+            'supplierNetCents'=>$supplier,
+            'source'=>'docs/price-reference-cases.csv + docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json',
+            'priceBasis'=>$basis,
+            'priceWindow'=>$label,
+            'ratebookVersion'=>self::VERSION,
+        ];
+    }
+
     /**
      * Model coverage: 8 L/U geometries, 16 V3 decors and both thicknesses,
      * but only 200..250 cm L1 and exact form-specific reference dimensions.
@@ -94,6 +173,8 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             || !isset(self::W980[$shape][$material])||!is_array($d)
             ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5')
             return null;
+        $focused=self::focusedMeasuredWidth($c);
+        if ($focused!==null) return $focused;
         $fixed=self::REFERENCE_SIZES[$shape];
         if(count($d)!==count($fixed)+1||!is_int($d['L1']??null))return null;
         foreach($fixed as $key=>$value){if(($d[$key]??null)!==$value)return null;}
@@ -147,6 +228,10 @@ final class HPZ_APL_LU_Shop_Ratebook_12
      */
     public static function extendedCandidate(array $c): ?array
     {
+        // Known exact supplier prices and narrow real-data interpolations
+        // always supersede the generic 7% uncertainty surcharge.
+        $grounded=self::candidate($c);
+        if ($grounded!==null) return $grounded;
         $shape=$c['geometry'] ?? null;
         $material=$c['material'] ?? null;
         $decor=$c['decor'] ?? null;

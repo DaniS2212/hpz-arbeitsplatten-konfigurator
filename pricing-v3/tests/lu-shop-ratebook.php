@@ -160,4 +160,70 @@ $badDimensions=$short;
 $badDimensions['dimensions']['L1']=4001;
 testRate(HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($badDimensions)===null,'beyond four meters blocked');
 
+// Cross-axis manufacturer NET cases already documented in the repository.
+// These were previously overestimated by the arbitrary extended 7% model.
+$measuredAdditional=[
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],52876],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'L3'=>1800,'B1'=>650,'B2'=>600,'B3'=>600],53433],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'L3'=>1800,'B1'=>700,'B2'=>600,'B3'=>600],53990],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],78569],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'L3'=>1800,'B1'=>650,'B2'=>600,'B3'=>600],77640],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'L3'=>1800,'B1'=>700,'B2'=>600,'B3'=>600],76712],
+    ['L3','APL17.5',['L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>1000,'B4'=>1000],53498],
+    ['L4','APL17.5',['L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,'B5'=>700],47819],
+];
+foreach($measuredAdditional as [$form,$material,$dimensions,$expected]){
+    $raw=testRaw($form,'W980',$material,2500);
+    $raw['dimensions']=array_map('strval',$dimensions);
+    $norm=HPZ_APL_LU_Price_Readiness::normalize($raw);
+    $quote=HPZ_APL_LU_Shop_Ratebook_12::candidate($norm);
+    testRate(is_array($quote)&&$quote['supplierNetCents']===$expected,'additional exact supplier net '.$form.'/'.$material.'/'.json_encode($dimensions));
+    testRate($quote['priceBasis']==='confirmed-net-reference','actual net case not mislabeled as estimated');
+    testRate(HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($norm)['supplierNetCents']===$expected,
+        'extended formula must not override exact supplier quote');
+}
+foreach([
+    ['APL17.5',625,53155],['APL17.5',675,53712],
+    ['APL38',625,78105],['APL38',675,77176]
+] as [$material,$width,$expected]){
+    $raw=testRaw('U1','W980',$material,2500);
+    $raw['dimensions']=['L1'=>'2500','L2'=>'1700','L3'=>'1800',
+        'B1'=>(string)$width,'B2'=>'600','B3'=>'600'];
+    $norm=HPZ_APL_LU_Price_Readiness::normalize($raw);
+    $quote=HPZ_APL_LU_Shop_Ratebook_12::candidate($norm);
+    testRate(is_array($quote)&&$quote['supplierNetCents']===$expected,'bounded U1 B1 interpolation '.$material.'/'.$width);
+    testRate($quote['priceBasis']==='bounded-single-axis-net-interpolation',
+        'interpolated midpoint not marked exact');
+}
+foreach([
+    ['L3','B3',950,'B4',950,52914],
+    ['L4','B5',650,null,null,47194],
+] as [$shape,$a,$v,$b,$other,$expected]){
+    $raw=testRaw($shape,'W980','APL17.5',2500);
+    $raw['dimensions'][$a]=(string)$v;
+    if($b!==null)$raw['dimensions'][$b]=(string)$other;
+    $norm=HPZ_APL_LU_Price_Readiness::normalize($raw);
+    $quote=HPZ_APL_LU_Shop_Ratebook_12::candidate($norm);
+    testRate(is_array($quote)&&$quote['supplierNetCents']===$expected,
+        'bounded L widths '.$shape.'/'.$a);
+    testRate($quote['priceBasis']==='bounded-single-axis-net-interpolation','interpolated L widths labeled');
+}
+// Same measurement in another decor/form/length is NOT an exact supplier quote.
+$offSlice=testRaw('U2','W980','APL38',2500);
+$offSlice['dimensions']=['L1'=>'2500','L2'=>'1700','L3'=>'1800','B1'=>'700','B2'=>'600','B3'=>'600'];
+testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate(HPZ_APL_LU_Price_Readiness::normalize($offSlice))===null,
+    'U1 width anchors never silently transferred to U2');
+$offDecor=testRaw('U1','H1145','APL38',2500);
+$offDecor['dimensions']=['L1'=>'2500','L2'=>'1700','L3'=>'1800','B1'=>'700','B2'=>'600','B3'=>'600'];
+testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate(HPZ_APL_LU_Price_Readiness::normalize($offDecor))===null,
+    'W980 widths never called confirmed H1145 prices');
+$notCoupled=testRaw('L3','W980','APL17.5',2500);
+$notCoupled['dimensions']['B3']='950';
+try {
+    HPZ_APL_LU_Price_Readiness::normalize($notCoupled);
+    testRate(false,'L3 B3/B4 pair must be rejected by normalization');
+} catch (InvalidArgumentException $expected) {
+    testRate(true,'L3 B3/B4 pair must be rejected by normalization');
+}
+
 echo "PASS $n L/U shape/decor/price/margin/190cm regression tests (no live sale)\n";
