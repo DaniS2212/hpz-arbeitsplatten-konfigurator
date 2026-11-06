@@ -52,3 +52,8 @@ Für U1 ausschließlich B1 **zwischen 600 und 700 mm**, bei gleicher Dicke, säm
 ## Nächster sinnvoller Preisblock
 
 Jetzt **nicht dieselben B1-Werte erneut** erfragen. Als Nächstes einen **Dekorvergleich** mit identischen Ausführungen in **beiden Dicken** und mindestens einer **L-/U-Form**, danach nur gezielte Gegenbeispiele für L3/L4 gekoppelten Breitenverlauf und weitere Größenbereiche. Präferiert direkte **Textpreise** mit vollständig gleichen Maßen; keine Screenshots/ZIPs. Parallel fertige Hersteller-Teil-/Packstückliste für repräsentativen Testauftrag ermitteln und den vorhandenen Woo-Bestellweg kontrolliert prüfen.
+
+
+## Dekorprüfung nach dem Breitenblock (06.11.2026, PR #69)
+
+Der vorgeschlagene **H1145 ST10**-Vergleich wurde bei **L1 und U1 in beiden Dicken** durchgeführt. Neue H1145-Speedmaster-EKs: **L1 346,93/516,49 €** (17,5/38) und **U1 499,74/744,32 €** (17,5/38), jeweils 2500-mm-Standardmaße. Gegen W980 derselben Maße Unterschiede **+4,52/+4,93/+5,71/+5,73 €**. Siehe [vier dokumentierte Netto-EKs und weiteren Prüfplan](phase-lu-h1145-decor-net-prices-20261106.md). Keine einheitliche Dekor-/Prozentregel ansetzen, keine neuen Preisbild-ZIPs verlangen.
