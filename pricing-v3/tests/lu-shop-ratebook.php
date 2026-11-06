@@ -219,7 +219,11 @@ testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate(HPZ_APL_LU_Price_Readiness::norm
     'W980 widths never called confirmed H1145 prices');
 $notCoupled=testRaw('L3','W980','APL17.5',2500);
 $notCoupled['dimensions']['B3']='950';
-testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate(HPZ_APL_LU_Price_Readiness::normalize($notCoupled))===null,
-    'L3 B3/B4 paired widths not independently priced');
+try {
+    HPZ_APL_LU_Price_Readiness::normalize($notCoupled);
+    testRate(false,'L3 B3/B4 pair must be rejected by normalization');
+} catch (InvalidArgumentException $expected) {
+    testRate(true,'L3 B3/B4 pair must be rejected by normalization');
+}
 
 echo "PASS $n L/U shape/decor/price/margin/190cm regression tests (no live sale)\n";
