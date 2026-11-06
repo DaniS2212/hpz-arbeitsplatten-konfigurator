@@ -92,3 +92,8 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 ### 06.11.2026 – acht neue Preise nur als Text, nach PR #64
 
 [**Vollständige acht Preis-/Maß-/Kantenbelege (JSON)**](LU_EIGHT_TEXT_PRICES_20261106.json) und [**modellierte Preisbeziehungen**](../../phase-lu-eight-text-prices-model-20261106.md). Die Textwerte vervollständigen für W980 ST7/38 mm erstmals L1–L4 und U1–U4 bei ihren dokumentierten Grundmaßen. **Keine neuen Bildarchive oder ZIP-Pflichttests.** Alle Ausgangspreise bleiben je nach Zeile historische Netto-Referenz oder *unbestätigte Hersteller-Anzeige*; keine automatische Gleichstellung. Der Cloud-Browser konnte den WebGL-Konfigurator nicht verlässlich bedienen, daher erfolgt die Preiserhebung vorläufig über gebündelte vollständige Textangaben des Betreibers. **Nur 1,5-mm-dekorgleiche Kanten anbieten**, „ohne Kante“ entfällt.
+
+
+### 06.11.2026 – 17,5-mm-Preise netto (PR #66)
+
+**Speedmaster-Anzeigen sind netto ohne Umsatzsteuer**, ausdrücklich bestätigt. Im DE-V3-Bruttoverkaufspreis ist **19 % USt. bereits enthalten**. [Sechs neue Text-Netto-EKs](LU_175_NET_PRICES_20261106.json), [Preisberechnung und Grenzen](../../phase-lu-175-net-price-anchors-20261106.md): L2 342,41 €, L3 523,29 €, L4 465,68 €, U2/U3/U4 je 494,03 €, nur für dokumentierte W980-/17,5-mm-/2500-mm-Maße. Exakte Belege sind keine allgemeine Formel und keine Shopfreigabe. Keine Bilder oder ZIPs erforderlich.
