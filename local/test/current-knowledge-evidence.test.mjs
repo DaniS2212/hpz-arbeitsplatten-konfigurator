@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,45);
+ assert.equal(data.length,49);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -311,7 +311,47 @@ test('central L/U price evidence is typed and exact, no new screen display accep
  }
  const increments=h1145LengthEvidence.cases.map(c=>c.additionalH1145LengthDeltaNetCents);
  assert.deepEqual(increments,[66,66,66,67]);
-  const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
+ // Four more H1145 L2/U2 exact net text sources. Strong form comparison,
+ // but NO unseen length, decor, cost, packaging, or checkout authorization.
+ const h1145Join=JSON.parse(text('docs/references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json'));
+ assert.equal(h1145Join.cases.length,4);
+ assert.equal(h1145Join.sourceImageRequired,false);
+ assert.equal(h1145Join.launchPolicy.doNotEnablePublicPurchase,true);
+ const expectedJoin=new Map([
+   ['L2/17.5',['346.93','L1','346.93','342.41','0.00','4.52']],
+   ['L2/38',['516.49','L1','516.49','511.56','0.00','4.93']],
+   ['U2/17.5',['499.74','U1','499.74','494.03','0.00','5.71']],
+   ['U2/38',['740.19','U1','744.32','734.46','-4.13','5.73']]
+ ]);
+ for(const c of h1145Join.cases){
+   const k=c.shape+'/'+c.thicknessMm;
+   const exp=expectedJoin.get(k);
+   assert.ok(exp,'H1145 controlled join price expected '+k);
+   assert.equal(c.supplierNetEUR,exp[0]);
+   assert.equal(c.sameDecorFormComparison.shape,exp[1]);
+   assert.equal(c.sameDecorFormComparison.netEUR,exp[2]);
+   assert.equal(c.sameGeometryW980Reference.netEUR,exp[3]);
+   assert.equal(c.sameDecorFormComparison.netDifferenceEUR,exp[4]);
+   assert.equal(c.sameGeometryW980Reference.netDecorDeltaEUR,exp[5]);
+   assert.equal(c.manufacturingCutListVerified,false);
+   assert.equal(c.checkoutPriceApproved,false);
+   assert.equal(c.priceTaxBasis,'net-eur-excluding-vat');
+   assert.equal(c.dimensionsMm.L1,2500);
+   const row=data.find(x=>x.variant===c.shape
+     && x.thickness_mm===String(c.thicknessMm)
+     && x.decor==='H1145'
+     && x.source==='docs/references/speedmaster-lu/LU_H1145_L2_U2_NET_PRICES_20261106.json');
+   assert.ok(row,'H1145 net source registered for '+k);
+   assert.equal(row.amount_eur,c.supplierNetEUR);
+   assert.equal(row.amount_type,'operator_confirmed_net_EK');
+   assert.equal(row.status,'net_basis_owner_confirmed_not_sale_approved');
+   assert.equal(row.edge,'matching_1_5mm');
+   for(const [field,value]of Object.entries(c.dimensionsMm)){
+     assert.equal(row[field+'_mm'],String(value),'exact mm preserved '+k+' '+field);
+   }
+ }
+ assert.match(text('docs/phase-lu-limited-launch-gates-20261106.md'),/begrenzte Shopversion|eingeschraenkter Shopstart|eingeschr.nkter Shopstart/i);
+   const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
  assert.match(newPolicy,/keine Preisbild-ZIPs|keine.*ZIP|keine.*Bilder/i);
  assert.ok(text('AGENTS.md').includes('PRICE_TEXT_EVIDENCE_POLICY_20261106.md'));
  const l4=data.find(x=>x.variant==='L4');
