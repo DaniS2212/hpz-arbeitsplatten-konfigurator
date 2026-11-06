@@ -17,11 +17,11 @@
 | Form | Historisch bestätigter Netto-EK | Variable Längen-Zwischenwerte | Fehlende Voraussetzung |
 |---|---|---|---|
 | L1 | 4 Fälle, 17,5 und 38 mm, L1=2000/2500, L2=1200, B1/B2=600 | **Ja, L1=2000–2500**, ausschließlich W980 und sonst gleiche Maße | Zwischenpunkt 2250 mm inzwischen durch Screenshot bestätigt; andere Breiten/L2/Dekore/Ecken weiterhin offen |
-| L2 | Keine | Nein | Mindestens zwei Netto-Preispunkte |
+| L2 | **Ein Bildpreis 488,01 € bei L1=2250**, W980 38 mm, gleicher Preis wie L1 | Noch keine freigegebene L2-Variable | Zweiter L2-Längenpunkt und aktueller Netto-EK |
 | L3 | Keine | Nein | Netto-EK bei zwei identischen Grundvarianten mit unterschiedlicher Länge |
 | L4 | Nur Bildbetrag **658,61 €**, Netto-Status offen | Nein | Standard-Grundmaß B5 und expliziter Netto-EK bestätigen, weiterer Punkt |
 | U1 | 8 Fälle, 17,5 und 38 mm | **Ja, L1 2000–2500 bei L2=1200**, **L2 1200–1700 bei L1=2500**, B1/B2/B3 je 600, L3=1800 | Zwischenpunkt 2250 mm inzwischen durch Screenshot bestätigt; Dekore, abweichende Beinbreiten, Ecken offen |
-| U2 | Nur Bildbetrag **687,36 €**, 38 mm | Nein | Netto-Status, zweiter Längen- und 17,5-mm-Punkt |
+| U2 | **Zwei Bildpreise 687,36 € (L1=2000) und 710,91 € (L1=2250), 38 mm** | Kontrollierte Differenz zu U1 beide Male **−4,13 €**, noch keine Modell-/Verkaufsfreigabe | Dritter Längenpunkt, Netto-EK, 17,5-mm-Punkt |
 | U3/U4 | Je **691,49 €** als Bildbetrag, 38 mm | Nein | Netto-Status und weitere Referenzen |
 
 ### Anker- und Modellbeispiele (W980, 1,5 mm Dickkante)
@@ -42,7 +42,7 @@
 Für jede neue Lieferanten-Preisaufnahme reichen zunächst **zwei gleichbleibende Bilder/Angebote pro variierter Achse**, mit sichtbar gleich ausgewählten Standardkanten und **explizitem Netto-EK**. Nicht alle 16 Dekore auf einmal erfassen.
 
 1. **Bereits erledigt (06.11.):** L1 / W980 / APL38 / L1=2250, L2=1200, B1=B2=600 und U1 / W980 / APL38 / L1=2250, L2=1200, L3=1800, B1=B2=B3=600. Speedmaster-Anzeigen betragen **488,01 €** und **715,04 €** und treffen die zuvor aus 2000/2500 mm berechneten Werte auf den **Cent genau**. Sie bestätigen die Preisform der beiden getesteten Längenschnitte empirisch, **nicht** alle Breiten, Kanten oder das Netto-EK-Prädikat. Originalbilder per [Quellenmanifest](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv) + [JSON](references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json) nachverfolgen.
-2. **Formen-Grundpreise:** L2 / APL38 / W980 / L1=2000, L2=1200, B1=B2=600; L3 / APL38 / W980 / L1=L2=2000, B1=B2=600, B3=B4=900; L4 / APL38 / W980 / L1=L2=2000, B1=B2=600, B3=B4=900, B5=600. Für L4 den bisherigen 658,61-€-Anzeigebetrag abgleichen.
+2. **Formen-Grundpreise:** L2 / APL38 / W980 / L1=2250, L2=1200, B1=B2=600 ist inzwischen als Bildbetrag **488,01 €** vorhanden. Für einen zweiten L2-Punkt empfiehlt sich **L1=2500** bei sonst gleichen Maßen. L3 / APL38 / W980 / L1=L2=2000, B1=B2=600, B3=B4=900; L4 / APL38 / W980 / L1=L2=2000, B1=B2=600, B3=B4=900, B5=600. Für L4 den bisherigen 658,61-€-Anzeigebetrag abgleichen.
 3. **U2–U4-Basis bestätigen:** Bestehenden Referenzfall L1=2000, L2=1200, L3=1800, B1/B2/B3=600, APL38 W980 mit 1,5-mm-Dickkante, dazu ausdrückliche Bestätigung, ob 687,36/691,49/691,49 € tatsächlich **Netto-EKs** sind.
 4. Erst danach die Längendifferenzen für L2–L4/U2–U4 und 17,5-mm-Vergleiche aufnehmen. Für jede weitere Stärke und neue Dekorgruppe eigene belastbare Vergleichspunkte. Kein ungesicherter Massenexport von Fantasiepreisen.
 
@@ -71,3 +71,12 @@ Die zugehörigen zwei Preis-PNGs und zwei früheren UI-Screenshots sind unverän
 
 
 **Nächste konkrete Herstellervergleiche (nach PR #61):** [Ein-Variable-Testmatrix für L1→L2, U1→U2 und Kante links](phase-lu-price-variation-tests-20261106.md); zuerst drei kontrollierte Speedmaster-Screenshots, alle Maße/Dekore unverändert lassen. Keine weiteren Platzhalter-/Archiv-PRs für die bereits vorhandenen Bilder.
+
+
+## Nachtrag 06.11.2026 – drei neue Vergleichsbilder (nach PR #62)
+
+- **L2** (2250/1200, B1=B2=600, W980 APL38 Standardkante): **488,01 €** angezeigt, genauso wie L1 derselben Maße: **0,00 € Delta**. Noch kein Nachweis einer allgemeinen L2=L1-Regel.
+- **U2** (2250/1200/1800, B1/B2/B3=600, W980 APL38): **710,91 €** angezeigt, während U1 **715,04 €** kostet: **−4,13 €**. Derselbe beobachtete U2-Abstand ist bereits bei L1=2000 mm (**687,36 € vs. 691,49 €**) belegt. **Zwei** unabhängige Vergleichspunkte stützen die genaue Differenz, erlauben aber noch keine universelle Regel.
+- **L1 links abgeschrägt (Kante durchlaufend)** mit 2250/1200, B1/B2=600, **zusätzliche L3=150 mm und B3=150 mm Eckabstände**: **510,02 €**, somit **+22,01 €** gegen eckige L1 (**488,01 €**). **Kein reiner Kantentausch:** zusätzliche Konturänderung; eigenständiger Hersteller-Preisfall, keine allgemeine Zuschlagspreisregel.
+
+Diese drei neuen Herstelleranzeigen sind **nicht eigenständig als Netto-EK bestätigt**. Referenzen mit Dateien/Original-SHA: [Kontroll-JSON](references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json), [Originalarchiv-Status](references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_ARCHIVE_20261106.md) und [getestete Vergleichsanalyse](phase-lu-price-variation-tests-20261106.md). Die bisherige V3-/Woo-Verkaufsfreigabe bleibt unverändert **aus**. Eine echte Kantenisolierung benötigt weiter einen L1-Kantenwechsel **ohne Abschrägung**.

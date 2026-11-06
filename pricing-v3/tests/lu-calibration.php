@@ -160,6 +160,54 @@ expectCal(reviewLU('L1','APL38',[],'H1145')['priceStatus']==='missing-evidence',
 expectCal(reviewLU('U2','APL17.5')['priceStatus']==='missing-evidence',
     'one 38-mm screenshot cannot certify 17.5-mm U2');
 
+// Three new independent supplier-screen controls (06.11.2026).
+// The L2/U2 display amounts are NOT verified net EK and must NEVER unlock
+// a Woo price or turn into an automatic form/edge multiplier.
+$l1At2250=reviewLU('L1','APL38',['L1'=>2250]);
+$l2At2250=reviewLU('L2','APL38',['L1'=>2250]);
+expectCal($l2At2250['priceStatus']==='unverified-speedmaster-screen-amount',
+    'L2 same-dimension screenshot is display only');
+expectCal($l2At2250['supplierDisplayOnlyCents']===48801,
+    'L2 original display amount 488.01');
+expectCal($l2At2250['supplierDisplayOnlyCents']===$l1At2250['supplierDisplayOnlyCents'],
+    'L1/L2 parity ONLY at exact 2250mm W980 APL38 reference');
+expectCal($l2At2250['estimatedSupplierNetCents']===null
+    && $l2At2250['grossDEWith10or60EURInboundScenario']===null
+    && !$l2At2250['purchasable'],'L2 display does not imply approved sale');
+
+$u1At2000=reviewLU('U1','APL38',['L1'=>2000]);
+$u2At2000=reviewLU('U2','APL38',['L1'=>2000]);
+$u1At2250=reviewLU('U1','APL38',['L1'=>2250]);
+$u2At2250=reviewLU('U2','APL38',['L1'=>2250]);
+expectCal($u2At2250['priceStatus']==='unverified-speedmaster-screen-amount',
+    'U2 at 2250 only screenshot evidence');
+expectCal($u2At2250['supplierDisplayOnlyCents']===71091,
+    'U2 original display 710.91');
+expectCal($u2At2000['supplierDisplayOnlyCents']-$u1At2000['netSupplierReferenceCents']===-413,
+    'U2 minus U1 display/ref = -4.13 EUR at L1=2000');
+expectCal($u2At2250['supplierDisplayOnlyCents']-$u1At2250['supplierDisplayOnlyCents']===-413,
+    'U2 minus U1 display = -4.13 EUR at L1=2250');
+expectCal($u2At2250['estimatedSupplierNetCents']===null
+    && $u2At2250['grossDEWith10or60EURInboundScenario']===null
+    && !$u2At2250['purchasable'],'two matching offsets do NOT authorize public U2 pricing');
+
+// The third photo is left chamfer (150 mm × 150 mm), Kante durchlaufend,
+// NOT an isolated edge-color/finish option. Keep it out of square L1 pricing.
+expectCal($l1At2250['supplierDisplayOnlyCents']===48801,
+    'left chamfer screenshot must never override straight-square L1');
+$leftChamfer=fixtureLU('L1','APL38',['L1'=>2250]);
+$leftChamfer['lCorner']=[
+    'side'=>'left','treatment'=>'chamfer',
+    'parameters'=>['L3'=>150,'B3'=>150,'edge'=>'continuous']
+];
+$chamferRejected=false;
+try {
+    HPZ_APL_LU_Calibration_11::review($leftChamfer);
+} catch (InvalidArgumentException $e) {
+    $chamferRejected=true;
+}
+expectCal($chamferRejected,'150x150 corner case must stay outside square-corner public price model');
+
 // Never use browser-controlled EK or approved flags as source evidence.
 $adversarial=fixtureLU('U3');
 $adversarial['supplierNetCents']=1;
