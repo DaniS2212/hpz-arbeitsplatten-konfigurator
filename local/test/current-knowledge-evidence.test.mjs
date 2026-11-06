@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,23);
+ assert.equal(data.length,29);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -123,6 +123,35 @@ test('central L/U price evidence is typed and exact, no new screen display accep
    for(const [field,mm] of Object.entries(item.dimensionsMm)) {
      const key=field==='B5'?'B5_base_mm':field+'_mm';
      assert.equal(row[key],String(mm),shape+' '+l1+' dimension '+field);
+   }
+ }
+ // Owner explicitly confirmed Speedmaster prices are NET of VAT on
+ // 06.11.2026; manufacturer cut-list and checkout approval remain separate.
+ const net175=JSON.parse(text('docs/references/speedmaster-lu/LU_175_NET_PRICES_20261106.json'));
+ assert.equal(net175.cases.length,6);
+ assert.equal(net175.taxBasis.supplierPrices,'net EUR excluding VAT');
+ assert.equal(net175.taxBasis.germanReferenceVatRatePercent,19);
+ const expected175=new Map([
+   ['L2','342.41'],['L3','523.29'],['L4','465.68'],
+   ['U2','494.03'],['U3','494.03'],['U4','494.03'],
+ ]);
+ for(const c of net175.cases){
+   assert.equal(c.supplierNetEUR,expected175.get(c.geometry));
+   assert.equal(c.priceIncludesVAT,false);
+   assert.equal(c.netBasisExplicitlyConfirmedByOperator,true);
+   assert.equal(c.supplierInvoiceOrFormalQuoteVerified,false);
+   assert.equal(c.woocommerceSaleApproved,false);
+   assert.equal(c.thicknessMm,17.5);
+   assert.equal(c.decorCode,'W980');
+   const row=data.find(x=>x.variant===c.geometry&&x.thickness_mm==='17.5'
+     && x.source==='docs/references/speedmaster-lu/LU_175_NET_PRICES_20261106.json');
+   assert.ok(row,'17.5mm net evidence must be in central CSV '+c.geometry);
+   assert.equal(row.amount_eur,c.supplierNetEUR);
+   assert.equal(row.amount_type,'operator_confirmed_net_EK');
+   assert.equal(row.status,'net_basis_owner_confirmed_not_sale_approved');
+   assert.equal(row.edge,'matching_1_5mm');
+   for(const [key,value] of Object.entries(c.dimensionsMm)){
+     assert.equal(row[key==='B5'?'B5_base_mm':key+'_mm'],String(value));
    }
  }
  const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
