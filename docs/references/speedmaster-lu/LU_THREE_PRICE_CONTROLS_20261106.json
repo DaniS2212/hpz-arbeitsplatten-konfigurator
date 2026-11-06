@@ -1,0 +1,140 @@
+{
+  "schema": "supplier-screen-controlled-comparison-v1",
+  "date": "2026-11-06",
+  "supplier": "Speedmaster",
+  "newScreenshots": 3,
+  "sourcePriceCurrency": "EUR",
+  "displayedAmountsAreIndependentlyVerifiedNetEK": false,
+  "sourceArchive": {
+    "filename": "Speedmaster_LU_3_Preisvergleiche_20261106_Originale.zip",
+    "githubTargetPath": "docs/references/speedmaster-lu/Speedmaster_LU_3_Preisvergleiche_20261106_Originale.zip",
+    "archivedInGitHub": false,
+    "uploadStatus": "PENDING exact binary ZIP upload to PR63 branch; text manifest does not establish image archiving",
+    "sizeBytes": 1110446,
+    "sha256": "a1b76dc0cbba2d4b4007be1dc1639635bfaeb7f631b2f73e7847372a6fef6d62",
+    "gitBlobSha1": "deec662cfea4509eb98c0a58ad692762115da794",
+    "manifest": "LU_3_20261106_SOURCE_MANIFEST.csv"
+  },
+  "cases": [
+    {
+      "caseId": "L2-2250-SAME",
+      "variant": "L2",
+      "productId": 1000080,
+      "material": "APL38",
+      "decor": "W980 ST7 Platinweiss",
+      "edgeSetup": "model/left/right decor-matched 1.5mm",
+      "dimensionsMm": {
+        "L1": 2250,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "displayPriceEUR": "488.01",
+      "referenceCase": "L1-2250-BASE",
+      "referencePriceEUR": "488.01",
+      "observedDifferenceEUR": "0.00",
+      "changedFactor": "L1 to L2 layout and seam form only",
+      "image": {
+        "file": "image(20261106-085123).png",
+        "path": "originals/L2/image(20261106-085123).png",
+        "widthPx": 2047,
+        "heightPx": 779,
+        "bytes": 383813,
+        "sha256": "642df4164e9f27cc07f858ff81c935eba660f131d5a8e4ebc22efe8f86491f6a"
+      }
+    },
+    {
+      "caseId": "U2-2250-SAME",
+      "variant": "U2",
+      "productId": 1000081,
+      "material": "APL38",
+      "decor": "W980 ST7 Platinweiss",
+      "edgeSetup": "model/left/right decor-matched 1.5mm",
+      "dimensionsMm": {
+        "L1": 2250,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "displayPriceEUR": "710.91",
+      "referenceCase": "U1-2250-BASE",
+      "referencePriceEUR": "715.04",
+      "observedDifferenceEUR": "-4.13",
+      "changedFactor": "U1 cross/cross seams to U2 length/length seams",
+      "independentEarlierComparison": {
+        "atL1Mm": 2000,
+        "u1ReferenceEUR": "691.49",
+        "u2DisplayEUR": "687.36",
+        "observedDifferenceEUR": "-4.13"
+      },
+      "image": {
+        "file": "image(20261106-085256).png",
+        "path": "originals/U2/image(20261106-085256).png",
+        "widthPx": 2048,
+        "heightPx": 828,
+        "bytes": 425716,
+        "sha256": "57672c4c7af7c7e54282fb3610c906961708613b6e1fe7d88b54bac939ace6d2"
+      }
+    },
+    {
+      "caseId": "L1-2250-LEFT-CHAMFER",
+      "variant": "L1",
+      "productId": 1000080,
+      "material": "APL38",
+      "decor": "W980 ST7 Platinweiss",
+      "edgeSetup": "1.5mm decor-matched model and right, left corner chamfer edge continuous (Kante durchlaufend)",
+      "dimensionsMm": {
+        "L1": 2250,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "corner": {
+        "side": "left",
+        "treatment": "chamfer",
+        "edgeTreatment": "continuous",
+        "parametersMm": {
+          "L3": 150,
+          "B3": 150
+        }
+      },
+      "displayPriceEUR": "510.02",
+      "referenceCase": "L1-2250-BASE",
+      "referencePriceEUR": "488.01",
+      "observedDifferenceEUR": "+22.01",
+      "changedFactor": "left chamfer corner with continuous edge, NOT a pure edge-finish change",
+      "image": {
+        "file": "image(20261106-085351).png",
+        "path": "originals/L1-Left-Chamfer/image(20261106-085351).png",
+        "widthPx": 2048,
+        "heightPx": 828,
+        "bytes": 592071,
+        "sha256": "8bec4530b45a214c4865a518f3e60709bf3cdace27c4d833c7f61fe16ee5881f"
+      }
+    }
+  ],
+  "conclusions": [
+    "L1 and L2 have equal displayed price for this exact 2250mm W980/38mm case, not necessarily all lengths and decors",
+    "U1 and U2 differ by -4.13 EUR at L1=2000 and again L1=2250; supports but does not prove fixed shape offset beyond this narrow controlled corridor",
+    "Left chamfer with continuous edge adds +22.01 EUR at tested 150mm-by-150mm corner; cannot infer standalone edge or general chamfer surcharge",
+    "No screenshots alone prove current supplier net EK, production parts, packing or purchase approval"
+  ],
+  "inboundRule": {
+    "standardNetEUR": 10,
+    "oneTimeExtraAtVerifiedPieceLengthAtLeast1900mmNetEUR": 50,
+    "totalNetEURWithLongPiece": 60,
+    "implementationUnchanged": true
+  },
+  "wooCommerce": {
+    "priceReleased": false,
+    "orderReleased": false,
+    "supplierAutoOrder": false
+  },
+  "nextValidation": [
+    "L2 same W980 APL38 with L1=2500 other measures unchanged to validate L1/L2 parity beyond one point",
+    "U2 same W980 APL38 with L1=2500 other measures unchanged to validate constant -4.13 offset beyond two points",
+    "L1 baseline with only ONE actual straight edge-finish choice changed, corner still square, to isolate a true edge effect"
+  ]
+}
