@@ -1,0 +1,10 @@
+case_id,priority,variant,L1_mm,L2_mm,L3_mm,B1_mm,B2_mm,B3_mm,B4_mm,B5_base_mm,thickness_mm,decor,edge_setup,changed_single_parameter,baseline_case,observed_display_eur,source,price_status
+L1-2250-BASE,reference,L1,2250,1200,,600,600,,,,38,W980,matching_1_5_all,none,,488.01,L1_U1_2250_PRICE_20261106.json,screen_verified_amount_net_status_unverified
+L1-2250-EDGE-LEFT,first,L1,2250,1200,,600,600,,,,38,W980,other_left_edge_only,one_left_edge_option,L1-2250-BASE,,,awaiting_speedmaster_screenshot
+L2-2250-SAME,first,L2,2250,1200,,600,600,,,,38,W980,matching_1_5_all,form_L1_to_L2,L1-2250-BASE,,,awaiting_speedmaster_screenshot
+U1-2250-BASE,reference,U1,2250,1200,1800,600,600,600,,,38,W980,matching_1_5_all,none,,715.04,L1_U1_2250_PRICE_20261106.json,screen_verified_amount_net_status_unverified
+U2-2250-SAME,first,U2,2250,1200,1800,600,600,600,,,38,W980,matching_1_5_all,form_U1_to_U2,U1-2250-BASE,,,awaiting_speedmaster_screenshot
+U3-2250-SAME,next,U3,2250,1200,1800,600,600,600,,,38,W980,matching_1_5_all,form_U1_to_U3,U1-2250-BASE,,,awaiting_speedmaster_screenshot
+U4-2250-SAME,next,U4,2250,1200,1800,600,600,600,,,38,W980,matching_1_5_all,form_U1_to_U4,U1-2250-BASE,,,awaiting_speedmaster_screenshot
+L3-2000-BASE,next,L3,2000,2000,,600,600,900,900,,38,W980,matching_1_5_all,new_L3_baseline,,,,awaiting_speedmaster_screenshot
+L4-2000-BASE,next,L4,2000,2000,,600,600,900,900,600,38,W980,matching_1_5_all,new_L4_baseline,,658.61,docs/references/speedmaster-lu/L3_L4_JOINT_USER_20261105.json,unverified_prior_chat_display
