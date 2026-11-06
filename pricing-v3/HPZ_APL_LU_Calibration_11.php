@@ -6,16 +6,18 @@
  * public WordPress plugin, never issues Woo quotes and never approves a sale.
  * Price V3 remains the one commercial margin calculator.
  *
- * Only one-dimensional, bounded interpolation between TWO confirmed
- * same-variant reference prices is permitted. This is a provisional supplier
- * EK MODEL, not a confirmed supplier offer. No extrapolation, decor transfer,
- * shape transfer, width interpolation or manufacturing assumptions.
+ * Bounded one-dimensional interpolation is performed SEPARATELY for (a)
+ * historically confirmed net-EK references and (b) newer, operator-supplied
+ * DISPLAY amounts of unconfirmed net status. The latter NEVER populate an EK
+ * field, gross scenario, verified price proof or WooCommerce purchase route.
+ * No extrapolation, decor transfer, shape transfer, width interpolation
+ * or manufacturing assumptions. Only matching 1.5-mm decor edges are offered.
  */
 declare(strict_types=1);
 
 final class HPZ_APL_LU_Calibration_11
 {
-    public const VERSION = 'lu-calibration-bounded-length-v1';
+    public const VERSION = 'lu-calibration-bounded-length-v2-text-display';
     private const REFERENCE_FILE = __DIR__.'/../docs/price-reference-cases.csv';
     private const OBSERVED_FILE = __DIR__.'/../docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv';
     private const AXES = ['L1','L2'];
@@ -96,27 +98,120 @@ final class HPZ_APL_LU_Calibration_11
         return true;
     }
 
-    private static function displayOnly(array $c, array $rows): ?array
+
+    /**
+     * Supplier DISPLAY observations are NOT verified supplier net prices.
+     * Same variant, same decor, thickness, all standard matched edges only.
+     * L4's base B5 is a separate physical supplier parameter, not a corner.
+     * The complete set also allows us to detect conflicting source values.
+     */
+    private static function displayReferences(array $c, array $rows): array
     {
-        if ($c['decor'] !== 'W980') return null;
+        if ($c['decor'] !== 'W980') return [];
         $thickness = $c['material'] === 'APL38' ? '38' : '17.5';
+        $refs = [];
         foreach ($rows as $r) {
             if (($r['variant'] ?? '') !== $c['geometry']
                 || ($r['thickness_mm'] ?? '') !== $thickness
                 || ($r['decor'] ?? '') !== $c['decor']
                 || ($r['edge'] ?? '') !== 'matching_1_5mm'
                 || !in_array($r['amount_type'] ?? '', [
-                    'supplier_screen_display_only','prior_chat_transcribed_display_only',
+                    'supplier_screen_display_only',
+                    'prior_chat_transcribed_display_only',
+                    'user_supplied_text_display_only',
                 ], true)) continue;
-            foreach ($c['dimensions'] as $k=>$v) {
-                // L4 B5 is the supplier's BASE dimension (not corner B5).
-                $column=$k==='B5'?'B5_base_mm':$k.'_mm';
-                if (($r[$column] ?? '') !== (string)$v) continue 2;
+            $dimensions = [];
+            foreach (array_keys($c['dimensions']) as $key) {
+                $column = $key === 'B5' ? 'B5_base_mm' : $key.'_mm';
+                $value = $r[$column] ?? '';
+                if (!is_string($value) || !preg_match('/^[0-9]{1,6}$/D', $value)) continue 2;
+                $dimensions[$key] = (int)$value;
             }
-            return ['amountCents'=>self::cents($r['amount_eur']),
-                'source'=>$r['source'], 'evidenceType'=>$r['amount_type']];
+            $refs[] = [
+                'dimensions'=>$dimensions,
+                'amountCents'=>self::cents($r['amount_eur']),
+                'source'=>$r['source'],
+                'id'=>$c['geometry'].'/'.implode('-', array_values($dimensions))
+                    .'/'.($r['source'] ?? 'unknown'),
+            ];
         }
-        return null;
+        return $refs;
+    }
+
+    /**
+     * Merge identical observations without silently choosing the first price.
+     * A conflicting value at the SAME complete dimensions invalidates this
+     * particular display anchor until the supplier discrepancy is resolved.
+     */
+    private static function mergedDisplayReferences(array $refs): array
+    {
+        $grouped = [];
+        foreach ($refs as $r) {
+            $key = json_encode($r['dimensions']);
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = $r;
+                $grouped[$key]['sources'] = [$r['source']];
+                $grouped[$key]['ids'] = [$r['id']];
+                $grouped[$key]['conflict'] = false;
+            } else {
+                if ($grouped[$key]['amountCents'] !== $r['amountCents']) {
+                    $grouped[$key]['conflict'] = true;
+                }
+                $grouped[$key]['sources'][] = $r['source'];
+                $grouped[$key]['ids'][] = $r['id'];
+            }
+        }
+        foreach ($grouped as &$entry) {
+            $entry['sources'] = array_values(array_unique($entry['sources']));
+            $entry['ids'] = array_values(array_unique($entry['ids']));
+        }
+        unset($entry);
+        return array_values($grouped);
+    }
+
+    private static function displayBracket(array $c, array $observed): ?array
+    {
+        $candidate = null;
+        foreach (self::AXES as $axis) {
+            $lo = null;
+            $hi = null;
+            $target = $c['dimensions'][$axis] ?? null;
+            if (!is_int($target)) continue;
+            foreach ($observed as $row) {
+                if ($row['conflict']
+                    || !self::sameOtherAxes($c['dimensions'], $row['dimensions'], $axis)) continue;
+                $value = $row['dimensions'][$axis];
+                if ($value < $target && ($lo === null || $value > $lo['dimensions'][$axis])) $lo = $row;
+                if ($value > $target && ($hi === null || $value < $hi['dimensions'][$axis])) $hi = $row;
+            }
+            if ($lo === null || $hi === null) continue;
+            $from = $lo['dimensions'][$axis];
+            $to = $hi['dimensions'][$axis];
+            $span = $to - $from;
+            if ($span < 1 || $span > self::MAX_BRACKET_MM
+                || $hi['amountCents'] <= $lo['amountCents']) continue;
+            $delta = $hi['amountCents']-$lo['amountCents'];
+            $estimate = $lo['amountCents']
+                + intdiv($delta * ($target-$from) + $span-1, $span);
+            $next = [
+                'priceStatus'=>'bounded-one-axis-display-estimate-not-net-verified',
+                'estimatedSupplierDisplayCents'=>$estimate,
+                'displayAxisInterpolated'=>$axis,
+                'displayBoundedByMm'=>[$from,$to],
+                'displayReferenceSources'=>array_values(array_unique(array_merge(
+                    $lo['sources'], $hi['sources']
+                ))),
+                'displayReferenceIds'=>array_values(array_unique(array_merge(
+                    $lo['ids'], $hi['ids']
+                ))),
+            ];
+            // Two simultaneously possible axes cannot be resolved from this
+            // sparse source grid. Never pretend that diagonal interpolation
+            // has been established by a one-axis demonstration.
+            if ($candidate !== null) return null;
+            $candidate = $next;
+        }
+        return $candidate;
     }
 
     /** Returns internal audit facts only. NEVER feed estimates to a Woo price. */
@@ -134,6 +229,12 @@ final class HPZ_APL_LU_Calibration_11
             'estimatedSupplierNetCents'=>null,
             'supplierDisplayOnlyCents'=>null,
             'displayEvidenceSource'=>null,
+            'displayEvidenceSources'=>[],
+            'estimatedSupplierDisplayCents'=>null,
+            'displayAxisInterpolated'=>null,
+            'displayBoundedByMm'=>null,
+            'displayReferenceSources'=>[],
+            'displayReferenceIds'=>[],
             'modelVsSupplierDisplayDifferenceCents'=>null,
             'modelVsSupplierDisplayStatus'=>null,
             'referenceCaseIds'=>[],
@@ -150,10 +251,23 @@ final class HPZ_APL_LU_Calibration_11
         // Keep a new screenshot as independent display evidence. In particular
         // it must NOT become a verified net EK or change the interpolation
         // endpoints merely because it matches a model by coincidence.
-        $display = self::displayOnly($c, self::rows(self::OBSERVED_FILE));
-        if ($display) {
-            $base['supplierDisplayOnlyCents']=$display['amountCents'];
-            $base['displayEvidenceSource']=$display['source'];
+        $observed = self::mergedDisplayReferences(self::displayReferences(
+            $c, self::rows(self::OBSERVED_FILE)
+        ));
+        $display = null;
+        foreach ($observed as $row) {
+            if ($row['dimensions'] !== $c['dimensions']) continue;
+            if ($row['conflict']) {
+                $base['priceStatus'] = 'conflicting-supplier-display-observations';
+                $base['displayEvidenceSources'] = $row['sources'];
+                $base['referenceCaseIds'] = $row['ids'];
+                return $base; // No source price or purchase approval.
+            }
+            $display = $row;
+            $base['supplierDisplayOnlyCents'] = $row['amountCents'];
+            $base['displayEvidenceSource'] = $row['source'];
+            $base['displayEvidenceSources'] = $row['sources'];
+            break;
         }
         $confirmed = self::matchingNetReferences($c, self::rows(self::REFERENCE_FILE));
         foreach ($confirmed as $row) {
@@ -215,7 +329,15 @@ final class HPZ_APL_LU_Calibration_11
 
         if ($display) {
             $base['priceStatus']='unverified-speedmaster-screen-amount';
-            $base['referenceCaseIds']=[$display['source']];
+            $base['referenceCaseIds']=$display['ids'];
+            return $base;
+        }
+        // Independent model of display values, NOT a model of verified EKs.
+        // This must never populate gross scenario, supplier net price,
+        // checkoutPriceApproved or purchasable.
+        $displayCandidate = self::displayBracket($c, $observed);
+        if ($displayCandidate !== null) {
+            return array_replace($base, $displayCandidate);
         }
         return $base;
     }

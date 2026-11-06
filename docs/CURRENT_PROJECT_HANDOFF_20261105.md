@@ -147,3 +147,22 @@ Neue Quellen: [JSON einschließlich Original-PNG-SHA](references/speedmaster-lu/
 - **PR #63 ist gemergt**, original drei Preisfotos in früherem ZIP und 9/9 CI-Checks inkl. Original-ZIP-Prüfung erfolgreich. **Kein erneuter Upload!** Baselines und Deltas: L2 488,01 € wie L1; U2 710,91 € (−4,13 € ggü. U1 bei L1=2250, ebenso bei 2000); L1 links abgeschrägt Kante durchlaufend 510,02 € (+22,01 €, **kein** isolierter Standard-Kantenpreis). Die originale Preis-CSV und Quellen-JSON bleiben unverändert; kein Preis zum Netto-EK oder Woo-Preis hochgestuft.
 - **Künftige Quelle:** Betreiber möchte, dass ChatGPT mit seinem erlaubten Speedmaster-Shopzugang **selbstständig die benötigten Preisabfragen im Browser** macht, ohne Screenshots vom Nutzer anzufordern. Er meldet sich selbst beim Speedmaster-Shop an; nie Passwörter/Cookies in Chats/Repo, keine Bestellung. **Aktuell noch kein Browserzugang aus dieser Chat-Sitzung:** Browser-Tabliste meldet fehlenden Ursprungsbrowser-Kontext. Erst nach tatsächlich hergestellter authentifizierter Browser-Sitzung Preise abfragen und als Text committen; nicht behaupten, die Abfragen seien bereits durchgeführt.
 - **Erste automatisierte Kontrollfälle nach Zugriff:** L2 mit L1=2500 (sonst L2=1200, B1=B2=600, 38mm W980, Standardkante), U2 mit L1=2500 (sonst L2=1200, L3=1800, B1=B2=B3=600, 38mm W980, Standardkante), und isolierte linke Kantenänderung bei **eckiger** L1 2250 ohne zusätzliche Abschrägung. Dann gezielt offene Formen, Stärken, Dekore und geometrische Gegenbeispiele untersuchen. `HPZ_APL_Price_V3`, Versand 10€ + einmalig 50€ bei nachgewiesenen ≥1900mm Lieferteilen und alle Woo-Live-Gates unverändert.
+
+
+## 16. Fortsetzung 06.11.2026 – acht neue TEXTpreis-Referenzen, Modellentwicklung
+
+Der Speedmaster-Webshop ist erreichbar, sein WebGL-Konfigurator war im Cloud-Browser des anderen Chats aber **nicht verlässlich steuerbar**. Der Betreiber hat deshalb **acht neue 38-mm-W980-ST7-Preise als Text** geliefert, ohne Screenshots; [exakte JSON-Quelle mit mm-Maßen/Kanten/Ecken](references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json) und [aktualisiertes zentrales Register](references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv).
+
+| Form | Neuer Anzeigebetrag | Maße (mm) |
+|---|---:|---|
+| L2 | 511,56 € | L1=2500, L2=1200, B1=B2=600 |
+| U2 | 734,46 € | L1=2500, L2=1200, L3=1800, B1/B2/B3=600 |
+| L3 | 798,52 € / 845,62 € | L1=2000 / 2500, L2=2000, B1/B2=600, B3/B4=900 |
+| L4 | 658,61 € / 705,71 € | wie L3 plus B5-Grundmaß=600 |
+| U3/U4 | je 738,59 € | L1=2500, L2=1200, L3=1800, B1/B2/B3=600 |
+
+**Alle acht neuen Werte sind Hersteller-Anzeigen, Netto-EK-Status NICHT ausdrücklich bestätigt.** Bereits vorhandener L4-Anzeigewert 658,61 € bei L1=2000 wurde durch neue Textangabe erneut bestätigt. **Betreiberentscheidung: Ausschließlich 1,5-mm-dekorgleiche Kanten an Profil und allen Außenkanten.** Die bisher geplante Prüfung „ohne Kante“ ist gestrichen; keine entsprechend abweichende Kundenoption. Keine weiteren Preis-PNG-/ZIP-Archive verlangen.
+
+**Kalibrierungsstand (PR #65):** [Analyse](phase-lu-eight-text-prices-model-20261106.md). Das offline `HPZ_APL_LU_Calibration_11`-Modul liest weiterhin historische verifizierte Netto-Anker aus `docs/price-reference-cases.csv` getrennt von den **unbestätigten Anzeige-Referenzen**. Für die neuen Anzeige-Daten berechnet es **nur begrenzte Ein-Längen-Achsen-Zwischenwerte im Modell-Feld `estimatedSupplierDisplayCents`**, kein `estimatedSupplierNetCents`, keine Brutto-Kundenszenarien, keine WP-Kauf-Freigaben. L3/L4 +47,10 € für L1 2000→2500, U2 −4,13 € zu U1 bei drei kontrollierten Standard-Längen, U3/U4=U1 bei 2000/2500. **Kein Preis darf außerhalb des exakt belegten Korridors übertragen werden.**
+
+**Nächster erforderlicher Fachbeleg:** Netto-/Brutto-Einordnung, reale Hersteller-Zuschnitte/Packstücke/Verbinder und Versandkostenbezug; danach gezielt 17,5 mm, geänderte Breiten und weitere Dekore. 40/35/10 aus V3 sowie **10 € Standard + einmalig 50 € ab realem Lieferteil ≥1900 mm = 60 € netto insgesamt** bleiben. Keine echte Speedmaster-/Woo-Bestellung, keine neue Live-Schaltung ohne separate persönliche Freigabe. Später UI-Feinschliff B5-„Einstellung“, stabile SVG-Größe und H1+Kurzbeschreibung im Produktkopf. Neue Chats müssen diese Sektion statt veralteter Bildanforderungen aus früheren Abschnitten verwenden.

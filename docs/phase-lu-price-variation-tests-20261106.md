@@ -39,3 +39,8 @@ Erst danach ggf. L3/L4-Basismuster, U3/U4 und weitere Dekore/Dicken. Kein neues 
 
 
 **Prozessänderung 06.11.2026:** PR #63 inzwischen gemergt, historisches Original-ZIP verifiziert. **Keine weiteren Preisbilder oder ZIP-Archive anfordern**; zukünftige Speedmaster-Browserabfragen samt vollständigen Parametern und Beträgen als GitHub-Text erfassen. [Verbindliche Policy](references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md).
+
+
+## Abgeschlossen/ersetzt am 06.11.2026
+
+Die damals noch angefragten **L2/U2-Preise bei L1=2500** wurden inzwischen als Textbelege geliefert: **L2 511,56 €**, **U2 734,46 €**. Auch **L3/L4 (2000 und 2500)** und **U3/U4 (2500)** sind als Textpreise dokumentiert. Siehe [aktuelle Acht-Fälle-Analyse](phase-lu-eight-text-prices-model-20261106.md). Keine weiteren Screenshot-ZIPs mehr. Der reine Kantentest ist auf ausdrücklichen Betreiberwunsch **abgesagt**, da **ausschließlich dekorgleiche Kanten** angeboten werden. Die obige alte Liste ist historische Planung, nicht länger die nächste To-do-Liste.

@@ -34,3 +34,10 @@ Diese Liste ist **kein Hindernis** für weitere dokumentierende, prüfende oder 
 - **Konkrete Restpreisprüfung ab 06.11.2026:** [Ein-Variablen-Testplan](../../phase-lu-price-variation-tests-20261106.md) (Formwechsel L1/L2, U1/U2, nur linke Kante einmal ändern); Netto-EK, Teile und Packstücke weiterhin nicht pauschal belegt.
 
 - **06.11.2026 drei Preisbilder:** Ein L2- und U2-Kontrollbild und eine L1-links-abgeschrägte Sonderform sind als Preis-/Maß-/SHA-Nachweise erfasst. L2=488,01 €, U2=710,91 €, L1-Ecke 510,02 €; Einzelfälle, nicht netto freigegeben, kein Woo-Produkt-Live-Gate. Zu prüfen: L2/U2 bei L1=2500 zur Form-Preis-Kalibrierung; echte reine Kantenänderung eckiger L1; tatsächliche Lieferteile/Packstücke. Historisches Originalbild-ZIP ist seit dem gemergten PR #63 archiviert. **Ab 06.11.2026 keine weiteren Preisbild-ZIPs nötig**; neue Vergleichspreise [nur als strukturierte Texte](PRICE_TEXT_EVIDENCE_POLICY_20261106.md) erfassen. Noch offen sind weitere Netto-EK-/Fertigungsprüfungen.
+
+
+## Preisabdeckung nach acht neuen TEXT-Referenzen (06.11.2026)
+
+Für **alle L1–L4 / U1–U4** liegen jetzt mindestens **38-mm-W980-ST7-Anzeige- bzw. historische Netto-Referenzwerte** vor, siehe [Preistabelle](../../phase-lu-eight-text-prices-model-20261106.md). L2 bei 2500 = **511,56 €**, U2 bei 2500 = **734,46 €**, L3 2000/2500 = **798,52/845,62 €**, L4 2000/2500 bei B5=600 = **658,61/705,71 €**, U3/U4 bei 2500 je **738,59 €**. Keine dieser **acht neuen** Anzeigen wurde vom Lieferanten ausdrücklich als Netto-EK qualifiziert. Sie vervollständigen daher die **interne Anzeige-Kalibrierung**, nicht die Netto-/Herstellungs-/Shopfreigabe.
+
+Offen sind echte Netto-/Brutto-Einordnung, reale Teilzuschnitte/Packstücke/Verbinder, Kosten, Abhängigkeit von **anderen Maßen, 17,5 mm, Dekoren und Eckgeometrie**. Kantenentscheidung endgültig: **ausschließlich 1,5 mm dekorgleich**, die alte Testanfrage „ohne Kante“ ist gestrichen. WebGL macht eigenständige Cloud-Browser-Abfrage derzeit unzuverlässig; vorläufig **Textpreise**, keine neuen Preisbild-ZIPs.
