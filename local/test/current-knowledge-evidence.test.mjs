@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,37);
+ assert.equal(data.length,41);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -224,6 +224,49 @@ test('central L/U price evidence is typed and exact, no new screen display accep
  assert.equal(byId.l4_250_200_175_b5_700.baseline.differenceEUR,'+12.51');
  assert.equal(byId.l3_250_200_175_b3b4_1000.dimensionsMm.B3,
    byId.l3_250_200_175_b3b4_1000.dimensionsMm.B4);
+  // Four owner-supplied H1145 ST10 Bardolino NET prices, NO screenshots.
+ // Verify exact pairwise W980 comparisons; differences are NOT a constant
+ // decor surcharge, and lack of cut/pack proof keeps sale disabled.
+ const decorEvidence=JSON.parse(text('docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json'));
+ assert.equal(decorEvidence.cases.length,4);
+ assert.equal(decorEvidence.imagesOrZipRequired,false);
+ assert.equal(decorEvidence.newDecor,'H1145 ST10 Bardolino Eiche');
+ const expectedDecor=new Map([
+   ['L1/17.5',['346.93','342.41',452]],
+   ['L1/38',['516.49','511.56',493]],
+   ['U1/17.5',['499.74','494.03',571]],
+   ['U1/38',['744.32','738.59',573]],
+ ]);
+ for(const c of decorEvidence.cases){
+   const key=c.geometry+'/'+c.thicknessMm;
+   const expected=expectedDecor.get(key);
+   assert.ok(expected,'known H1145 source case '+key);
+   assert.equal(c.supplierNetEUR,expected[0]);
+   assert.equal(c.comparison.referenceNetEUR,expected[1]);
+   assert.equal(c.comparison.deltaNetCents,expected[2]);
+   assert.equal(c.comparison.sameThicknessGeometryDimensionsEdges,true);
+   assert.equal(c.decorId,'H1145');
+   assert.equal(c.supplierDecorCode,'H1145 ST10');
+   assert.equal(c.supplierPriceNetOfVAT,true);
+   assert.equal(c.supplierNetBasisConfirmedByOperator,true);
+   assert.equal(c.formallyVerifiedCutList,false);
+   assert.equal(c.verifiedShippingPartLengths,false);
+   assert.equal(c.woocommerceSaleApproved,false);
+   const row=data.find(x=>x.variant===c.geometry
+     && x.thickness_mm===String(c.thicknessMm)&&x.decor==='H1145'
+     && x.source==='docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json');
+   assert.ok(row,'H1145 text-net evidence in central CSV '+key);
+   assert.equal(row.amount_eur,c.supplierNetEUR);
+   assert.equal(row.amount_type,'operator_confirmed_net_EK');
+   assert.equal(row.status,'net_basis_owner_confirmed_not_sale_approved');
+   assert.equal(row.edge,'matching_1_5mm');
+   for(const [dim,mm] of Object.entries(c.dimensionsMm)){
+     assert.equal(row[dim+'_mm'],String(mm),'exact H1145 dimensions '+key+' '+dim);
+   }
+ }
+ const decorDifferences=decorEvidence.cases.map(c=>c.comparison.deltaNetCents);
+ assert.deepEqual(decorDifferences,[452,493,571,573]);
+ assert.equal(new Set(decorDifferences).size,4,'decor premium cannot be universal');
   const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
  assert.match(newPolicy,/keine Preisbild-ZIPs|keine.*ZIP|keine.*Bilder/i);
  assert.ok(text('AGENTS.md').includes('PRICE_TEXT_EVIDENCE_POLICY_20261106.md'));

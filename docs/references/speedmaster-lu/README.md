@@ -107,3 +107,8 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 ### 06.11.2026 – Vier Breitenpreise mit gegenläufiger U1-38-mm-Tendenz (PR #68)
 
 Neue **reine Netto-TEXTbelege** [LU_FOUR_WIDTH_NET_PRICES_20261106.json](LU_FOUR_WIDTH_NET_PRICES_20261106.json) und [Auswertung mit engen Interpolationsgrenzen](../../phase-lu-four-width-prices-20261106.md). U1 B1=650: 17,5 mm **534,33 €**, 38 mm **776,40 €** (bei 38 mm sinkt der Einkaufspreis trotz größerer Breite). L3 B3=B4=1000 bei 17,5 mm **534,98 €**, L4 B5=700 bei 17,5 mm **478,19 €**. Nur innerhalb der belegten geometrischen Korridore und ausschließlich als **offline-Kalkulationsmodell**, keine universelle Breitenformel und keine Woo-Freigabe. Keine Bilder/ZIPs.
+
+
+### 06.11.2026 – H1145 ST10 Bardolino Eiche: vier echte Netto-EK-Referenzen (PR #69)
+
+[Vier vollständige reine Text-EK-Belege](LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json) und [W980-Gegenüberstellung](../../phase-lu-h1145-decor-net-prices-20261106.md). L1 bei 2500 mm: H1145 **346,93 €** (17,5 mm) / **516,49 €** (38 mm) netto; U1 bei 2500 mm **499,74 €** (17,5 mm) / **744,32 €** (38 mm). Aufpreise zu W980 derselben Maße **+4,52 / +4,93 / +5,71 / +5,73 €**, also **kein allgemeiner Dekoraufschlag**. Die Offline-Kalibrierung erkennt ausschließlich diese vier exakten Fälle; keine Woo-Livefreigabe, keine Bilder-/ZIP-Pflicht.
