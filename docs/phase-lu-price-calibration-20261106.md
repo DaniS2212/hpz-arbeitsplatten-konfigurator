@@ -1,5 +1,6 @@
 # L1–L4 / U1–U4: variable Speedmaster-Preiskalibrierung (06.11.2026)
 
+> **Aktuelle Fortsetzung 06.11.2026 – PR #65:** Acht neue Preis-TEXTbelege für L2/L3/L4/U2/U3/U4 sind gespeichert. Für alle acht Formen liegen nun W980-ST7-/38-mm-Standardreferenzen vor. Das neue zweite Kalibrierungsmodell interpoliert ausdrücklich nur **unverifizierte Hersteller-ANZEIGEN**, nicht Netto-EKs. Siehe [aktuelle Preisvergleichstabelle und Hersteller-/Shop-Freigabegrenzen](phase-lu-eight-text-prices-model-20261106.md). Alle Kanten ausschließlich 1,5 mm dekorgleich; „ohne Kante“ entfällt. Frühere „Screenshots noch holen“-Arbeitspunkte auf dieser Seite sind **historisch**, kein aktueller Auftrag mehr.\n\n
 **Kundenauftrag:** Nun die Preiskalkulation abschließen, nicht noch einmal die Grundgeometrie bauen. Die kommerziellen Regeln stehen fest: **40 % Zielmarge, 35 % Mindestmarge nach Gutscheinen, 10 % Kostenreserve**. Die Berechnung des DE-Brutto-Referenzpreises erfolgt weiterhin **ausschließlich** über `HPZ_APL_Price_V3::targetGrossForVerifiedCosts()`, aus echten Netto-EKs und Kosten. Keine zweite WP-Preisengine und keine Änderung an Gerade.
 
 ## PR #61 – nutzbarer erster Kalibrierungsbaustein
@@ -17,12 +18,12 @@
 | Form | Historisch bestätigter Netto-EK | Variable Längen-Zwischenwerte | Fehlende Voraussetzung |
 |---|---|---|---|
 | L1 | 4 Fälle, 17,5 und 38 mm, L1=2000/2500, L2=1200, B1/B2=600 | **Ja, L1=2000–2500**, ausschließlich W980 und sonst gleiche Maße | Zwischenpunkt 2250 mm inzwischen durch Screenshot bestätigt; andere Breiten/L2/Dekore/Ecken weiterhin offen |
-| L2 | **Ein Bildpreis 488,01 € bei L1=2250**, W980 38 mm, gleicher Preis wie L1 | Noch keine freigegebene L2-Variable | Zweiter L2-Längenpunkt und aktueller Netto-EK |
-| L3 | Keine | Nein | Netto-EK bei zwei identischen Grundvarianten mit unterschiedlicher Länge |
-| L4 | Nur Bildbetrag **658,61 €**, Netto-Status offen | Nein | Standard-Grundmaß B5 und expliziter Netto-EK bestätigen, weiterer Punkt |
+| L2 | **488,01 € bei 2250; 511,56 € bei 2500**, W980 38 mm | **Interner Anzeigezwischenwert 2250–2500**, keine netto bestätigte EK-Interpolation | Netto-Status, andere Breiten/Dekore/Dicken |
+| L3 | **798,52 € bei 2000; 845,62 € bei 2500**, W980 38 mm | **Anzeige-Längenmodell 2000–2500**, +47,10 €/500 mm | Netto-EK, andere Maßachsen/Dekore/Dicken |
+| L4 | **658,61 € bei 2000; 705,71 € bei 2500**, W980 38 mm und **B5-Grundmaß=600** | **Anzeige-Längenmodell 2000–2500**, +47,10 €/500 mm | Netto-EK, B5-Änderungen und andere Maßachsen |
 | U1 | 8 Fälle, 17,5 und 38 mm | **Ja, L1 2000–2500 bei L2=1200**, **L2 1200–1700 bei L1=2500**, B1/B2/B3 je 600, L3=1800 | Zwischenpunkt 2250 mm inzwischen durch Screenshot bestätigt; Dekore, abweichende Beinbreiten, Ecken offen |
-| U2 | **Zwei Bildpreise 687,36 € (L1=2000) und 710,91 € (L1=2250), 38 mm** | Kontrollierte Differenz zu U1 beide Male **−4,13 €**, noch keine Modell-/Verkaufsfreigabe | Dritter Längenpunkt, Netto-EK, 17,5-mm-Punkt |
-| U3/U4 | Je **691,49 €** als Bildbetrag, 38 mm | Nein | Netto-Status und weitere Referenzen |
+| U2 | **687,36 € bei 2000; 710,91 € bei 2250; 734,46 € bei 2500**, W980 38 mm | **Anzeige-Längenmodell 2000–2500**, genau −4,13 € zu U1 an allen drei Punkten | Netto-EK, 17,5-mm-Punkt und andere Breiten |
+| U3/U4 | Je **691,49 € bei 2000; 738,59 € bei 2500**, W980 38 mm | **Anzeige-Längenmodell 2000–2500**, U3=U4=U1 an beiden Punkten | Netto-EK, andere Breiten/Dekore/Dicken |
 
 ### Anker- und Modellbeispiele (W980, 1,5 mm Dickkante)
 
@@ -39,7 +40,7 @@
 
 ### Nächste gezielte Speedmaster-Preisabfragen (höchster Informationswert)
 
-Für jede neue Lieferanten-Preisaufnahme reichen zunächst **zwei gleichbleibende Bilder/Angebote pro variierter Achse**, mit sichtbar gleich ausgewählten Standardkanten und **explizitem Netto-EK**. Nicht alle 16 Dekore auf einmal erfassen.
+**Aktueller Stand nach PR #65:** Die zuvor geplanten L2-/U2-2500- und L3-/L4-/U3-/U4-Preise sind inzwischen als **reine Textbelege** im Repo. **Keine weiteren Bilder oder ZIPs für Preise fordern.** Für neue Modellvalidierung genügen vollständige Speedmaster-Konfigurationen als Text mit Datum, allen Parametern, Preisbetrag und ausdrücklich geklärtem Netto-Status; zunächst keine Massenabfrage aller Dekore.
 
 1. **Bereits erledigt (06.11.):** L1 / W980 / APL38 / L1=2250, L2=1200, B1=B2=600 und U1 / W980 / APL38 / L1=2250, L2=1200, L3=1800, B1=B2=B3=600. Speedmaster-Anzeigen betragen **488,01 €** und **715,04 €** und treffen die zuvor aus 2000/2500 mm berechneten Werte auf den **Cent genau**. Sie bestätigen die Preisform der beiden getesteten Längenschnitte empirisch, **nicht** alle Breiten, Kanten oder das Netto-EK-Prädikat. Originalbilder per [Quellenmanifest](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv) + [JSON](references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json) nachverfolgen.
 2. **Formen-Grundpreise:** L2 / APL38 / W980 / L1=2250, L2=1200, B1=B2=600 ist inzwischen als Bildbetrag **488,01 €** vorhanden. Für einen zweiten L2-Punkt empfiehlt sich **L1=2500** bei sonst gleichen Maßen. L3 / APL38 / W980 / L1=L2=2000, B1=B2=600, B3=B4=900; L4 / APL38 / W980 / L1=L2=2000, B1=B2=600, B3=B4=900, B5=600. Für L4 den bisherigen 658,61-€-Anzeigebetrag abgleichen.
