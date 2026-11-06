@@ -158,6 +158,7 @@ final class HPZ_APL_WC_LU_Cart_Bridge
             'totalGrossReferenceCents'=>$review['totalGrossReferenceCents'],
             'production'=>$review['production'],
             'supplierReference'=>$checked['proof']['supplierReference'],
+            'supplierPriceBasis'=>$checked['proof']['priceEvidenceType'] ?? 'individual-supplier-reference',
             'verifiedCutParts'=>$checked['proof']['verifiedCutParts'],
             'verifiedPackages'=>$checked['proof']['verifiedPackages'],
         ];
@@ -215,6 +216,7 @@ final class HPZ_APL_WC_LU_Cart_Bridge
         $item->add_meta_data('_hpz_apl_manufacturing_v2',$production,true);
         $item->add_meta_data('_hpz_apl_config_key',$passed['configurationKey'],true);
         $item->add_meta_data('_hpz_apl_supplier_reference',$passed['supplierReference'],true);
+        $item->add_meta_data('_hpz_apl_supplier_price_basis',$passed['supplierPriceBasis'] ?? 'individual-supplier-reference',true);
         $item->add_meta_data('_hpz_apl_supplier_parts',$passed['verifiedCutParts'],true);
         $item->add_meta_data('_hpz_apl_supplier_packages',$passed['verifiedPackages'],true);
         $item->add_meta_data('_hpz_apl_manual_supplier_status','manuell bei Speedmaster bestellen',true);
@@ -234,10 +236,14 @@ final class HPZ_APL_WC_LU_Cart_Bridge
             'SPEEDMASTER – MANUELLE BESTELLUNG (kein automatischer Auftrag)',
             'Lieferantenreferenz: '.$passed['supplierReference'],
         ];
+        if (($passed['supplierPriceBasis'] ?? '') !== 'individual-supplier-reference') {
+            $out[]='ACHTUNG: interne Verkaufspreis-Modellrechnung, kein verbindlicher Speedmaster-Netto-EK.';
+            $out[]='Vor dem tatsächlichen Speedmaster-Einkauf aktuellen Herstellerpreis gegen die Kalkulation prüfen.';
+        }
         foreach (self::displayFields($production) as $name=>$value) $out[]=$name.': '.$value;
         $out[]='Menge: '.$production['quantity'];
         // Supplier-cut and join evidence remains a separate referenced source.
-        $out[]='Bestätigte Lieferteile/Fräsungen: siehe Lieferantenreferenz und geschützte Positionsmetadaten.';
+        $out[]='Fertigungszuschnitte und Verbindungen: bei manueller Speedmaster-Bestellung prüfen.';
         return implode("\n",$out);
     }
 }

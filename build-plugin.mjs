@@ -42,6 +42,7 @@ await copyFile(new URL('pricing-v3/HPZ_APL_Price_V3.php',base),new URL('../inclu
 for(const [source,target] of [
  ['pricing-v3/HPZ_APL_Straight_Sale_Readiness.php','sale-readiness.php'],
  ['pricing-v3/HPZ_APL_LU_Price_Readiness.php','lu-price-readiness.php'],
+ ['pricing-v3/HPZ_APL_LU_Shop_Ratebook_12.php','lu-shop-ratebook.php'],
  ['wordpress/checkout-lu/HPZ_APL_WC_LU_Cart_Bridge.php','lu-cart-bridge.php'],
  ['wordpress/checkout-lu/HPZ_APL_WP_LU_Runtime.php','lu-runtime.php'],
  ['wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php','cart-bridge.php'],

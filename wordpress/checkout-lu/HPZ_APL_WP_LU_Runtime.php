@@ -72,9 +72,28 @@ final class HPZ_APL_WP_LU_Runtime_11
         return is_array($data)&&isset($data[$key])&&is_array($data[$key])?$data[$key]:null;
     }
 
-    private static function lookup(): callable
+    private static function lookup(?array $raw=null): callable
     {
-        return function($key){return self::proof($key);};
+        // Owner-approved bounded price windows are an alternative to manually
+        // stored exact supplier proofs. The operator option is never writable
+        // by a storefront customer. The cart signature is still mandatory.
+        $candidate=null;
+        if ($raw !== null) {
+            try {
+                $c=HPZ_APL_LU_Price_Readiness::normalize($raw);
+                $policy=get_option('hpz_apl_lu_price_window_v1',[]);
+                if (is_array($policy) && class_exists('HPZ_APL_LU_Shop_Ratebook_12'))
+                    $candidate=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($c,$policy);
+            } catch (Throwable $ignored) { $candidate=null; }
+        }
+        return static function($key) use ($candidate) {
+            // Prefer an individually confirmed and current supplier quotation
+            // over a generic commercial cost estimate for the same SKU.
+            $exact=self::proof($key);
+            if (is_array($exact)) return $exact;
+            if (is_array($candidate) && ($candidate['configurationKey'] ?? null)===$key) return $candidate;
+            return null;
+        };
     }
 
     private static function country(): string
@@ -118,12 +137,14 @@ final class HPZ_APL_WP_LU_Runtime_11
 
     private static function signed(array $raw): array
     {
-        return HPZ_APL_WC_LU_Cart_Bridge::issue($raw,self::lookup(),self::secret());
+        return HPZ_APL_WC_LU_Cart_Bridge::issue($raw,self::lookup($raw),self::secret());
     }
 
     private static function checked(array $row, int $quantity): array
     {
-        return HPZ_APL_WC_LU_Cart_Bridge::inspect($row,$quantity,self::lookup(),self::secret());
+        $stored=$row[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY]['config'] ?? null;
+        $raw=is_array($stored) ? HPZ_APL_WC_LU_Cart_Bridge::toRaw($stored) : null;
+        return HPZ_APL_WC_LU_Cart_Bridge::inspect($row,$quantity,self::lookup($raw),self::secret());
     }
 
     private static function context(array $row, $cart): array
@@ -374,7 +395,9 @@ final class HPZ_APL_WP_LU_Runtime_11
                 $ctx['preDiscountGrossCents']=$sub+$tax;
                 $ctx['actualNetLineRevenueCents']=$net;
                 $checked=HPZ_APL_WC_LU_Cart_Bridge::checkout(
-                    $row,(int)($row['quantity']??0),self::lookup(),$ctx,self::secret()
+                    $row,(int)($row['quantity']??0),
+                    self::lookup(HPZ_APL_WC_LU_Cart_Bridge::toRaw($row[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY]['config'])),
+                    $ctx,self::secret()
                 );
                 if(!$checked['validForReleaseReview']) {
                     $messages[]='L-/U-Arbeitsplatte: Maße, Lieferbarkeit, Versand oder 35-%-Marge nicht bestätigt.';
@@ -422,7 +445,9 @@ final class HPZ_APL_WP_LU_Runtime_11
         $ctx['preDiscountGrossCents']=$sub+$tax;
         $ctx['actualNetLineRevenueCents']=$net;
         $passed=HPZ_APL_WC_LU_Cart_Bridge::checkout(
-            $values,(int)($values['quantity']??0),self::lookup(),$ctx,self::secret()
+            $values,(int)($values['quantity']??0),
+            self::lookup(HPZ_APL_WC_LU_Cart_Bridge::toRaw($values[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY]['config'])),
+            $ctx,self::secret()
         );
         HPZ_APL_WC_LU_Cart_Bridge::writeOrderLine($item,$passed);
     }

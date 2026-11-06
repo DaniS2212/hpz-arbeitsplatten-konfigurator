@@ -125,6 +125,32 @@ final class HPZ_APL_LU_Price_Readiness
     /** Only an actual supplier/packaging record may enable a pricing review. */
     private static function verifiedEvidence(array $r, string $key, int $now): bool
     {
+        if (($r['pricingBasis'] ?? null) === 'operator-priced-lu-ratebook-v1') {
+            // Explicitly approved, narrowly bounded owner pricing. Physical
+            // Speedmaster cut lists/packages are NOT asserted or required.
+            // Only internally managed records with an exact configuration key
+            // can enter this branch; customer JSON is never used as proof.
+            if (($r['configurationKey'] ?? null) !== $key
+                || ($r['supplier'] ?? null) !== 'speedmaster'
+                || ($r['operatorPriceApproved'] ?? null) !== true
+                || ($r['priceModelVersion'] ?? null) !== HPZ_APL_LU_Shop_Ratebook_12::VERSION
+                || !is_int($r['supplierNetCents'] ?? null) || $r['supplierNetCents'] < 1
+                || !is_int($r['maxQuantity'] ?? null) || $r['maxQuantity'] < 1
+                || !is_string($r['checkedOn'] ?? null)
+                || !preg_match('/^\\d{4}-\\d{2}-\\d{2}$/D',$r['checkedOn'])) return false;
+            $date=DateTimeImmutable::createFromFormat('!Y-m-d',$r['checkedOn'],new DateTimeZone('UTC'));
+            if (!$date || $date->format('Y-m-d') !== $r['checkedOn']
+                || $date->getTimestamp() > $now) return false;
+            foreach (['packagingNetCents','outboundNetCostCents','paymentAndHandlingNetCents'] as $k) {
+                if (!is_int($r[$k] ?? null) || $r[$k]<0) return false;
+            }
+            $rates=$r['approvedShippingRateIds'] ?? null;
+            if (!is_array($rates) || count($rates)<1 || count($rates)>12) return false;
+            foreach ($rates as $rate) {
+                if (!is_string($rate) || !preg_match('/^[A-Za-z0-9_:-]{3,64}$/D',$rate)) return false;
+            }
+            return true;
+        }
         if (($r['configurationKey'] ?? null) !== $key
             || ($r['supplier'] ?? null) !== 'speedmaster'
             || ($r['verifiedNetPrice'] ?? null) !== true
@@ -221,13 +247,20 @@ final class HPZ_APL_LU_Price_Readiness
         } else {
             // Use the physical longest PACKAGED side, not a potentially
             // shorter declared cutting length: freight tier is 1900 mm.
-            $verifiedPackageLengths = array_map(
-                static function (array $package): int {
-                    return max($package['lengthMm'], $package['widthMm']);
-                },
-                $r['verifiedPackages']
-            );
-            $inboundCents = HPZ_APL_Price_V3::inboundCostForVerifiedParts($verifiedPackageLengths);
+            if (($r['pricingBasis'] ?? null) === 'operator-priced-lu-ratebook-v1') {
+                // Owner decision 06.11.2026: the shop rule is based on the
+                // configured lengths, independent of actual supplier parts.
+                // >=1900 mm on ANY L-axis triggers the one-time EUR 50 tier.
+                $inboundCents = HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c);
+            } else {
+                $verifiedPackageLengths = array_map(
+                    static function (array $package): int {
+                        return max($package['lengthMm'], $package['widthMm']);
+                    },
+                    $r['verifiedPackages']
+                );
+                $inboundCents = HPZ_APL_Price_V3::inboundCostForVerifiedParts($verifiedPackageLengths);
+            }
             $additionalNetCents = $r['packagingNetCents'] + $r['outboundNetCostCents']
                 + $r['paymentAndHandlingNetCents'];
             // Reuse the exact same verified-cost commercial policy as V3:

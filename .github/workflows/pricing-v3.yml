@@ -24,6 +24,11 @@ jobs:
         run: php -l pricing-v3/HPZ_APL_Straight_Sale_Readiness.php && php pricing-v3/tests/sale-readiness.php
       - name: L/U supplier evidence and coupon-safe price preflight (isolated)
         run: php -l pricing-v3/HPZ_APL_LU_Price_Readiness.php && php pricing-v3/tests/lu-price-readiness.php
+      - name: L/U operator ratebook, 190cm threshold and Woo margin tests
+        run: |
+          php -l pricing-v3/HPZ_APL_LU_Shop_Ratebook_12.php
+          php -l wordpress/hpz-apl-admin-preview/includes/lu-shop-ratebook.php
+          php pricing-v3/tests/lu-shop-ratebook.php
       - name: L/U variable-price calibration from source CSV (no sales release)
         run: php -l pricing-v3/HPZ_APL_LU_Calibration_11.php && php pricing-v3/tests/lu-calibration.php
       - name: "L/U WooCommerce: eight shapes, signed cart snapshots and manual Speedmaster order"
