@@ -133,6 +133,9 @@ final class HPZ_APL_LU_Calibration_11
             'netSupplierReferenceCents'=>null,
             'estimatedSupplierNetCents'=>null,
             'supplierDisplayOnlyCents'=>null,
+            'displayEvidenceSource'=>null,
+            'modelVsSupplierDisplayDifferenceCents'=>null,
+            'modelVsSupplierDisplayStatus'=>null,
             'referenceCaseIds'=>[],
             'axisInterpolated'=>null,
             'boundedByMm'=>null,
@@ -144,6 +147,14 @@ final class HPZ_APL_LU_Calibration_11
             'checkoutPriceApproved'=>false,
             'purchasable'=>false,
         ];
+        // Keep a new screenshot as independent display evidence. In particular
+        // it must NOT become a verified net EK or change the interpolation
+        // endpoints merely because it matches a model by coincidence.
+        $display = self::displayOnly($c, self::rows(self::OBSERVED_FILE));
+        if ($display) {
+            $base['supplierDisplayOnlyCents']=$display['amountCents'];
+            $base['displayEvidenceSource']=$display['source'];
+        }
         $confirmed = self::matchingNetReferences($c, self::rows(self::REFERENCE_FILE));
         foreach ($confirmed as $row) {
             if ($row['dimensions'] !== $c['dimensions']) continue;
@@ -190,12 +201,20 @@ final class HPZ_APL_LU_Calibration_11
             if ($candidate !== null) return $base;
             $candidate=$next;
         }
-        if ($candidate !== null) return array_replace($base,$candidate);
+        if ($candidate !== null) {
+            $result = array_replace($base,$candidate);
+            if ($display) {
+                $difference = $candidate['estimatedSupplierNetCents']-$display['amountCents'];
+                $result['modelVsSupplierDisplayDifferenceCents']=$difference;
+                $result['modelVsSupplierDisplayStatus']=$difference===0
+                    ? 'display-matches-estimate-net-unverified'
+                    : 'display-differs-from-estimate-net-unverified';
+            }
+            return $result;
+        }
 
-        $display = self::displayOnly($c, self::rows(self::OBSERVED_FILE));
         if ($display) {
             $base['priceStatus']='unverified-speedmaster-screen-amount';
-            $base['supplierDisplayOnlyCents']=$display['amountCents'];
             $base['referenceCaseIds']=[$display['source']];
         }
         return $base;
