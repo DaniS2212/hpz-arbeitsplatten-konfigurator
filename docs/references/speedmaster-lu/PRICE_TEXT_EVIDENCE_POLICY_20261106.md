@@ -39,3 +39,12 @@ Vorgesehener Arbeitsweg:
 - Speedmaster-Anlieferung: **10 € netto Standard**, plus **einmalig 50 € netto** erst wenn mindestens ein **nachgewiesenes** tatsächliches Liefer-/Packteil mindestens 1900 mm lang ist; **60 € netto gesamt**, nicht 70 €. Das entspricht dem vorhandenen Code.
 - Keine automatische Speedmaster-Bestellung, keine echte WooCommerce-Bestellung, keine Veröffentlichung oder L-/U-Freischaltung ohne eigenständige Betreiberfreigabe.
 - Für **Geometrie-/CNC-Abnahme** dürfen weiterhin explizite Zeichnungen, CAD-Daten oder Bilder erforderlich sein. Die „kein Preisbild-ZIP“-Entscheidung ist **keine** nachträgliche Behauptung, dass bereits alle fehlenden Herstellungsgeometrien verifiziert wären.
+
+
+## Betreiber-Nachtrag 06.11.2026: Kanten und Browserstand
+
+**Produktregel für sämtliche angebotenen Arbeitsplatten:** Profil und **alle Außenkanten ausschließlich 1,5 mm dekorgleich**. Keine Option „ohne Kante“, keine andersfarbigen Kanten und **keine weitere Preisprüfung** nur für ein unbesäumtes Ende. Die alte Kanten-Testzeile ist als vom Betreiber gestrichen dokumentiert; die gesonderte **Eckkonturänderung** einer links abgeschrägten L1 aus früheren Aufnahmen bleibt eine andere, noch nicht allgemein kalkulierbare Geometrie.
+
+**Tatsächliche Browser-Grenze:** Speedmaster Shop ist zwar erreichbar, doch die Bedienung seines WebGL-Konfigurators über den vorhandenen Cloud-Browser war im anderen Chat nicht zuverlässig möglich. Das gilt nicht als vollständiger programmatischer Shopzugriff. Deshalb vorerst **gebündelte vom Betreiber als Text übermittelte Speedmaster-Preise** erfassen; keine weiteren Screenshots oder ZIPs anfordern und keine selbstständig durchgeführte Abfrage behaupten.
+
+**Aktuelle acht Textpreise:** [LU_EIGHT_TEXT_PRICES_20261106.json](LU_EIGHT_TEXT_PRICES_20261106.json), [Preisregister](PRICE_EVIDENCE_CURRENT.csv), [enge Modellvergleiche](../../phase-lu-eight-text-prices-model-20261106.md). Alle Beträge weiterhin nicht ausdrücklich netto bestätigt; keine Woo-Freigabe.
