@@ -63,6 +63,78 @@ foreach ([
         'same company V3 commercial policy, no duplicate formula');
 }
 
+// 06.11.2026: four EXACT H1145 ST10 Bardolino Eiche supplier NET
+// price points compared with identical W980 ST7 Platinweiß dimensions.
+// IMPORTANT: These are NOT a fixed decor surcharge or ratio and are
+// never available for unseen L2-L4/U2-U4 or 2000mm customer sizes.
+foreach ([
+  ['L1','APL17.5',['L1'=>2500],34693,34241,452],
+  ['L1','APL38',['L1'=>2500],51649,51156,493],
+  ['U1','APL17.5',['L1'=>2500],49974,49403,571],
+  ['U1','APL38',['L1'=>2500],74432,73859,573],
+] as [$shape,$thickness,$dimensions,$h1145Net,$w980Net,$delta]) {
+    $result=reviewLU($shape,$thickness,$dimensions,'H1145');
+    $w980=reviewLU($shape,$thickness,$dimensions,'W980');
+    expectCal($result['priceStatus']==='exact-operator-confirmed-net-reference',
+        $shape.$thickness.' H1145 is an exact operator-confirmed supplier NET quote');
+    expectCal($result['netSupplierReferenceCents']===$h1145Net
+        && $result['estimatedSupplierNetCents']===null,
+        $shape.$thickness.' H1145 exact price is not an interpolation');
+    expectCal($w980['netSupplierReferenceCents']===$w980Net
+        && $h1145Net-$w980Net===$delta,
+        $shape.$thickness.' independent decor difference at exact same dimensions');
+    expectCal($result['decor']==='H1145'
+        && $result['supplierPriceTaxBasis']==='net-eur-operator-confirmed-2026-11-06'
+        && $result['germanGrossReferenceTaxRate']==='0.19',
+        'H1145 is resolved using exact supplier catalog ID with 19pct DE VAT only once');
+    expectCal(count($result['referenceCaseIds'])===1
+        && str_ends_with($result['referenceCaseIds'][0],'-H1145'),
+        'the exact reference ID preserves source decor for future chats');
+    expectCal($result['grossDEWith10or60EURInboundScenario']['inbound60EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($h1145Net,6000,0),
+        'H1145 hypothetical DE gross uses same V3 cost and VAT formula');
+    expectCal(!$result['supplierNetQuoteVerifiedForExactTarget']
+        && !$result['checkoutPriceApproved']
+        && !$result['purchasable']
+        && !$result['realPackedDimensionsVerified']
+        && !$result['additionalCostsVerified'],
+        'H1145 net price evidence is NOT a cutlist/packing/Woo release');
+}
+expectCal(count(array_unique([452,493,571,573]))===4,
+    'no globally uniform H1145 vs W980 surcharge across shape and thickness');
+
+// Fail closed: the four source observations cannot license an unseen
+// H1145 shape, different length or width, thickness transfer or decor ID.
+foreach ([
+  ['L1','APL17.5',['L1'=>2000],'H1145'],
+  ['L1','APL38',['L1'=>2250],'H1145'],
+  ['U1','APL17.5',['L1'=>2250],'H1145'],
+  ['U1','APL38',['L1'=>2500,'B1'=>650],'H1145'],
+  ['L2','APL17.5',['L1'=>2500],'H1145'],
+  ['L3','APL38',['L1'=>2500],'H1145'],
+  ['L4','APL17.5',['L1'=>2500],'H1145'],
+  ['U2','APL17.5',['L1'=>2500],'H1145'],
+  ['U3','APL38',['L1'=>2500],'H1145'],
+  ['U4','APL17.5',['L1'=>2500],'H1145'],
+  ['U1','APL38',['L1'=>2500],'H1146'],
+] as [$shape,$thickness,$dimensions,$decor]) {
+    if ($decor==='H1146') {
+        $rejected=false;
+        try {reviewLU($shape,$thickness,$dimensions,$decor);}
+        catch (InvalidArgumentException $e) {$rejected=true;}
+        expectCal($rejected,'unknown decor ID rejected server-side');
+        continue;
+    }
+    $r=reviewLU($shape,$thickness,$dimensions,$decor);
+    expectCal($r['priceStatus']==='missing-evidence'
+        && $r['netSupplierReferenceCents']===null
+        && $r['estimatedSupplierNetCents']===null
+        && $r['estimatedSupplierDisplayCents']===null,
+        $shape.$thickness.' cannot infer H1145 cost via W980 interpolation or shape');
+    expectCal(!$r['purchasable'] && !$r['checkoutPriceApproved'],
+        'unknown H1145 combinations must never be released');
+}
+
 // Six NEW operator-confirmed 17.5mm NET Speedmaster amounts. The operator
 // explicitly stated that all Speedmaster amounts EXCLUDE VAT; 19% German VAT
 // belongs to the same V3 gross calculation, never the supplier's EK.
