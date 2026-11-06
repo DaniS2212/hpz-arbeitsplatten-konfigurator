@@ -109,7 +109,9 @@ final class HPZ_APL_LU_Calibration_11
                     'supplier_screen_display_only','prior_chat_transcribed_display_only',
                 ], true)) continue;
             foreach ($c['dimensions'] as $k=>$v) {
-                if (($r[$k.'_mm'] ?? '') !== (string)$v) continue 2;
+                // L4 B5 is the supplier's BASE dimension (not corner B5).
+                $column=$k==='B5'?'B5_base_mm':$k.'_mm';
+                if (($r[$column] ?? '') !== (string)$v) continue 2;
             }
             return ['amountCents'=>self::cents($r['amount_eur']),
                 'source'=>$r['source'], 'evidenceType'=>$r['amount_type']];
