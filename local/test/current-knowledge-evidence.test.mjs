@@ -196,7 +196,7 @@ test('central L/U price evidence is typed and exact, no new screen display accep
    ['l3_250_200_175_b3b4_1000','534.98'],
    ['l4_250_200_175_b5_700','478.19'],
  ]);
- const source='docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json';
+ const widthSource='docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json';
  for(const c of widthProof.cases){
    assert.equal(c.supplierNetEUR,expectedWidth.get(c.caseId));
    assert.equal(c.priceIsNet,true);
@@ -205,7 +205,7 @@ test('central L/U price evidence is typed and exact, no new screen display accep
    assert.equal(c.woocommerceSaleApproved,false);
    assert.equal(c.cutListVerified,false);
    assert.equal(c.packagingVerified,false);
-   const row=data.find(x=>x.source===source&&x.variant===c.shape
+   const row=data.find(x=>x.source===widthSource&&x.variant===c.shape
      && x.thickness_mm===String(c.thicknessMm));
    assert.ok(row,'new width quote in central price CSV '+c.caseId);
    assert.equal(row.amount_eur,c.supplierNetEUR);
