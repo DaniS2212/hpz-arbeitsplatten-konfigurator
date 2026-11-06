@@ -51,3 +51,8 @@ Alle Speedmaster-Produktpreise sind **ohne MwSt.**; V3 enthält 19 % DE-USt. gen
 ### Vier neue Netto-Längenanker (06.11.2026, PR #67)
 
 Die zuvor fehlenden **17,5-mm-L1=2000**-Preise liegen jetzt als [Text-JSON](LU_175_2000_NET_PRICES_20261106.json) vor: L2 **307,67 €**, L3 **488,55 €**, L4 **430,94 €**, U2 **459,29 €**, jeweils mit denselben anderen Maßen wie der 2500-mm-Gegenpunkt. In diesem engen W980-Standardbereich steigt **jede L1/L2/L3/L4/U1/U2-Variante um 34,74 € netto pro 500 mm L1**. Interpolation nur innerhalb 2000..2500 mm L1; für **U3/U4 17,5 mm** und andere Breiten/Dekore fehlen weiterhin Gegenpunkte. Außenmaß sagt nichts über tatsächliche physische Lieferteile; Woo/Versand/Gesamtkosten noch zu prüfen. **Keine Screenshots/ZIPs für Preise**.
+
+
+### Neuer Breiten-Kontrollstand (PR #68, 06.11.2026)
+
+Vier neue W980-ST7-Netto-EKs mit komplett dokumentierter Geometrie: [Netto-Preisdatei](LU_FOUR_WIDTH_NET_PRICES_20261106.json) und [Bewertung](../../phase-lu-four-width-prices-20261106.md). U1 B1=600/650/700 mm bei **17,5 mm** steigt 528,76→534,33→539,90 €, bei **38 mm** sinkt 785,69→776,40→767,12 €; keine generische positive Breitensteigerung oder Flächenpreisformel. L3 B3=B4 900→1000 **+11,69 €**; L4 B5 600→700 **+12,51 €**. Nur erste streng kontrollierte Breitenbereiche. **Rest offen:** Dekorübertragbarkeit, andere Maße/Stärken, 2D-Abhängigkeiten, Hersteller-Zuschnitt-/Pack-/Verbinderfakten, Woo-Testbestellung. Neue Daten nur als Text, keine Preisbild-ZIPs.
