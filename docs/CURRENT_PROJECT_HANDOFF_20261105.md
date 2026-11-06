@@ -94,3 +94,27 @@ Der Betreiber hat ausdrücklich **Bestellfähigkeit vor Produktseiten-Redesign**
 **Bisher nicht live:** `HPZ_APL_LU_11_AUDITED_RELEASE` wird in der Pluginquelle nicht definiert; separate Option und echte geprüfte Einzelbelege fehlen noch. Bis zur gesonderten Testbestellungs-/Betreiberfreigabe können L und U nicht gekauft werden. **Danach:** echtes Admin-Belegmanagement und Testbestellung auf dem existierenden Woo-Shop, dann Shopfreigabe.
 
 **Späterer UI-Feinschliff (05.11.2026 per Screenshot mitgeteilt):** den heutigen oberen Woo-Produktbereich mit Bildgalerie, umfangreichen Standardinformationen und wiederholtem CTA reduzieren. **Nur H1 und Kurzbeschreibung** hochwertig und direkt an den Konfigurator integrieren. Nicht vor Abschluss der Bestellanbindung erledigen. Ausdrücklicher Screenshot-Dateiname `image(20261105-113713).png`; noch kein neues GitHub-Binärarchiv dieser UI-Aufnahme.
+
+
+## 11. Update 06.11.2026 – variable L/U-Preiskalibrierung und UI-Hinweise
+
+- **PR #60 ist am 06.11.2026 gemergt**; die L/U-WooCommerce-Bestellanbindung befindet sich in `main`, die tatsächlichen L/U-Live-Kaufschalter bleiben standardmäßig aus.
+- **PR #61:** [Preiskalibrierung](phase-lu-price-calibration-20261106.md). Historische Netto-Preispunkte direkt aus `docs/price-reference-cases.csv` (L1: 4 Punkte, U1: 8 Punkte), begrenzte **interne Ein-Achsen-Längeninterpolation** nur innerhalb belegter 500-mm-Intervalle. Anders dimensionierte Geometrien, andere Dekore, L2–L4 und U2–U4 ohne netto bestätigte Belege erhalten **keinen fiktiven Verkaufspreis**. 40/35/10-Margenstrategie kommt weiterhin ausschließlich aus V3; kein zusätzlicher Plugin-Preisrechner. Kauf bleibt unverändert gesperrt.
+- Für den nächsten Herstellerabgleich sind **wenige zielgerichtete Speisepunkte** mit vollständigen 1,5-mm-Kanten und ausdrücklich netto bestätigten Preisen dokumentiert. Insbesondere U1 bei B1=600/700 und 38 mm verläuft nicht monoton.
+- Der Betreiber hat am 06.11.2026 zwei **UI-Punkte für Schritt 3 nach Preis und Testbestellung** hinterlegt: L4 zeigt `B5: 60 cm · Einstellung`, und in Schritt 1 „Grundriss“ ändert sich die optische Größe der Platte beim Wechsel rund/abgeschrägt. **Im Code verifiziert:** B5-`settingOnly` wird als solche Textbeschriftung ausgegeben; das SVG-`viewBox` variiert mit Eck-/Maßbeschriftungen. [Konkrete Reproduktions- und Abnahmekriterien](phase-ui-step3-backlog-20261106.md). Zusätzlich bleibt der Wunsch nach nur H1+Kurzbeschreibung direkt am Konfigurator bestehen.
+- Screenshot zum neuen UI-Feedback: `image(20261106-074841).png`, SHA256 `2115f5f7678413c445ec9f321157a19158f325ab09e92c9b2300271d1d500d9e`, **PNG noch nicht binär in GitHub archiviert**. Eine SHA-Provenienz ist kein Bild-Byte-Upload.
+- **Nächste Priorität:** Preis-Modellvergleich mit den im Preisplan genannten gezielten Speedmaster-EKs, anschließend Woo-Preisaktivierung für ausreichend bestätigte Maßkombinationen samt Testbestellung. **Nicht** unaufgefordert Layout und Preisengine gleichzeitig umbauen.
+
+## 12. Nachtrag 06.11.2026 – bestätigter 10+50-Freight-Tier, zwei Preisbild-Holdouts
+
+**Zwei neue Original-Screenshots** aus Speedmaster zeigen für **38 mm W980/1,5-mm-Dickkante**:
+- **L1** 2250×1200, B1/B2=600 mm: angezeigte **488,01 €**.
+- **U1** L1=2250, L2=1200, L3=1800, B1/B2/B3=600 mm: angezeigte **715,04 €**.
+
+Beide Bildbeträge entsprechen den **vor den neuen Screenshots berechneten** V1-Längen-Zwischenwerten auf den Cent genau; `HPZ_APL_LU_Calibration_11` protokolliert **sowohl Modellpreis als auch unabhängigen Bildbetrag** und eine 0-Cent-Abweichung. Das ist gute Evidenz für diese beiden Längenintervalle, **keine** allgemeine Form-/Kantenpreisregel und noch keine unabhängig bestätigte Nettopreisspezifikation des Bildbetrags. Quelle: [JSON-Originalbeleg](references/speedmaster-lu/L1_U1_2250_PRICE_20261106.json) + [Bild-SHA256-Manifest](references/speedmaster-lu/L1_U1_2250_SOURCE_MANIFEST.csv).
+
+**Der Betreiber hat die bereits vorhandene Code-Versandregel ausdrücklich bestätigt**: 10 € netto Speedmaster-Standardversand **plus einmalig 50 € netto Speditionszuschlag**, sobald mindestens ein tatsächliches Liefer-/Packteil **≥ 1900 mm** erreicht; **60 € netto Gesamt**, nicht 70 €. Kein Code-Preis- oder Versandregelwechsel nötig. Die Ein-/Ausgangsprüfung im PR #61 testet 1899/1900 mm und mehrere lange Teile.
+
+**Wichtiger Binärnachtrag, derzeit noch ausstehend:** [Quelle und Uploadschritte](references/speedmaster-lu/L1_U1_2250_ARCHIVE_UPLOAD.md) für vier unveränderte Bilder (zwei aktuelle Preis-Screenshots, ein L4-B5-UI-Bild, ein vereinfachungsbedürftiger Woo-Produktkopf) im ZIP `Speedmaster_L1_U1_2250_UI_20261106_Originale.zip`, 1.059.629 Bytes, SHA256 `e8f5fc1aef4947f642089f4f46c4947e7b95e1a83ad0474b51869ecc011f1531`. Bilder stehen **erst nach verifiziertem GitHub-Binärupload** im Repo; SHA-Texte allein reichen nicht. Das CI-Gate wurde bewusst so eingerichtet, dass PR #61 vor dem manuellen ZIP-Upload rot bleibt.
+
+**Als Nächstes nach dem Archivimport:** gezielte Speedmaster-Vergleiche für exakt eine veränderte Kantenbearbeitung und je eine geänderte L-/U-Stoßvariante; fehlende L2/L3- und U2–U4-Netto-EKs erfassen, bevor eine verallgemeinerte Woo-Shoppreisfreigabe möglich ist.

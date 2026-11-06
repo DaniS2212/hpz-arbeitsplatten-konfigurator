@@ -1,0 +1,78 @@
+{
+  "schema": "supplier-screen-observation-v1",
+  "date": "2026-11-06",
+  "supplier": "Speedmaster",
+  "operatorNote": "Two genuine source screenshot display amounts match preexisting 2250-mm single-length interpolation; supplier NET price nature is not independently established from screenshots.",
+  "originalsStatus": "ZIP prepared locally, binary NOT YET in GitHub. Must upload unchanged ZIP to this PR branch.",
+  "originalArchive": "Speedmaster_L1_U1_2250_UI_20261106_Originale.zip",
+  "archiveSizeBytes": 1059629,
+  "archiveSHA256": "e8f5fc1aef4947f642089f4f46c4947e7b95e1a83ad0474b51869ecc011f1531",
+  "archiveGitBlobSHA1": "3d1af1ea00d426a5456e97142d40111491911efd",
+  "priceCases": [
+    {
+      "variant": "L1",
+      "productId": 1000080,
+      "material": "APL38",
+      "decor": "W980 ST7 Platinweiss",
+      "edge": "1.5mm decor matched; screenshot model, left, right",
+      "dimensionsMm": {
+        "L1": 2250,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "displayedPriceEUR": "488.01",
+      "displayedAmountIsNetVerified": false,
+      "priorModelEUR": "488.01",
+      "modelMinusDisplayEUR": "0.00",
+      "image": {
+        "originalFilename": "image(20261106-081509).png",
+        "archivePath": "originals/L1/image(20261106-081509).png",
+        "width": 2048,
+        "height": 840,
+        "bytes": 289552,
+        "sha256": "15b81c09054e333b1c61878585a787a0185e61677b38123b7239f320ee6b81f7"
+      }
+    },
+    {
+      "variant": "U1",
+      "productId": 1000081,
+      "material": "APL38",
+      "decor": "W980 ST7 Platinweiss",
+      "edge": "1.5mm decor matched; screenshot model, left, right",
+      "dimensionsMm": {
+        "L1": 2250,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "displayedPriceEUR": "715.04",
+      "displayedAmountIsNetVerified": false,
+      "priorModelEUR": "715.04",
+      "modelMinusDisplayEUR": "0.00",
+      "image": {
+        "originalFilename": "image(20261106-081604).png",
+        "archivePath": "originals/U1/image(20261106-081604).png",
+        "width": 2048,
+        "height": 697,
+        "bytes": 363210,
+        "sha256": "585e48fa70a72d728e7177de3f9071924e82744db2386483addf4186be8c93a2"
+      }
+    }
+  ],
+  "shippingRuleConfirmedByUser": {
+    "standardNetEUR": 10,
+    "extraNetEURIfAnyVerifiedDeliveredPartAtLeast1900mm": 50,
+    "totalNetEURIfThresholdMet": 60,
+    "notExtra60": true,
+    "existingCodeUnchanged": true
+  },
+  "futureValidation": [
+    "Compare exact NET treatment and all edge selections with Speedmaster directly",
+    "Test different edge options without changing geometry",
+    "Compare L and U shape variants at the same dimensional baseline",
+    "Check actual packed lengths before applying 1900mm freight tier"
+  ]
+}
