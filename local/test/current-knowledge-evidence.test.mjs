@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,33);
+ assert.equal(data.length,37);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -184,7 +184,47 @@ test('central L/U price evidence is typed and exact, no new screen display accep
      assert.equal(row[key==='B5'?'B5_base_mm':key+'_mm'],String(value));
    }
  }
- const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
+ // Four new U1/L3/L4 width references from a single user text message.
+ // No image ZIPs. 17.5mm U1 gets more expensive with extra width while
+ // 38mm U1 gets CHEAPER; coupled L3 B3/B4 differs from L4's B5.
+ const widthProof=JSON.parse(text('docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json'));
+ assert.equal(widthProof.cases.length,4);
+ assert.equal(widthProof.imagesOrZipRequired,false);
+ const expectedWidth=new Map([
+   ['u1_250_170_180_175_b65','534.33'],
+   ['u1_250_170_180_38_b65','776.40'],
+   ['l3_250_200_175_b3b4_1000','534.98'],
+   ['l4_250_200_175_b5_700','478.19'],
+ ]);
+ const widthSource='docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json';
+ for(const c of widthProof.cases){
+   assert.equal(c.supplierNetEUR,expectedWidth.get(c.caseId));
+   assert.equal(c.priceIsNet,true);
+   assert.equal(c.decorCode,'W980');
+   assert.equal(c.specialCorner,'none');
+   assert.equal(c.woocommerceSaleApproved,false);
+   assert.equal(c.cutListVerified,false);
+   assert.equal(c.packagingVerified,false);
+   const row=data.find(x=>x.source===widthSource&&x.variant===c.shape
+     && x.thickness_mm===String(c.thicknessMm));
+   assert.ok(row,'new width quote in central price CSV '+c.caseId);
+   assert.equal(row.amount_eur,c.supplierNetEUR);
+   assert.equal(row.amount_type,'operator_confirmed_net_EK');
+   assert.equal(row.status,'net_basis_owner_confirmed_not_sale_approved');
+   assert.equal(row.edge,'matching_1_5mm');
+   for(const [key,mm] of Object.entries(c.dimensionsMm)){
+     assert.equal(row[key==='B5'?'B5_base_mm':key+'_mm'],String(mm),
+       'width price exact source dimension '+c.caseId+' '+key);
+   }
+ }
+ const byId=Object.fromEntries(widthProof.cases.map(x=>[x.caseId,x]));
+ assert.equal(byId.u1_250_170_180_175_b65.baseline.differenceEUR,'+5.57');
+ assert.equal(byId.u1_250_170_180_38_b65.baseline.differenceEUR,'-9.29');
+ assert.equal(byId.l3_250_200_175_b3b4_1000.baseline.differenceEUR,'+11.69');
+ assert.equal(byId.l4_250_200_175_b5_700.baseline.differenceEUR,'+12.51');
+ assert.equal(byId.l3_250_200_175_b3b4_1000.dimensionsMm.B3,
+   byId.l3_250_200_175_b3b4_1000.dimensionsMm.B4);
+  const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
  assert.match(newPolicy,/keine Preisbild-ZIPs|keine.*ZIP|keine.*Bilder/i);
  assert.ok(text('AGENTS.md').includes('PRICE_TEXT_EVIDENCE_POLICY_20261106.md'));
  const l4=data.find(x=>x.variant==='L4');

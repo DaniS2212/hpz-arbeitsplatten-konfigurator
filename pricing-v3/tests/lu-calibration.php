@@ -192,8 +192,8 @@ foreach ([
         && $r['estimatedSupplierNetCents']===null,
         $shape.' no extrapolation outside 2000..2500mm');
 }
-expectCal(reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>700])['priceStatus']
-    ==='missing-evidence','L4 17.5mm B5=700 never transferred from B5=600');
+expectCal(reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>750])['priceStatus']
+    ==='missing-evidence','L4 B5 outside observed 600..700 bracket cannot be modeled');
 expectCal(reviewLU('L3','APL38',['L1'=>2500,'B1'=>700,'B2'=>700])['priceStatus']
     ==='missing-evidence','17.5mm L3 price cannot be transferred to unrelated 38mm widths');
 expectCal(reviewLU('L3','APL17.5',['L1'=>2500],'H1145')['priceStatus']
@@ -257,11 +257,115 @@ expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===6000,
 expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1000,1900,2200])===6000,
     'only one EUR 50 surcharge, never EUR 50 per long part');
 
-// The known 38-mm U1 width counterexample: 600 -> 700 mm is cheaper.
-// MUST NOT infer any 650-mm price between these records.
+// FOUR NEW owner-confirmed W980/1.5mm decor-matched WIDTH samples.
+// U1 is non-monotone across thicknesses: 17.5mm rises with width while
+// 38mm falls. No generic €/m2 or positive-only width surcharge is safe.
 foreach ([
-    ['U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>650]],
-    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>650]],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>650],53433],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>650],77640],
+    ['L3','APL17.5',['L1'=>2500,'B3'=>1000,'B4'=>1000],53498],
+    ['L4','APL17.5',['L1'=>2500,'B5'=>700],47819],
+] as [$shape,$material,$dimensions,$net]) {
+    $r=reviewLU($shape,$material,$dimensions);
+    expectCal($r['priceStatus']==='exact-operator-confirmed-net-reference',
+        $shape.$material.' exact width supplier net source');
+    expectCal($r['netSupplierReferenceCents']===$net
+        && $r['estimatedSupplierNetCents']===null,
+        $shape.$material.' exact width cost in cents, not estimate');
+    expectCal(count($r['referenceCaseIds'])===1
+        && strpos($r['referenceCaseIds'][0],'operator-net-20261106-')===0,
+        $shape.$material.' width source ID identifies exact dimensions');
+    expectCal($r['grossDEWith10or60EURInboundScenario']['inbound10EUR']===
+        HPZ_APL_Price_V3::targetGrossForVerifiedCosts($net,1000,0),
+        'use existing V3 19% DE VAT and margins only once');
+    expectCal(!$r['supplierNetQuoteVerifiedForExactTarget']
+        && !$r['checkoutPriceApproved'] && !$r['purchasable']
+        && !$r['realPackedDimensionsVerified'],
+        'new exact width prices cannot unlock WordPress sales or manufacturing');
+}
+$u175 = [
+    reviewLU('U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>600]),
+    reviewLU('U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>650]),
+    reviewLU('U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>700]),
+];
+$u38 = [
+    reviewLU('U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>600]),
+    reviewLU('U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>650]),
+    reviewLU('U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>700]),
+];
+expectCal(array_column($u175,'netSupplierReferenceCents')===[52876,53433,53990],
+    '17.5 U1 width 600/650/700 rising EUR 528.76 / 534.33 / 539.90');
+expectCal(array_column($u38,'netSupplierReferenceCents')===[78569,77640,76712],
+    '38 U1 width 600/650/700 falling EUR 785.69 / 776.40 / 767.12');
+expectCal(2*53433===52876+53990,
+    '17.5mm U1 width 650 exactly midpoint between 600 and 700');
+expectCal(abs(2*77640-(78569+76712))===1,
+    '38mm U1 B1=650 matches 600/700 price interpolation to half a cent');
+expectCal(reviewLU('L3','APL17.5',['L1'=>2500,'B3'=>1000,'B4'=>1000])['netSupplierReferenceCents']
+    -reviewLU('L3','APL17.5',['L1'=>2500,'B3'=>900,'B4'=>900])['netSupplierReferenceCents']===1169,
+    'L3 paired widths B3/B4 900=>1000 net +11.69 EUR');
+expectCal(reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>700])['netSupplierReferenceCents']
+    -reviewLU('L4','APL17.5',['L1'=>2500,'B5'=>600])['netSupplierReferenceCents']===1251,
+    'L4 base B5 600=>700 net +12.51 EUR');
+// Bounded widths can use a measured source bracket ONLY when everything
+// else is identical. Signed rounding is conservative for U1 APL38's
+// DECREASING net price; without that 38mm could be wrongly overcharged.
+foreach ([
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>625],53155,'B1',[600,650]],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>675],53712,'B1',[650,700]],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>625],78105,'B1',[600,650]],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>675],77176,'B1',[650,700]],
+    ['L3','APL17.5',['L1'=>2500,'B3'=>950,'B4'=>950],52914,'B3=B4',[900,1000]],
+    ['L4','APL17.5',['L1'=>2500,'B5'=>650],47194,'B5',[600,700]],
+] as [$shape,$material,$dimensions,$expected,$axis,$bounds]) {
+    $r=reviewLU($shape,$material,$dimensions);
+    expectCal(strpos($r['priceStatus'],'bounded-')===0
+        && strpos($r['priceStatus'],'-width-net-estimate-not-verified')!==false,
+        $shape.$material.' only bounded internal width estimate');
+    expectCal($r['estimatedSupplierNetCents']===$expected
+        && $r['netSupplierReferenceCents']===null,
+        $shape.$material.' width interpolation exact rounded cents');
+    expectCal($r['axisInterpolated']===$axis && $r['boundedByMm']===$bounds
+        && count(array_unique($r['referenceCaseIds']))===2,
+        $shape.$material.' distinct measured source widths and axis');
+    expectCal(!$r['supplierNetQuoteVerifiedForExactTarget']
+        && !$r['checkoutPriceApproved'] && !$r['purchasable'],
+        'width interpolation NEVER allows supplier checkout or real order');
+}
+// No unsupported width, width+length 2D interpolation, decor transfer,
+// uncoupled L3 B3/B4, B5 extrapolation or other thickness inference.
+foreach ([
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>575],'W980'],
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>725],'W980'],
+    ['U1','APL38',['L1'=>2400,'L2'=>1700,'B1'=>625],'W980'],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1650,'B1'=>625],'W980'],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>625],'H1145'],
+    ['L3','APL17.5',['L1'=>2250,'B3'=>950,'B4'=>950],'W980'],
+    ['L3','APL38',['L1'=>2500,'B3'=>950,'B4'=>950],'W980'],
+    ['L3','APL17.5',['L1'=>2500,'B3'=>1100,'B4'=>1100],'W980'],
+    ['L4','APL17.5',['L1'=>2250,'B5'=>650],'W980'],
+    ['L4','APL17.5',['L1'=>2500,'B5'=>750],'W980'],
+    ['L4','APL17.5',['L1'=>2500,'B5'=>650],'H1145'],
+] as [$shape,$material,$dimensions,$decor]) {
+    $r=reviewLU($shape,$material,$dimensions,$decor);
+    expectCal($r['priceStatus']==='missing-evidence'
+        && $r['netSupplierReferenceCents']===null
+        && $r['estimatedSupplierNetCents']===null,
+        $shape.' unsupported width/length/decor must fail closed');
+}
+// A B3/B4 pair is a single linked Speedmaster geometry constraint.
+// It must be impossible to mix 950/1000 to obtain an invented price.
+$badCoupled=false;
+try {reviewLU('L3','APL17.5',['L1'=>2500,'B3'=>950,'B4'=>1000]);}
+catch (InvalidArgumentException $e) {$badCoupled=true;}
+expectCal($badCoupled,'L3 B3/B4 mismatched widths cannot be priced');
+
+// The known 38-mm U1 width counterexample: 600 -> 700 mm is cheaper.
+// B1=650 is NOW an independently observed source, but no extrapolation
+// beyond the three measured 600/650/700 mm widths is supported.
+foreach ([
+    ['U1','APL38',['L1'=>2500,'L2'=>1700,'B1'=>750]],
+    ['U1','APL17.5',['L1'=>2500,'L2'=>1700,'B1'=>750]],
     ['U1','APL38',['L1'=>2600]],
     ['U1','APL38',['L1'=>1950]],
     ['U1','APL38',['L1'=>2250,'L2'=>1450]],

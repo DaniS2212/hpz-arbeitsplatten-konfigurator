@@ -102,3 +102,8 @@ Weitere Prüfergebnisse: [IMPORT_VERIFICATION.md](IMPORT_VERIFICATION.md).
 ### Vier zusätzliche 2000-mm-17,5-mm-Netto-EKs (06.11.2026)
 
 [Strukturierte Original-Textangaben mit sämtlichen mm-Maßen](LU_175_2000_NET_PRICES_20261106.json) und [aktualisierte Preis-/Modelltabelle](../../phase-lu-175-net-price-anchors-20261106.md): L2 307,67 €, L3 488,55 €, L4 430,94 €, U2 459,29 € netto. Jeweils ein zweiter L1-Längenanker gegenüber 2500 mm (alle vier +34,74 € netto je 500 mm). Damit dürfen in der Offline-Kalibrierung **nur** diese vier 17,5-mm-Standard-Varianten zwischen 2000 und 2500 mm entlang L1 modelliert werden; keine breiten-/dekorabhängigen Übertragungen oder Kauf-Freigaben. U3/U4 bei 17,5 mm haben weiterhin nur einen 2500-mm-Anker. **Keine Bilder/ZIP-Pflicht.**
+
+
+### 06.11.2026 – Vier Breitenpreise mit gegenläufiger U1-38-mm-Tendenz (PR #68)
+
+Neue **reine Netto-TEXTbelege** [LU_FOUR_WIDTH_NET_PRICES_20261106.json](LU_FOUR_WIDTH_NET_PRICES_20261106.json) und [Auswertung mit engen Interpolationsgrenzen](../../phase-lu-four-width-prices-20261106.md). U1 B1=650: 17,5 mm **534,33 €**, 38 mm **776,40 €** (bei 38 mm sinkt der Einkaufspreis trotz größerer Breite). L3 B3=B4=1000 bei 17,5 mm **534,98 €**, L4 B5=700 bei 17,5 mm **478,19 €**. Nur innerhalb der belegten geometrischen Korridore und ausschließlich als **offline-Kalkulationsmodell**, keine universelle Breitenformel und keine Woo-Freigabe. Keine Bilder/ZIPs.

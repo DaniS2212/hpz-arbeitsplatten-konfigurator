@@ -11,14 +11,15 @@
  * observations. On 06.11 the operator confirmed Speedmaster amounts EXCLUDE
  * VAT; this tax-basis fact is distinct from exact current manufacturing or
  * Woo sale approval. Display-only observations never bypass proof gates.
- * No extrapolation, decor transfer, shape transfer, width interpolation
- * or manufacturing assumptions. Only matching 1.5-mm decor edges are offered.
+ * No extrapolation, decor or shape transfer, generalized width interpolation
+ * or manufacturing assumptions. Only narrow measured width brackets for
+ * U1 B1, L3 coupled B3/B4 and L4 B5; all edges decor matched 1.5 mm.
  */
 declare(strict_types=1);
 
 final class HPZ_APL_LU_Calibration_11
 {
-    public const VERSION = 'lu-calibration-bounded-length-v4-175-two-length-net';
+    public const VERSION = 'lu-calibration-v5-width-axis-20261106';
     private const REFERENCE_FILE = __DIR__.'/../docs/price-reference-cases.csv';
     private const OBSERVED_FILE = __DIR__.'/../docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv';
     private const AXES = ['L1','L2'];
@@ -112,6 +113,7 @@ final class HPZ_APL_LU_Calibration_11
                 || !in_array($r['source'] ?? '', [
                     'docs/references/speedmaster-lu/LU_175_NET_PRICES_20261106.json',
                     'docs/references/speedmaster-lu/LU_175_2000_NET_PRICES_20261106.json',
+                    'docs/references/speedmaster-lu/LU_FOUR_WIDTH_NET_PRICES_20261106.json',
                 ], true)) continue;
             $dims=[];
             foreach ($c['dimensions'] as $key=>$value) {
@@ -128,7 +130,7 @@ final class HPZ_APL_LU_Calibration_11
                 if (($r[$column] ?? '') !== '') continue 2;
             }
             $refs[]=[
-                'id'=>'operator-net-20261106-'.$c['geometry'].'-'.($dims['L1'] ?? 0),
+                'id'=>'operator-net-20261106-'.$c['geometry'].'-'.$thickness.'-'.implode('-',array_values($dims)),
                 'dimensions'=>$dims,
                 'supplierNetCents'=>self::cents($r['amount_eur']),
                 'source'=>$r['source'],
@@ -146,6 +148,95 @@ final class HPZ_APL_LU_Calibration_11
         return true;
     }
 
+
+    /**
+     * Controlled WIDTH curves are only permitted at their exact test context:
+     * U1 B1 with 600/650/700 mm at both 17.5 and 38 mm; note that
+     * 38-mm supplier costs FALL when B1 increases (non-monotone behavior).
+     * L3 B3/B4 MUST move as a coupled identical pair. L4 B5 is the
+     * independent BASE width, not an edge/chamfer. Never combine an L1/L2
+     * length estimate with width changes or transfer between decors.
+     *
+     * A supplier-net model from independently observed endpoints is still
+     * not an exact supplier offer, cut-list or public WooCommerce price.
+     */
+    private static function widthCandidate(array $c, array $confirmed): ?array
+    {
+        $shape=$c['geometry'];
+        if ($shape === 'U1') {
+            $axis='B1';
+            $paired=null;
+            $fixed=['L1'=>2500,'L2'=>1700,'L3'=>1800,'B2'=>600,'B3'=>600];
+        } elseif ($shape === 'L3' && $c['material'] === 'APL17.5') {
+            $axis='B3';
+            $paired='B4';
+            $fixed=['L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600];
+        } elseif ($shape === 'L4' && $c['material'] === 'APL17.5') {
+            $axis='B5';
+            $paired=null;
+            $fixed=['L1'=>2500,'L2'=>2000,'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900];
+        } else {
+            return null;
+        }
+        foreach ($fixed as $field=>$mm) {
+            if (($c['dimensions'][$field] ?? null) !== $mm) return null;
+        }
+        $target=$c['dimensions'][$axis] ?? null;
+        if (!is_int($target)) return null;
+        if ($paired !== null && ($c['dimensions'][$paired] ?? null) !== $target) return null;
+
+        $byPosition=[];
+        foreach ($confirmed as $row) {
+            $dims=$row['dimensions'];
+            $value=$dims[$axis] ?? null;
+            if (!is_int($value)) continue;
+            if ($paired !== null && ($dims[$paired] ?? null) !== $value) continue;
+            foreach ($c['dimensions'] as $field=>$mm) {
+                if ($field === $axis || $field === $paired) continue;
+                if (($dims[$field] ?? null) !== $mm) continue 2;
+            }
+            if (isset($byPosition[$value])
+                && $byPosition[$value]['supplierNetCents'] !== $row['supplierNetCents']) {
+                // Conflicting exact source anchors: never model either one.
+                return null;
+            }
+            $byPosition[$value]=$row;
+        }
+        $lower=null;
+        $upper=null;
+        foreach ($byPosition as $mm=>$row) {
+            if ($mm < $target && ($lower === null || $mm > $lower['dimensions'][$axis])) {
+                $lower=$row;
+            } elseif ($mm > $target && ($upper === null || $mm < $upper['dimensions'][$axis])) {
+                $upper=$row;
+            }
+        }
+        if ($lower === null || $upper === null) return null;
+        $start=$lower['dimensions'][$axis];
+        $end=$upper['dimensions'][$axis];
+        $span=$end-$start;
+        if ($span < 1 || $span > 100) return null;
+        $delta=$upper['supplierNetCents']-$lower['supplierNetCents'];
+        // CEIL on cents for a conservative internal EK estimate.
+        // PHP intdiv() truncates toward zero: for negative differences
+        // (e.g. U1 38mm) that already equals mathematical ceil.
+        $numerator=$delta*($target-$start);
+        $increment=intdiv($numerator,$span);
+        if ($numerator > 0 && $numerator % $span !== 0) ++$increment;
+        $cents=$lower['supplierNetCents']+$increment;
+        if ($cents < 1) return null;
+
+        return [
+            'priceStatus'=>$paired === null
+                ? 'bounded-one-axis-width-net-estimate-not-verified'
+                : 'bounded-coupled-width-net-estimate-not-verified',
+            'estimatedSupplierNetCents'=>$cents,
+            'referenceCaseIds'=>[$lower['id'],$upper['id']],
+            'axisInterpolated'=>$paired === null ? $axis : $axis.'='.$paired,
+            'boundedByMm'=>[$start,$end],
+            'grossDEWith10or60EURInboundScenario'=>self::scenarios($cents),
+        ];
+    }
 
     /**
      * Supplier DISPLAY observations are NOT verified supplier net prices.
@@ -346,9 +437,9 @@ final class HPZ_APL_LU_Calibration_11
             return $base;
         }
 
-        // A single length axis can interpolate only when ALL other dimensions
-        // match both endpoints exactly. Width interpolation is prohibited even
-        // where source values exist: U1 38-mm B1 600->700 falls in price.
+        // A single LENGTH axis can interpolate only when ALL other dimensions
+        // match both endpoints exactly. Width uses a SEPARATE, heavily
+        // constrained source bracket; U1 38mm prices can decrease with width.
         $candidate = null;
         foreach (self::AXES as $axis) {
             $lo = null;
@@ -393,6 +484,11 @@ final class HPZ_APL_LU_Calibration_11
             return $result;
         }
 
+        $width=self::widthCandidate($c,$confirmed);
+        if ($width !== null) {
+            // Exactly the same fail-closed, offline-only checkout flags.
+            return array_replace($base,$width);
+        }
         if ($display) {
             $base['priceStatus']='unverified-speedmaster-screen-amount';
             $base['referenceCaseIds']=$display['ids'];
