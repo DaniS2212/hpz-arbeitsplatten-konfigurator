@@ -1,0 +1,246 @@
+{
+  "schema": "speedmaster-h1145-second-length-net-controls-v1",
+  "observedDate": "2026-11-06",
+  "supplier": "Speedmaster",
+  "source": "direct user text in chat, following merged PR #69, not from autonomous browser",
+  "currency": "EUR",
+  "taxBasis": "NET supplier amounts excluding VAT confirmed by operator; DE 19pct VAT only in existing HPZ_APL_Price_V3 and never twice",
+  "decor": "H1145 ST10 Bardolino Eiche",
+  "edgePolicy": "profile and all outside edges 1.5 mm same decor, square base geometry, no additional corners",
+  "imageArchiveRequired": false,
+  "reference2500": "docs/references/speedmaster-lu/LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json",
+  "historicalW980Anchors": "docs/price-reference-cases.csv",
+  "cases": [
+    {
+      "caseId": "h1145-20261106-l1-17_5-2000",
+      "geometry": "L1",
+      "product": "l",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "decorId": "H1145",
+      "supplierDecorCode": "H1145 ST10",
+      "supplierDecorName": "Bardolino Eiche",
+      "supplierNetEUR": "311.53",
+      "supplierNetCents": 31153,
+      "comparisonW980SameDimensions": {
+        "decorId": "W980",
+        "supplierCode": "W980 ST7",
+        "supplierNetEUR": "307.67",
+        "netDeltaEUR": "+3.86",
+        "netDeltaCents": 386
+      },
+      "comparisonH1145AtL1_2500": {
+        "sameShapeThicknessDecorOtherDimensions": true,
+        "supplierNetEUR": "346.93",
+        "netIncreaseEUR": "+35.40",
+        "netIncreaseCents": 3540
+      },
+      "comparisonW980AtL1_2500": {
+        "supplierNetEUR": "342.41",
+        "netIncreaseEUR": "+34.74",
+        "netIncreaseCents": 3474
+      },
+      "additionalH1145LengthDeltaNetCents": 66,
+      "profileAndExteriorEdges": "all 1.5 mm decor matched",
+      "cornerTreatment": "none",
+      "quantity": 1,
+      "currency": "EUR",
+      "supplierPriceNetOfVAT": true,
+      "sourceMethod": "operator supplied exactly four text net prices for the previously defined 2000mm L1/U1 H1145 cases, 2026-11-06",
+      "screenshotOrZIPNeeded": false,
+      "formalSupplierQuoteVerified": false,
+      "physicalCutListVerified": false,
+      "packingVerified": false,
+      "supplierFulfilmentVerified": false,
+      "woocommerceSaleApproved": false
+    },
+    {
+      "caseId": "h1145-20261106-l1-38-2000",
+      "geometry": "L1",
+      "product": "l",
+      "material": "APL38",
+      "thicknessMm": 38,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "decorId": "H1145",
+      "supplierDecorCode": "H1145 ST10",
+      "supplierDecorName": "Bardolino Eiche",
+      "supplierNetEUR": "468.72",
+      "supplierNetCents": 46872,
+      "comparisonW980SameDimensions": {
+        "decorId": "W980",
+        "supplierCode": "W980 ST7",
+        "supplierNetEUR": "464.45",
+        "netDeltaEUR": "+4.27",
+        "netDeltaCents": 427
+      },
+      "comparisonH1145AtL1_2500": {
+        "sameShapeThicknessDecorOtherDimensions": true,
+        "supplierNetEUR": "516.49",
+        "netIncreaseEUR": "+47.77",
+        "netIncreaseCents": 4777
+      },
+      "comparisonW980AtL1_2500": {
+        "supplierNetEUR": "511.56",
+        "netIncreaseEUR": "+47.11",
+        "netIncreaseCents": 4711
+      },
+      "additionalH1145LengthDeltaNetCents": 66,
+      "profileAndExteriorEdges": "all 1.5 mm decor matched",
+      "cornerTreatment": "none",
+      "quantity": 1,
+      "currency": "EUR",
+      "supplierPriceNetOfVAT": true,
+      "sourceMethod": "operator supplied exactly four text net prices for the previously defined 2000mm L1/U1 H1145 cases, 2026-11-06",
+      "screenshotOrZIPNeeded": false,
+      "formalSupplierQuoteVerified": false,
+      "physicalCutListVerified": false,
+      "packingVerified": false,
+      "supplierFulfilmentVerified": false,
+      "woocommerceSaleApproved": false
+    },
+    {
+      "caseId": "h1145-20261106-u1-17_5-2000",
+      "geometry": "U1",
+      "product": "u",
+      "material": "APL17.5",
+      "thicknessMm": 17.5,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "decorId": "H1145",
+      "supplierDecorCode": "H1145 ST10",
+      "supplierDecorName": "Bardolino Eiche",
+      "supplierNetEUR": "464.34",
+      "supplierNetCents": 46434,
+      "comparisonW980SameDimensions": {
+        "decorId": "W980",
+        "supplierCode": "W980 ST7",
+        "supplierNetEUR": "459.29",
+        "netDeltaEUR": "+5.05",
+        "netDeltaCents": 505
+      },
+      "comparisonH1145AtL1_2500": {
+        "sameShapeThicknessDecorOtherDimensions": true,
+        "supplierNetEUR": "499.74",
+        "netIncreaseEUR": "+35.40",
+        "netIncreaseCents": 3540
+      },
+      "comparisonW980AtL1_2500": {
+        "supplierNetEUR": "494.03",
+        "netIncreaseEUR": "+34.74",
+        "netIncreaseCents": 3474
+      },
+      "additionalH1145LengthDeltaNetCents": 66,
+      "profileAndExteriorEdges": "all 1.5 mm decor matched",
+      "cornerTreatment": "none",
+      "quantity": 1,
+      "currency": "EUR",
+      "supplierPriceNetOfVAT": true,
+      "sourceMethod": "operator supplied exactly four text net prices for the previously defined 2000mm L1/U1 H1145 cases, 2026-11-06",
+      "screenshotOrZIPNeeded": false,
+      "formalSupplierQuoteVerified": false,
+      "physicalCutListVerified": false,
+      "packingVerified": false,
+      "supplierFulfilmentVerified": false,
+      "woocommerceSaleApproved": false
+    },
+    {
+      "caseId": "h1145-20261106-u1-38-2000",
+      "geometry": "U1",
+      "product": "u",
+      "material": "APL38",
+      "thicknessMm": 38,
+      "dimensionsMm": {
+        "L1": 2000,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "decorId": "H1145",
+      "supplierDecorCode": "H1145 ST10",
+      "supplierDecorName": "Bardolino Eiche",
+      "supplierNetEUR": "696.55",
+      "supplierNetCents": 69655,
+      "comparisonW980SameDimensions": {
+        "decorId": "W980",
+        "supplierCode": "W980 ST7",
+        "supplierNetEUR": "691.49",
+        "netDeltaEUR": "+5.06",
+        "netDeltaCents": 506
+      },
+      "comparisonH1145AtL1_2500": {
+        "sameShapeThicknessDecorOtherDimensions": true,
+        "supplierNetEUR": "744.32",
+        "netIncreaseEUR": "+47.77",
+        "netIncreaseCents": 4777
+      },
+      "comparisonW980AtL1_2500": {
+        "supplierNetEUR": "738.59",
+        "netIncreaseEUR": "+47.10",
+        "netIncreaseCents": 4710
+      },
+      "additionalH1145LengthDeltaNetCents": 67,
+      "profileAndExteriorEdges": "all 1.5 mm decor matched",
+      "cornerTreatment": "none",
+      "quantity": 1,
+      "currency": "EUR",
+      "supplierPriceNetOfVAT": true,
+      "sourceMethod": "operator supplied exactly four text net prices for the previously defined 2000mm L1/U1 H1145 cases, 2026-11-06",
+      "screenshotOrZIPNeeded": false,
+      "formalSupplierQuoteVerified": false,
+      "physicalCutListVerified": false,
+      "packingVerified": false,
+      "supplierFulfilmentVerified": false,
+      "woocommerceSaleApproved": false
+    }
+  ],
+  "verifiedScope": "Four exact owner-transcribed 2000mm NET price observations only. Internal H1145 same-shape same-thickness same-other-mm L1 2000..2500 bounded interpolation permitted; no global decor formula, width, other geometries, seller checkout or supplier automation.",
+  "derived": {
+    "h1145NetLengthIncrementPer500mm": {
+      "APL17_5": "35.40",
+      "APL38": "47.77"
+    },
+    "w980NetLengthIncrementPer500mm": {
+      "L1_APL17_5": "34.74",
+      "L1_APL38": "47.11",
+      "U1_APL17_5": "34.74",
+      "U1_APL38": "47.10"
+    },
+    "deltaDecorPremiumGrowthEUR": {
+      "L1_APL17_5": "0.66",
+      "L1_APL38": "0.66",
+      "U1_APL17_5": "0.66",
+      "U1_APL38": "0.67"
+    },
+    "inference": "Near same marginal decor length increment at two shapes and both thicknesses; NOT evidence of a global formula for other decors, width configurations, or L2-4/U2-4."
+  },
+  "commercialTerms": {
+    "targetGrossMarginPct": 40,
+    "minimumAfterDiscountMarginPct": 35,
+    "reservePct": 10,
+    "germanVATPct": 19,
+    "supplierInboundNetStandardEUR": 10,
+    "supplierFreightExtraOnceNetEUR": 50,
+    "freightTriggeredBy": "any actual physical delivery part >=1900 mm, not outer shape length",
+    "customerCheckoutReleased": false,
+    "automaticSupplierPurchaseAllowed": false
+  }
+}
