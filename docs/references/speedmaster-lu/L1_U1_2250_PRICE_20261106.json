@@ -3,7 +3,7 @@
   "date": "2026-11-06",
   "supplier": "Speedmaster",
   "operatorNote": "Two genuine source screenshot display amounts match preexisting 2250-mm single-length interpolation; supplier NET price nature is not independently established from screenshots.",
-  "originalsStatus": "ZIP prepared locally, binary NOT YET in GitHub. Must upload unchanged ZIP to this PR branch.",
+  "originalsStatus": "PRESENT ON GITHUB MAIN since merged PR #61 (2026-11-06); binary ZIP and all four PNGs verified by green GitHub CI check verify-original-pngs.",
   "originalArchive": "Speedmaster_L1_U1_2250_UI_20261106_Originale.zip",
   "archiveSizeBytes": 1059629,
   "archiveSHA256": "e8f5fc1aef4947f642089f4f46c4947e7b95e1a83ad0474b51869ecc011f1531",
@@ -74,5 +74,8 @@
     "Test different edge options without changing geometry",
     "Compare L and U shape variants at the same dimensional baseline",
     "Check actual packed lengths before applying 1900mm freight tier"
-  ]
+  ],
+  "originalBinaryInGitHub": true,
+  "archiveVerifiedInGitHub": true,
+  "archivedViaMergedPR": 61
 }
