@@ -61,3 +61,8 @@ Vier neue W980-ST7-Netto-EKs mit komplett dokumentierter Geometrie: [Netto-Preis
 ### H1145-ST10-Dekorvergleich aufgenommen (PR #69, 06.11.2026)
 
 Vier neue exakte **H1145 ST10 Bardolino**-Netto-Referenzen: L1 17,5/38 mm **346,93/516,49 €** und U1 17,5/38 mm **499,74/744,32 €**, jeweils L1=2500 und vollständig dokumentierte übrige Standardmaße; [Textdaten](LU_H1145_FOUR_DECOR_NET_PRICES_20261106.json), [Analyse](../../phase-lu-h1145-decor-net-prices-20261106.md). Abweichungen zum W980-Basismodell **+4,52/+4,93 € L1** und **+5,71/+5,73 € U1**; keine universelle Dekorregel. Noch offen: H1145 zweiter Längenpunkt 2000 mm, H1145 L2/U2-Stoßvergleich, weitere Dekore, variable Breiten auch bei H1145, exakte Lieferteil-/Pack-/Verbinderdaten und Woo-Testbestellung. Nur Texte, keine Screenshots/ZIPs; 19 % Steuer in V3 genau einmal, Shopfreigabe weiterhin aus.
+
+
+### H1145-Preislänge 2000–2500 intern belegt (PR #70, 06.11.2026)
+
+Vier neue [H1145-2000-mm-Netto-EKs](LU_H1145_2000_NET_PRICES_20261106.json) und [ausgewertete 2000-/2500-mm-Reihe](../../phase-lu-h1145-length-prices-20261106.md) für L1/U1 je 17,5/38 mm. H1145-EKs bei L1=2000: L1 **311,53/468,72 €**, U1 **464,34/696,55 €**. Die vorherigen 2500-mm-Punkte ermöglichen schmale 1D-Längeninterpolation ausschließlich bei exakt gleichen anderen Maßen, keine H1145-Form- oder Dekorübertragung und **keine** WooCommerce-Freigabe. H1145 L2/U2 und weitere Formen/Breiten sowie neue Dekore bleiben offen; ebenso tatsächliche Lieferstücke, Verbinder, CNC und Kontrolltestbestellung. Bilder/ZIPs werden für Preisdatenerfassung weiterhin nicht verlangt.
