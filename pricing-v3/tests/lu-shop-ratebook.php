@@ -44,7 +44,7 @@ $h1145=[
     'U1'=>['APL17.5'=>[46434,49974],'APL38'=>[69655,74432]],
     'U2'=>['APL17.5'=>[46434,49974],'APL38'=>[69242,74019]],
 ];
-$decors=array_keys(HPZ_APL_Decor_Catalog::all());
+$decors=array_map('strval',array_keys(HPZ_APL_Decor_Catalog::all()));
 testRate(count($decors)===16,'source catalog still 16');
 foreach($w980 as $shape=>$thicks){
     foreach($thicks as $material=>$pair){
