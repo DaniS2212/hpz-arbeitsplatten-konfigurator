@@ -174,7 +174,7 @@ foreach ([
     rawU('U1',['edge'=>'raw']),rawU('U1',['decor'=>'NOTREAL']),
     rawU('U1',['dimensions'=>['B2'=>'1700']]),
     rawL('L3',['dimensions'=>['B2'=>'700']]),
-    rawL('L4',['lCorner'=>['side'=>'left','treatment'=>'round','parameters'=>['R1'=>'100']]]),
+    rawL('L4',['lCorner'=>['side'=>'left','treatment'=>'round','parameters'=>['R2'=>'100']]]),
     rawL('L1',['special'=>['size'=>'100']])
 ] as $idx=>$bad) {
     try {HPZ_APL_LU_Price_Readiness::normalize($bad); must(false,'reject invalid '.$idx);}
