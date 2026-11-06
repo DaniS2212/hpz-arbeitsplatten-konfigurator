@@ -23,7 +23,7 @@ test('single entrypoint for new chats is linked from AGENTS, README and STATUS',
 });
 test('central L/U price evidence is typed and exact, no new screen display accepted as net EK',()=>{
  const data=csv('docs/references/speedmaster-lu/PRICE_EVIDENCE_CURRENT.csv');
- assert.equal(data.length,15);
+ assert.equal(data.length,23);
  const l=data.filter(x=>x.variant==='L1'&&x.amount_type==='verified_net_EK');
  assert.equal(l.length,4);
  assert.deepEqual(l.map(x=>x.amount_eur),['307.67','464.45','342.41','511.56']);
@@ -92,6 +92,42 @@ test('central L/U price evidence is typed and exact, no new screen display accep
  const prevU1=data.find(x=>x.variant==='U1'&&x.L1_mm==='2000'&&x.thickness_mm==='38');
  assert.equal(Math.round((Number(prevU2.amount_eur)-Number(prevU1.amount_eur))*100),-413);
  assert.equal(Math.round((Number(controls.cases[1].displayPriceEUR)-715.04)*100),-413);
+ const textPrices=JSON.parse(text('docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json'));
+ assert.equal(textPrices.cases.length,8);
+ assert.match(textPrices.archivePolicy,/TEXT_ONLY/);
+ assert.match(textPrices.edgePolicy,/ONLY 1.5mm decor-matched/);
+ const priceCases=[
+   ['L2',2500,'511.56'],['U2',2500,'734.46'],
+   ['L3',2000,'798.52'],['L3',2500,'845.62'],
+   ['L4',2000,'658.61'],['L4',2500,'705.71'],
+   ['U3',2500,'738.59'],['U4',2500,'738.59'],
+ ];
+ for(const [shape,l1,price] of priceCases){
+   const item=textPrices.cases.find(x=>x.shape===shape&&x.dimensionsMm.L1===l1);
+   assert.ok(item,shape+' '+l1+' written source price is indexed');
+   assert.equal(item.supplierDisplayEur,price);
+   assert.equal(item.verifiedSupplierNet,false);
+   assert.equal(item.checkoutApproved,false);
+   const row=data.find(x=>x.variant===shape&&x.L1_mm===String(l1)
+     && x.source==='docs/references/speedmaster-lu/LU_EIGHT_TEXT_PRICES_20261106.json');
+   assert.ok(row,shape+' '+l1+' text-only CSV row exists');
+   assert.equal(row.amount_eur,price);
+   assert.equal(row.amount_type,'user_supplied_text_display_only');
+   assert.equal(row.edge,'matching_1_5mm');
+   assert.match(row.status,/net_status_unverified/);
+   assert.equal(row.thickness_mm,'38');
+   assert.equal(row.decor,'W980');
+   assert.equal(item.edgeLeft,'1.5 mm dekorgleich');
+   assert.equal(item.edgeRight,'1.5 mm dekorgleich');
+   assert.equal(item.specialCorner,'none');
+   for(const [field,mm] of Object.entries(item.dimensionsMm)) {
+     const key=field==='B5'?'B5_base_mm':field+'_mm';
+     assert.equal(row[key],String(mm),shape+' '+l1+' dimension '+field);
+   }
+ }
+ const newPolicy=text('docs/references/speedmaster-lu/PRICE_TEXT_EVIDENCE_POLICY_20261106.md');
+ assert.match(newPolicy,/keine Preisbild-ZIPs|keine.*ZIP|keine.*Bilder/i);
+ assert.ok(text('AGENTS.md').includes('PRICE_TEXT_EVIDENCE_POLICY_20261106.md'));
  const l4=data.find(x=>x.variant==='L4');
  assert.equal(l4.amount_eur,'658.61');
  assert.equal(l4.amount_type,'prior_chat_transcribed_display_only');
