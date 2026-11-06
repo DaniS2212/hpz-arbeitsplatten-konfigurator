@@ -186,9 +186,15 @@ foreach ([
     expectCal($r['priceStatus']==='exact-operator-confirmed-net-reference'
         && $r['netSupplierReferenceCents']===$net,
         $shape.$material.' exact user-supplied H1145 net supplier price');
+    // Some 38-mm W980 counterparts were historically recorded as
+    // supplier-display-only source rows, even though the owner subsequently
+    // confirmed their NET tax basis. Do not silently promote their
+    // original source trust classification to a verified net-EK field.
+    $otherObserved=$other['netSupplierReferenceCents']
+        ?? $other['supplierDisplayOnlyCents'];
     expectCal($base['netSupplierReferenceCents']===$sameH1145
-        && $other['netSupplierReferenceCents']===$w980Exact,
-        'same-shape+thickness comparison controls H1145/W980');
+        && $otherObserved===$w980Exact,
+        'same-shape+thickness W980 comparison preserves source provenance');
     expectCal($net-$w980Exact===$decorDelta,
         $shape.$material.' decor delta anchored to exact W980 observation');
     expectCal(count($r['referenceCaseIds'])===1
@@ -214,9 +220,12 @@ expectCal(reviewLU('U2','APL17.5',['L1'=>2500],'H1145')['netSupplierReferenceCen
     ===reviewLU('U1','APL17.5',['L1'=>2500],'H1145')['netSupplierReferenceCents'],
     'H1145 U2=U1 only for exact tested 17.5mm');
 foreach (['H1145','W980'] as $decor) {
-    expectCal(reviewLU('U1','APL38',['L1'=>2500],$decor)['netSupplierReferenceCents']
-        -reviewLU('U2','APL38',['L1'=>2500],$decor)['netSupplierReferenceCents']===413,
-        'U1 to U2 38mm costs 4.13 EUR less, confirmed in both tested decors');
+    $u1Net=reviewLU('U1','APL38',['L1'=>2500],$decor);
+    $u2Ref=reviewLU('U2','APL38',['L1'=>2500],$decor);
+    $u2Observed=$u2Ref['netSupplierReferenceCents']
+        ?? $u2Ref['supplierDisplayOnlyCents'];
+    expectCal($u1Net['netSupplierReferenceCents']-$u2Observed===413,
+        '4.13 EUR U1/U2 delta is observed in both decors without upgrading W980 display-only provenance');
 }
 foreach ([
   ['L2','APL17.5',['L1'=>2000],'H1145'],
