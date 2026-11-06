@@ -87,8 +87,12 @@ final class HPZ_APL_WP_LU_Runtime_11
             } catch (Throwable $ignored) { $candidate=null; }
         }
         return static function($key) use ($candidate) {
+            // Prefer an individually confirmed and current supplier quotation
+            // over a generic commercial cost estimate for the same SKU.
+            $exact=self::proof($key);
+            if (is_array($exact)) return $exact;
             if (is_array($candidate) && ($candidate['configurationKey'] ?? null)===$key) return $candidate;
-            return self::proof($key);
+            return null;
         };
     }
 
