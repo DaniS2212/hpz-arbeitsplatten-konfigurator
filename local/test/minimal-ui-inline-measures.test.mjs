@@ -68,7 +68,7 @@ test('Independent limits name the exact wrong field and the permitted numbers',(
  assert.match(firstMeasureIssue('straight','straight',{L1:'200',B1:'121'},{material:'APL17.5'}).message,/B1.*30–120 cm/);
  assert.match(firstMeasureIssue('u','U1',{L1:'110',L2:'180',L3:'180',B1:'60',B2:'60',B3:'60'}).message,/L1.*120,1 cm/);
  assert.match(firstMeasureIssue('l','L4',{L1:'250',L2:'170',B1:'90',B2:'90',B3:'105',B4:'105',B5:'95'}).message,/B5.*30–90 cm/);
- assert.match(firstMeasureIssue('l','L1',{L1:'200,22',L2:'170',B1:'60',B2:'60'}).message,/L1.*z. B. 180/);
+ assert.equal(firstMeasureIssue('l','L1',{L1:'200,22',L2:'170',B1:'60',B2:'60'}).message,'L1: Bitte eine Zahl in cm eingeben.');
  assert.equal(firstMeasureIssue('u','U4',{L1:'250',L2:'180',L3:'180',B1:'60',B2:'60',B3:'60'}),null);
 });
 test('Compact surface and summary are not duplicated and tabs own the instructions',async()=>{
@@ -79,7 +79,7 @@ test('Compact surface and summary are not duplicated and tabs own the instructio
  assert.match(template,/class="surface-edge-included"/);
  assert.match(template,/id="selected-surface-name"/);
  assert.match(c,/\['Ecken','Maße in cm','Oberfläche'\]/);
- assert.match(c,/function openInlineMeasure\(key\)/);
+ assert.match(c,/function openInlineMeasure\(key,anchorKey=key\)/);
  assert.match(c,/field\.dispatchEvent\(new Event\('input'/);
  assert.match(c,/visibleMeasureKey\(key\)/);
  assert.match(c,/firstMeasureIssue\(product,variants\[product\],currentDimensions\(\),\{material,straightTreatment\}\)/);
@@ -102,4 +102,42 @@ test('Minimal Woo product layout remains scoped to exactly the three product IDs
  assert.match(php,/hpz-apl-compact-product/);
  assert.match(php,/remove_action\('woocommerce_single_product_summary','woocommerce_template_single_price',10\)/);
  assert.match(php,/self::options\(\)\['placement'\]!=='automatic'/);
+});
+
+test('L4 B5 points to outer diagonal; coupled widths always use the matching right-hand input',()=>{
+ const c=config('L4');
+ // 30cm is a capped supplier setting: it is NOT the physical 42.4cm gap.
+ c.dimensions.B5=300;
+ const g=geometry(c);
+ const b5=g.dimensions.find(d=>d.id==='B5');
+ assert.equal(b5.settingOnly,true);
+ assert.deepEqual(b5.diagonalCut,{from:[1050,0],to:[0,1050]});
+ const drawn=svg(g,'B5',{unit:'cm'});
+ assert.match(drawn,/data-field="B5" data-active="true" data-setting-only="true" role="button" tabindex="0" data-measure-id="B5" data-diagonal="outer-edge"/);
+ assert.match(drawn,/data-setting-only="true"/);
+ assert.match(drawn,/M 525,525 L /,'B5 leader must start in the middle of the outer diagonal');
+ assert.doesNotMatch(drawn,/B5: 42,4 cm/,'never pretend B5 is an actual gap measurement');
+ const stale=svg(g,'B5',{unit:'cm',invalidField:'B5'});
+ assert.doesNotMatch(stale,/B5: 30 cm/,'an invalid B5 field must not display stale geometry value');
+ assert.match(stale,/data-field="B5"[^>]*data-active="true"/);
+ const b1andb2=svg(g,'B1',{unit:'cm'});
+ assert.match(b1andb2,/data-field="B1" data-active="true"[^>]*data-measure-id="B2"/);
+ const cornerWidth=svg(g,'B3',{unit:'cm'});
+ assert.match(cornerWidth,/data-field="B3" data-active="true"[^>]*data-measure-id="B4"/);
+ c.dimensions.B5=900;
+ const real=geometry(c);
+ assert.equal(real.dimensions.find(d=>d.id==='B5').settingOnly,false);
+ assert.match(svg(real,'B5',{unit:'cm'}),/data-diagonal="diagonal-ruler"/);
+});
+test('Every customer dimension error and inline overlay uses concise German labels',async()=>{
+ const c=await read('../public/component.mjs');
+ assert.doesNotMatch(c,/z\. B\.|\(z\.B\.|corner-\w+ in cm/);
+ assert.match(c,/displayKey=inlineKey\.replace\(\/\^corner-\//);
+ assert.match(c,/function activateMeasure\(key\)/);
+ assert.match(c,/dataset\.measureId===inlineAnchor/);
+ assert.match(c,/invalidMeasureKey=invalidKey\?visibleMeasureKey\(invalidKey\):null/);
+ assert.match(c,/\$\('price-note'\)\.textContent='';/);
+ assert.doesNotMatch(c,/customerMeasureError\(result\.quote\.availabilityNote\)/);
+ const feedback=await read('../core/measure-feedback.mjs');
+ assert.doesNotMatch(feedback,/z\. B\./);
 });

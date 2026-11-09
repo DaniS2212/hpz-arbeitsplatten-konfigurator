@@ -61,7 +61,7 @@ function schematicPath(g,trim){
   }
   return path+' Z';
 }
-export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,selectedSeam=null,detail=null,textureUrl=null,unit='mm'}={}) {
+export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,selectedSeam=null,detail=null,textureUrl=null,unit='mm',invalidField=null}={}) {
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
   const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
@@ -93,28 +93,47 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     // B2 shares its vertical alignment with an upper-corner B4 (or mirrored
     // B3). Place the long full-depth label on a distinct outer measurement rail.
     const rail=d.id==='B2'&&b2Crowded?.95:cornerB1?(lowerCorner?1.35:.95):.45;
-    const offset=pad*(d.referenceOutside?(d.offsetFactor??.88):rail)*d.side;
+    const diagonal=isL&&d.axis==='diagonal';
+    // B5 is a diagonal setting. Keep a real 45-degree dimension on its
+    // own axis, not offset onto the B3/B4 horizontal reference rail.
+    const offset=diagonal?0:pad*(d.referenceOutside?(d.offsetFactor??.88):rail)*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const selected=field===active,color=selected?'#a34f1c':'#365861';
-    const diagonal=isL&&d.axis==='diagonal';
-    // L4 B5 is a diagonal perpendicular clearance. The actual leaders can
-    // cross the plate, but an OPAQUE dimension label must never hide its decor.
-    const textX=diagonal?g.points[0][0]*.32:(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0);
-    const textY=diagonal?-pad*.9:(a[1]+b[1])/2-(vertical?0:font*.75);
-    // B5 is a setting value, not a physical-gap ruler, when Speedmaster
-    // caps its outside diagonal at B3/B4. No false 300mm double-arrow.
-    if(diagonal&&d.settingOnly)return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" data-setting-only="true" role="button" tabindex="0" aria-label="${escapeXml(field)} bearbeiten">${label(`${d.label??d.id}: ${measure(d.mm)}`,textX,textY,{selected})}</g>`;
-    return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" role="button" tabindex="0" aria-label="${escapeXml(field)} bearbeiten" stroke="${color}" fill="${color}">
+    // If an input is temporarily invalid the outline is intentionally the
+    // last valid geometry. Never show an obsolete NUMBER for that field.
+    const labelText=invalidField===field
+      ?String(d.label??d.id):`${d.label??d.id}: ${measure(d.mm)}`;
+    const cutMid=diagonal&&d.diagonalCut
+      ?[(d.diagonalCut.from[0]+d.diagonalCut.to[0])/2,
+        (d.diagonalCut.from[1]+d.diagonalCut.to[1])/2]:null;
+    // Place even a real diagonal ruler's text OUTSIDE the wood, directly
+    // alongside its own diagonal rather than above B3/B4 or on the surface.
+    const textX=diagonal?cutMid[0]-font*1.7:(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0);
+    const textY=diagonal?cutMid[1]-font*1.7:(a[1]+b[1])/2-(vertical?0:font*.75);
+    // Capped B5 is a setting, not the physical length of the diagonal
+    // line. Point the callout at the visible OUTER diagonal, without false
+    // double-arrow dimensions. This also separates it from the B3/B4 rail.
+    if(diagonal&&d.settingOnly){
+      const cut=d.diagonalCut??{from:g.points[0],to:g.points[g.points.length-1]};
+      const mid=[(cut.from[0]+cut.to[0])/2,(cut.from[1]+cut.to[1])/2];
+      const text=[mid[0]-font*1.52,mid[1]-font*1.36];
+      const end=[mid[0]-font*.82,mid[1]-font*.82];
+      return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" data-setting-only="true" role="button" tabindex="0" data-measure-id="B5" data-diagonal="outer-edge" aria-label="B5 an der Außendiagonale bearbeiten" stroke="${color}" fill="${color}">
+        <path d="M ${mid} L ${end}" fill="none" stroke-width="${selected?font/11:font/26}"/>
+        <circle cx="${mid[0]}" cy="${mid[1]}" r="${font*.08}"/>
+        ${label(labelText,text[0],text[1],{selected,corner:true})}</g>`;
+    }
+    return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" role="button" tabindex="0" data-measure-id="${escapeXml(d.label??d.id)}" data-diagonal="${diagonal?'diagonal-ruler':'false'}" aria-label="${escapeXml(field)} bearbeiten" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
-      ${label(`${d.label??d.id}: ${measure(d.mm)}`,textX,textY,{vertical,selected})}</g>`;
+      ${label(labelText,textX,textY,{vertical,selected,corner:diagonal})}</g>`;
   }).join('');
   const radii=(g.cornerArcs??[]).filter(a=>!detail||a.side===detail).map(a=>{
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
     const x=a.side==='left'?g.width*.18:g.width*.82,y=g.height+pad*.65;
     const tx=a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.sqrt(2),ty=a.center[1]+a.radiusMm/Math.sqrt(2);
-    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure" role="button" tabindex="0" aria-label="${escapeXml(a.id)} bearbeiten"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
+    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure" role="button" tabindex="0" data-measure-id="${a.id}" aria-label="${escapeXml(a.id)} bearbeiten"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(invalidField===a.id?String(a.label??a.id):`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
     const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
@@ -131,7 +150,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const mid=(a[0]+b[0])/2;
     const x=vertical?a[0]+normal*font*.9:isL?mid:Math.max(font*3,Math.min(g.width-font*3,mid)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
-    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" role="button" tabindex="0" aria-label="${escapeXml(d.id)} bearbeiten" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
+    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" role="button" tabindex="0" data-measure-id="${d.id}" aria-label="${escapeXml(d.id)} bearbeiten" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(invalidField===d.id?String(d.label??d.id):`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
   const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
   const extra=outsideReference ? 0.5 : 0;

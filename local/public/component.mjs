@@ -116,7 +116,7 @@ function renderRadiusInputs(){
     input.id=cornerId;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',l?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
     input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
-    input.addEventListener('focus',()=>{active=l?`corner-${key}`:key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
+    input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l?`corner-${key}`:key);});
     const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;
     const inline=element('p','field-error');inline.id=l?`corner-field-error-${key}`:`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
@@ -252,7 +252,7 @@ function rebuild(){
         if(id==='B3')currentDimensions().B4=input.value;
       }
       refresh();});
-    input.addEventListener('focus',()=>{active=id;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
+    input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(id);});
     const inline=element('p','field-error');inline.id='field-error-'+id;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);target.append(wrap);
   };
@@ -332,7 +332,7 @@ function renderSeamChoices(){
  const drawingStage=$('drawing').closest('.stage');
  const inlineEditor=element('div','inline-measure-editor');
  inlineEditor.hidden=true;drawingStage.append(inlineEditor);
- let inlineKey=null,inlineOriginal='';
+ let inlineKey=null,inlineOriginal='',inlineAnchor=null,invalidMeasureKey=null;
  function visibleMeasureKey(key){
    if(product==='l'&&['L3','L4'].includes(variants.l)){
      if(key==='B2')return 'B1';
@@ -344,10 +344,20 @@ function renderSeamChoices(){
    const visible=visibleMeasureKey(key);
    return $(visible.startsWith('corner-')?visible:'dim-'+visible);
  }
+ // Sketch and form share a single canonical measure selection.
+ function activateMeasure(key){
+   active=visibleMeasureKey(key);
+   shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));
+   const field=fieldForMeasure(active);
+   const wrap=field?.closest('.a1-radius-field')??field?.parentElement?.parentElement;
+   wrap?.classList.add('active-dimension');
+   renderDrawing();
+ }
  function positionInlineEditor(){
    if(!inlineKey||inlineEditor.hidden)return;
    const measures=[...$('drawing').querySelectorAll('.apl-measure[data-field]')];
-   const label=measures.find(x=>x.dataset.field===inlineKey)?.querySelector('.apl-measure-label');
+   const label=(measures.find(x=>x.dataset.measureId===inlineAnchor)
+     ??measures.find(x=>x.dataset.field===inlineKey))?.querySelector('.apl-measure-label');
    if(!label)return;
    const bounds=label.getBoundingClientRect(),container=drawingStage.getBoundingClientRect();
    const x=bounds.left+bounds.width/2-container.left-70;
@@ -356,19 +366,21 @@ function renderSeamChoices(){
    inlineEditor.style.top=Math.max(8,Math.min(container.height-55,y))+'px';
  }
  function closeInlineEditor(){
-   inlineEditor.hidden=true;inlineEditor.replaceChildren();inlineKey=null;
+   inlineEditor.hidden=true;inlineEditor.replaceChildren();inlineKey=null;inlineAnchor=null;
  }
- function openInlineMeasure(key){
+ function openInlineMeasure(key,anchorKey=key){
    const field=fieldForMeasure(key);
    if(!field||view!=='plan')return;
    if($('drawing-dialog').open)$('drawing-dialog').close();
    if(step!==1)showStep(1);
-   closeInlineEditor();inlineKey=key;inlineOriginal=field.value;
-   active=visibleMeasureKey(key);renderDrawing();
-   const caption=element('label','',active+' in cm');
+   closeInlineEditor();inlineKey=visibleMeasureKey(key);
+   inlineAnchor=anchorKey;inlineOriginal=field.value;
+   activateMeasure(inlineKey);
+   const displayKey=inlineKey.replace(/^corner-/,'');
+   const caption=element('label','',displayKey+' in cm');
    const input=element('input');
    input.type='text';input.inputMode='decimal';input.value=field.value;
-   input.setAttribute('aria-label',active+' direkt in der Zeichnung in Zentimetern bearbeiten');
+   input.setAttribute('aria-label','Maß '+displayKey+' direkt in der Zeichnung bearbeiten');
    input.setAttribute('autocomplete','off');
    inlineEditor.replaceChildren(caption,input,element('span','', 'cm'));
    inlineEditor.hidden=false;positionInlineEditor();
@@ -387,10 +399,10 @@ function renderSeamChoices(){
    input.addEventListener('blur',()=>closeInlineEditor());
    input.focus({preventScroll:true});input.select();
  }
-function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm'}),'large');
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm',invalidField}),'large');
   positionInlineEditor();}
 function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];
@@ -481,7 +493,7 @@ function updateCornerBounds(){
     const input=$(`dim-${key}`);if(!input)continue;
     const value=parameters[key];
     let issue='';
-    if(!Number.isInteger(value))issue='Bitte in cm eingeben, z. B. 15.';
+    if(!Number.isInteger(value))issue='Bitte eine Zahl in cm eingeben.';
     else if(limits.enabled){
       if(limit.max<limit.min)issue='Diese Ecke ist mit den gewählten Maßen nicht möglich.';
       else if(value<limit.min)issue=`Mindestens ${mmToCmText(limit.min)} cm möglich.`;
@@ -500,7 +512,7 @@ function updateCornerBounds(){
 function applyVisual(result){
   if(disposed)return;
   valid=true;
-  shell.dataset.measureInvalid='false';
+  shell.dataset.measureInvalid='false';invalidMeasureKey=null;
   lastGeometry=result.geometry;
   clearFieldErrors();
   $('drawing-status').hidden=true;
@@ -528,8 +540,11 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       purchaseState(true);
      }else if(result.quote.status==='calculated-not-sale-approved'){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Unverbindlicher Bruttopreis${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);
-      $('tax-note').textContent=result.quote.taxNote;
-      $('price-note').textContent=customerMeasureError(result.quote.availabilityNote);
+      $('tax-note').textContent=result.quote.taxNote?.includes('19 %')
+        ?'inkl. 19 % MwSt. · Versand separat':'Versand separat';
+      // Internal estimate warnings remain in backend status, not in the
+      // compact customer summary; sales eligibility remains unchanged.
+      $('price-note').textContent='';
     }else if(['unpriced','unavailable'].includes(result.quote.status)){
       priceDisplay('Preis offen','Unverbindliche Vorschau');$('tax-note').textContent='Kundenversand separat';
       $('price-note').textContent=customerMeasureError(result.quote.message||'Für diese Kombination liegt noch keine Preisvorschau vor.');
@@ -553,10 +568,11 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     let activeTextInvalid=false;
     if(activeField){try{cmInputToMmText(activeField.value);}catch{activeTextInvalid=true;}}
     const message=issue?.message??(activeTextInvalid
-      ?active.replace(/^corner-/,'')+': Bitte eine Zahl in cm eingeben (z. B. 15).'
+      ?active.replace(/^corner-/,'')+': Bitte eine Zahl in cm eingeben.'
       :rawMessage);
     clearFieldErrors();
     const invalidKey=issue?.key??match?.[1]??(activeTextInvalid?active:null);
+    invalidMeasureKey=invalidKey?visibleMeasureKey(invalidKey):null;
     if(invalidKey)setFieldError(invalidKey,message);
     // Exactly one visible error notice; the last valid contour is dimmed.
     formError.textContent=message;formError.hidden=false;
@@ -600,7 +616,7 @@ function refresh(){
   for(const id of (product==='l'?lVisibleDimensionKeys(variants.l):c.families[product].fields)){
     const input=$(`dim-${id}`);
     try{cmInputToMmText(input.value);setFieldError(id);}
-    catch{setFieldError(id,'Bitte ein gültiges Maß in cm eingeben (z. B. 200 oder 200,1).');}
+    catch{setFieldError(id,'Bitte ein gültiges Maß in cm eingeben.');}
   }
   if(product==='l'){
     for(const key of lCornerKeys(variants.l,lSide,lTreatment)){
@@ -648,12 +664,12 @@ for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event
     selectedPart=part.dataset.partId;selectedSeam=null;renderDrawing();return;
   }
   const measure=event.target.closest('.apl-measure[data-field]');
-  if(measure)openInlineMeasure(measure.dataset.field);
+  if(measure)openInlineMeasure(measure.dataset.field,measure.dataset.measureId||measure.dataset.field);
 });
 for(const id of ['drawing','large-drawing'])$(id).addEventListener('keydown',event=>{
   if(event.key!=='Enter'&&event.key!==' ')return;
   const measure=event.target.closest('.apl-measure[data-field]');
-  if(measure){event.preventDefault();openInlineMeasure(measure.dataset.field);}
+  if(measure){event.preventDefault();openInlineMeasure(measure.dataset.field,measure.dataset.measureId||measure.dataset.field);}
 });
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());

@@ -57,14 +57,14 @@ test('a 60 mm B3 cut labels its actual short measure, without clamping into anot
  const x=Number(match[1]),mid=(d.from[0]+d.to[0])/2;
  assert.ok(Math.abs(x-mid)<.001,'B3 label '+x+' must follow its actual dimension midpoint '+mid);
 });
-test('L4 B5 diagonal distance text is placed outside wood rather than opaque on the surface',()=>{
+test('L4 B5 label stays off the worktop beside the real outer diagonal',()=>{
  const g=geometry(make(cases[3])),picture=svg(g,'B5',{unit:'cm'});
  const text=picture.slice(picture.indexOf('data-field="B5"'));
  const match=text.match(/class="apl-measure-label"[^>]*translate\(([-\d.]+) ([-\d.]+)\)/);
  assert.ok(match);
  const x=Number(match[1]),y=Number(match[2]),outer=g.points[0][0];
  assert.ok(x+y<outer-100,'B5 callout at '+x+','+y+' must be in empty region, outside outer diagonal '+outer);
- assert.ok(y<0,'B5 label must remain above the visible worktop, not cover wood');
+ assert.ok(y>0 && y<outer,'B5 label belongs by its outer diagonal, not above the B3/B4 ruler');
 });
 test('continuous-front chamfers use straight main diagonals plus subtle illustration-only transition blends',()=>{
  for(const f of cases){
