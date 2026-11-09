@@ -73,12 +73,14 @@ function sideIcon(side){
 function cornerTreatmentIcon(kind){
  const outline=kind==='round'
    ?'M 8 5 V 34 H 24 Q 38 34 38 20 V 5'
-   :'M 8 5 V 34 H 25 L 38 21 V 5';
+   :kind==='chamfer_continuous'
+     ?'M 8 5 V 34 H 21 Q 25 34 28 31 L 35 24 Q 38 21 38 17 V 5'
+     :'M 8 5 V 34 H 25 L 38 21 V 5';
  const edge=kind==='round'
    ?'<path d="M 24 34 Q 38 34 38 20" fill="none" stroke="#b26b41" stroke-width="2.6" stroke-linecap="round"/>'
    :kind==='chamfer_square'
      ?'<path d="M 25 34 L 38 21" fill="none" stroke="#b26b41" stroke-width="3.4" stroke-linecap="butt"/><path d="M 25 30 V 38 M 34 21 H 42" fill="none" stroke="#557b83" stroke-width="1.7"/>'
-     :'<path d="M 8 34 H 25 L 38 21 V 5" fill="none" stroke="#b26b41" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';
+     :'<path d="M 8 34 H 21 Q 25 34 28 31 L 35 24 Q 38 21 38 17 V 5" fill="none" stroke="#b26b41" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';
  return `<svg data-treatment-kind="${kind}" viewBox="0 0 52 44" aria-hidden="true">
    <path d="${outline}" fill="none" stroke="#557b83" stroke-width="2.2"
       stroke-linejoin="round"/>${edge}</svg>`;
@@ -281,12 +283,17 @@ function placeSummary(){
 ['Ecken','Maße in cm','Oberfläche'].forEach((label,i)=>{const b=element('button');b.type='button';b.innerHTML=`<span class="step-number">${i+1}</span><span class="step-label">${label}</span>`;b.addEventListener('click',()=>showStep(i));$('steps').append(b);});
 function updateFamilyCopy(){
  $('steps').querySelector('.step-label').textContent=product==='straight'?'Ecken':'Grundriss';
- $('view-parts').textContent='Aufteilung';$('view-parts').hidden=product==='straight';
- if(product==='straight'){
-   view='plan';$('parts-note').hidden=true;
-   $('view-plan').setAttribute('aria-pressed','true');
-   $('view-parts').setAttribute('aria-pressed','false');
- }
+ // Customers already choose join positions in U1–U4. The optional
+ // part/seam controls below the diagram only highlight illustrative
+ // geometry, without changing price, order or manufacturing fields.
+ // Keep internal test access but remove this redundant customer UI.
+ view='plan';selectedPart=null;selectedSeam=null;
+ $('parts-note').hidden=true;
+ const viewTabs=$('view-plan').parentElement;
+ viewTabs.hidden=true;viewTabs.setAttribute('aria-hidden','true');
+ $('view-plan').tabIndex=-1;$('view-parts').tabIndex=-1;
+ $('view-plan').setAttribute('aria-pressed','true');
+ $('view-parts').setAttribute('aria-pressed','false');
 }
 function renderChoices(){
   cornerTitle.hidden=false;cornerTitle.textContent='Wie soll die Ecke aussehen?';
