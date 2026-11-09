@@ -34,6 +34,26 @@ test('Every straight/L1-L4/U1-U4 contour and SVG responds to a real dimension ed
   assert.ok(svgAfter.includes('cm'),shape+' must render cm rather than mm');
  }
 });
+test('Schenkelbreiten and U-leg dimensions change the actual customer contour',()=>{
+ for(const shape of ['straight','L1','L2','L3','L4','U1','U2','U3','U4']){
+  const origin=config(shape),updated=structuredClone(origin);
+  if(shape==='L4'){
+   updated.dimensions.B1-=100;updated.dimensions.B2-=100;
+  }else if(shape==='L3'){
+   updated.dimensions.B1+=100;updated.dimensions.B2+=100;
+  }else{
+   updated.dimensions.B1+=100;
+  }
+  const a=geometry(origin),b=geometry(updated);
+  assert.notEqual(b.path,a.path,shape+' drawing must change for a real width edit');
+  assert.notEqual(svg(a),svg(b),shape+' must not retain stale width SVG');
+ }
+ for(const shape of ['U1','U2','U3','U4']){
+  const c=config(shape),other=structuredClone(c);other.dimensions.L3+=300;
+  assert.notEqual(geometry(c).path,geometry(other).path,
+    shape+' right U leg must extend when L3 is changed');
+ }
+});
 test('One actionable precise warning for the customer screenshot L1=50cm',()=>{
  const issue=firstMeasureIssue('l','L1',{L1:'50',L2:'170',B1:'60',B2:'60'});
  assert.equal(issue.key,'L1');
