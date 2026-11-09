@@ -184,7 +184,7 @@ foreach($measuredAdditional as [$form,$material,$dimensions,$expected]){
 }
 foreach([
     ['APL17.5',625,53155],['APL17.5',675,53712],
-    ['APL38',625,78105],['APL38',675,77176]
+    ['APL38',625,78105],['APL38',675,76763]
 ] as [$material,$width,$expected]){
     $raw=testRaw('U1','W980',$material,2500);
     $raw['dimensions']=['L1'=>'2500','L2'=>'1700','L3'=>'1800',
@@ -192,11 +192,12 @@ foreach([
     $norm=HPZ_APL_LU_Price_Readiness::normalize($raw);
     $quote=HPZ_APL_LU_Shop_Ratebook_12::candidate($norm);
     testRate(is_array($quote)&&$quote['supplierNetCents']===$expected,'bounded U1 B1 interpolation '.$material.'/'.$width);
-    testRate($quote['priceBasis']==='bounded-single-axis-net-interpolation',
-        'interpolated midpoint not marked exact');
+    testRate($quote['priceBasis']===($material==='APL38'&&$width===675
+            ?'confirmed-net-reference':'bounded-single-axis-net-interpolation'),
+        'only actual measured U1 width labeled confirmed');
 }
 foreach([
-    ['L3','B3',950,'B4',950,52914],
+    ['L3','B3',950,'B4',950,52889],
     ['L4','B5',650,null,null,47194],
 ] as [$shape,$a,$v,$b,$other,$expected]){
     $raw=testRaw($shape,'W980','APL17.5',2500);
@@ -206,7 +207,9 @@ foreach([
     $quote=HPZ_APL_LU_Shop_Ratebook_12::candidate($norm);
     testRate(is_array($quote)&&$quote['supplierNetCents']===$expected,
         'bounded L widths '.$shape.'/'.$a);
-    testRate($quote['priceBasis']==='bounded-single-axis-net-interpolation','interpolated L widths labeled');
+    testRate($quote['priceBasis']===($shape==='L3'
+    ?'confirmed-net-reference':'bounded-single-axis-net-interpolation'),
+    'November L3 950mm exact, L4 650mm estimated');
 }
 // Same measurement in another decor/form/length is NOT an exact supplier quote.
 $offSlice=testRaw('U2','W980','APL38',2500);
@@ -254,13 +257,13 @@ $baseRound['lCorner']=['side'=>'left','treatment'=>'round','parameters'=>['R1'=>
 $round=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate(
     HPZ_APL_LU_Price_Readiness::normalize($baseRound)
 );
-testRate($round!==null&&$round['supplierNetCents']===53201,'radius commercial minimum cost model');
+testRate($round!==null&&$round['supplierNetCents']===51301,'radius commercial minimum cost model');
 testRate($round['priceBasis']==='owner-review-l-corner-cost-estimate','radius is NOT a supplier EK');
 $baseRound['lCorner']=['side'=>'both','treatment'=>'round','parameters'=>['R1'=>'100','R2'=>'100']];
 $both=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate(
     HPZ_APL_LU_Price_Readiness::normalize($baseRound)
 );
-testRate($both['cornerNetModelCents']===10000,'both rounds with second-setup allowance');
+testRate($both['cornerNetModelCents']===6200,'both rounds with second-setup allowance');
 $baseRound['lCorner']=[
     'side'=>'both','treatment'=>'chamfer_square',
     'parameters'=>['L3'=>'150','B3'=>'150','L4'=>'150','B4'=>'150']
@@ -268,7 +271,7 @@ $baseRound['lCorner']=[
 $both=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate(
     HPZ_APL_LU_Price_Readiness::normalize($baseRound)
 );
-testRate($both['cornerNetModelCents']===9000,'both straight chamfers separately modeled');
+testRate($both['cornerNetModelCents']===6200,'both straight chamfers separately modeled');
 $l4=testRaw('L4','W980','APL17.5',2500);
 $l4['lCorner']=[
     'side'=>'left','treatment'=>'chamfer_continuous',
