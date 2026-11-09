@@ -48,6 +48,12 @@ Versandsteuern im echten Shop** nicht verifizieren. Deshalb kein erfundener
 1899/1900/1901 mm im realen deutschen Gast-Checkout durchgespielt und
 die beobachteten Versandmethoden/-beträge dokumentiert werden.
 
+## Zusätzliche Anti-Unterpreisungskorrektur
+
+Bei U-Sonderbearbeitungen darf kein Aufrufer den **unbearbeiteten** Ratenrechner verwenden. Die Basis- und erweiterte Preisfunktion weisen daher normalisierte Konfigurationen mit gesetzter `uCorner` ausdrücklich ab. Die Bearbeitung erhält ausschließlich über `uCornerCandidate()` ihren separat kalkulierten Preis. Ein Negativtest für alle vier U-Formen und alle neun Eckklassen ist Teil der CI. Dadurch bleibt die Bestellung gegen ein versehentliches Weglassen des Eckzuschlags geschützt.
+
+Der zusätzliche synthetische Checkout-Test `wordpress/checkout-lu/tests/lu-operator-boundary-1900.php` führt die genehmigungsabhängige Modellkalkulation **über signierte Warenkorbzeile bis zu HPOS-Bestellmetadaten** bei 1899/1900/1901 mm. Das prüft zugleich den einmaligen internen Speditionsbetrag, DE-Mehrwertsteuer, zu geringe Rabattmargen und unzulässige Woo-Versandmethoden, ohne reale Kundentarife zu erfinden.
+
 ## Freigabegatter, die unabhängig von Preisabdeckung bleiben
 
 1. L/U: `HPZ_APL_LU_11_AUDITED_RELEASE`, Woo-Produkte published,
