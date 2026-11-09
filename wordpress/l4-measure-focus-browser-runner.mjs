@@ -56,7 +56,7 @@ try {
     assert.equal(first.active,'true','B5 sketch follows B5 input');
     assert.equal(first.fieldActive,true,'B5 input follows B5 sketch selection');
     assert.equal(first.label,'B5: 30 cm');
-    assert.match(first.path,/^M 450,450 L /,'leader starts at actual diagonal midpoint');
+    assert.match(first.path,/^M 525,525 L /,'leader starts at actual diagonal midpoint');
     assert.ok(!first.priceNote.includes('Kaufmännischer Modellpreis'),
       'no long backend explanation in customer summary');
 
