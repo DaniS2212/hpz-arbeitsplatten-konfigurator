@@ -12,6 +12,8 @@ mountConfigurator(root,{productId:1000083,presentationMode:'embedded'},{preview}
 const s=root.shadowRoot;
 try{
  await ready();
+ check('Schritt 1 ohne Maßpfeile',s.querySelector('#drawing .apl-measure')===null);
+ s.querySelector('#steps button:nth-child(2)').click();
  check('Unbearbeitet: Rechteck und Vorderkante unten',s.querySelector('#drawing').textContent.includes('Vorderkante'));
 
  const label=s.querySelector('#drawing .apl-measure[data-field="L1"] .apl-measure-label rect');
