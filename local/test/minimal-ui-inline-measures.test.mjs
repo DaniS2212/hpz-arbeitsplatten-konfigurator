@@ -143,7 +143,7 @@ test('Every customer dimension error and inline overlay uses concise German labe
 });
 
 test('Straight sketch uses a larger viewport and minimal corner heading has no info icon',async()=>{
- const straight=geometry(config('straight'));
+ const straight=geometry({...config('straight'),straightCorner:{side:'none',treatment:null,parameters:{}}});
  const markup=svg(straight,'L1',{unit:'cm'});
  const [,box]=markup.match(/viewBox="([^"]+)"/)??[];
  assert.ok(box,'SVG must have a viewBox');
