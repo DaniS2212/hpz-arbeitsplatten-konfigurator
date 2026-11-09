@@ -257,3 +257,15 @@ Zusammen mit vorherigen H1145-L1=2500-Preisen aus PR69: **H1145 L1 UND U1 steige
 **Wichtige Testfunktion:** Neues Backend `HPZ_APL_LU_Admin_Price_Preview_13` und neue `wp_ajax_hpz_apl_lu_price_preview` nur für eingeloggte berechtigte Administratoren auf **draft** L/U-SKU 1000080/1000081, V3-Brutto-Preisvorschau auch für Sonder-Ecken; keine guest route, keine Kaufmöglichkeit, kein öffentlicher Preis. Wenn `other_cost_net_cents` noch nicht geprüft wurde, in Admin-Vorschau 0 € nur als **sichtbar provisorische Szenarioannahme**; nicht automatisch freigeben. Woo-Verkauf erst nach realem Test und Betreiber-OK aktivieren.
 
 **Nach diesem PR:** CI aller relevanten PHP/Node/Browser/Plugin-Bundle-Tests grün, Admin-Preisvorschau auf WordPress verifizieren, zusätzliche Geschäftskosten prüfen, wenige blind ausgewählte Lieferanten-EK-Kontrollen für modellierte Sonder-Ecken und andere Extremmaße, dann deutscher Woo-Testcheckout. Keine breite neue Preis-/Geometrie-/Lieferantenarchitektur beginnen.
+
+## 09.11.2026 – Preismodell mit zehn tatsächlichen Speedmaster-EKs abschließen
+
+**Betreiberwunsch ausdrücklich:** „Ich möchte gar nix, außer den Konfigurator möglichst schnell fertig zu bekommen und dabei einigermaßen verwendbare Preise haben für jedes Maß, jedes Dekor und jede Konfiguration.“ Wie bei Gerade sollen wir **keine weitere lange Einkaufsreferenzsammlung** beginnen. Ziel: brauchbares Preisniveau, anschließend Woo-Checkout-Test und Freigabe.
+
+**Letzte zehn Textpreise:** 1=300,03 €, 2=300,73 €, 3=510,06 €, 4=351,33 €, 5=528,89 €, 6=724,66 €, 7=767,63 €, 8=547,40 €, 9=837,82 €, 10=828,24 € – alle netto. Formen, Maße, Dekore, Dicke und Ecken sind vollständig als `docs/references/speedmaster-lu/LU_TEN_NET_PRICE_CHECKS_20261109.json` dokumentiert, inkl. der alten höheren Modellannahmen. Durchschnittlich 7,2 % Überkalkulation gegenüber dieser Kontrollstichprobe.
+
+**Kalibrierung im selben Ratebook und unveränderten Woo-/V3-Weg:** zehn exakte Konfigurationen hinterlegt, echte stückweise Ein-Achsen-Interpolation ergänzt, die redundanten zusätzlichen 7 % im erweiterten Modell entfernt, Längenänderungen am gemessenen Gradienten, Breitenaufwand an vorhandenen Speedmaster-B1/B5-Referenzen, U/F128-Dekoranteil auf 75 % des überzähligen Rechteckflächenaufschlags, Modell-Eckkosten von 35–44 € je Seite auf 25 € plus Form-/Maßaufschläge geändert. Exakt bestätigte alte/neue Ecken behalten ihre realen Herstellerpreise; für alle anderen bleibt der Modellstatus ehrlich. **Keine Änderung an 190-cm-Fracht, 10-%-Kostenreserve, 40-%-Ziel-/35-%-Min-Marge, Steuern, WordPress-Freigaben oder Gerade.**
+
+**Abschluss:** Nach GitHub-CI PR mergen, dann WordPress-Preisvorschau und Woo Checkout **nicht weitere allgemeine Speedmaster-Preislisten**. Reale Zusatzkosten/Versandmethoden prüfen, signierte L-/U-Bestellung manuell bei Speedmaster übergeben. Kein öffentliches Produkt ohne Betreiberfreigabe.
+
+[Preisabschluss-Notiz](phase-lu-final-10-price-calibration-20261109.md).
