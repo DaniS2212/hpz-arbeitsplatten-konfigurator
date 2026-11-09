@@ -15,7 +15,7 @@ export function firstMeasureIssue(product,shape,values,{material='APL38',straigh
   const issue=(key,text)=>({key,message:text});
   for(const key of fields){
     try{mm[key]=cmToMm(values[key]);}
-    catch{return issue(key,`${key}: Bitte eine Zahl in cm eingeben (z. B. 180 oder 180,5).`);}
+    catch{return issue(key,`${key}: Bitte eine Zahl in cm eingeben.`);}
   }
   if(product==='l'&&(shape==='L3'||shape==='L4')){
     mm.B2=mm.B1;mm.B4=mm.B3;
