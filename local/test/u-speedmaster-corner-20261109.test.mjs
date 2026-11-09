@@ -82,3 +82,14 @@ test('UI source includes photo-readable U seam cards, separate sides and absolut
  const css=readFileSync(new URL('../../design/kuechenstudio-060.css',import.meta.url),'utf8');
  assert.match(css,/\.u-variant-grid/);
 });
+test('U R1/R2 dimension labels avoid B2/B3 bottom rulers',()=>{
+ const left=geometry(make('U1',defaultUCorner('left','round'))).cornerArcs[0];
+ assert.equal(left.side,'left');
+ assert.ok(left.labelAt[0]>600 && left.labelAt[0]<1400,'R1 annotation belongs in the white inner opening');
+ assert.ok(left.labelAt[1]<1200 && left.labelAt[1]>600,
+   'R1 annotation should be above B2 bottom rail but below top bar');
+ const right=geometry(make('U1',defaultUCorner('right','round'))).cornerArcs[0];
+ assert.equal(right.side,'right');
+ assert.ok(right.labelAt[0]<1400 && right.labelAt[0]>600,'R2 annotation belongs in the opening');
+ assert.ok(right.labelAt[1]<1800 && right.labelAt[1]>600,'R2 annotation avoids B3 bottom rail');
+});

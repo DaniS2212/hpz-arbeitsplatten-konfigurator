@@ -49,8 +49,12 @@ export const uSplitModes=Object.freeze({
          center,from:start,to:end,side,
          leaderPoint:[center[0]+(side==='left'?1:-1)*vertical/Math.SQRT2,
            center[1]+vertical/Math.SQRT2],
-         labelAt:[vertex[0]+(side==='left'?-horizontal*.55:horizontal*.55),
-           vertex[1]+Math.max(horizontal*.65,110)]});
+         // Place the annotation in the WHITE inner opening, not on the
+         // bottom B2/B3 width rulers. Both previews and inline editing use
+         // the same leader anchor for the correct inner foot.
+         labelAt:[vertex[0]+(side==='left'?1:-1)*
+             Math.min(180,Math.max(80,(base[3][0]-base[6][0])/3)),
+           vertex[1]-Math.min(140,Math.max(50,(vertex[1]-c.dimensions.B1)/2))]});
      }else{
        cuts.push({side,from:start,to:end,presentationOnly:corner.treatment==='chamfer_continuous',
          fields:side==='left'?['corner-L4','corner-B4']:['corner-L5','corner-B5']});

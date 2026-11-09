@@ -66,16 +66,28 @@ $('large-drawing').before(detailOptions);
 function sideIcon(side){
   return `<svg viewBox="0 0 96 46" aria-hidden="true"><path d="M8 6H88V38H8Z" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M25 38H71" stroke="#146178" stroke-width="3"/>${['left','both'].includes(side)?'<path d="M8 24V38H22" fill="none" stroke="#ad8667" stroke-width="5"/>':''}${['right','both'].includes(side)?'<path d="M74 38H88V24" fill="none" stroke="#ad8667" stroke-width="5"/>':''}</svg>`;
 }
-function treatmentIcon(kind){
-  const path=kind==='round'?'M10 5H88V39H26A16 16 0 0 1 10 23Z':kind==='chamfer_square'?'M10 5H88V39H27L10 22Z':'M10 5H88V39H29Q27 39 25 37L12 24Q10 22 10 20Z';
-  return `<svg viewBox="0 0 98 46" aria-hidden="true"><path d="${path}" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M35 39H80" stroke="#146178" stroke-width="3"/></svg>`;
+// The contour of the chamfer is the same; its edge treatment is different.
+// Eckig = short, separate diagonal edge with visible endpoints.
+// Durchlaufend = one uninterrupted highlighted edge around the transition.
+// This is a visual choice symbol, never a confirmed CNC cross-section.
+function cornerTreatmentIcon(kind){
+ const outline=kind==='round'
+   ?'M 8 5 V 34 H 24 Q 38 34 38 20 V 5'
+   :'M 8 5 V 34 H 25 L 38 21 V 5';
+ const edge=kind==='round'
+   ?'<path d="M 24 34 Q 38 34 38 20" fill="none" stroke="#b26b41" stroke-width="2.6" stroke-linecap="round"/>'
+   :kind==='chamfer_square'
+     ?'<path d="M 25 34 L 38 21" fill="none" stroke="#b26b41" stroke-width="3.4" stroke-linecap="butt"/><path d="M 25 30 V 38 M 34 21 H 42" fill="none" stroke="#557b83" stroke-width="1.7"/>'
+     :'<path d="M 8 34 H 25 L 38 21 V 5" fill="none" stroke="#b26b41" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';
+ return `<svg data-treatment-kind="${kind}" viewBox="0 0 52 44" aria-hidden="true">
+   <path d="${outline}" fill="none" stroke="#557b83" stroke-width="2.2"
+      stroke-linejoin="round"/>${edge}</svg>`;
 }
-// L corner rendering follows its own Speedmaster silhouette, not the
-// separately documented straight-worktop schematic rounded transitions.
-function lTreatmentIcon(kind){
- if(kind!=='chamfer_continuous')return treatmentIcon(kind);
- return '<svg viewBox="0 0 98 46" aria-hidden="true"><path d="M10 5 H88 V39 H29 L10 20 Z" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M10 20 L29 39 H80" fill="none" stroke="#146178" stroke-width="3"/></svg>';
-}
+const cornerChoiceLabels={
+ round:'Abgerundet',
+ chamfer_square:'Abgeschrägt · eckig',
+ chamfer_continuous:'Abgeschrägt · Kante durchlaufend'
+};
 // The four U models share ONE outline. Only the two visible join directions
 // differ. Show these differences at the choice point, not behind "Aufteilung".
 function uJoinIcon(shape){
@@ -127,22 +139,13 @@ function renderUChoices(){
  cornerTitle.textContent='Bearbeitung';$('corners').style.gridTemplateColumns='1fr';
  if(uSide!=='none'){
   $('corners').replaceChildren(...Object.entries(uCornerTreatments)
-    .map(([id,title])=>choice('u-treatment',id,uJoinTreatmentIcon(id)
+    .map(([id,title])=>choice('u-treatment',id,cornerTreatmentIcon(id)
        +'<span>'+title+'</span>',uTreatment===id,()=>{
         uTreatment=id;uCornerValues=Object.fromEntries(Object.entries(defaultUCorner(uSide,uTreatment).parameters)
           .map(([k,v])=>[k,mmToCmText(Number(v))]));
         renderRadiusInputs();refresh();
        },'a1-treatment-card')));
  }
-}
-function uJoinTreatmentIcon(treatment){
- // A sketch of the inner leg FOOT is sufficient; the actual full contour
- // uses uCorner in the shared SVG. This icon is not a manufacturer drawing.
- const path=treatment==='round'?'M 8 5 V 35 H 24 Q 38 35 38 21 V 5'
-   :'M 8 5 V 35 H 25 L 38 22 V 5';
- return `<svg viewBox="0 0 46 42" aria-hidden="true"><path d="${path}"
-   fill="none" stroke="#557b83" stroke-width="2.1"/>
-  ${treatment==='chamfer_continuous'?'<path d="M 8 35 H 25 L 38 22 V 5" stroke="#af6940" fill="none" stroke-width="2"/>':''}</svg>`;
 }
 
 function setFieldError(key,message=''){
@@ -215,7 +218,7 @@ function renderStraightChoices(){
   sideLegend.textContent='Welche Eckbearbeitung?';
   sideWrap.hidden=product!=='straight';
   if(product!=='straight')return;
-  sideWrap.lastElementChild.replaceChildren(...Object.entries(sides).map(([id,label])=>choice('straight-side',id,`${sideIcon(id)}<span>${label}</span>`,straightSide===id,()=>{
+  sideWrap.lastElementChild.replaceChildren(...Object.entries(sides).map(([id,label])=>choice('straight-side',id,`${sideIcon(id)}<span>${id==='none'?'Keine':id==='both'?'Beide':label}</span>`,straightSide===id,()=>{
     straightSide=id;straightTreatment=id==='none'?null:(straightTreatment??'round');radiusValues=Object.fromEntries(Object.entries(defaultCornerParameters(straightSide,straightTreatment)).map(([k,v])=>[k,mmToCmText(Number(v))]));corner='square';$('special').value='10';active=`side-${id}`;drawingDetail=null;renderChoices();renderRadiusInputs();refresh();
     sideWrap.querySelector(`input[value="${id}"]`).focus({preventScroll:true});
   },'a1-side-card')));
@@ -223,7 +226,7 @@ function renderStraightChoices(){
   cornerTitle.hidden=straightSide==='none';cornerTitle.textContent='Bearbeitung';
   $('corners').style.gridTemplateColumns='1fr';
   $('corners').setAttribute('aria-label','Welche Bearbeitung möchtest du?');
-  $('corners').replaceChildren(...Object.entries(treatments).map(([id,label])=>choice('straight-treatment',id,`${treatmentIcon(id)}<span>${label}</span>${id==='chamfer_continuous'?'<small>Weiche Übergänge · Vorschau schematisch</small>':''}`,straightTreatment===id,()=>{
+  $('corners').replaceChildren(...Object.entries(treatments).map(([id,label])=>choice('straight-treatment',id,cornerTreatmentIcon(id)+'<span>'+cornerChoiceLabels[id]+'</span>',straightTreatment===id,()=>{
     straightTreatment=id;radiusValues=Object.fromEntries(Object.entries(defaultCornerParameters(straightSide,straightTreatment)).map(([k,v])=>[k,mmToCmText(Number(v))]));corner='square';$('special').value='10';active=`side-${straightSide}`;drawingDetail=null;renderRadiusInputs();refresh();
   },'a1-treatment-card')));
 }
@@ -237,7 +240,7 @@ function renderLChoices(){
      +(['left','both'].includes(side)?'<circle cx="'+(mirror?8:31)+'" cy="'+(mirror?20:40)+'" r="4" fill="#ad8667"/>':'')
      +(['right','both'].includes(side)?'<circle cx="88" cy="'+(mirror?40:20)+'" r="4" fill="#ad8667"/>':'')+'</svg>';
  };
- sideWrap.lastElementChild.replaceChildren(...Object.entries(lSides).map(([id,name])=>choice('l-side',id,lIcon(id)+'<span>'+name+'</span>',lSide===id,()=>{
+ sideWrap.lastElementChild.replaceChildren(...Object.entries(lSides).map(([id,name])=>choice('l-side',id,lIcon(id)+'<span>'+(id==='both'?'Beide':name)+'</span>',lSide===id,()=>{
    lSide=id;lTreatment=id==='none'?null:(lTreatment??'round');
    lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));
    active='side-'+id;renderLChoices();renderRadiusInputs();refresh();
@@ -245,7 +248,7 @@ function renderLChoices(){
  $('corners').hidden=lSide==='none';cornerTitle.hidden=lSide==='none';cornerTitle.textContent='Bearbeitung';
  $('corners').style.gridTemplateColumns='1fr';
  $('corners').replaceChildren(...Object.entries(treatments).map(([id,name])=>choice('l-treatment',id,
-   lTreatmentIcon(id)+'<span>'+name+'</span>'+(id==='chamfer_continuous'?'<small>Gerade Abschrägung · Kantenverlauf noch zu prüfen</small>':''),
+   cornerTreatmentIcon(id)+'<span>'+cornerChoiceLabels[id]+'</span>',
    lTreatment===id,()=>{
      lTreatment=id;
      lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));
