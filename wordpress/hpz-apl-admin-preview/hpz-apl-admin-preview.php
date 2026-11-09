@@ -118,9 +118,11 @@ final class HPZ_APL_Admin_Preview {
             remove_action('woocommerce_single_product_summary',$callback,$priority);
         }
         remove_action('woocommerce_single_product_summary','woocommerce_template_single_price',10);
-        remove_action('woocommerce_after_single_product_summary','woocommerce_output_product_data_tabs',10);
-        remove_action('woocommerce_after_single_product_summary','woocommerce_upsell_display',15);
-        remove_action('woocommerce_after_single_product_summary','woocommerce_output_related_products',20);
+        // Preserve the complete LOWER WooCommerce product area:
+        // long description / additional information / reviews (tabs),
+        // upsells and related products. Only the top gallery/summary is
+        // compacted. Our configurator runs at priority 5, before tabs (10).
+
         add_action('woocommerce_single_product_summary',array(__CLASS__,'compact_product_title'),5);
         add_filter('body_class',array(__CLASS__,'compact_body_class'));
         add_action('wp_head',array(__CLASS__,'top_configurator_style'),30);
@@ -148,7 +150,7 @@ final class HPZ_APL_Admin_Preview {
             .'body.hpz-apl-compact-product .summary.entry-summary{float:none!important;'
             .'max-width:100%!important;width:100%!important;flex:0 0 100%!important;'
             .'margin:0!important;padding:0 0 12px!important;min-height:0!important}'
-            .'body.hpz-apl-compact-product .product-main .row{margin-bottom:0!important}'
+            .'body.hpz-apl-compact-product .product-main > .row{margin-bottom:0!important}'
             .'body.hpz-apl-compact-product .hpz-apl-minimal-h1{font-size:clamp(24px,2.6vw,36px);'
             .'line-height:1.25;font-weight:700;letter-spacing:-.025em;margin:8px 0 16px!important}'
             .'body.hpz-apl-compact-product form.cart{display:none!important}'

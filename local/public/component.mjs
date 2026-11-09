@@ -43,8 +43,7 @@ const seamExplain=element('p','apl-seam-explain');seamExplain.id='seam-explain';
 $('parts-note').append(seamChoices,seamExplain);
  const cornerTitle=$('corners').previousElementSibling;
 const sideWrap=element('fieldset','a1-sides');
-const sideLegend=element('legend','','Welche Seite?'),cornerHelp=element('button','a11-info','i');
-cornerHelp.type='button';cornerHelp.setAttribute('aria-label','Hinweise zu Eckmaßen und Vorschaugrenzen');sideLegend.append(cornerHelp);
+const sideLegend=element('legend','','Welche Eckbearbeitung?');
 sideWrap.append(sideLegend,element('div','a1-side-options'));
 cornerTitle.before(sideWrap);
 const radiusWrap=element('fieldset','a1-radii');
@@ -52,9 +51,6 @@ $('dimensions').after(radiusWrap);
 const formError=element('p','measurement-error');
 formError.id='measurement-error';formError.hidden=true;formError.setAttribute('role','alert');
 radiusWrap.after(formError);
-const infoDialog=element('dialog');infoDialog.id='corner-help';
-infoDialog.innerHTML='<button class="dialog-close" type="button" aria-label="Eckhinweise schließen">×</button><h2>Deine vorderen Ecken</h2><p>Du siehst die Platte von oben; die Vorderkante liegt unten. Längen und Tiefen kannst du auf 0,1 cm genau eingeben, Eckmaße in 1-cm-Schritten. Beim Wechsel der Bearbeitung werden nur die Eckmaße zurückgesetzt.</p><p>R1 ist vorne links, R2 vorne rechts. Bei Schrägen bezeichnet L2/L3 die Länge entlang der Vorderkante, B2/B3 die Tiefe entlang der Seite.</p><p>Bei der eckigen Abschrägung entsteht eine gerade Diagonale. Die durchlaufende Vorderkante zeigen wir mit schematischen Übergängen bei allen zulässigen Maßen. Bei dieser Variante: Länge 100–400 cm, Tiefe 30–90 cm. Eckmaße L2/L3 6–180 cm, B2/B3 6–50 cm, mit mindestens 10 cm Restkante.</p><p>Die Shopgrenzen liegen vorsichtig innerhalb der in Speedmaster angezeigten Bereiche. Maßgeblich für die Fertigung sind die eingegebenen Maße.</p>';
-shell.append(infoDialog);cornerHelp.addEventListener('click',()=>infoDialog.showModal());
 const detailOptions=element('div','a11-detail-options');detailOptions.id='drawing-detail-options';
 for(const [value,title] of [['overview','Gesamtansicht'],['left','Detail vorne links'],['right','Detail vorne rechts']]){
   const button=element('button','',title);button.type='button';button.dataset.detail=value;button.addEventListener('click',()=>{drawingDetail=value==='overview'?null:value;renderDrawing();});detailOptions.append(button);
@@ -124,6 +120,7 @@ function renderRadiusInputs(){
   radiusWrap.append(element('p','a1-limit-note',''));
 }
 function renderStraightChoices(){
+  sideLegend.textContent='Welche Eckbearbeitung?';
   sideWrap.hidden=product!=='straight';
   if(product!=='straight')return;
   sideWrap.lastElementChild.replaceChildren(...Object.entries(sides).map(([id,label])=>choice('straight-side',id,`${sideIcon(id)}<span>${label}</span>`,straightSide===id,()=>{
@@ -140,7 +137,7 @@ function renderStraightChoices(){
 }
 function renderLChoices(){
  if(product!=='l')return;
- sideWrap.hidden=false;sideLegend.firstChild.textContent='Welche Außenecke?';
+ sideWrap.hidden=false;sideLegend.textContent='Welche Außenecke?';
  const mirror=variants.l==='L2';
  const lIcon=side=>{
    const points=mirror?'M8 6 H88 V40 H65 V20 H8 Z':'M8 6 H88 V20 H31 V40 H8 Z';
@@ -190,27 +187,11 @@ function placeSummary(){
 function updateFamilyCopy(){
  $('steps').querySelector('.step-label').textContent=product==='straight'?'Ecken':'Grundriss';
  $('view-parts').textContent='Aufteilung';$('view-parts').hidden=product==='straight';
- if(product==='straight'){view='plan';$('parts-note').hidden=true;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
- // Step names in the navigation are the only visible step headings.
-  if(product==='l'){
-    infoDialog.querySelector('h2').textContent='Deine L-Arbeitsplatte';
-    const guidance=[
-      'Die Draufsicht zeigt die Außenmaße der L-Form. Die Gesamtfläche wird verbunden dargestellt; die genaue Aufteilung muss noch bestätigt werden.',
-      'B1/B2 ist die gemeinsame Schenkelbreite, B3/B4 die gemeinsame Eckbreite. Bei L4 markiert B5 den Abstand zwischen den Diagonalen.',
-      'Eckmaße folgen der Schenkelausrichtung: Bei L1 links unten ist L3 vertikal und B3 horizontal, rechts L4 horizontal und B4 vertikal. L2 ist gespiegelt; L3/L4 verwenden L5/B5 und L6/B6 entsprechend. Alle Eckgeometrien bleiben bis zum vollständigen Speedmaster-Abgleich Vorschauwerte.',
-      'Für die Fertigung und Verbindungen fehlen noch Freigaben. Die L-Form ist derzeit nicht bestellbar.'
-    ];
-    infoDialog.querySelectorAll('p').forEach((p,i)=>{p.textContent=guidance[i]??'';});
-  }else if(product==='u'){
-    infoDialog.querySelector('h2').textContent='Deine U-Arbeitsplatte';
-    const guidance=[
-      'U1 bis U4 haben die gleiche Außenkontur. Die Herstellerbilder zeigen unterschiedliche Verbindungsrichtungen links und rechts.',
-      'U1: quer/quer; U2: längs/längs; U3: längs/quer; U4: quer/längs. L1 ist die obere Gesamtbreite, L2/L3 die Schenkellängen und B1/B2/B3 die drei Breiten.',
-      'Aufteilung zeigt drei rein zeichnerische Teilbereiche und zwei auswählbare Stoßstellen. Eine Screenshot-Fuge ist noch kein bestätigter CNC-Zuschnitt.',
-      'Es fehlen verbindliche Lieferteile, Fräs- und Verbinderpositionen sowie Paketmaße und freigegebene Preise. U-Formen bleiben nicht kaufbar.'
-    ];
-    infoDialog.querySelectorAll('p').forEach((p,i)=>{p.textContent=guidance[i]??'';});
-  }
+ if(product==='straight'){
+   view='plan';$('parts-note').hidden=true;
+   $('view-plan').setAttribute('aria-pressed','true');
+   $('view-parts').setAttribute('aria-pressed','false');
+ }
 }
 function renderChoices(){
   cornerTitle.hidden=false;cornerTitle.textContent='Wie soll die Ecke aussehen?';
@@ -244,7 +225,10 @@ function rebuild(){
   $('dimensions').replaceChildren();
   const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    label.htmlFor='dim-'+id;label.append(document.createTextNode(customerLabel),element('span','',id));
+    label.htmlFor='dim-'+id;
+    const badge=product==='l'&&['L3','L4'].includes(variants.l)&&id==='B1'?'B1/B2'
+      :product==='l'&&['L3','L4'].includes(variants.l)&&id==='B3'?'B3/B4':id;
+    label.append(document.createTextNode(customerLabel),element('span','',badge));
     input.id=label.htmlFor;input.type='text';input.inputMode='decimal';input.value=currentDimensions()[id];input.setAttribute('aria-describedby','field-error-'+id);
     input.addEventListener('input',()=>{currentDimensions()[id]=input.value;
       if(product==='l'&&['L3','L4'].includes(variants.l)){
@@ -259,9 +243,9 @@ function rebuild(){
   // Preserve the plain two-column measure grid from the finished straight UI.
   const names=product==='straight'?{L1:'Länge',B1:'Tiefe'}
    :product==='l'?(['L3','L4'].includes(variants.l)
-     ?{L1:'Gesamtlänge oben',L2:'Gesamtlänge links',B1:'Breite B1/B2 · Schenkel',B3:'Breite B3/B4 · Eckbereich',B5:'Breite B5 · Diagonalbereich'}
-     :{L1:'Gesamtlänge oben',L2:variants.l==='L2'?'Gesamtlänge rechts':'Gesamtlänge links',B1:variants.l==='L2'?'Schenkelbreite rechts':'Schenkelbreite links',B2:'Tiefe oben'})
-   :{L1:'Gesamtbreite oben',L2:'Gesamtlänge links',L3:'Gesamtlänge rechts',B1:'Tiefe oben',B2:'Schenkelbreite links',B3:'Schenkelbreite rechts'};
+     ?{L1:'Länge oben',L2:'Länge links',B1:'Schenkelbreite',B3:'Eckbreite',B5:'Diagonalbereich'}
+     :{L1:'Länge oben',L2:variants.l==='L2'?'Länge rechts':'Länge links',B1:variants.l==='L2'?'Schenkelbreite rechts':'Schenkelbreite links',B2:'Tiefe oben'})
+   :{L1:'Breite oben',L2:'Länge links',L3:'Länge rechts',B1:'Tiefe oben',B2:'Schenkel links',B3:'Schenkel rechts'};
   for(const id of (product==='l'?lVisibleDimensionKeys(variants.l):c.families[product].fields))appendDimensionInput(id,names[id]||id,$('dimensions'));
   renderRadiusInputs();
 }
@@ -535,8 +519,11 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
   onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);retryPriceButton.hidden=result.quote.status!=='unavailable';
      if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Bruttopreis · ${result.config.quantity} Stück`);
-      $('tax-note').textContent=result.quote.taxNote||'inkl. 19 % MwSt. · zzgl. Versand';
-      $('price-note').textContent='Maße und Ausführung werden beim Hinzufügen und an der Kasse erneut geprüft.';
+      $('tax-note').textContent=(result.quote.taxNote||'').includes('DE-Bruttopreis inkl. 19 %')
+        ?'inkl. 19 % MwSt. · zzgl. Versand'
+        :(result.quote.taxNote||'inkl. 19 % MwSt. · zzgl. Versand');
+      // Server-side signed validation remains untouched.
+      $('price-note').textContent='';
       purchaseState(true);
      }else if(result.quote.status==='calculated-not-sale-approved'){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Unverbindlicher Bruttopreis${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);

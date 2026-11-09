@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {normalize} from '../core/config.mjs';
 import {geometry,svg} from '../core/geometry.mjs';
 
-test('L-specific dimension layout never moves the already finished straight-worktop labels',()=>{
+test('Straight dimension guides keep correct geometry with intentional larger UX viewport',()=>{
  const c=normalize({
   schemaVersion:2,inputUnit:'mm',product:'straight',geometry:'straight',corner:'square',
   material:'APL38',decor:'W980',quantity:1,
@@ -22,10 +22,10 @@ test('L-specific dimension layout never moves the already finished straight-work
   assert.ok(m,id+' label transform');
   return {x:Number(m[1]),y:Number(m[2])};
  };
- const pad=Math.max(g.width,g.height)*.19;
+ const pad=Math.max(g.width,g.height)*.11;
  const font=Math.min(pad*.28,g.width*.028,g.height*.12);
  assert.ok(Math.abs(read('B1').x-(g.width+pad*.95+font*.85))<.001,
-   'B1 main dimension offset must remain the approved straight configuration');
+   'B1 guide should follow straight-only visual rail without confusing L guides');
  assert.ok(Math.abs(read('L2').y-(g.height+pad*.60+font*.85))<.001,
    'straight L2 horizontal cut offset is unchanged');
  assert.ok(Math.abs(read('B2').x-(-pad*.42-font*.9))<.001,

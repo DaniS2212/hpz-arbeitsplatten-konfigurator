@@ -42,8 +42,21 @@ check(in_array('woocommerce_template_single_excerpt',$removedCallbacks,true),
     'redundant Woo description suppressed');
 check(in_array('woocommerce_template_single_price',$removedCallbacks,true),
     'standard Woo prices suppressed, configurator price remains');
-check(in_array('woocommerce_output_product_data_tabs',$removedCallbacks,true),
-    'redundant Woo tabs suppressed');
+// The configurator removes ONLY the upper gallery/summary. The customer's
+// long product description, technical data, reviews and recommendations must
+// remain below it, just like on a normal WooCommerce product page.
+foreach (['woocommerce_output_product_data_tabs','woocommerce_upsell_display',
+    'woocommerce_output_related_products'] as $callback) {
+    check(!in_array($callback,$removedCallbacks,true),
+        'lower Woo product section retained: '.$callback);
+}
+$placed=false;
+foreach ($actions as $action) {
+    if ($action['hook']==='woocommerce_after_single_product_summary'
+        &&$action['callback']===[HPZ_APL_Admin_Preview::class,'automatic']
+        &&$action['priority']===5) $placed=true;
+}
+check($placed,'configurator appears before Woo product tabs at priority 10');
 $found=false;
 foreach($actions as $action){
  if($action['hook']==='woocommerce_single_product_summary'
@@ -56,7 +69,8 @@ check(strpos($heading,'class="hpz-apl-minimal-h1"')!==false
 ob_start();HPZ_APL_Admin_Preview::top_configurator_style();$css=ob_get_clean();
 check(strpos($css,'body.hpz-apl-compact-product')!==false
     &&strpos($css,'.product-gallery')!==false
-    &&strpos($css,'form.cart{display:none')!==false,
+    &&strpos($css,'form.cart{display:none')!==false
+    &&strpos($css,'.product-main > .row')!==false,
     'compact CSS hides only this configurator product content');
 $classes=HPZ_APL_Admin_Preview::compact_body_class(['single-product']);
 check(in_array('hpz-apl-compact-product',$classes,true),'body scoping for three products');

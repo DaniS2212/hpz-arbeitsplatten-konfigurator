@@ -63,7 +63,12 @@ function schematicPath(g,trim){
 }
 export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,selectedSeam=null,detail=null,textureUrl=null,unit='mm',invalidField=null}={}) {
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
-  const pad=Math.max(g.width,g.height)*0.19,font=g.front?Math.min(pad*0.28,g.width*.028,g.height*.12):pad*0.28;
+  // A straight worktop is visually much flatter than an L/U. A tighter
+  // preview viewport makes the actual slab larger without changing its
+  // dimensions, aspect ratio, measurement positions or customer price.
+  const straightPreview=g.version?.startsWith('straight-');
+  const pad=Math.max(g.width,g.height)*(straightPreview?.11:.19),
+    font=g.front?Math.min(pad*.28,g.width*.028,g.height*.12):pad*.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
   const trim=g.contourStatus==='schematic'
     ?g.front?Math.min(font*.4,(g.front.to[0]-g.front.from[0])*.2)
@@ -155,6 +160,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
   const extra=outsideReference ? 0.5 : 0;
   let viewBox=`${-pad*(1+extra)} ${-pad*(1+extra)} ${g.width+pad*(2.3+extra)} ${g.height+pad*(2+extra)}`;
+  if(straightPreview && !detail){
+    // Reserve only the label rails required by L1 and right-hand B1;
+    // the old 19% margin on every edge made 200 x 90 cm look too small.
+    viewBox=`${-pad} ${-pad} ${g.width+pad*2.5} ${g.height+pad*2.4}`;
+  }
   if(isLPreview){
     // All visible L labels must fit the actual SVG viewport (DOM visibility
     // alone does not prevent clipping). Extra rails are activated only where
