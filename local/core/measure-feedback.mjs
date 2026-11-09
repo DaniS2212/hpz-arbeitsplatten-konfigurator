@@ -110,15 +110,28 @@ export function firstCornerIssue(product,shape,dimensionValues,{side='none',trea
       limits=uCornerPreviewLimits(dims,side,treatment).fields;
     }
   }catch{return null;}
+  // First identify an intrinsically invalid entry (minimum / cm precision).
+  // E.g. B2=1cm must point to B2, not to L2 whose dependent maximum then
+  // shrinks. Only after that check the dynamic maximums for each corner.
   for(const key of keys){
     const b=limits[key];
     if(!b)continue;
     const {min,max}=b,step=b.step??10;
     const bounds={minMm:min,maxMm:max,stepMm:step};
-    if(max<min)return issue(key,'Für diese Bearbeitung bleibt zu wenig Platz. Bitte die Plattenmaße anpassen.',bounds);
     if(fields[key]%step!==0)return issue(key,'Bitte ganze Zentimeter eingeben.',bounds);
-    if(fields[key]<min||fields[key]>max)
-      return issue(key,'Erlaubt sind '+mmToCmText(min)+'–'+mmToCmText(max)+' cm.',bounds);
+    if(fields[key]<min)return issue(key,
+      max<min?'Für diese Bearbeitung bleibt zu wenig Platz. Bitte die Plattenmaße anpassen.'
+        :'Erlaubt sind '+mmToCmText(min)+'–'+mmToCmText(max)+' cm.',bounds);
+  }
+  for(const key of keys){
+    const b=limits[key];
+    if(!b)continue;
+    const {min,max}=b,step=b.step??10;
+    const bounds={minMm:min,maxMm:max,stepMm:step};
+    if(max<min)return issue(key,
+      'Für diese Bearbeitung bleibt zu wenig Platz. Bitte die Plattenmaße anpassen.',bounds);
+    if(fields[key]>max)return issue(key,
+      'Erlaubt sind '+mmToCmText(min)+'–'+mmToCmText(max)+' cm.',bounds);
   }
   return null;
 }
