@@ -40,6 +40,10 @@ foreach(['U1','U2','U3','U4'] as $shape){
      $shape.' proper supplier fields '.$side.'/'.$treatment);
    $cornerKey=HPZ_APL_LU_Price_Readiness::configurationKey($cfg);
    checkU($key!==$cornerKey,'corner cannot inherit base price proof');
+   checkU(HPZ_APL_LU_Shop_Ratebook_12::candidate($cfg)===null,
+      'U corner may not reuse bare base price');
+   checkU(HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($cfg)===null,
+      'U corner may not bypass machining charge through extended base');
    $candidate=HPZ_APL_LU_Shop_Ratebook_12::uCornerCandidate($cfg,true);
    checkU($candidate['priceBasis']==='owner-review-u-inner-corner-cost-estimate'
      &&$candidate['supplierNetCents']>$baseCost['supplierNetCents'],
