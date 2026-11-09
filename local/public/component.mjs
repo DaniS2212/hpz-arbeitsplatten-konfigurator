@@ -1,6 +1,7 @@
 import {catalog} from '/core/config.mjs';
 import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions,lCornerPreviewLimits} from '../core/l-geometry.mjs';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from '/core/customer-measures.mjs';
+import {firstMeasureIssue} from '/core/measure-feedback.mjs';
 import {svg} from '/core/geometry.mjs';
 import {createPreviewController} from '/latest.mjs';
 import {template} from './component-template.mjs';
@@ -116,11 +117,11 @@ function renderRadiusInputs(){
     input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
     input.addEventListener('focus',()=>{active=l?`corner-${key}`:key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
-    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;if(l)hint.textContent='Vorschauwert · Herstellergrenzen noch offen';
+    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;
     const inline=element('p','field-error');inline.id=l?`corner-field-error-${key}`:`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
   }
-  radiusWrap.append(element('p','a1-limit-note',l?'Die tatsächlichen Speedmaster-Grenzen sind noch zu bestätigen.':'Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
+  radiusWrap.append(element('p','a1-limit-note',''));
 }
 function renderStraightChoices(){
   sideWrap.hidden=product!=='straight';
@@ -185,16 +186,12 @@ function placeSummary(){
   $('next').innerHTML=step===0?'Weiter zu den Maßen <span>→</span>':step===1?'Weiter zur Oberfläche <span>→</span>':'Konfiguration prüfen <span>↓</span>';
   $('next').disabled=!valid;
 }
-['Ecken','Maße','Oberfläche'].forEach((label,i)=>{const b=element('button');b.type='button';b.innerHTML=`<span class="step-number">${i+1}</span><span class="step-label">${label}</span>`;b.addEventListener('click',()=>showStep(i));$('steps').append(b);});
+['Ecken','Maße in cm','Oberfläche'].forEach((label,i)=>{const b=element('button');b.type='button';b.innerHTML=`<span class="step-number">${i+1}</span><span class="step-label">${label}</span>`;b.addEventListener('click',()=>showStep(i));$('steps').append(b);});
 function updateFamilyCopy(){
  $('steps').querySelector('.step-label').textContent=product==='straight'?'Ecken':'Grundriss';
  $('view-parts').textContent='Aufteilung';$('view-parts').hidden=product==='straight';
- if(product==='straight'){view='plan';$('parts-note').hidden=true;$('measure-toggle').hidden=false;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
- shadow.querySelector('[data-step="0"] h2').textContent=product==='straight'?'Vordere Ecken':'Grundriss wählen';
-  shadow.querySelector('[data-step="1"] .section-intro').textContent=product==='straight'
-    ?'In cm, auf 0,1 cm genau. Tippe ein Maß an, um es in der Zeichnung hervorzuheben.'
-    :product==='l'?'In cm: Tippe ein Maß an, um die passende Strecke in der Zeichnung hervorzuheben.'
-    :'Die sechs Außenmaße bestimmen die U-Kontur. U1–U4 unterscheiden sich in den sichtbaren Stoßrichtungen; genaue CNC-Zuschnitte bleiben offen.';
+ if(product==='straight'){view='plan';$('parts-note').hidden=true;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
+ // Step names in the navigation are the only visible step headings.
   if(product==='l'){
     infoDialog.querySelector('h2').textContent='Deine L-Arbeitsplatte';
     const guidance=[
@@ -242,8 +239,8 @@ function rebuild(){
   renderChoices();$('variant-wrap').hidden=product==='straight';
   const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · quer/quer',U2:'U2 · längs/längs',U3:'U3 · längs/quer',U4:'U4 · quer/längs'};
   $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
-  if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent=['L3','L4'].includes(variants.l)?'B1/B2 sowie B3/B4 werden gemeinsam eingegeben. Bearbeitung und Bestellung bleiben in Prüfung.':'Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
-  if(product==='u')$('variant-wrap').querySelector('.microcopy').textContent='Vier Speedmaster-Varianten mit unterschiedlichen Stoßrichtungen. Echte Zuschnitte und Bestellungen noch in Prüfung.';
+  // No supplier technical explanation below the shape selector.
+  
   $('dimensions').replaceChildren();
   const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
@@ -335,7 +332,7 @@ function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamC
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
   if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
 function summary(config,invalid=false){
-  $('summary-shape').textContent=names[product];$('preview-family').textContent=product==='straight'?'Vorschau':names[product]+' · Planung';
+  $('summary-shape').textContent=names[product];$('preview-family').textContent=names[product];
   const decorName=c.decors.find(d=>d.id===decor).label;
   $('preview-material').textContent=`${material==='APL38'?'38':'17,5'} mm · ${decorName}`;
   $('selected-surface-name').textContent=decorName;
@@ -525,21 +522,21 @@ function refresh(){
   $('corner-note').textContent=['round','chamfer'].includes(corner)?'Eckmuster oben links. Größe im Schritt „Maße“ anpassen; Ausführung noch zu prüfen.':corner==='continuous'?'Kontur und Verbindung dieser Ausführung sind noch zu prüfen.':'Klare, rechtwinklige Ecken. Die Außenkante ist im gleichen Dekor vorgesehen.';
   if(product==='l'){
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · gerade Abschrägung; Kantenverlauf noch zu prüfen.';
+    $('corner-note').textContent='';
     $('parts-note').querySelector('strong').textContent='Teilflächen zur Orientierung · keine Zuschnittdaten';
-    $('parts-note').querySelector('p').textContent='Wähle eine Teilfläche aus. Die Stoßlinien zeigen nur die aus Speedmaster-Bildern erkennbare Lage. Exakte Fräsungen, Verbinder und Teileabmessungen bleiben ungeprüft.';
+    $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
   }
   if(product==='u'){
     $('corner-note').textContent=corner==='square'
       ?'Grundform nach Speedmaster-Fotos. Zwei Stoßstellen sind nur als Lagebeobachtung belegt.'
       :'Eckbearbeitung derzeit nur schematisch; Speedmaster-Referenzen dafür fehlen.';
     $('parts-note').querySelector('strong').textContent='Drei sichtbare Teilflächen · keine Zuschnittdaten';
-    $('parts-note').querySelector('p').textContent='U1–U4: Wähle Teilbereiche oder Stoß A/B. Verbindersymbole, Lieferstückzahl, Fräsmaße und Packstücke sind noch nicht geprüft.';
+    $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
   }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=v.id==='none'?'Vorderkante unten. Ohne Eckbearbeitung.':v.treatment==='round'?'Rundungen im nächsten Schritt einstellen.':v.treatment==='chamfer_square'?'Gerade Diagonalen. Länge und Tiefe im nächsten Schritt einstellen.':'Weichere Übergänge, schematisch dargestellt. Alle zulässigen Plattenmaße möglich.';
+    $('corner-note').textContent='';
     $('summary-shape').textContent=`Gerade · ${sides[v.side]}`;
   }
   for(const id of (product==='l'?lVisibleDimensionKeys(variants.l):c.families[product].fields)){
