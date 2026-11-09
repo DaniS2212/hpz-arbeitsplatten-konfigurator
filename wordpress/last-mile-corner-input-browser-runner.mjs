@@ -53,7 +53,7 @@ try{
   await page.waitForFunction(({fieldName,shape})=>{
     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
     return !!s?.getElementById(fieldName)
-      &&s.querySelector('#drawing svg title')?.textContent.startsWith(shape+' ·')
+      &&s.querySelector('#drawing svg title')?.textContent.startsWith((shape==='straight'?'Gerade':shape)+' ·')
       &&!s.getElementById('next').disabled
       &&s.querySelector('.hpz-apl')?.dataset.measureInvalid==='false';
   },{fieldName,shape},{timeout:25000});
