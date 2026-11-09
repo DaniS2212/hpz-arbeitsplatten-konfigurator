@@ -78,7 +78,7 @@ function cornerFor(string $shape,string $side,string $treatment):array {
     return ['side'=>$side,'treatment'=>$treatment,
         'parameters'=>array_fill_keys($names,$treatment==='round'?'100':'150')];
 }
-$decors=array_keys(HPZ_APL_Decor_Catalog::all());
+$decors=array_map('strval',array_keys(HPZ_APL_Decor_Catalog::all()));
 coverageAssert(count($decors)===16,'16 published catalog decors');
 $shapes=['L1','L2','L3','L4','U1','U2','U3','U4'];
 $materials=['APL17.5','APL38'];
