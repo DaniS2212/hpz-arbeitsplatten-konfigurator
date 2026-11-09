@@ -46,7 +46,8 @@ try {
         diagonal:d.dataset.diagonal,
         active:d.dataset.active,
         label:d.querySelector('.apl-measure-label text')?.textContent,
-        path:d.querySelector('path')?.getAttribute('d'),
+        path:d.querySelector('path:not(.apl-b5-guide)')?.getAttribute('d'),
+        guide:d.querySelector('.apl-b5-guide')?.getAttribute('d'),
         fieldActive:s.querySelector('#dim-B5').parentElement.parentElement
           .classList.contains('active-dimension'),
         priceNote:s.querySelector('#price-note')?.textContent
@@ -56,7 +57,8 @@ try {
     assert.equal(first.active,'true','B5 sketch follows B5 input');
     assert.equal(first.fieldActive,true,'B5 input follows B5 sketch selection');
     assert.equal(first.label,'B5: 30 cm');
-    assert.match(first.path,/^M 525,525 L /,'leader starts at actual diagonal midpoint');
+    assert.match(first.path,/^M 525,525 L /,'B5 leader starts at actual outer diagonal midpoint');
+    assert.match(first.guide,/^M 525 525 L [0-9.]+ [0-9.]+$/,'B5 dashed reference crosses the worktop toward inner diagonal');
     assert.ok(!first.priceNote.includes('Kaufmännischer Modellpreis'),
       'no long backend explanation in customer summary');
 

@@ -67,6 +67,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   // preview viewport makes the actual slab larger without changing its
   // dimensions, aspect ratio, measurement positions or customer price.
   const straightPreview=g.version?.startsWith('straight-');
+  const isUPreview=g.version?.startsWith('speedmaster-u');
   const pad=Math.max(g.width,g.height)*(straightPreview?.11:.19),
     // Straight and L/U now use comparable ON-SCREEN label sizes. The former
     // 12%-of-depth cap made 200x60cm straight measurements unreadably small.
@@ -83,7 +84,8 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   // Put opaque, calm label plates in front of guide lines so dense corner
   // dimensions remain readable on both textured and light surfaces.
   const label=(text,x,y,{vertical=false,selected=false,corner=false}={})=>{
-    const size=font*(corner?.86:1)*(selected?1.12:1);
+    // Active input uses colour/weight but never changes font size or ruler placement.
+    const size=font*(corner?.73:1);
     const width=(text.length*.57+.60)*size,height=size*1.40;
     return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="all"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
@@ -108,7 +110,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const cornerB1=!!g.cornerDimensions?.length&&d.id==='B1';
     // B2 shares its vertical alignment with an upper-corner B4 (or mirrored
     // B3). Place the long full-depth label on a distinct outer measurement rail.
-    const rail=straightRightChamfer&&d.id==='B1'?1.50
+    const rail=isUPreview&&d.id==='B1'?0.25:straightRightChamfer&&d.id==='B1'?1.50
       :d.id==='B2'&&b2Crowded?.95:cornerB1?(lowerCorner?1.35:.95):.45;
     const diagonal=isL&&d.axis==='diagonal';
     // B5 is a diagonal setting. Keep a real 45-degree dimension on its
@@ -131,18 +133,26 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     // Capped B5 is a setting, not the physical length of the diagonal
     // line. Point the callout at the visible OUTER diagonal, without false
     // double-arrow dimensions. This also separates it from the B3/B4 rail.
+    // Dashed projection through the L4 plate connects OUTER and INNER
+    // diagonals. This is a placement aid for B5, NOT a measurable 1:1 ruler.
+    const b5Guide=diagonal&&d.diagonalCut
+      ?`<path class="apl-b5-guide" data-b5-axis="diagonal"
+          d="M ${cutMid[0]} ${cutMid[1]} L ${d.to[0]} ${d.to[1]}"
+          fill="none" stroke="${color}" stroke-width="${selected?font/17:font/27}"
+          stroke-dasharray="${font*.22} ${font*.18}" opacity="${selected?.88:.56}"
+          pointer-events="none"><title>Diagonalbereich B5 – Orientierung, kein Längenmaß</title></path>`:'';
     if(diagonal&&d.settingOnly){
       const cut=d.diagonalCut??{from:g.points[0],to:g.points[g.points.length-1]};
       const mid=[(cut.from[0]+cut.to[0])/2,(cut.from[1]+cut.to[1])/2];
       const text=[mid[0]-font*1.52,mid[1]-font*1.36];
       const end=[mid[0]-font*.82,mid[1]-font*.82];
       return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" data-setting-only="true" role="button" tabindex="0" data-measure-id="B5" data-diagonal="outer-edge" aria-label="B5 an der Außendiagonale bearbeiten" stroke="${color}" fill="${color}">
-        <path d="M ${mid} L ${end}" fill="none" stroke-width="${selected?font/11:font/26}"/>
+        ${b5Guide}<path d="M ${mid} L ${end}" fill="none" stroke-width="${selected?font/11:font/26}"/>
         <circle cx="${mid[0]}" cy="${mid[1]}" r="${font*.08}"/>
         ${label(labelText,text[0],text[1],{selected,corner:true})}</g>`;
     }
     return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" role="button" tabindex="0" data-measure-id="${escapeXml(d.label??d.id)}" data-diagonal="${diagonal?'diagonal-ruler':'false'}" aria-label="${escapeXml(field)} bearbeiten" stroke="${color}" fill="${color}">
-      <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
+      ${b5Guide}<path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
       ${label(labelText,textX,textY,{vertical,selected,corner:diagonal})}</g>`;
   }).join('');
@@ -166,16 +176,25 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const vertical=d.axis==='vertical',selected=d.id===active,color=selected?'#a34f1c':'#365861';
     // Do not infer the free side from a corner's left/right *name*.
     const isL=g.version?.startsWith('speedmaster-l');
-    const normal=isL&&d.labelNormal!==undefined?d.labelNormal:(d.side==='left'?-1:1);
-    const offset=vertical?(isL?normal*pad*.40:(d.side==='left'?-pad*.42:pad*.40)):pad*(isL?.35:.60);
+    // U L4/L5 live inside the open space, never over the B2/B3 foot.
+    const normal=isUPreview?(d.side==='left'?1:-1)
+      :isL&&d.labelNormal!==undefined?d.labelNormal:(d.side==='left'?-1:1);
+    const offset=vertical?(isL?normal*pad*.40:isUPreview?normal*pad*.38:(d.side==='left'?-pad*.42:pad*.40)):pad*(isL?.35:.60);
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const mid=(a[0]+b[0])/2;
-    const x=vertical?a[0]+normal*font*.9:isL?mid:Math.max(font*3,Math.min(g.width-font*3,mid)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
+    const x=vertical?a[0]+normal*font*.9:isL?mid:Math.max(font*3,Math.min(g.width-font*3,mid)),
+      innerTop=g.dimensions?.find(dim=>dim.id==='B1')?.mm??0,
+      y=vertical?(a[1]+b[1])/2-(isUPreview?Math.min(font*1.25,Math.max(0,((a[1]+b[1])/2-innerTop)*.16)):0):a[1]+font*.85;
     return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" role="button" tabindex="0" data-measure-id="${d.id}" aria-label="${escapeXml(d.id)} bearbeiten" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(invalidField===d.id?String(d.label??d.id):`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
-  const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
+  // Keep viewport fixed when active B3/B5 reference changes.
+  const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside);
   const extra=outsideReference ? 0.5 : 0;
   let viewBox=`${-pad*(1+extra)} ${-pad*(1+extra)} ${g.width+pad*(2.3+extra)} ${g.height+pad*(2+extra)}`;
+  if(isUPreview){
+    // Right-side B1 (short) and L3 (long) have independent fixed rails.
+    viewBox=`${-pad} ${-pad} ${g.width+pad*2.65} ${g.height+pad*2.15}`;
+  }
   if(straightPreview && !detail){
     // Reserve only the label rails required by L1 and right-hand B1;
     // the old 19% margin on every edge made 200 x 90 cm look too small.
@@ -200,6 +219,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const topFactor=1+extra;
     viewBox=`${-pad*leftFactor} ${-pad*topFactor} ${g.width+pad*(leftFactor+rightFactor)} ${g.height+pad*(topFactor+bottomFactor)}`;
   }
+  // Stage 1 presents only the visual silhouette/seams and corners.
+  if(!showDimensions&&!detail){
+    const margin=Math.max(g.width,g.height)*(g.front?.115:.10);
+    viewBox=`${-margin} ${-margin} ${g.width+margin*2} ${g.height+margin*2}`;
+  }
   let frontX=g.width/2;
   if(detail){
     const parameters=[...(g.cornerArcs??[]).filter(a=>a.side===detail).map(a=>a.radiusMm),...(g.cornerDimensions??[]).filter(d=>d.side===detail).map(d=>d.mm)];
@@ -208,7 +232,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     viewBox=`${boxX} ${boxY} ${boxWidth} ${g.height+pad*.95-boxY}`;
     frontX=detail==='left'?extent*.5:g.width-extent*.5;
   }
-  const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.68}" text-anchor="middle" fill="#146178" font-size="${font*.76}">Vorderkante</text></g>`:'';
+  const front=g.front&&showDimensions?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.68}" text-anchor="middle" fill="#146178" font-size="${font*.76}">Vorderkante</text></g>`:'';
   const seams=(g.previewSeams??[]).map((seam,index)=>{
     const meta=partsView?g.previewSeamDetails?.[index]:null;
     const d='M '+seam.from+' L '+seam.to;

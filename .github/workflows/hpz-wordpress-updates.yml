@@ -86,6 +86,7 @@ jobs:
           node wordpress/u-corners-browser-runner.mjs
           node wordpress/corner-chooser-parity-browser-runner.mjs
           node wordpress/customer-clarity-browser-runner.mjs
+          node wordpress/measurement-combinations-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

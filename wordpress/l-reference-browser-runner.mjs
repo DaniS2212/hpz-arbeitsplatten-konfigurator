@@ -25,6 +25,9 @@ try{
    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
    return s?.querySelector('#drawing svg title')?.textContent.startsWith('L1 ·');
   },null,{timeout:25000});
+  // Supplier visual snapshots compare actual labels in Step 2, not Step 1.
+  await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot
+    .querySelector('#steps button:nth-child(2)').click());
   async function select(name,value){
    await page.evaluate(({name,value})=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
