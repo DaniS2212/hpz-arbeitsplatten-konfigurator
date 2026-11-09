@@ -174,12 +174,25 @@ try{
       const changed=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
         const sh=el.shadowRoot;
         return {regions:[...sh.querySelectorAll('#drawing .apl-preview-part')].map(e=>e.dataset.partId),
-          pressed:[...sh.querySelectorAll('#part-choices button[aria-pressed="true"]')].map(e=>e.dataset.part),
+          noteHidden:sh.querySelector('#parts-note').hidden,
+          mode:sh.querySelector('#view-plan').getAttribute('aria-pressed'),
           cartDisabled:sh.querySelector('#cart').disabled};
       });
-      assert.deepEqual(changed.regions,['top','leg']);
-      assert.deepEqual(changed.pressed,['all'],'switching L layout resets part selection');
+      assert.deepEqual(changed.regions,[],'changing L layout always returns customers to the single top view');
+      assert.equal(changed.noteHidden,true,'internal area highlighters remain hidden after configuration change');
+      assert.equal(changed.mode,'true','normal top view is active');
       assert.ok(changed.cartDisabled,'L never becomes purchasable');
+      // Advanced segmentation remains testable internally, but has no
+      // shopper-visible controls and does not mutate a real order.
+      await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot
+        .querySelector('#view-parts').click());
+      const privateParts=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+        const sh=el.shadowRoot;
+        return {regions:[...sh.querySelectorAll('#drawing .apl-preview-part')].map(e=>e.dataset.partId),
+          pressed:[...sh.querySelectorAll('#part-choices button[aria-pressed="true"]')].map(e=>e.dataset.part)};
+      });
+      assert.deepEqual(privateParts.regions,['top','leg'],'illustrative polygons preserved for internal audits');
+      assert.deepEqual(privateParts.pressed,['all'],'switching L shape clears previous private part highlight');
     }
    else{assert.equal(parts.seamCount,2);assert.match(parts.warning,/Fräs|fräs|Verbinder|Stoß/);}
    await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#view-plan').click());
