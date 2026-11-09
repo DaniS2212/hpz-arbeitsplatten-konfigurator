@@ -81,7 +81,9 @@ try {
       return x*y;
      };
      const continuous=s.querySelector('input[name="l-treatment"][value="chamfer_continuous"]')?.checked;
-     const icon=s.querySelector('input[name="l-treatment"][value="chamfer_continuous"]')?.closest('label')
+     const iconSquare=s.querySelector('input[name="l-treatment"][value="chamfer_square"]')?.closest('label')
+      ?.querySelector('svg path')?.getAttribute('d')??'';
+     const iconContinuous=s.querySelector('input[name="l-treatment"][value="chamfer_continuous"]')?.closest('label')
       ?.querySelector('svg path')?.getAttribute('d')??'';
      // A label can be clear of the textured fill yet cover ANOTHER label.
      // Check ALL visible callouts, not just the previously reported B1/B3 pair.
@@ -101,14 +103,14 @@ try {
        const area=dx*dy,minArea=Math.min(a.box.width*a.box.height,b.box.width*b.box.height);
        if(minArea>0&&area/minArea>.08)labelOverlaps.push(a.id+' / '+b.id);
      }
-     return {labelOverlaps,clippedLabels,cut:s.querySelector('#drawing [data-cut="left"]')!==null,iconsAngular:!/[QA] [0-9]/.test(icon),
+     return {labelOverlaps,clippedLabels,cut:s.querySelector('#drawing [data-cut="left"]')!==null,squareIconAngular:!/[QA] [0-9]/.test(iconSquare),continuousIconSmooth:/Q [0-9]/.test(iconContinuous),
       b1OnWood:b1.inside,b3OnWood:b3.inside,l3OnWood:l3.inside,
       b1B3OverlapPx2:intersect(b1.box,b3.box),horizontalOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
       cartDisabled:s.querySelector('#cart').disabled,continuous};
     });
     assert.equal(result.cut,true,shape+' '+treatment+' must draw a chamfer');
-    assert.equal(result.iconsAngular,treatment==='chamfer_square',
-       'square chamfer remains angular; continuous edge must now show soft blended endpoints');
+    assert.equal(result.squareIconAngular,true,'eckig icon has sharp diagonal corners');
+     assert.equal(result.continuousIconSmooth,true,'durchlaufend icon has soft transitions');
     assert.equal(result.b1OnWood,false,shape+' B1 opaque label over textured worktop');
     assert.equal(result.b3OnWood,false,shape+' B3 opaque label over textured worktop');
     assert.equal(result.l3OnWood,false,shape+' L3 opaque label over textured worktop');
