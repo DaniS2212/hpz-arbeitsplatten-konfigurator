@@ -107,7 +107,8 @@ try {
       cartDisabled:s.querySelector('#cart').disabled,continuous};
     });
     assert.equal(result.cut,true,shape+' '+treatment+' must draw a chamfer');
-    assert.equal(result.iconsAngular,true,'continuous-edge icon must be angular');
+    assert.equal(result.iconsAngular,treatment==='chamfer_square',
+       'square chamfer remains angular; continuous edge must now show soft blended endpoints');
     assert.equal(result.b1OnWood,false,shape+' B1 opaque label over textured worktop');
     assert.equal(result.b3OnWood,false,shape+' B3 opaque label over textured worktop');
     assert.equal(result.l3OnWood,false,shape+' L3 opaque label over textured worktop');
