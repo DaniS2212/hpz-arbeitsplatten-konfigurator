@@ -76,7 +76,9 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   detail=g.front&&['left','right'].includes(detail)?detail:null;
   const trim=g.contourStatus==='schematic'
     ?g.front?Math.min(font*.4,(g.front.to[0]-g.front.from[0])*.2)
-      :Math.min(18,font*.13,...(g.cornerCuts??[]).map(c=>Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1])*.08))
+      :g.uCorner?.treatment==='chamfer_continuous'
+        ?Math.min(40,font*.32,...(g.cornerCuts??[]).map(c=>Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1])*.20))
+        :Math.min(18,font*.13,...(g.cornerCuts??[]).map(c=>Math.hypot(c.to[0]-c.from[0],c.to[1]-c.from[1])*.08))
     :0;
   // Put opaque, calm label plates in front of guide lines so dense corner
   // dimensions remain readable on both textured and light surfaces.
@@ -86,6 +88,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="all"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
   const isLPreview=g.version?.startsWith('speedmaster-l');
+  // A right-hand Straight chamfer adds B3 next to the full-depth B1 ruler.
+  // Separate their rails so the rotated labels no longer overlap.
+  const straightRightChamfer=straightPreview&&(g.cornerDimensions??[]).some(
+    c=>c.axis==='vertical'&&c.side==='right'
+  );
   const b2Baseline=g.dimensions?.find(d=>d.id==='B2');
   const b2Crowded=isLPreview&&b2Baseline&&(g.cornerDimensions??[])
     .some(c=>c.axis==='vertical'&&Math.abs(c.from[0]-b2Baseline.from[0])<.001);
@@ -101,7 +108,8 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const cornerB1=!!g.cornerDimensions?.length&&d.id==='B1';
     // B2 shares its vertical alignment with an upper-corner B4 (or mirrored
     // B3). Place the long full-depth label on a distinct outer measurement rail.
-    const rail=d.id==='B2'&&b2Crowded?.95:cornerB1?(lowerCorner?1.35:.95):.45;
+    const rail=straightRightChamfer&&d.id==='B1'?1.50
+      :d.id==='B2'&&b2Crowded?.95:cornerB1?(lowerCorner?1.35:.95):.45;
     const diagonal=isL&&d.axis==='diagonal';
     // B5 is a diagonal setting. Keep a real 45-degree dimension on its
     // own axis, not offset onto the B3/B4 horizontal reference rail.
@@ -140,11 +148,13 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   }).join('');
   const radii=(g.cornerArcs??[]).filter(a=>!detail||a.side===detail).map(a=>{
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
+    // Preserve data-field="corner-R1" for editing but print just R1 in the SVG.
+    const displayId=a.label??a.id.replace(/^corner-/,'');
     const x=a.labelAt?.[0]??(a.side==='left'?g.width*.18:g.width*.82),
       y=a.labelAt?.[1]??g.height+pad*.65;
     const tx=a.leaderPoint?.[0]??a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.SQRT2,
       ty=a.leaderPoint?.[1]??a.center[1]+a.radiusMm/Math.SQRT2;
-    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure" role="button" tabindex="0" data-measure-id="${a.id}" aria-label="${escapeXml(a.id)} bearbeiten"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(invalidField===a.id?String(a.label??a.id):`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
+    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure" role="button" tabindex="0" data-measure-id="${a.id}" aria-label="${escapeXml(a.id)} bearbeiten"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(invalidField===a.id?displayId:`${displayId}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
     const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
@@ -169,7 +179,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   if(straightPreview && !detail){
     // Reserve only the label rails required by L1 and right-hand B1;
     // the old 19% margin on every edge made 200 x 90 cm look too small.
-    viewBox=`${-pad} ${-pad} ${g.width+pad*2.5} ${g.height+pad*2.4}`;
+    viewBox=`${-pad} ${-pad} ${g.width+pad*(straightRightChamfer?4:2.5)} ${g.height+pad*2.4}`;
   }
   if(isLPreview){
     // All visible L labels must fit the actual SVG viewport (DOM visibility
@@ -198,7 +208,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     viewBox=`${boxX} ${boxY} ${boxWidth} ${g.height+pad*.95-boxY}`;
     frontX=detail==='left'?extent*.5:g.width-extent*.5;
   }
-  const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.25}" text-anchor="middle" fill="#146178" font-size="${font*.8}">Vorderkante</text></g>`:'';
+  const front=g.front?`<g aria-label="Vorderkante unten"><path d="M ${g.front.from[0]+trim} ${g.height} L ${g.front.to[0]-trim} ${g.height}" stroke="#146178" stroke-width="${font/10}"/><text x="${frontX}" y="${g.height+pad*.68}" text-anchor="middle" fill="#146178" font-size="${font*.76}">Vorderkante</text></g>`:'';
   const seams=(g.previewSeams??[]).map((seam,index)=>{
     const meta=partsView?g.previewSeamDetails?.[index]:null;
     const d='M '+seam.from+' L '+seam.to;
