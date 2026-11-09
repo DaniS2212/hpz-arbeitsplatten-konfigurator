@@ -32,6 +32,7 @@ jobs:
           php wordpress/price-ajax.test.php
           php pricing-v3/tests/lu-shop-ratebook.php
           php pricing-v3/tests/lu-final-ten-price-checks.php
+          php pricing-v3/tests/lu-u-corners-20261109.php
           php pricing-v3/tests/lu-admin-price-preview.php
           php wordpress/lu-price-ajax.test.php
           php wordpress/top-cta.test.php
@@ -82,6 +83,7 @@ jobs:
           node wordpress/l3-l4-photo-browser-runner.mjs
           node wordpress/l4-measure-focus-browser-runner.mjs
           node wordpress/minimal-layout-browser-runner.mjs
+          node wordpress/u-corners-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
