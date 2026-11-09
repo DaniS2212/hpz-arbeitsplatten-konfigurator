@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 final class HPZ_APL_LU_Shop_Ratebook_12
 {
-    public const VERSION = 'lu-ratebook-eight-shapes-16-decors-lcorners-20261106-v4';
+    public const VERSION = 'lu-ratebook-10point-commercial-final-20261109-v5';
 
     private const W980 = [
         'L1'=>['APL17.5'=>[2000=>30767,2500=>34241],'APL38'=>[2000=>46445,2500=>51156]],
@@ -46,6 +46,55 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         'U4'=>['L2'=>1200,'L3'=>1800,'B1'=>600,'B2'=>600,'B3'=>600],
     ];
 
+    /**
+     * Ten independent operator-supplied Speedmaster NET prices (9 Nov 2026).
+     * Exact configuration matches ONLY. Complete provenance in
+     * docs/references/speedmaster-lu/LU_TEN_NET_PRICE_CHECKS_20261109.json.
+     * These net amounts are not public end-customer sale prices.
+     */
+    private const NOV09_NET_CASES = [
+        ['L1','W980','APL17.5',['L1'=>1890,'L2'=>1200,'B1'=>600,'B2'=>600],null,30003],
+        ['L1','W980','APL17.5',['L1'=>1900,'L2'=>1200,'B1'=>600,'B2'=>600],null,30073],
+        ['L1','W980','APL38',['L1'=>2250,'L2'=>1200,'B1'=>600,'B2'=>600],
+            ['side'=>'left','treatment'=>'chamfer_square','parameters'=>['L3'=>150,'B3'=>150]],51006],
+        ['L2','H1145','APL17.5',['L1'=>2250,'L2'=>1200,'B1'=>600,'B2'=>600],
+            ['side'=>'right','treatment'=>'round','parameters'=>['R2'=>150]],35133],
+        ['L3','W980','APL17.5',['L1'=>2500,'L2'=>2000,
+            'B1'=>600,'B2'=>600,'B3'=>950,'B4'=>950],null,52889],
+        ['L4','W980','APL38',['L1'=>2700,'L2'=>2000,
+            'B1'=>600,'B2'=>600,'B3'=>900,'B4'=>900,'B5'=>700],null,72466],
+        ['U1','W980','APL38',['L1'=>2500,'L2'=>1700,'L3'=>1800,
+            'B1'=>675,'B2'=>600,'B3'=>600],null,76763],
+        ['U2','H1145','APL17.5',['L1'=>2300,'L2'=>1600,'L3'=>2100,
+            'B1'=>650,'B2'=>600,'B3'=>650],null,54740],
+        ['U3','F128','APL38',['L1'=>2500,'L2'=>1200,'L3'=>1800,
+            'B1'=>600,'B2'=>600,'B3'=>600],null,83782],
+        ['U4','F128','APL17.5',['L1'=>2600,'L2'=>1600,'L3'=>2000,
+            'B1'=>700,'B2'=>600,'B3'=>650],null,82824],
+    ];
+
+    private static function nov09ConfirmedPrice(array $c): ?int
+    {
+        foreach (self::NOV09_NET_CASES as $entry) {
+            if (($c['geometry']??null)===$entry[0] && ($c['decor']??null)===$entry[1]
+                && ($c['material']??null)===$entry[2]
+                && ($c['dimensions']??null)===$entry[3]
+                && ($c['lCorner']??null)===$entry[4]) return $entry[5];
+        }
+        return null;
+    }
+
+    private static function nov09ExactCandidate(int $supplier): array
+    {
+        return [
+            'supplierNetCents'=>$supplier,
+            'source'=>'docs/references/speedmaster-lu/LU_TEN_NET_PRICE_CHECKS_20261109.json',
+            'priceBasis'=>'confirmed-net-reference',
+            'priceWindow'=>'Exact form / decor / thickness / dimensions and corner from operator 2026-11-09',
+            'ratebookVersion'=>self::VERSION,
+        ];
+    }
+
     /** Internal inbound freight rule; user override of 06.11.2026. */
     public static function configuredInboundCents(array $c): int
     {
@@ -67,6 +116,21 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         }
         $difference=$pair[2500]-$pair[2000];
         return $pair[2000]+intdiv($difference*($length-2000)+499,500);
+    }
+
+    /**
+     * Controlled U-shape decor scale from U3/F128 independent check:
+     * old unadjusted material-area premium overestimated supplier F128
+     * by approximately 37 EUR. Use 75% for this one decor family.
+     * Other decor references retain their established V3 relationship.
+     */
+    private static function decorUpliftNetCents(
+        string $shape,string $decor,int $delta,int $areaMm2
+    ): int {
+        $num=$delta*$areaMm2;
+        if ($shape[0]==='U' && $decor==='F128')
+            return intdiv(3*$num+4*1200000-1,4*1200000);
+        return intdiv($num+1200000-1,1200000);
     }
 
     /** Conservative gross material *reference* area, not CNC geometry. */
@@ -174,6 +238,22 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5'
             ||isset($c['lCorner']))
             return null;
+        $confirmed=self::nov09ConfirmedPrice($c);
+        if($confirmed!==null) return self::nov09ExactCandidate($confirmed);
+        // The owner confirmed 1890/1900mm W980/17.5 L1 supplier prices.
+        // Interpolate only on this one fully fixed geometry; do not extrapolate.
+        if ($shape==='L1' && $decor==='W980' && $material==='APL17.5'
+            && ($d['L2']??null)===1200 && ($d['B1']??null)===600
+            && ($d['B2']??null)===600 && count($d)===4
+            && is_int($d['L1']??null) && $d['L1']>1890 && $d['L1']<1900) {
+            return [
+                'supplierNetCents'=>30003+self::ceilRatio(70*($d['L1']-1890),10),
+                'source'=>'docs/references/speedmaster-lu/LU_TEN_NET_PRICE_CHECKS_20261109.json',
+                'priceBasis'=>'bounded-single-axis-net-interpolation',
+                'priceWindow'=>'L1 1890..1900; all other L1 measures fixed',
+                'ratebookVersion'=>self::VERSION,
+            ];
+        }
         $focused=self::focusedMeasuredWidth($c);
         if ($focused!==null) return $focused;
         $fixed=self::REFERENCE_SIZES[$shape];
@@ -199,7 +279,7 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             // overlapping corner stock. It is an APPROXIMATION, not a
             // Speedmaster material-specific EK.
             $grossArea=self::decorCostReferenceAreaMm2($shape,$d);
-            $netPremium=intdiv($decorDelta*$grossArea+1199999,1200000);
+            $netPremium=self::decorUpliftNetCents($shape,$decor,$decorDelta,$grossArea);
             $cost=$baseline+$netPremium;
         }
 
@@ -273,26 +353,27 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             $refLength=$axis==='L1'?$clampedL1:$fixed[$axis];
             $change=$d[$axis]-$refLength;
             if($change>0){
-                // Extrapolated lengths: 1.25x observed W980 per-axis slope.
-                $adjust+=intdiv($per500*$change*5+1999,2000);
+                // Full observed W980 500mm slope. Earlier 25%-extra
+                // multiplied by a second 7% buffer and over-priced sales.
+                $adjust+=self::ceilRatio($per500*$change,500);
             }elseif($change<0){
-                // Shorter parts reduce modeled costs by no more than half
-                // the observed slope, a deliberate conservative floor.
-                $adjust-=intdiv($per500*(-$change)+999,1000);
+                $adjust-=intdiv($per500*(-$change),500);
             }
         }
-        $widthCentsPerMm=$material==='APL38'?30:15;
+        // Commercial dimension factors aligned to actual November checks.
+        // L4 B5 is a diagonal geometry measure, not another full-width strip.
+        $widthCentsPerMm=$material==='APL38'?20:10;
         foreach(['B1','B2','B3','B4','B5'] as $axis){
             if(!isset($d[$axis]))continue;
+            if($shape==='L4' && $axis==='B5' && $material==='APL38')continue;
             $adjust+=$widthCentsPerMm*abs($d[$axis]-$fixed[$axis]);
         }
-        // For other decors only, do not subtract the material surcharge if
-        // the shop geometry is smaller; add the extra stock if it is larger.
         $materialArea=max(0,self::decorCostReferenceAreaMm2($shape,$d)
             -self::decorCostReferenceAreaMm2($shape,$reference['dimensions']));
-        $adjust+=intdiv($delta*$materialArea+1199999,1200000);
+        $adjust+=self::decorUpliftNetCents($shape,$decor,$delta,$materialArea);
+        // V3 already retains a 10% cost reserve and the 40% target margin.
+        // An ADDITIONAL arbitrary 7% on all variable sizes is unnecessary.
         $cost=max(intdiv($base['supplierNetCents']*7+9,10),$cost+$adjust);
-        $cost+=intdiv($cost*7+99,100); // extra 7% model uncertainty
         return [
             'supplierNetCents'=>$cost,
             'source'=>'V3 decor references + measured W980/H1145 shapes + explicit conservative dimensions model',
@@ -335,7 +416,11 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             &&$corner['side']==='left'
             &&$corner['treatment']==='chamfer_continuous'
             &&$corner['parameters']===['L3'=>150,'B3'=>150];
-        if ($exact) {
+        $ownerExact=self::nov09ConfirmedPrice($c);
+        if ($ownerExact!==null) {
+            $netCorner=$ownerExact-$prior['supplierNetCents'];
+            $basis='operator-confirmed-single-corner-reference';
+        } elseif ($exact) {
             $netCorner=2201;
             $basis='operator-confirmed-single-corner-reference';
         } else {
@@ -351,14 +436,13 @@ final class HPZ_APL_LU_Shop_Ratebook_12
                 if ($corner['treatment']==='round') {
                     $radius=$values[$side==='left'?'R1':'R2']??null;
                     if(!is_int($radius)||$radius<10||$radius>1000)return null;
-                    $netCorner+=4400+max(0,$radius-100)*10;
+                    $netCorner+=2500+max(0,$radius-150)*10;
                 } else {
                     $l=$values[$suffix[0]]??null;
                     $b=$values[$suffix[1]]??null;
                     if(!is_int($l)||!is_int($b)||$l<60||$b<60||$l>2000||$b>2000)
                         return null;
-                    $netCorner+=($corner['treatment']==='chamfer_continuous'?3500:3900)
-                        +max(0,$l+$b-300)*7;
+                    $netCorner+=2500+max(0,$l+$b-300)*7;
                 }
                 if(in_array($c['geometry'],['L3','L4'],true))$netCorner+=1200;
             }
@@ -367,9 +451,10 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         }
         return [
             'supplierNetCents'=>$prior['supplierNetCents']+$netCorner,
-            'source'=>$exact
-                ?'docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json'
-                :'V3 L/U baseline + explicitly unverified commercial L-corner cost policy',
+            'source'=>$ownerExact!==null
+                ?'docs/references/speedmaster-lu/LU_TEN_NET_PRICE_CHECKS_20261109.json'
+                :($exact ?'docs/references/speedmaster-lu/LU_THREE_PRICE_CONTROLS_20261106.json'
+                    :'V3 L/U baseline + explicitly unverified commercial L-corner cost policy'),
             'priceBasis'=>$basis,
             'cornerNetModelCents'=>$netCorner,
             'priceWindow'=>'L corner: '.$corner['side'].' / '.$corner['treatment']
