@@ -91,7 +91,7 @@ try{
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#measurement-error').textContent.includes('Bitte in cm eingeben')
+   return s.querySelector('#measurement-error').textContent.includes('B2: Bitte eine Zahl in cm eingeben')
        &&!s.querySelector('#measurement-error').hidden
        &&s.querySelector('#drawing-status').hidden;
   });
