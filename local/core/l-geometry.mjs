@@ -287,6 +287,10 @@ export function lGeometry(config){
     );
     if(variant==='L4')dims.push({
       id:'B5',axis:'diagonal',mm:b5,from:pt(outer/2,outer/2),to:pt((b3+b1)/2,(b2+b4)/2),
+      // Visually anchor the B5 callout to the actual OUTER 45-degree edge.
+      // B5 is a supplier setting when the outer diagonal is capped; its
+      // printed number must never appear at the B3/B4 top reference rails.
+      diagonalCut:{from:pt(outer,0),to:pt(0,outer)},
       // At B5=300 in the supplier photos the outside is capped at B3=900,
       // leaving ~424 mm of physical gap. Drawing a 300 mm ruler across that
       // gap would be misleading. Keep B5 as a selected setting annotation.
