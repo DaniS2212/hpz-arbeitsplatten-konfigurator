@@ -307,9 +307,22 @@ export function lGeometry(config){
     const horiz=from[1]===p[1]?from:to;
     const vert=from[0]===p[0]?from:to;
     if(treatment==='round'){
+      // Place short radius leaders beside their REAL outer corners.
+      // Previous full-L-height leaders crossed the slab and other measures.
+      const shift=Math.min(235,Math.max(155,Math.min(w,h)*.115));
+      const labelAt=side==='left'
+        ?variant==='L2'?[p[0]+shift,p[1]+shift*.70]
+          :[p[0]+shift,p[1]-shift*.82]
+        :variant==='L2'?[p[0]+shift*.90,p[1]+shift*.72]
+          :[p[0]-shift,p[1]+shift*.78];
+      const center=[horiz[0],vert[1]],
+        v=[from[0]+to[0]-2*center[0],from[1]+to[1]-2*center[1]],
+        length=Math.hypot(...v)||1;
+      const leaderPoint=[center[0]+marker.horizontal*v[0]/length,
+        center[1]+marker.horizontal*v[1]/length];
       cornerArcs.push({
         id:'corner-'+fields[0],label:fields[0],side,radiusMm:marker.horizontal,
-        center:[horiz[0],vert[1]],from,to
+        center,from,to,labelAt,leaderPoint
       });
     }else{
       cornerCuts.push({side,from,to,fields:fields.map(k=>'corner-'+k),presentationOnly:treatment==='chamfer_continuous'});
