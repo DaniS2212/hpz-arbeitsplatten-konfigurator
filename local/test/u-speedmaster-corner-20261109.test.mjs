@@ -105,3 +105,25 @@ test('U continuous edge has soft presentation junctions but retains the exact nu
  assert.ok(!hardSvg.includes(' Q '),'hard chamfer remains angular');
  assert.ok(softSvg.includes(' Q '),'gentle visual blends in actual rendered surface path');
 });
+
+test('U B1 is internal like Speedmaster and L5 uses a true vertical right-side dimension',()=>{
+ const basic=geometry(make('U2'));
+ const depth=basic.dimensions.find(d=>d.id==='B1');
+ assert.deepEqual(depth.from,[1000,0]);
+ assert.deepEqual(depth.to,[1000,600]);
+ assert.equal(depth.internal,true);
+ assert.equal(depth.axis,'vertical');
+ const markup=svg(basic,'B1',{unit:'cm'});
+ assert.match(markup,/data-field="B1" data-active="true"/);
+ assert.match(markup,/M 1000,0 L 1000,0 M 1000,600 L 1000,600/);
+ const g=geometry(make('U4',defaultUCorner('both','chamfer_square')));
+ const l5=g.cornerDimensions.find(d=>d.id==='corner-L5');
+ const b5=g.cornerDimensions.find(d=>d.id==='corner-B5');
+ assert.equal(l5.axis,'vertical');
+ assert.deepEqual(l5.from,[1400,1650]);
+ assert.deepEqual(l5.to,[1400,1800]);
+ assert.equal(b5.axis,'horizontal');
+ assert.deepEqual(b5.from,[1400,1800]);
+ assert.deepEqual(b5.to,[1550,1800]);
+ for(const d of ['L4','B4','L5','B5'])assert.match(svg(g,'corner-'+d,{unit:'cm'}),new RegExp('data-field="corner-'+d+'"'));
+});
