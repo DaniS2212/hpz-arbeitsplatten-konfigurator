@@ -106,6 +106,50 @@ final class HPZ_APL_LU_Price_Readiness
         return ['side'=>$side,'treatment'=>$treatment,'parameters'=>$parameters];
     }
 
+    /**
+     * U inner-foot alterations from the ten Speedmaster U1 selector examples.
+     * Strict size keys + geometric bounds. Not a CNC/manufacturing approval.
+     * U1-U4 use the same drawing model but U2-U4 corner options are inferred.
+     */
+    private static function uCorner(array $raw,array $d): array
+    {
+        $none=['side'=>'none','treatment'=>null,'parameters'=>[]];
+        $v=$raw['uCorner']??$none;
+        if(!is_array($v)||!self::exactKeys($v,['side','treatment','parameters'])
+            ||!is_array($v['parameters']))throw new InvalidArgumentException('U-Eckfelder ungültig.');
+        $side=$v['side']??null;$type=$v['treatment']??null;
+        if($side==='none'){
+            if($type!==null||count($v['parameters'])!==0)
+                throw new InvalidArgumentException('Bearbeitung ohne U-Eckseite.');
+            return $none;
+        }
+        if(!in_array($side,['left','right','both'],true)
+            ||!in_array($type,['round','chamfer_square','chamfer_continuous'],true))
+            throw new InvalidArgumentException('Unbekannte U-Eckbearbeitung.');
+        $left=$type==='round'?['R1']:['L4','B4'];
+        $right=$type==='round'?['R2']:['L5','B5'];
+        $wanted=array_merge($side==='right'?[]:$left,$side==='left'?[]:$right);
+        if(!self::exactKeys($v['parameters'],$wanted))
+            throw new InvalidArgumentException('U-Eckmaßfelder fehlen oder sind fremd.');
+        $parameters=[];
+        foreach($wanted as $key){
+            $val=self::mm($v['parameters'][$key],$key);
+            $leftSide=in_array($key,$left,true);
+            $legLength=($leftSide?$d['L2']:$d['L3'])-$d['B1'];
+            $legWidth=$leftSide?$d['B2']:$d['B3'];
+            $rounded=$type==='round';
+            $available=$rounded?min($legLength,$legWidth)
+                :(str_starts_with($key,'L')?$legLength:$legWidth);
+            $minimum=$rounded?10:60;
+            $maximum=max(0,min($rounded?1000:2000,intdiv(max(0,$available-10),10)*10));
+            if($val%10||$val<$minimum||$val>$maximum)
+                throw new InvalidArgumentException('corner-'.$key.': Erlaubt sind '
+                    .($minimum/10).'–'.($maximum/10).' cm. Eingegeben: '.($val/10).' cm.');
+            $parameters[$key]=$val;
+        }
+        return ['side'=>$side,'treatment'=>$type,'parameters'=>$parameters];
+    }
+
     /** Validate the limited SQUARE L/U launch candidate independently of JS. */
     public static function normalize(array $raw): array
     {
@@ -161,7 +205,10 @@ final class HPZ_APL_LU_Price_Readiness
             || $dimensions['B2'] + $dimensions['B3'] >= $dimensions['L1']) {
             throw new InvalidArgumentException('U-Maßkopplung und Innenöffnung prüfen.');
         }
+        if($isL&&isset($raw['uCorner']))
+            throw new InvalidArgumentException('U-Eckbearbeitung gehört nicht zur L-Form.');
         $lc=$isL?self::lCorner($raw,$shape,$dimensions):null;
+        $uc=$isL?null:self::uCorner($raw,$dimensions);
         $quantity = $raw['quantity'] ?? null;
         if (!is_int($quantity) || $quantity < 1 || $quantity > 1000) {
             throw new InvalidArgumentException('Ungültige Stückzahl.');
@@ -175,6 +222,7 @@ final class HPZ_APL_LU_Price_Readiness
         ];
         // Preserve the *existing* fingerprint for all unmachined L/U plates.
         if ($isL && $lc['side']!=='none') $normalized['lCorner']=$lc;
+        if (!$isL && $uc['side']!=='none') $normalized['uCorner']=$uc;
         return $normalized;
     }
 
@@ -190,6 +238,7 @@ final class HPZ_APL_LU_Price_Readiness
             $c['dimensions'],$c['material'],$c['decor'],$c['edge'],$c['corner'],
         ];
         if (isset($c['lCorner'])) $identity[]=$c['lCorner'];
+        if (isset($c['uCorner'])) $identity[]=$c['uCorner'];
         return hash('sha256',json_encode($identity,JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
@@ -399,7 +448,10 @@ final class HPZ_APL_LU_Price_Readiness
                 'decorId'=>$c['decor'],'decorName'=>$c['decorName'],
                 'supplierDecorCode'=>$c['supplierDecorCode'],'edge'=>'1,5 mm dekorgleich',
                 'corner'=>'square','quantity'=>$c['quantity'],
-            ],isset($c['lCorner'])?['lCorner'=>$c['lCorner']]:[]),
+            ],array_merge(
+                isset($c['lCorner'])?['lCorner'=>$c['lCorner']]:[],
+                isset($c['uCorner'])?['uCorner'=>$c['uCorner']]:[]
+            )),
         ];
     }
 }
