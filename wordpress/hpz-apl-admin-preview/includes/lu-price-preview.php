@@ -21,6 +21,8 @@ final class HPZ_APL_LU_Admin_Price_Preview_13
         $c=HPZ_APL_LU_Price_Readiness::normalize($raw);
         if(isset($c['lCorner'])){
             $candidate=HPZ_APL_LU_Shop_Ratebook_12::cornerCandidate($c,true);
+        }elseif(isset($c['uCorner'])){
+            $candidate=HPZ_APL_LU_Shop_Ratebook_12::uCornerCandidate($c,true);
         }else{
             $candidate=HPZ_APL_LU_Shop_Ratebook_12::candidate($c);
             if($candidate===null)$candidate=HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($c);

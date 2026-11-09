@@ -483,17 +483,65 @@ final class HPZ_APL_LU_Shop_Ratebook_12
     }
 
     /**
+     * U inner-leg corner cost ESTIMATE; Speedmaster U1 screenshot proves the
+     * selector variants, not a separate net-EK surcharge. Reuse the existing
+     * commercial L-corner model and require the SAME operator approval flag.
+     * No extra supplier API or fabricated supplier quote.
+     */
+    public static function uCornerCandidate(array $c,bool $allowExtended=false): ?array
+    {
+        $corner=$c['uCorner']??null;
+        if(($c['product']??null)!=='u'||!is_array($corner)
+            ||!in_array($corner['side']??null,['left','right','both'],true)
+            ||!in_array($corner['treatment']??null,
+                ['round','chamfer_square','chamfer_continuous'],true)
+            ||!is_array($corner['parameters']??null))return null;
+        $base=$c;unset($base['uCorner']);
+        $prior=self::candidate($base);
+        if($prior===null&&$allowExtended)$prior=self::extendedCandidate($base);
+        if($prior===null)return null;
+        $extra=0;
+        foreach($corner['side']==='both'?['left','right']:[$corner['side']] as $side){
+            $keys=$corner['treatment']==='round'
+                ?[$side==='left'?'R1':'R2']
+                :($side==='left'?['L4','B4']:['L5','B5']);
+            $values=$corner['parameters'];
+            if($corner['treatment']==='round'){
+                $radius=$values[$keys[0]]??null;
+                if(!is_int($radius)||$radius<10||$radius>1000)return null;
+                $extra+=2500+max(0,$radius-150)*10;
+            }else{
+                $l=$values[$keys[0]]??null;$b=$values[$keys[1]]??null;
+                if(!is_int($l)||!is_int($b)||$l<60||$b<60||$l>2000||$b>2000)
+                    return null;
+                $extra+=2500+max(0,$l+$b-300)*7;
+                if($corner['treatment']==='chamfer_continuous')$extra+=1000;
+            }
+        }
+        if($corner['side']==='both')$extra+=1200;
+        return [
+            'supplierNetCents'=>$prior['supplierNetCents']+$extra,
+            'source'=>'V3 U baseline + explicitly estimated U inner-foot machining',
+            'priceBasis'=>'owner-review-u-inner-corner-cost-estimate',
+            'cornerNetModelCents'=>$extra,
+            'priceWindow'=>'U corners: '.$corner['side'].' / '.$corner['treatment']
+                .'; base: '.$prior['priceWindow'],
+            'ratebookVersion'=>self::VERSION,
+        ];
+    }
+
+    /**
      * Only privileged WP operator policy can allow estimated supplier costs
      * to be used as COMMERCIAL price assumptions in a Woo offer.
      * None of the below keys are accepted from customer/Store API JSON.
      */
     public static function operatorProof(array $c,array $policy): ?array
     {
-        if (isset($c['lCorner'])) {
+        if (isset($c['lCorner']) || isset($c['uCorner'])) {
             if (($policy['corner_model_approved']??null)!==true) return null;
-            $candidate=self::cornerCandidate(
-                $c,($policy['extended_model_approved']??null)===true
-            );
+            $candidate=isset($c['lCorner'])
+                ?self::cornerCandidate($c,($policy['extended_model_approved']??null)===true)
+                :self::uCornerCandidate($c,($policy['extended_model_approved']??null)===true);
         } else {
             $candidate=self::candidate($c);
             if ($candidate===null && ($policy['extended_model_approved']??null)===true)

@@ -1,5 +1,6 @@
 import {validateStraightCorner,straightShopLimits} from './straight-corners.mjs';
 import {validateLCorner,lDimensionKeys,validateLDimensions} from './l-geometry.mjs';
+import {validateUCorner} from './u-corners.mjs';
 import {DECOR_CATALOG,decorById} from './decor-catalog.mjs';
 const families = {
   straight: { label: 'Arbeitsplatte Gerade', geometries: ['straight'], fields: ['L1','B1'] },
@@ -62,6 +63,9 @@ export function normalize(raw) {
   if(raw.lCorner!==undefined&&raw.product!=='l')throw new Error('Diese L-Eckbearbeitung ist für das Produkt unzulässig.');
   if(raw.lCorner!==undefined&&(raw.corner!=='square'||raw.special!==undefined))throw new Error('Alte Eckmuster und L-Bearbeitung dürfen nicht kombiniert werden.');
   const lCorner=raw.lCorner===undefined?undefined:validateLCorner(raw.lCorner,convert,raw.geometry,{dimensions,material:raw.material,decor:decor.id});
+  if(raw.uCorner!==undefined&&(raw.product!=='u'||raw.corner!=='square'||raw.special!==undefined))
+    throw new Error('U-Eckbearbeitung ist nur in der U-Form zulässig.');
+  const uCorner=raw.uCorner===undefined?undefined:validateUCorner(raw.uCorner,convert,dimensions);
   let special={};
   if(['round','chamfer'].includes(raw.corner)) {
     if(!object(raw.special) || Object.keys(raw.special).some(k=>k!=='size')) throw new Error('Eckmaß fehlt oder ist unzulässig.');
@@ -74,5 +78,6 @@ export function normalize(raw) {
   return {schemaVersion:millimetres?2:1,...(millimetres?{unit:'mm'}:{}),product:raw.product,geometry:raw.geometry,corner,dimensions,
     ...(straightCorner?{straightCorner}:{}),
     ...(lCorner?{lCorner}:{}),
+    ...(uCorner?.side!=='none'&&uCorner!==undefined?{uCorner}:{}),
     special,material:raw.material,decor:decor.id,decorSupplierCode:decor.supplierCode,edge:'matching-1.5',quantity};
 }

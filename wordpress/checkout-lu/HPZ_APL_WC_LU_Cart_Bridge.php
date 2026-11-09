@@ -107,6 +107,13 @@ final class HPZ_APL_WC_LU_Cart_Bridge
                 'parameters'=>array_map('strval',$corner['parameters']),
             ];
         }
+        if ($c['product']==='u' && isset($c['uCorner'])) {
+            $corner=$c['uCorner'];
+            $raw['uCorner']=[
+                'side'=>$corner['side'],'treatment'=>$corner['treatment'],
+                'parameters'=>array_map('strval',$corner['parameters']),
+            ];
+        }
         return $raw;
     }
 
@@ -195,8 +202,9 @@ final class HPZ_APL_WC_LU_Cart_Bridge
             'Kanten'=>$production['edge'],
             'Eckbearbeitung'=>'Keine',
         ];
-        $corner=$production['lCorner'] ?? null;
-        if ($id===1000080 && is_array($corner) && ($corner['side'] ?? null)!=='none') {
+        $corner=$id===1000080?($production['lCorner'] ?? null)
+            :($production['uCorner'] ?? null);
+        if (is_array($corner) && ($corner['side'] ?? null)!=='none') {
             $sides=['left'=>'Links','right'=>'Rechts','both'=>'Beidseitig'];
             $treatments=[
                 'round'=>'Rundung','chamfer_square'=>'Eckige Abschrägung',

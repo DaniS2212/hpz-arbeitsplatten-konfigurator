@@ -68,7 +68,11 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   // dimensions, aspect ratio, measurement positions or customer price.
   const straightPreview=g.version?.startsWith('straight-');
   const pad=Math.max(g.width,g.height)*(straightPreview?.11:.19),
-    font=g.front?Math.min(pad*.28,g.width*.028,g.height*.12):pad*.28;
+    // Straight and L/U now use comparable ON-SCREEN label sizes. The former
+    // 12%-of-depth cap made 200x60cm straight measurements unreadably small.
+    font=straightPreview
+      ?Math.min(pad*.54,g.width*.052,g.height*.24)
+      :g.front?Math.min(pad*.28,g.width*.028,g.height*.12):pad*.28;
   detail=g.front&&['left','right'].includes(detail)?detail:null;
   const trim=g.contourStatus==='schematic'
     ?g.front?Math.min(font*.4,(g.front.to[0]-g.front.from[0])*.2)
@@ -136,8 +140,10 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   }).join('');
   const radii=(g.cornerArcs??[]).filter(a=>!detail||a.side===detail).map(a=>{
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
-    const x=a.side==='left'?g.width*.18:g.width*.82,y=g.height+pad*.65;
-    const tx=a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.sqrt(2),ty=a.center[1]+a.radiusMm/Math.sqrt(2);
+    const x=a.labelAt?.[0]??(a.side==='left'?g.width*.18:g.width*.82),
+      y=a.labelAt?.[1]??g.height+pad*.65;
+    const tx=a.leaderPoint?.[0]??a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.SQRT2,
+      ty=a.leaderPoint?.[1]??a.center[1]+a.radiusMm/Math.SQRT2;
     return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure" role="button" tabindex="0" data-measure-id="${a.id}" aria-label="${escapeXml(a.id)} bearbeiten"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(invalidField===a.id?String(a.label??a.id):`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
@@ -196,7 +202,12 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   const seams=(g.previewSeams??[]).map((seam,index)=>{
     const meta=partsView?g.previewSeamDetails?.[index]:null;
     const d='M '+seam.from+' L '+seam.to;
-    if(!meta)return '<path class="apl-preview-seam" d="'+d+'" fill="none" stroke="#365861" stroke-width="'+(font/(partsView?11:28))+'" stroke-dasharray="'+(font/(partsView?4:10))+' '+(font/(partsView?6:12))+'" opacity="'+(partsView?.82:.28)+'"/>';
+    if(!meta){
+      // Customers can see U1–U4 join directions already in Draufsicht.
+      // Switching to "Aufteilung" remains optional for selecting a join.
+      const highlighted=g.version?.startsWith('speedmaster-u');
+      return '<path class="apl-preview-seam" data-preview-join="'+(highlighted?'u':'other')+'" d="'+d+'" fill="none" stroke="'+(highlighted?'#146178':'#365861')+'" stroke-width="'+(font/(partsView?11:highlighted?13:28))+'" stroke-dasharray="'+(font/(partsView?4:highlighted?5:10))+' '+(font/(partsView?6:highlighted?8:12))+'" opacity="'+(partsView?.82:highlighted?.78:.28)+'"/>';
+    }
     const selected=meta.id===selectedSeam,color=selected?'#bc7045':'#365861';
     const x=(seam.from[0]+seam.to[0])/2,y=(seam.from[1]+seam.to[1])/2;
     const marker=meta.label.replace('Stoß ','');

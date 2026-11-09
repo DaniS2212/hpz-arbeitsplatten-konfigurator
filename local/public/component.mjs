@@ -8,6 +8,8 @@ import {template} from './component-template.mjs';
 import {resolveProduct} from '../core/products.mjs';
 import {decorImageUrl} from './decor-images.mjs';
 import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from '../core/straight-corners.mjs';
+import {uCornerSides,uCornerTreatments,uCornerKeys,defaultUCorner,uCornerPreviewLimits} from '../core/u-corners.mjs';
+import {uSplitModes} from '../core/u1-geometry.mjs';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -31,9 +33,14 @@ const fieldNames={L1:'Gesamtbreite',L2:'Links außen',L3:'Rechts außen',B1:'Tie
 let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',selectedPart=null,selectedSeam=null,valid=false;
 let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCornerValues={};
+ let uSide='none',uTreatment=null,uCornerValues={};
 let radiusValues={},drawingDetail=null;
 const fieldErrors=new Map();
 const lSides={none:'Keine',left:'Links',right:'Rechts',both:'Beide Außenecken'};
+ const uVariantOptions=element('div','u-variant-grid');
+ uVariantOptions.id='u-variant-options';uVariantOptions.setAttribute('role','radiogroup');
+ uVariantOptions.setAttribute('aria-label','Stoßaufteilung');
+ $('geometry').after(uVariantOptions);
 const retryPriceButton=element('button','price-retry','Preis erneut berechnen');
 retryPriceButton.type='button';retryPriceButton.hidden=true;
 $('price-note').after(retryPriceButton);
@@ -69,6 +76,75 @@ function lTreatmentIcon(kind){
  if(kind!=='chamfer_continuous')return treatmentIcon(kind);
  return '<svg viewBox="0 0 98 46" aria-hidden="true"><path d="M10 5 H88 V39 H29 L10 20 Z" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M10 20 L29 39 H80" fill="none" stroke="#146178" stroke-width="3"/></svg>';
 }
+// The four U models share ONE outline. Only the two visible join directions
+// differ. Show these differences at the choice point, not behind "Aufteilung".
+function uJoinIcon(shape){
+ const [left,right]=uSplitModes[shape];
+ const leftPath=left==='cross'?'M 8 32 H 30':'M 30 8 V 32';
+ const rightPath=right==='cross'?'M 78 32 H 100':'M 78 8 V 32';
+ return `<svg viewBox="0 0 108 70" aria-hidden="true">
+   <path d="M 8 8 H 100 V 61 H 78 V 32 H 30 V 54 H 8 Z"
+     fill="#e6f1f1" stroke="#557b83" stroke-width="1.8"/>
+   <path d="${leftPath} M ${rightPath.slice(2)}"
+     fill="none" stroke="#af6940" stroke-width="3.2" stroke-linecap="round"/>
+ </svg>`;
+}
+const uJoinLabels={
+ U1:'Links quer · rechts quer',U2:'Links längs · rechts längs',
+ U3:'Links längs · rechts quer',U4:'Links quer · rechts längs'
+};
+function uSideIcon(side){
+ const left=['left','both'].includes(side),right=['right','both'].includes(side);
+ return `<svg viewBox="0 0 108 70" aria-hidden="true">
+ <path d="M8 8H100V61H78V32H30V54H8Z" fill="#e6f1f1" stroke="#557b83" stroke-width="1.8"/>
+ ${left?'<circle cx="30" cy="54" r="5" fill="#af6940"/>':''}
+ ${right?'<circle cx="78" cy="61" r="5" fill="#af6940"/>':''}
+ </svg>`;
+}
+function renderUVariantCards(){
+ uVariantOptions.hidden=product!=='u';
+ if(product!=='u')return;
+ const options=Object.keys(uSplitModes).map(id=>choice('u-variant',id,
+   uJoinIcon(id)+'<strong>'+id+'</strong><span>'+uJoinLabels[id]+'</span>',
+   variants.u===id,()=>{
+    $('geometry').value=id;
+    $('geometry').dispatchEvent(new Event('change',{bubbles:true}));
+   },'u-variant-card'));
+ uVariantOptions.replaceChildren(...options);
+}
+function renderUChoices(){
+ if(product!=='u')return;
+ sideWrap.hidden=false;sideLegend.textContent='Welche innere Ecke bearbeiten?';
+ sideWrap.lastElementChild.replaceChildren(...Object.entries(uCornerSides)
+   .map(([id,name])=>choice('u-side',id,uSideIcon(id)+'<span>'+name+'</span>',
+     uSide===id,()=>{
+      uSide=id;uTreatment=id==='none'?null:(uTreatment??'round');
+      uCornerValues=Object.fromEntries(Object.entries(defaultUCorner(uSide,uTreatment).parameters)
+       .map(([k,v])=>[k,mmToCmText(Number(v))]));
+      active='side-'+id;renderUChoices();renderRadiusInputs();refresh();
+     },'a1-side-card')));
+ cornerTitle.hidden=uSide==='none';$('corners').hidden=uSide==='none';
+ cornerTitle.textContent='Bearbeitung';$('corners').style.gridTemplateColumns='1fr';
+ if(uSide!=='none'){
+  $('corners').replaceChildren(...Object.entries(uCornerTreatments)
+    .map(([id,title])=>choice('u-treatment',id,uJoinTreatmentIcon(id)
+       +'<span>'+title+'</span>',uTreatment===id,()=>{
+        uTreatment=id;uCornerValues=Object.fromEntries(Object.entries(defaultUCorner(uSide,uTreatment).parameters)
+          .map(([k,v])=>[k,mmToCmText(Number(v))]));
+        renderRadiusInputs();refresh();
+       },'a1-treatment-card')));
+ }
+}
+function uJoinTreatmentIcon(treatment){
+ // A sketch of the inner leg FOOT is sufficient; the actual full contour
+ // uses uCorner in the shared SVG. This icon is not a manufacturer drawing.
+ const path=treatment==='round'?'M 8 5 V 35 H 24 Q 38 35 38 21 V 5'
+   :'M 8 5 V 35 H 25 L 38 22 V 5';
+ return `<svg viewBox="0 0 46 42" aria-hidden="true"><path d="${path}"
+   fill="none" stroke="#557b83" stroke-width="2.1"/>
+  ${treatment==='chamfer_continuous'?'<path d="M 8 35 H 25 L 38 22 V 5" stroke="#af6940" fill="none" stroke-width="2"/>':''}</svg>`;
+}
+
 function setFieldError(key,message=''){
   const isLCorner=key.startsWith('corner-'),fieldKey=isLCorner?key.slice(7):key;
   const input=$(isLCorner?`corner-${fieldKey}`:`dim-${fieldKey}`),note=$(isLCorner?`corner-field-error-${fieldKey}`:`field-error-${fieldKey}`);
@@ -88,36 +164,52 @@ function setFieldError(key,message=''){
 }
 function clearFieldErrors(){for(const key of [...fieldErrors.keys()])setFieldError(key);}
 function renderRadiusInputs(){
-  for(const key of (product==='l'?['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6'].map(k=>'corner-'+k):['R1','R2','L2','B2','L3','B3']))fieldErrors.delete(key);
-  radiusWrap.replaceChildren();const l=product==='l',side=l?lSide:straightSide,type=l?lTreatment:straightTreatment;
-  radiusWrap.hidden=!(l||product==='straight')||side==='none';
-  if(radiusWrap.hidden)return;
-  radiusWrap.append(element('legend','',type==='round'?'Deine Rundungen':'Deine Abschrägungen'));
-  const keys=l?lCornerKeys(variants.l,lSide,lTreatment):straightCorner(straightSide,straightTreatment).parameters;
-  const leftKeys=l?lCornerKeys(variants.l,'left',lTreatment):['R1','L2','B2'];
-  const grids=new Map();
-  for(const key of keys){
-    const side=leftKeys.includes(key)?'left':'right';
-    const place=l?(side==='left'?'außen links':'außen rechts'):(side==='left'?'vorne links':'vorne rechts');
-    if(!grids.has(side)){
-      const group=element('div','a1-corner-group');
-      group.setAttribute('role','group');group.setAttribute('aria-label',`Ecke ${place}`);
-      group.append(element('p','a1-corner-heading',side==='left'?'Linke Ecke':'Rechte Ecke'));
-      const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(side,grid);
-    }
-    const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l?'Breite':'Tiefe';
-    const cornerId=l?`corner-${key}`:`dim-${key}`;
-    label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
-    input.id=cornerId;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',l?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
-    input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
-    input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
-    input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l?`corner-${key}`:key);});
-    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;
-    const inline=element('p','field-error');inline.id=l?`corner-field-error-${key}`:`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
-    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
-  }
-  radiusWrap.append(element('p','a1-limit-note',''));
+ for(const key of [...['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6'].map(k=>'corner-'+k),
+     ...['R1','R2','L2','B2','L3','B3']])fieldErrors.delete(key);
+ radiusWrap.replaceChildren();
+ const l=product==='l',u=product==='u',side=l?lSide:u?uSide:straightSide,
+   type=l?lTreatment:u?uTreatment:straightTreatment;
+ radiusWrap.hidden=side==='none'||!(l||u||product==='straight');
+ if(radiusWrap.hidden)return;
+ radiusWrap.append(element('legend','',type==='round'?'Deine Rundungen':'Deine Abschrägungen'));
+ const keys=l?lCornerKeys(variants.l,lSide,lTreatment)
+   :u?uCornerKeys(uSide,uTreatment)
+   :straightCorner(straightSide,straightTreatment).parameters;
+ const leftKeys=l?lCornerKeys(variants.l,'left',lTreatment)
+   :u?uCornerKeys('left',uTreatment):['R1','L2','B2'];
+ const grids=new Map();
+ for(const key of keys){
+   const atLeft=leftKeys.includes(key),which=atLeft?'left':'right';
+   const place=l?'außen '+(atLeft?'links':'rechts')
+     :u?'innen '+(atLeft?'links':'rechts')
+     :'vorne '+(atLeft?'links':'rechts');
+   if(!grids.has(which)){
+     const group=element('div','a1-corner-group');
+     group.setAttribute('role','group');group.setAttribute('aria-label','Ecke '+place);
+     group.append(element('p','a1-corner-heading',atLeft?'Linke Ecke':'Rechte Ecke'));
+     const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(which,grid);
+   }
+   const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),
+     input=element('input'),unit=element('div','unit-input');
+   const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l||u?'Breite':'Tiefe';
+   const cornerId=l||u?`corner-${key}`:`dim-${key}`;
+   label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
+   input.id=cornerId;input.type='text';input.inputMode='decimal';
+   input.value=l?lCornerValues[key]:u?uCornerValues[key]:radiusValues[key];
+   input.setAttribute('aria-describedby',l||u?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
+   input.setAttribute('aria-label',property+' '+place+' ('+key+')');
+   input.addEventListener('input',()=>{
+     if(l)lCornerValues[key]=input.value;else if(u)uCornerValues[key]=input.value;
+     else radiusValues[key]=input.value;
+     refresh();
+   });
+   input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l||u?`corner-${key}`:key);});
+   const hint=element('p','microcopy');hint.id=l||u?`corner-hint-${key}`:`hint-${key}`;
+   const inline=element('p','field-error');inline.id=l||u?`corner-field-error-${key}`:`field-error-${key}`;
+   inline.hidden=true;inline.setAttribute('aria-live','polite');
+   unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(which).append(wrap);
+ }
+ radiusWrap.append(element('p','a1-limit-note',''));
 }
 function renderStraightChoices(){
   sideLegend.textContent='Welche Eckbearbeitung?';
@@ -203,6 +295,7 @@ function renderChoices(){
   $('corners').replaceChildren(...visibleCorners.map(item=>choice('corner',item.id,`<svg viewBox="0 0 36 30" aria-hidden="true"><path d="${cornerIcons[item.id]}"/></svg><span>${cornerNames[item.id]}</span>`,corner===item.id,()=>{corner=item.id;refresh();},'corner-card')));
   renderStraightChoices();
   renderLChoices();
+  renderUChoices();
   updateFamilyCopy();
   $('materials').replaceChildren(...c.materials.map(item=>choice('material',item.id,`<span class="slab ${item.id==='APL17.5'?'slim':''}" aria-hidden="true"></span><strong>${item.id==='APL17.5'?'17,5':'38'} mm</strong><small>${item.id==='APL17.5'?'Schlank & leicht in der Optik':'Klassisch & präsent'}</small>`,material===item.id,()=>{material=item.id;refresh();},'material-card')));
   // Reuse image elements across corner/side changes: recreating 16 lazy-loaded
@@ -216,10 +309,17 @@ function renderChoices(){
 }
 function rebuild(){
   shell.dataset.product=product;
-  if(product==='straight'||product==='l')corner='square';
+  if(product==='straight'||product==='l'||product==='u')corner='square';
   renderChoices();$('variant-wrap').hidden=product==='straight';
+  if(product==='u'){
+    $('variant-wrap').querySelector('.field-title').textContent='Wo sollen die Stoßfugen liegen?';
+    $('geometry').setAttribute('aria-hidden','true');$('geometry').tabIndex=-1;
+  }else{
+    $('variant-wrap').querySelector('.field-title').textContent='Ausführung';
+    $('geometry').removeAttribute('aria-hidden');$('geometry').removeAttribute('tabindex');
+  }
   const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · quer/quer',U2:'U2 · längs/längs',U3:'U3 · längs/quer',U4:'U4 · quer/längs'};
-  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
+  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];renderUVariantCards();
   // No supplier technical explanation below the shape selector.
   
   $('dimensions').replaceChildren();
@@ -252,7 +352,10 @@ function rebuild(){
 function payload(){const radii=product==='straight'?Object.fromEntries(straightCorner(straightSide,straightTreatment).parameters.map(k=>[k,cmInputToMmText(radiusValues[k])])):{};
  const lParams=product==='l'?Object.fromEntries(lCornerKeys(variants.l,lSide,lTreatment).map(k=>[k,cmInputToMmText(lCornerValues[k])])):{};
  return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),
- ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
+ ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),
+  ...(product==='u'?{uCorner:{side:uSide,treatment:uTreatment,
+      parameters:Object.fromEntries(uCornerKeys(uSide,uTreatment).map(k=>[k,cmInputToMmText(uCornerValues[k])]))}}:{}),
+  product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
 function renderPartChoices(){
   const parts=product!=='straight'&&view==='parts'?(lastGeometry?.previewParts??[]):[];
@@ -408,6 +511,18 @@ function summary(config,invalid=false){
     rows.push(['Breiten',widths.map(k=>`${k} ${mmToCmText(d[k])}`).join(' · ')+' cm']);
   }
   rows.push(['Oberfläche',`${decorName} · ${thickness} mm`]);
+   if(product==='u'){
+     rows.push(['Stoßaufteilung',uJoinLabels[variants.u]]);
+     if(uSide!=='none'){
+       const params=config?.uCorner?.parameters??{},pieces=uSide==='both'?['left','right']:[uSide];
+       const details=pieces.map(side=>{
+         const fields=uCornerKeys(side,uTreatment);
+         return (side==='left'?'Links':'Rechts')+' '+fields
+           .map(k=>k+' '+(params[k]===undefined?'–':mmToCmText(params[k]))).join(' / ')+' cm';
+       });
+       rows.push(['Innenecken',uCornerTreatments[uTreatment]+' · '+details.join(' · ')]);
+     }
+   }
   if(product==='l'&&lSide!=='none'){
     const p=config?.lCorner?.parameters??{},chosen=lSide==='both'?['left','right']:[lSide];
     const label=chosen.map(side=>{
@@ -588,11 +703,10 @@ function refresh(){
     $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
   }
   if(product==='u'){
-    $('corner-note').textContent=corner==='square'
-      ?'Grundform nach Speedmaster-Fotos. Zwei Stoßstellen sind nur als Lagebeobachtung belegt.'
-      :'Eckbearbeitung derzeit nur schematisch; Speedmaster-Referenzen dafür fehlen.';
-    $('parts-note').querySelector('strong').textContent='Drei sichtbare Teilflächen · keine Zuschnittdaten';
-    $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
+    $('special-wrap').hidden=true;
+    $('corner-note').textContent='';
+    $('parts-note').querySelector('strong').textContent='Drei Teilflächen · Stoßfugen zur Orientierung';
+    $('parts-note').querySelector('p').textContent='U1–U4: Die gewählte Stoßaufteilung ist in der Draufsicht erkennbar.';
   }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
@@ -611,12 +725,37 @@ function refresh(){
       catch{setFieldError('corner-'+key,'Bitte ein gültiges Eckmaß in cm eingeben.');}
     }
   }
+  if(product==='u'&&uSide!=='none'){
+    for(const key of uCornerKeys(uSide,uTreatment)){
+      try{cmInputToMmText(uCornerValues[key]);setFieldError('corner-'+key);}
+      catch{setFieldError('corner-'+key,'Bitte ein gültiges Eckmaß in cm eingeben.');}
+    }
+    try{
+      const dims=Object.fromEntries(Object.entries(currentDimensions())
+        .map(([k,v])=>[k,Number(cmInputToMmText(v))]));
+      const limits=uCornerPreviewLimits(dims,uSide,uTreatment).fields;
+      for(const key of uCornerKeys(uSide,uTreatment)){
+        const info=limits[key],hint=$('corner-hint-'+key);
+        if(hint)hint.textContent=info.max>=info.min
+          ?mmToCmText(info.min)+'–'+mmToCmText(info.max)+' cm':'Mit diesen Schenkelmaßen nicht möglich.';
+      }
+    }catch{/* Invalid base dimensions keep their own validation active. */}
+  }
   if(product==='straight')updateCornerBounds();
    if(product==='l')updateLRangeHints();
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
-$('geometry').addEventListener('change',()=>{closeInlineEditor();variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
+$('geometry').addEventListener('change',()=>{
+ closeInlineEditor();variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;
+ if(product==='l'){
+   lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters)
+     .map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();
+ }else if(product==='u'){
+   renderUVariantCards();renderUChoices();renderRadiusInputs();
+ }
+ refresh();
+});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{
