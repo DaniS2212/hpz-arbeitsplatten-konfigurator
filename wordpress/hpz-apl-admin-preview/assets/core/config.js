@@ -63,7 +63,8 @@ export function normalize(raw) {
   if(raw.lCorner!==undefined&&raw.product!=='l')throw new Error('Diese L-Eckbearbeitung ist für das Produkt unzulässig.');
   if(raw.lCorner!==undefined&&(raw.corner!=='square'||raw.special!==undefined))throw new Error('Alte Eckmuster und L-Bearbeitung dürfen nicht kombiniert werden.');
   const lCorner=raw.lCorner===undefined?undefined:validateLCorner(raw.lCorner,convert,raw.geometry,{dimensions,material:raw.material,decor:decor.id});
-  if(raw.uCorner!==undefined&&(raw.product!=='u'||raw.corner!=='square'||raw.special!==undefined))throw new Error('U-Eckbearbeitung nur für U-Formen.');
+  if(raw.uCorner!==undefined&&(raw.product!=='u'||raw.corner!=='square'||raw.special!==undefined))
+    throw new Error('U-Eckbearbeitung ist nur in der U-Form zulässig.');
   const uCorner=raw.uCorner===undefined?undefined:validateUCorner(raw.uCorner,convert,dimensions);
   let special={};
   if(['round','chamfer'].includes(raw.corner)) {
