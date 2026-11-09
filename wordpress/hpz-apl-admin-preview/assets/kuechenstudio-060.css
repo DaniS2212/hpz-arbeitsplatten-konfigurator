@@ -621,3 +621,16 @@
  .hpz-apl .order-summary dl dd{font-size:12px!important}
  .hpz-apl .measurement-error{font-size:13px!important}
 }
+
+/* Keep SVG labels large enough to tap on mobile, including straight plates. */
+@media(max-width:760px){
+ .hpz-apl[data-product="straight"] #drawing,
+ .hpz-apl[data-product="l"] #drawing,
+ .hpz-apl[data-product="u"] #drawing{
+   height:clamp(245px,66vw,390px)!important;
+   min-height:245px!important;padding:8px 5px!important;
+ }
+ .hpz-apl[data-product="straight"] #drawing svg,
+ .hpz-apl[data-product="l"] #drawing svg,
+ .hpz-apl[data-product="u"] #drawing svg{max-height:390px!important}
+}
