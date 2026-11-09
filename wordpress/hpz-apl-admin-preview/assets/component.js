@@ -164,36 +164,52 @@ function setFieldError(key,message=''){
 }
 function clearFieldErrors(){for(const key of [...fieldErrors.keys()])setFieldError(key);}
 function renderRadiusInputs(){
-  for(const key of (product==='l'?['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6'].map(k=>'corner-'+k):['R1','R2','L2','B2','L3','B3']))fieldErrors.delete(key);
-  radiusWrap.replaceChildren();const l=product==='l',side=l?lSide:straightSide,type=l?lTreatment:straightTreatment;
-  radiusWrap.hidden=!(l||product==='straight')||side==='none';
-  if(radiusWrap.hidden)return;
-  radiusWrap.append(element('legend','',type==='round'?'Deine Rundungen':'Deine Abschrägungen'));
-  const keys=l?lCornerKeys(variants.l,lSide,lTreatment):straightCorner(straightSide,straightTreatment).parameters;
-  const leftKeys=l?lCornerKeys(variants.l,'left',lTreatment):['R1','L2','B2'];
-  const grids=new Map();
-  for(const key of keys){
-    const side=leftKeys.includes(key)?'left':'right';
-    const place=l?(side==='left'?'außen links':'außen rechts'):(side==='left'?'vorne links':'vorne rechts');
-    if(!grids.has(side)){
-      const group=element('div','a1-corner-group');
-      group.setAttribute('role','group');group.setAttribute('aria-label',`Ecke ${place}`);
-      group.append(element('p','a1-corner-heading',side==='left'?'Linke Ecke':'Rechte Ecke'));
-      const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(side,grid);
-    }
-    const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
-    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l?'Breite':'Tiefe';
-    const cornerId=l?`corner-${key}`:`dim-${key}`;
-    label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
-    input.id=cornerId;input.type='text';input.inputMode='decimal';input.value=l?lCornerValues[key]:radiusValues[key];input.setAttribute('aria-describedby',l?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
-    input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
-    input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
-    input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l?`corner-${key}`:key);});
-    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;
-    const inline=element('p','field-error');inline.id=l?`corner-field-error-${key}`:`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
-    unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
-  }
-  radiusWrap.append(element('p','a1-limit-note',''));
+ for(const key of [...['R1','R2','L3','B3','L4','B4','L5','B5','L6','B6'].map(k=>'corner-'+k),
+     ...['R1','R2','L2','B2','L3','B3']])fieldErrors.delete(key);
+ radiusWrap.replaceChildren();
+ const l=product==='l',u=product==='u',side=l?lSide:u?uSide:straightSide,
+   type=l?lTreatment:u?uTreatment:straightTreatment;
+ radiusWrap.hidden=side==='none'||!(l||u||product==='straight');
+ if(radiusWrap.hidden)return;
+ radiusWrap.append(element('legend','',type==='round'?'Deine Rundungen':'Deine Abschrägungen'));
+ const keys=l?lCornerKeys(variants.l,lSide,lTreatment)
+   :u?uCornerKeys(uSide,uTreatment)
+   :straightCorner(straightSide,straightTreatment).parameters;
+ const leftKeys=l?lCornerKeys(variants.l,'left',lTreatment)
+   :u?uCornerKeys('left',uTreatment):['R1','L2','B2'];
+ const grids=new Map();
+ for(const key of keys){
+   const atLeft=leftKeys.includes(key),which=atLeft?'left':'right';
+   const place=l?'außen '+(atLeft?'links':'rechts')
+     :u?'innen '+(atLeft?'links':'rechts')
+     :'vorne '+(atLeft?'links':'rechts');
+   if(!grids.has(which)){
+     const group=element('div','a1-corner-group');
+     group.setAttribute('role','group');group.setAttribute('aria-label','Ecke '+place);
+     group.append(element('p','a1-corner-heading',atLeft?'Linke Ecke':'Rechte Ecke'));
+     const grid=element('div','a1-corner-grid');group.append(grid);radiusWrap.append(group);grids.set(which,grid);
+   }
+   const wrap=element('div','a1-radius-field'),label=element('label','dimension-label'),
+     input=element('input'),unit=element('div','unit-input');
+   const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l||u?'Breite':'Tiefe';
+   const cornerId=l||u?`corner-${key}`:`dim-${key}`;
+   label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
+   input.id=cornerId;input.type='text';input.inputMode='decimal';
+   input.value=l?lCornerValues[key]:u?uCornerValues[key]:radiusValues[key];
+   input.setAttribute('aria-describedby',l||u?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
+   input.setAttribute('aria-label',property+' '+place+' ('+key+')');
+   input.addEventListener('input',()=>{
+     if(l)lCornerValues[key]=input.value;else if(u)uCornerValues[key]=input.value;
+     else radiusValues[key]=input.value;
+     refresh();
+   });
+   input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l||u?`corner-${key}`:key);});
+   const hint=element('p','microcopy');hint.id=l||u?`corner-hint-${key}`:`hint-${key}`;
+   const inline=element('p','field-error');inline.id=l||u?`corner-field-error-${key}`:`field-error-${key}`;
+   inline.hidden=true;inline.setAttribute('aria-live','polite');
+   unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(which).append(wrap);
+ }
+ radiusWrap.append(element('p','a1-limit-note',''));
 }
 function renderStraightChoices(){
   sideLegend.textContent='Welche Eckbearbeitung?';
@@ -279,6 +295,7 @@ function renderChoices(){
   $('corners').replaceChildren(...visibleCorners.map(item=>choice('corner',item.id,`<svg viewBox="0 0 36 30" aria-hidden="true"><path d="${cornerIcons[item.id]}"/></svg><span>${cornerNames[item.id]}</span>`,corner===item.id,()=>{corner=item.id;refresh();},'corner-card')));
   renderStraightChoices();
   renderLChoices();
+  renderUChoices();
   updateFamilyCopy();
   $('materials').replaceChildren(...c.materials.map(item=>choice('material',item.id,`<span class="slab ${item.id==='APL17.5'?'slim':''}" aria-hidden="true"></span><strong>${item.id==='APL17.5'?'17,5':'38'} mm</strong><small>${item.id==='APL17.5'?'Schlank & leicht in der Optik':'Klassisch & präsent'}</small>`,material===item.id,()=>{material=item.id;refresh();},'material-card')));
   // Reuse image elements across corner/side changes: recreating 16 lazy-loaded
@@ -292,10 +309,17 @@ function renderChoices(){
 }
 function rebuild(){
   shell.dataset.product=product;
-  if(product==='straight'||product==='l')corner='square';
+  if(product==='straight'||product==='l'||product==='u')corner='square';
   renderChoices();$('variant-wrap').hidden=product==='straight';
+  if(product==='u'){
+    $('variant-wrap').querySelector('.field-title').textContent='Wo sollen die Stoßfugen liegen?';
+    $('geometry').setAttribute('aria-hidden','true');$('geometry').tabIndex=-1;
+  }else{
+    $('variant-wrap').querySelector('.field-title').textContent='Ausführung';
+    $('geometry').removeAttribute('aria-hidden');$('geometry').removeAttribute('tabindex');
+  }
   const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · quer/quer',U2:'U2 · längs/längs',U3:'U3 · längs/quer',U4:'U4 · quer/längs'};
-  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
+  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];renderUVariantCards();
   // No supplier technical explanation below the shape selector.
   
   $('dimensions').replaceChildren();
@@ -328,7 +352,10 @@ function rebuild(){
 function payload(){const radii=product==='straight'?Object.fromEntries(straightCorner(straightSide,straightTreatment).parameters.map(k=>[k,cmInputToMmText(radiusValues[k])])):{};
  const lParams=product==='l'?Object.fromEntries(lCornerKeys(variants.l,lSide,lTreatment).map(k=>[k,cmInputToMmText(lCornerValues[k])])):{};
  return {schemaVersion:2,inputUnit:'mm',...(resolved?{productId:resolved.productId,sku:resolved.sku}:{}),...(product==='straight'?{straightCorner:{side:straightSide,treatment:straightTreatment,parameters:radii}}:{}),
- ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
+ ...(product==='l'?{lCorner:{side:lSide,treatment:lTreatment,parameters:lParams}}:{}),
+  ...(product==='u'?{uCorner:{side:uSide,treatment:uTreatment,
+      parameters:Object.fromEntries(uCornerKeys(uSide,uTreatment).map(k=>[k,cmInputToMmText(uCornerValues[k])]))}}:{}),
+  product,geometry:variants[product],corner,dimensions:Object.fromEntries((product==='l'?lDimensionKeys(variants.l):c.families[product].fields).map(k=>[k,cmInputToMmText(currentDimensions()[k])])),
   ...(['round','chamfer'].includes(corner)?{special:{size:cmInputToMmText($('special').value)}}:{}),material,decor,quantity:Number($('quantity').value)};}
 function renderPartChoices(){
   const parts=product!=='straight'&&view==='parts'?(lastGeometry?.previewParts??[]):[];
@@ -692,7 +719,16 @@ function refresh(){
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
-$('geometry').addEventListener('change',()=>{closeInlineEditor();variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
+$('geometry').addEventListener('change',()=>{
+ closeInlineEditor();variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;
+ if(product==='l'){
+   lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters)
+     .map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();
+ }else if(product==='u'){
+   renderUVariantCards();renderUChoices();renderRadiusInputs();
+ }
+ refresh();
+});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{
