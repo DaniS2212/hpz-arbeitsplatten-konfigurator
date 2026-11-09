@@ -313,7 +313,7 @@ export function lGeometry(config){
       const labelAt=side==='left'
         ?variant==='L2'?[p[0]+shift,p[1]+shift*.70]
           :[p[0]+shift,p[1]-shift*.82]
-        :variant==='L2'?[p[0]+shift*.90,p[1]+shift*.72]
+        :variant==='L2'?[p[0]+shift*.40,p[1]-shift*.85]
           :[p[0]-shift,p[1]+shift*.78];
       const center=[horiz[0],vert[1]],
         v=[from[0]+to[0]-2*center[0],from[1]+to[1]-2*center[1]],
