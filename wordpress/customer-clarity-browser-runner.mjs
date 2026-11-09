@@ -38,6 +38,9 @@ try{
    assert.equal(hidden.tabs,true);assert.equal(hidden.parts,true);
    assert.equal(hidden.pressed,'true','single top view always active');
    assert.ok(hidden.overflow<=1,'no horizontal overflow at '+width+'px');
+   // Dimensions are intentionally absent until step 2.
+   await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#steps button:nth-child(2)').click());
+   await ready();
    if(family==='straight'){
     await page.evaluate(()=>{
      const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
