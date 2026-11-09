@@ -141,3 +141,24 @@ test('Every customer dimension error and inline overlay uses concise German labe
  const feedback=await read('../core/measure-feedback.mjs');
  assert.doesNotMatch(feedback,/z\. B\./);
 });
+
+test('Straight sketch uses a larger viewport and minimal corner heading has no info icon',async()=>{
+ const straight=geometry(config('straight'));
+ const markup=svg(straight,'L1',{unit:'cm'});
+ const [,box]=markup.match(/viewBox="([^"]+)"/)??[];
+ assert.ok(box,'SVG must have a viewBox');
+ const viewportWidth=Number(box.split(' ')[2]);
+ assert.ok(straight.width/viewportWidth>.76,
+   '200 x 60cm straight slab must fill more than 76% of available SVG width');
+ const c=await read('../public/component.mjs');
+ assert.match(c,/Welche Eckbearbeitung\?/);
+ assert.doesNotMatch(c,/Welche Seite\?/);
+ assert.doesNotMatch(c,/a11-info|cornerHelp/);
+ assert.match(c,/badge=product==='l'/);
+ assert.match(c,/label\.append\(document\.createTextNode\(customerLabel\),element\('span','',badge\)\)/);
+ assert.doesNotMatch(c,/Maße und Ausführung werden beim Hinzufügen und an der Kasse erneut geprüft/);
+ const css=await read('../../design/kuechenstudio-060.css');
+ assert.match(css,/straight.*not\(\[data-current-step="2"\]\) #drawing/);
+ assert.match(css,/data-product="l".*data-product="u".*dimension-grid/);
+ assert.equal(css,await read('../../wordpress/hpz-apl-admin-preview/assets/kuechenstudio-060.css'));
+});
