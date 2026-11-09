@@ -1,0 +1,82 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {normalize} from '../core/config.mjs';
+import {geometry,svg} from '../core/geometry.mjs';
+import {lDefaultDimensions} from '../core/l-geometry.mjs';
+import {firstMeasureIssue} from '../core/measure-feedback.mjs';
+import {template} from '../public/component-template.mjs';
+
+const read=p=>readFile(new URL(p,import.meta.url),'utf8');
+const millimetres=v=>Object.fromEntries(Object.entries(v).map(([k,val])=>[k,String(Math.round(Number(val)*10))]));
+function config(shape,L1=null){
+ const family=shape==='straight'?'straight':shape[0].toLowerCase();
+ const raw=family==='l'?lDefaultDimensions(shape):family==='u'
+   ?{L1:'200',L2:'120',L3:'180',B1:'60',B2:'60',B3:'60'}
+   :{L1:'200',B1:'60'};
+ if(L1!==null)raw.L1=String(L1);
+ return normalize({
+  schemaVersion:2,inputUnit:'mm',product:family,geometry:shape,corner:'square',
+  dimensions:millimetres(raw),material:'APL17.5',decor:'W980',quantity:1,
+  ...(family==='l'?{lCorner:{side:'none',treatment:null,parameters:{}}}:{})
+ });
+}
+test('Every straight/L1-L4/U1-U4 contour and SVG responds to a real dimension edit',()=>{
+ for(const shape of ['straight','L1','L2','L3','L4','U1','U2','U3','U4']){
+  const a=config(shape),base=geometry(a);
+  const b=config(shape,Number(a.dimensions.L1/10)+30),changed=geometry(b);
+  assert.equal(changed.width,base.width+300,shape+' should grow by exactly 30 cm');
+  assert.notEqual(changed.path,base.path,shape+' must update its silhouette');
+  const svgBefore=svg(base,'L1',{unit:'cm'});
+  const svgAfter=svg(changed,'L1',{unit:'cm'});
+  assert.notEqual(svgAfter,svgBefore,shape+' should not show a stale SVG');
+  assert.match(svgAfter,/data-field="L1" data-active="true" role="button" tabindex="0"/);
+  assert.ok(svgAfter.includes('cm'),shape+' must render cm rather than mm');
+ }
+});
+test('One actionable precise warning for the customer screenshot L1=50cm',()=>{
+ const issue=firstMeasureIssue('l','L1',{L1:'50',L2:'170',B1:'60',B2:'60'});
+ assert.equal(issue.key,'L1');
+ assert.match(issue.message,/100–400 cm/);
+ assert.match(issue.message,/Eingegeben: 50 cm/);
+ assert.equal(firstMeasureIssue('l','L1',{L1:'250',L2:'170',B1:'60',B2:'60'}),null);
+});
+test('Independent limits name the exact wrong field and the permitted numbers',()=>{
+ assert.match(firstMeasureIssue('straight','straight',{L1:'200',B1:'95'}).message,/B1.*30–90 cm/);
+ assert.match(firstMeasureIssue('u','U1',{L1:'110',L2:'180',L3:'180',B1:'60',B2:'60',B3:'60'}).message,/L1.*120,1 cm/);
+ assert.match(firstMeasureIssue('l','L4',{L1:'250',L2:'170',B1:'90',B2:'90',B3:'105',B4:'105',B5:'95'}).message,/B5.*30–90 cm/);
+ assert.match(firstMeasureIssue('l','L1',{L1:'200,22',L2:'170',B1:'60',B2:'60'}).message,/L1.*z. B. 180/);
+ assert.equal(firstMeasureIssue('u','U4',{L1:'250',L2:'180',L3:'180',B1:'60',B2:'60',B3:'60'}),null);
+});
+test('Compact surface and summary are not duplicated and tabs own the instructions',async()=>{
+ const c=await read('../public/component.mjs');
+ assert.doesNotMatch(template,/SCHRITT [123] VON 3/);
+ assert.doesNotMatch(template,/Grundriss wählen|Maße eingeben|Stärke wählen\. Dekor aussuchen/);
+ assert.doesNotMatch(template,/class="edge-card"/);
+ assert.match(template,/class="surface-edge-included"/);
+ assert.match(template,/id="selected-surface-name"/);
+ assert.match(c,/\['Ecken','Maße in cm','Oberfläche'\]/);
+ assert.match(c,/function openInlineMeasure\(key\)/);
+ assert.match(c,/field\.dispatchEvent\(new Event\('input'/);
+ assert.match(c,/visibleMeasureKey\(key\)/);
+ assert.match(c,/firstMeasureIssue\(product,variants\[product\],currentDimensions\(\)\)/);
+ assert.match(c,/formError\.textContent=message;formError\.hidden=false/);
+ assert.doesNotMatch(c,/Letzter gültiger Stand/);
+ assert.match(c,/\$\('drawing-status'\)\.hidden=true/);
+ assert.match(c,/\$\('error'\)\.hidden=true/);
+ const css=await read('../../design/kuechenstudio-060.css');
+ assert.match(css,/\.inline-measure-editor/);
+ assert.match(css,/\.surface-edge-included/);
+ assert.match(css,/#measure-toggle/);
+ assert.equal(css,await read('../../wordpress/hpz-apl-admin-preview/assets/kuechenstudio-060.css'));
+});
+test('Minimal Woo product layout remains scoped to exactly the three product IDs',async()=>{
+ const php=await read('../../wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php');
+ assert.match(php,/!isset\(self::PRODUCTS\[\$id\]\)/);
+ assert.match(php,/self::allowed\(\) && !self::can_public_configurator\(\$id\)/);
+ assert.match(php,/remove_action\('woocommerce_before_single_product_summary','woocommerce_show_product_images',20\)/);
+ assert.match(php,/hpz-apl-minimal-h1/);
+ assert.match(php,/hpz-apl-compact-product/);
+ assert.match(php,/remove_action\('woocommerce_single_product_summary','woocommerce_template_single_price',10\)/);
+ assert.match(php,/self::options\(\)\['placement'\]!=='automatic'/);
+});
