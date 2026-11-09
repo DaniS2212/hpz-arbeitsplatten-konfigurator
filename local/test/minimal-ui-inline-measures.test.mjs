@@ -63,6 +63,9 @@ test('One actionable precise warning for the customer screenshot L1=50cm',()=>{
 });
 test('Independent limits name the exact wrong field and the permitted numbers',()=>{
  assert.match(firstMeasureIssue('straight','straight',{L1:'200',B1:'95'}).message,/B1.*30–90 cm/);
+ assert.equal(firstMeasureIssue('straight','straight',{L1:'200',B1:'95'},{material:'APL17.5'}),null,'17.5mm permits a 95cm depth');
+ assert.match(firstMeasureIssue('straight','straight',{L1:'200',B1:'95'},{material:'APL17.5',straightTreatment:'chamfer_continuous'}).message,/B1.*30–90 cm/);
+ assert.match(firstMeasureIssue('straight','straight',{L1:'200',B1:'121'},{material:'APL17.5'}).message,/B1.*30–120 cm/);
  assert.match(firstMeasureIssue('u','U1',{L1:'110',L2:'180',L3:'180',B1:'60',B2:'60',B3:'60'}).message,/L1.*120,1 cm/);
  assert.match(firstMeasureIssue('l','L4',{L1:'250',L2:'170',B1:'90',B2:'90',B3:'105',B4:'105',B5:'95'}).message,/B5.*30–90 cm/);
  assert.match(firstMeasureIssue('l','L1',{L1:'200,22',L2:'170',B1:'60',B2:'60'}).message,/L1.*z. B. 180/);
@@ -79,7 +82,7 @@ test('Compact surface and summary are not duplicated and tabs own the instructio
  assert.match(c,/function openInlineMeasure\(key\)/);
  assert.match(c,/field\.dispatchEvent\(new Event\('input'/);
  assert.match(c,/visibleMeasureKey\(key\)/);
- assert.match(c,/firstMeasureIssue\(product,variants\[product\],currentDimensions\(\)\)/);
+ assert.match(c,/firstMeasureIssue\(product,variants\[product\],currentDimensions\(\),\{material,straightTreatment\}\)/);
  assert.match(c,/formError\.textContent=message;formError\.hidden=false/);
  assert.doesNotMatch(c,/Letzter gültiger Stand/);
  assert.match(c,/\$\('drawing-status'\)\.hidden=true/);
