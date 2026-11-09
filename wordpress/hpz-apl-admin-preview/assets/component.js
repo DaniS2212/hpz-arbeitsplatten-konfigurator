@@ -545,7 +545,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     if(disposed)return;
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
-    const issue=firstMeasureIssue(product,variants[product],currentDimensions());
+    const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment});
     const rawMessage=customerMeasureError(error).replace(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])): In dieser Konfiguration ([0-9]+(?:,[0-9]+)?)–([0-9]+(?:,[0-9]+)?) cm zulässig.*$/, '$1: Erlaubt $2–$3 cm.');
     const match=rawMessage.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
     const message=issue?.message??rawMessage;
