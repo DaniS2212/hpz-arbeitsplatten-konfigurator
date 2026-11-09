@@ -216,3 +216,6 @@
 .hpz-apl[data-product="l"] .apl-seam-hit{cursor:pointer}
 .hpz-apl[data-product="l"] .apl-seam-review[data-selected="true"] .apl-seam-badge{filter:drop-shadow(0 1px 2px #4a302b50)}
 @media(max-width:760px){.hpz-apl[data-product="l"] .apl-seam-choice{min-height:40px}}
+
+/* Hide the removed verbose admin price explanation without leaving empty space. */
+.hpz-apl .price-note:empty{display:none}
