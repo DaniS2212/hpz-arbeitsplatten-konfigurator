@@ -63,7 +63,12 @@ test('U inner-foot size bounds and strict namespace forbid silent base pricing',
  assert.throws(()=>make('U1',bad),/corner-B4.*Erlaubt/);
  assert.throws(()=>make('U1',{side:'left',treatment:'round',parameters:{R2:'100'}}),/Maßfelder/);
  assert.throws(()=>make('U1',{side:'none',treatment:'round',parameters:{}}),/Ohne Bearbeitung/);
- assert.throws(()=>normalize({...make('U1'),'uCorner':{side:'left',treatment:'round',parameters:{R1:'100'}}}),/Maß/);
+ assert.throws(()=>normalize({
+  schemaVersion:2,inputUnit:'mm',product:'straight',geometry:'straight',
+  corner:'square',material:'APL38',decor:'W980',quantity:1,
+  dimensions:{L1:'2000',B1:'600'},
+  uCorner:{side:'left',treatment:'round',parameters:{R1:'100'}}
+ }),/U-Eckbearbeitung/,'U corner must not be accepted for straight products');
  assert.deepEqual(uCornerKeys('both','chamfer_continuous'),['L4','B4','L5','B5']);
 });
 test('UI source includes photo-readable U seam cards, separate sides and absolute schematic orientation',()=>{
