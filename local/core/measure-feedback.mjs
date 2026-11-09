@@ -6,7 +6,7 @@ import {mmToCmText} from './customer-measures.mjs';
  * configurator. Same values feed form inputs, SVG edits and the real validator;
  * never silently clamp a measurement or submit a guessed corrected value.
  */
-export function firstMeasureIssue(product,shape,values){
+export function firstMeasureIssue(product,shape,values,{material='APL38',straightTreatment=null}={}){
   const fields=product==='straight'?['L1','B1']
     :product==='l'?(shape==='L4'?['L1','L2','B1','B3','B5']
       :shape==='L3'?['L1','L2','B1','B3']:['L1','L2','B1','B2'])
@@ -23,7 +23,7 @@ export function firstMeasureIssue(product,shape,values){
   for(const key of fields){
     let min=key.startsWith('L')?1000:300;
     let max=key.startsWith('L')?4000:1200;
-    if(product==='straight'&&key==='B1')max=900;
+    if(product==='straight'&&key==='B1'&&(material==='APL38'||straightTreatment==='chamfer_continuous'))max=900;
     if(product==='l'&&['L3','L4'].includes(shape)){
       if(key==='B1'||key==='B5')max=900;
       if(key==='B3'){min=mm.B1+50;max=1050;}
