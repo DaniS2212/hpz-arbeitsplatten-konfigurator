@@ -62,7 +62,8 @@ test('L4 B5 does not lie about the measured diagonal separation when screenshot 
   assert.ok(dist(d.from,d.to)>d.mm);
   const rendered=svg(g,'B5',{unit:'cm'});
   assert.match(rendered,/data-field="B5" data-active="true" data-setting-only="true"/);
-  assert.match(rendered,/B5: 60 cm · Einstellung/);
+  assert.match(rendered,/B5: 60 cm/);
+  assert.doesNotMatch(rendered,/B5: 60 cm · Einstellung/);
   // Avoid a manufactured leader/double arrow across the unrelated physical gap.
   const callout=rendered.match(/<g class="apl-measure" data-field="B5"[^>]*>([\s\S]*?)<\/g>/)?.[1]??'';
   assert.doesNotMatch(callout,/marker-start|marker-end/);

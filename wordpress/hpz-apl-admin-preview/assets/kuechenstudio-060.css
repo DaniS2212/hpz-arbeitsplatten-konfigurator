@@ -533,3 +533,104 @@
 .hpz-apl .order-summary .price-retry:hover{background:#e6f0ee}
 .hpz-apl .order-summary .price-retry[hidden]{display:none}
 
+/* 2026-11-09: one-glance configurator; normal straight/L/U choices stay intact. */
+.hpz-apl .step-kicker,
+.hpz-apl .configuration [data-step] > h2,
+.hpz-apl .configuration .section-intro,
+.hpz-apl .configuration .surface-intro,
+.hpz-apl .shape-note,
+.hpz-apl .drawing-meta,
+.hpz-apl .technical,
+.hpz-apl #corner-note,
+.hpz-apl #measure-toggle,
+.hpz-apl .stage-top .live-dot,
+.hpz-apl .a1-limit-note,
+.hpz-apl .a1-radius-field .microcopy,
+.hpz-apl .drawing-status,
+.hpz-apl .field-error,
+.hpz-apl #error,
+.hpz-apl .apl-seam-explain,
+.hpz-apl .summary-overline,
+.hpz-apl .summary-purchase-head {display:none!important}
+.hpz-apl nav{margin:0 0 18px!important;padding:0 0 14px!important}
+.hpz-apl nav button{min-height:48px!important;padding:6px 2px!important;gap:7px!important}
+.hpz-apl nav .step-label{font-size:13px;line-height:1.2;white-space:normal}
+.hpz-apl .configuration [data-step] {padding-top:4px}
+.hpz-apl .configuration .field-title{margin:12px 0 9px!important;font-size:14px;font-weight:650}
+.hpz-apl .configuration #variant-wrap{margin-bottom:16px}
+.hpz-apl .configuration #variant-wrap .microcopy{display:none}
+.hpz-apl .stage-caption{padding-bottom:7px!important}
+.hpz-apl .stage-caption>span:first-child{font-weight:650;letter-spacing:-.025em}
+.hpz-apl .stage-bottom{justify-content:flex-end!important;padding-top:0!important}
+.hpz-apl .stage-bottom #enlarge{min-width:90px;min-height:40px}
+.hpz-apl .surface-choice-block{margin-bottom:16px!important}
+.hpz-apl .surface-stepheading{margin-bottom:11px!important;gap:9px!important}
+.hpz-apl .surface-stepheading h3{font-size:16px!important;font-weight:700!important;line-height:1.25}
+.hpz-apl .surface-stepheading .surface-number,
+.hpz-apl .surface-stepheading small{display:none!important}
+.hpz-apl .surface-selected{gap:13px!important;padding:12px!important;margin:12px 0 0!important}
+.hpz-apl .surface-selected-description strong{font-size:17px!important}
+.hpz-apl .surface-selected-description .surface-edge-included{
+ display:block;margin-top:7px;color:#365b4e;font-size:12px;font-weight:600;line-height:1.4;
+}
+.hpz-apl .surface-selected-check{align-self:center}
+.hpz-apl .order-summary .summary-details{padding:18px 20px!important}
+.hpz-apl .order-summary .summary-heading{margin-bottom:11px!important;gap:12px}
+.hpz-apl .order-summary .summary-heading h3{font-size:18px!important;font-weight:700!important}
+.hpz-apl .order-summary .summary-details-body{align-items:start}
+.hpz-apl .order-summary dl{gap:5px!important}
+.hpz-apl .order-summary dl>div{padding:5px 0!important}
+.hpz-apl .order-summary dl dt{font-size:12px!important;white-space:nowrap}
+.hpz-apl .order-summary dl dd{font-size:13px!important;line-height:1.35;overflow-wrap:anywhere}
+.hpz-apl .order-summary .summary-purchase{padding:18px 20px!important}
+.hpz-apl .order-summary .price-note{line-height:1.35!important}
+.hpz-apl .measurement-error{
+ margin:12px 0 0!important;padding:13px 15px!important;font-size:14px!important;
+ color:#8a361f;border-radius:10px;line-height:1.45!important;
+}
+.hpz-apl[data-measure-invalid="true"] #drawing svg{opacity:.48;transition:opacity .15s}
+.hpz-apl .stage{position:relative}
+.hpz-apl #drawing .apl-measure-label{cursor:pointer;pointer-events:all}
+.hpz-apl #drawing .apl-measure[role="button"]{cursor:pointer;outline:none}
+.hpz-apl #drawing .apl-measure:hover .apl-measure-label rect,
+.hpz-apl #drawing .apl-measure:focus-visible .apl-measure-label rect{
+ fill:#dff1ee!important;stroke:#146178;stroke-width:2;
+}
+.hpz-apl .inline-measure-editor{
+ position:absolute;z-index:8;display:flex;align-items:center;gap:7px;
+ padding:9px;background:#fff;border:2px solid #146178;border-radius:12px;
+ box-shadow:0 8px 26px #102e3260;min-width:138px;max-width:200px;
+}
+.hpz-apl .inline-measure-editor[hidden]{display:none!important}
+.hpz-apl .inline-measure-editor label{position:absolute;bottom:calc(100% + 4px);left:2px;
+ background:#fff;color:#16444d;font-size:11px;font-weight:700;padding:2px 7px;border-radius:5px}
+.hpz-apl .inline-measure-editor input{min-width:0;width:82px;height:37px;padding:5px 6px;
+ color:#163f46;background:#fff;border:1px solid #bad0d2;border-radius:7px;
+ font-size:18px;font-weight:750;text-align:center}
+.hpz-apl .inline-measure-editor span{font-size:13px;color:#45646a;font-weight:600}
+@media(max-width:760px){
+ .hpz-apl nav .step-label{font-size:12px}
+ .hpz-apl nav button{min-height:44px!important;gap:4px!important}
+ .hpz-apl .stage-caption>span:first-child{font-size:18px!important}
+ .hpz-apl .stage-bottom #enlarge{min-height:44px}
+ .hpz-apl .surface-selected{padding:11px!important}
+ .hpz-apl .surface-selected-description .surface-edge-included{font-size:11px}
+ .hpz-apl .order-summary .summary-details,
+ .hpz-apl .order-summary .summary-purchase{padding:15px!important}
+ .hpz-apl .order-summary dl dt{font-size:11px!important}
+ .hpz-apl .order-summary dl dd{font-size:12px!important}
+ .hpz-apl .measurement-error{font-size:13px!important}
+}
+
+/* Keep SVG labels large enough to tap on mobile, including straight plates. */
+@media(max-width:760px){
+ .hpz-apl[data-product="straight"] #drawing,
+ .hpz-apl[data-product="l"] #drawing,
+ .hpz-apl[data-product="u"] #drawing{
+   height:clamp(245px,66vw,390px)!important;
+   min-height:245px!important;padding:8px 5px!important;
+ }
+ .hpz-apl[data-product="straight"] #drawing svg,
+ .hpz-apl[data-product="l"] #drawing svg,
+ .hpz-apl[data-product="u"] #drawing svg{max-height:390px!important}
+}

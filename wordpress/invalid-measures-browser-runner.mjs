@@ -39,17 +39,21 @@ try{
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return !s.querySelector('#field-error-B2').hidden&&!s.querySelector('#drawing-status').hidden;
+   return s.querySelector('#dim-B2').getAttribute('aria-invalid')==='true'
+      &&!s.querySelector('#measurement-error').hidden
+      &&s.querySelector('.hpz-apl').dataset.measureInvalid==='true';
   });
   const invalid=await page.evaluate(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
    return {svg:!!s.querySelector('#drawing svg'),
      label:s.querySelector('[data-field="B2"] .apl-measure-label text')?.textContent,
      contour:s.querySelector('.apl-surface')?.outerHTML,
-     text:s.querySelector('#field-error-B2').textContent,
+     text:s.querySelector('#measurement-error').textContent,
+     fieldNoteVisible:getComputedStyle(s.querySelector('#field-error-B2')).display!=='none',
      aria:s.querySelector('#dim-B2').getAttribute('aria-invalid'),
      direct:s.querySelector('#dim-B2').closest('.a1-radius-field').classList.contains('has-measure-error'),
-     status:s.querySelector('#drawing-status').textContent,
+     statusVisible:!s.querySelector('#drawing-status').hidden,
+     dimmed:s.querySelector('.hpz-apl').dataset.measureInvalid,
      formErrorHidden:s.querySelector('#measurement-error').hidden,
      nextDisabled:s.querySelector('#next').disabled,
      price:s.querySelector('#price').textContent,
@@ -59,14 +63,16 @@ try{
   assert.equal(invalid.svg,true);
   assert.equal(invalid.label,first.label);
   assert.equal(invalid.contour,first.contour);
-  assert.match(invalid.text,/Maximal 50 cm möglich/);
+  assert.match(invalid.text,/B2: Erlaubt 6–50 cm/);
   assert.equal(invalid.aria,'true');
   assert.equal(invalid.direct,true);
-  assert.match(invalid.status,/Letzter gültiger Stand/);
+  assert.equal(invalid.statusVisible,false,'avoid duplicated drawing warning');
+  assert.equal(invalid.fieldNoteVisible,false,'show one error, not a duplicate field note');
+  assert.equal(invalid.dimmed,'true','last valid SVG visibly de-emphasized');
   assert.equal(invalid.formErrorHidden,false);
   assert.equal(invalid.nextDisabled,true);
   assert.equal(invalid.price,'–');
-  assert.match(invalid.summary,/Bitte korrigieren/);
+  assert.match(invalid.summary,/Maße/);
   assert.equal(invalid.cartDisabled,true);
   await page.screenshot({path:'wordpress/ci-artifacts/065-invalid-'+width+'.png',fullPage:true});
   await page.evaluate(()=>{
@@ -75,7 +81,8 @@ try{
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#field-error-B2').hidden&&s.querySelector('#drawing-status').hidden
+   return s.querySelector('#measurement-error').hidden
+      &&s.querySelector('#dim-B2').getAttribute('aria-invalid')===null
       &&!s.querySelector('#next').disabled;
   });
   await page.evaluate(()=>{
@@ -84,8 +91,9 @@ try{
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#field-error-B2').textContent.includes('Bitte in cm eingeben')
-       &&!s.querySelector('#drawing-status').hidden;
+   return s.querySelector('#measurement-error').textContent.includes('B2: Bitte eine Zahl in cm eingeben')
+       &&!s.querySelector('#measurement-error').hidden
+       &&s.querySelector('#drawing-status').hidden;
   });
   assert.equal(await page.evaluate(()=>!!document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#drawing svg')),true);
   await page.evaluate(()=>{
@@ -94,7 +102,8 @@ try{
   });
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
-   return s.querySelector('#field-error-B2').hidden&&s.querySelector('#drawing-status').hidden
+   return s.querySelector('#measurement-error').hidden
+      &&s.querySelector('#dim-B2').getAttribute('aria-invalid')===null
       &&!s.querySelector('#next').disabled;
   });
   assert.deepEqual(errors,[]);

@@ -74,7 +74,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   const label=(text,x,y,{vertical=false,selected=false,corner=false}={})=>{
     const size=font*(corner?.86:1)*(selected?1.12:1);
     const width=(text.length*.57+.60)*size,height=size*1.40;
-    return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="none"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
+    return `<g class="apl-measure-label" stroke="none" transform="translate(${x} ${y})${vertical?' rotate(-90)':''}" pointer-events="all"><rect x="${-width/2}" y="${-height/2}" width="${width}" height="${height}" rx="${size*.18}" fill="${selected?'#fffaf3':'#f4f7f6'}" fill-opacity=".97"/><text x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="${selected?'#a34f1c':'#365861'}" font-weight="${selected?800:500}" font-size="${size}">${escapeXml(text)}</text></g>`;
   };
   const isLPreview=g.version?.startsWith('speedmaster-l');
   const b2Baseline=g.dimensions?.find(d=>d.id==='B2');
@@ -104,8 +104,8 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const textY=diagonal?-pad*.9:(a[1]+b[1])/2-(vertical?0:font*.75);
     // B5 is a setting value, not a physical-gap ruler, when Speedmaster
     // caps its outside diagonal at B3/B4. No false 300mm double-arrow.
-    if(diagonal&&d.settingOnly)return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" data-setting-only="true">${label(`${d.label??d.id}: ${measure(d.mm)} · Einstellung`,textX,textY,{selected})}</g>`;
-    return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" stroke="${color}" fill="${color}">
+    if(diagonal&&d.settingOnly)return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" data-setting-only="true" role="button" tabindex="0" aria-label="${escapeXml(field)} bearbeiten">${label(`${d.label??d.id}: ${measure(d.mm)}`,textX,textY,{selected})}</g>`;
+    return `<g class="apl-measure" data-field="${escapeXml(field)}" data-active="${selected}" role="button" tabindex="0" aria-label="${escapeXml(field)} bearbeiten" stroke="${color}" fill="${color}">
       <path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/10:font/24}" stroke-dasharray="${font/4} ${font/4}"/>
       <path d="M ${a} L ${b}" stroke-width="${selected?font/10:font/24}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>
       ${label(`${d.label??d.id}: ${measure(d.mm)}`,textX,textY,{vertical,selected})}</g>`;
@@ -114,7 +114,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const selected=active===a.id||active===`side-${a.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
     const x=a.side==='left'?g.width*.18:g.width*.82,y=g.height+pad*.65;
     const tx=a.center[0]+(a.side==='left'?-1:1)*a.radiusMm/Math.sqrt(2),ty=a.center[1]+a.radiusMm/Math.sqrt(2);
-    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
+    return `<g data-corner="${a.id}" data-active="${selected}"><path d="M ${a.from} A ${a.radiusMm} ${a.radiusMm} 0 0 1 ${a.to}" fill="none" stroke="${color}" stroke-width="${selected?font/6:font/16}"/>${showDimensions?`<g data-field="${a.id}" data-active="${selected}" class="apl-measure" role="button" tabindex="0" aria-label="${escapeXml(a.id)} bearbeiten"><path d="M ${a.center} L ${tx} ${ty} L ${x} ${y-font}" fill="none" stroke="${color}" stroke-width="${font/24}"/><circle cx="${a.center[0]}" cy="${a.center[1]}" r="${font/20}" fill="${color}"/>${label(`${a.label??a.id}: ${measure(a.radiusMm)}`,x,y,{selected,corner:true})}</g>`:''}</g>`;
   }).join('');
   const cuts=(g.cornerCuts??[]).filter(c=>!detail||c.side===detail).map(c=>{
     const selected=c.fields.includes(active)||active===`side-${c.side}`||active==='side-both',color=selected?'#a34f1c':'#365861';
@@ -131,7 +131,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)],b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const mid=(a[0]+b[0])/2;
     const x=vertical?a[0]+normal*font*.9:isL?mid:Math.max(font*3,Math.min(g.width-font*3,mid)),y=vertical?(a[1]+b[1])/2:a[1]+font*.85;
-    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
+    return `<g class="apl-measure" data-field="${d.id}" data-active="${selected}" role="button" tabindex="0" aria-label="${escapeXml(d.id)} bearbeiten" stroke="${color}" fill="${color}"><path d="M ${d.from} L ${a} M ${d.to} L ${b}" stroke-width="${selected?font/11:font/28}" stroke-dasharray="${font/6} ${font/6}"/><path d="M ${a} L ${b}" stroke-width="${selected?font/9:font/25}" marker-start="url(#apl-arrow)" marker-end="url(#apl-arrow)"/>${label(`${d.label??d.id}: ${measure(d.mm)}`,x,y,{vertical,selected,corner:true})}</g>`;
   }).join('');
   const outsideReference=(g.dimensions??[]).some(d=>d.referenceOutside&&(d.focusKey??d.id)===active);
   const extra=outsideReference ? 0.5 : 0;
@@ -144,7 +144,13 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const rightRail=b2Crowded&&b2Baseline.from[0]===g.width;
     const bottomRail=(g.cornerDimensions??[]).some(c=>c.axis==='horizontal'&&c.from[1]===g.height);
     const leftFactor=Math.max(1+extra,leftRail?1.55:1);
-    const rightFactor=rightRail?1.55:1.3;
+    // L2's long vertical L2 ruler runs on the right with side=2, so its
+    // rotated text extends farther than the standard right-hand rail.
+    // At 390px the older 1.3*pad bound clipped the opaque "L2" label.
+    const outsideRightDimension=(g.dimensions??[]).some(d=>
+      (d.side??0)>1&&(d.from?.[0]??-1)===g.width&&d.to?.[0]===g.width
+    );
+    const rightFactor=outsideRightDimension?1.75:(rightRail?1.55:1.3);
     const bottomFactor=bottomRail?1.55:1;
     const topFactor=1+extra;
     viewBox=`${-pad*leftFactor} ${-pad*topFactor} ${g.width+pad*(leftFactor+rightFactor)} ${g.height+pad*(topFactor+bottomFactor)}`;

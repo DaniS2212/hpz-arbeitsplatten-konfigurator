@@ -1,6 +1,7 @@
 import {catalog} from './core/config.js?v=1.0.3';
 import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions,lCornerPreviewLimits} from './core/l-geometry.js?v=1.0.3';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.3';
+import {firstMeasureIssue} from './core/measure-feedback.js?v=1.0.3';
 import {svg} from './core/geometry.js?v=1.0.3';
 import {createPreviewController} from './latest.js?v=1.0.3';
 import {template} from './component-template.js?v=1.0.3';
@@ -116,11 +117,11 @@ function renderRadiusInputs(){
     input.setAttribute('aria-label',`${property} Abschrägung ${place} (${key})`.replace('Radius Abschrägung','Radius'));
     input.addEventListener('input',()=>{if(l)lCornerValues[key]=input.value;else radiusValues[key]=input.value;refresh();});
     input.addEventListener('focus',()=>{active=l?`corner-${key}`:key;shell.querySelectorAll('.active-dimension').forEach(e=>e.classList.remove('active-dimension'));wrap.classList.add('active-dimension');renderDrawing();});
-    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;if(l)hint.textContent='Vorschauwert · Herstellergrenzen noch offen';
+    const hint=element('p','microcopy');hint.id=l?`corner-hint-${key}`:`hint-${key}`;
     const inline=element('p','field-error');inline.id=l?`corner-field-error-${key}`:`field-error-${key}`;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,hint,inline);grids.get(side).append(wrap);
   }
-  radiusWrap.append(element('p','a1-limit-note',l?'Die tatsächlichen Speedmaster-Grenzen sind noch zu bestätigen.':'Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'));
+  radiusWrap.append(element('p','a1-limit-note',''));
 }
 function renderStraightChoices(){
   sideWrap.hidden=product!=='straight';
@@ -178,23 +179,19 @@ function placeSummary(){
   if(dest&&shadow.querySelector('.order-summary')?.parentElement!==dest)dest.append(shadow.querySelector('.order-summary'));
  }
  window.addEventListener('resize',placeSummary,{signal:abort.signal});
- function showStep(index){step=index;shell.dataset.currentStep=String(index);shadow.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);
+ function showStep(index){if(index!==1&&inlineKey)closeInlineEditor();step=index;shell.dataset.currentStep=String(index);shadow.querySelectorAll('[data-step]').forEach(e=>e.hidden=Number(e.dataset.step)!==step);
   placeSummary();
   [...$('steps').children].forEach((e,i)=>{if(i===step)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
   $('back').disabled=step===0;$('back').style.visibility=step===0?'hidden':'visible';
   $('next').innerHTML=step===0?'Weiter zu den Maßen <span>→</span>':step===1?'Weiter zur Oberfläche <span>→</span>':'Konfiguration prüfen <span>↓</span>';
   $('next').disabled=!valid;
 }
-['Ecken','Maße','Oberfläche'].forEach((label,i)=>{const b=element('button');b.type='button';b.innerHTML=`<span class="step-number">${i+1}</span><span class="step-label">${label}</span>`;b.addEventListener('click',()=>showStep(i));$('steps').append(b);});
+['Ecken','Maße in cm','Oberfläche'].forEach((label,i)=>{const b=element('button');b.type='button';b.innerHTML=`<span class="step-number">${i+1}</span><span class="step-label">${label}</span>`;b.addEventListener('click',()=>showStep(i));$('steps').append(b);});
 function updateFamilyCopy(){
  $('steps').querySelector('.step-label').textContent=product==='straight'?'Ecken':'Grundriss';
  $('view-parts').textContent='Aufteilung';$('view-parts').hidden=product==='straight';
- if(product==='straight'){view='plan';$('parts-note').hidden=true;$('measure-toggle').hidden=false;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
- shadow.querySelector('[data-step="0"] h2').textContent=product==='straight'?'Vordere Ecken':'Grundriss wählen';
-  shadow.querySelector('[data-step="1"] .section-intro').textContent=product==='straight'
-    ?'In cm, auf 0,1 cm genau. Tippe ein Maß an, um es in der Zeichnung hervorzuheben.'
-    :product==='l'?'In cm: Tippe ein Maß an, um die passende Strecke in der Zeichnung hervorzuheben.'
-    :'Die sechs Außenmaße bestimmen die U-Kontur. U1–U4 unterscheiden sich in den sichtbaren Stoßrichtungen; genaue CNC-Zuschnitte bleiben offen.';
+ if(product==='straight'){view='plan';$('parts-note').hidden=true;$('view-plan').setAttribute('aria-pressed','true');$('view-parts').setAttribute('aria-pressed','false');}
+ // Step names in the navigation are the only visible step headings.
   if(product==='l'){
     infoDialog.querySelector('h2').textContent='Deine L-Arbeitsplatte';
     const guidance=[
@@ -242,8 +239,8 @@ function rebuild(){
   renderChoices();$('variant-wrap').hidden=product==='straight';
   const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · quer/quer',U2:'U2 · längs/längs',U3:'U3 · längs/quer',U4:'U4 · quer/längs'};
   $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];
-  if(product==='l')$('variant-wrap').querySelector('.microcopy').textContent=['L3','L4'].includes(variants.l)?'B1/B2 sowie B3/B4 werden gemeinsam eingegeben. Bearbeitung und Bestellung bleiben in Prüfung.':'Grundriss nach Speedmaster-Vorlage. Stoßfräsungen und Zusatzmaße noch in Prüfung.';
-  if(product==='u')$('variant-wrap').querySelector('.microcopy').textContent='Vier Speedmaster-Varianten mit unterschiedlichen Stoßrichtungen. Echte Zuschnitte und Bestellungen noch in Prüfung.';
+  // No supplier technical explanation below the shape selector.
+  
   $('dimensions').replaceChildren();
   const appendDimensionInput=(id,customerLabel,target)=>{
     const wrap=element('div'),label=element('label','dimension-label'),input=element('input'),unit=element('div','unit-input');
@@ -330,58 +327,111 @@ function renderSeamChoices(){
   seamExplain.textContent=selected.label+': '+(labels.length?labels.join(' / ')+' · ':'')+'Die Lage folgt der Bildskizze. Verbinder, Fräsungen, echte Teilplatten und Versandstücke sind noch ungeprüft.'+imageWitness;
  }else seamExplain.textContent='Wähle '+(seams.length===1?seams[0].label:'Stoß A/B')+', um die gezeigte Stelle zu markieren. Lage aus Speedmaster-Bildern nur zur Orientierung – keine CNC-, Verbinder- oder Teilefreigabe.';
 }
+
+ // Touch-friendly inline cm editor. Both entry points update the SAME form field.
+ const drawingStage=$('drawing').closest('.stage');
+ const inlineEditor=element('div','inline-measure-editor');
+ inlineEditor.hidden=true;drawingStage.append(inlineEditor);
+ let inlineKey=null,inlineOriginal='';
+ function visibleMeasureKey(key){
+   if(product==='l'&&['L3','L4'].includes(variants.l)){
+     if(key==='B2')return 'B1';
+     if(key==='B4')return 'B3';
+   }
+   return key;
+ }
+ function fieldForMeasure(key){
+   const visible=visibleMeasureKey(key);
+   return $(visible.startsWith('corner-')?visible:'dim-'+visible);
+ }
+ function positionInlineEditor(){
+   if(!inlineKey||inlineEditor.hidden)return;
+   const measures=[...$('drawing').querySelectorAll('.apl-measure[data-field]')];
+   const label=measures.find(x=>x.dataset.field===inlineKey)?.querySelector('.apl-measure-label');
+   if(!label)return;
+   const bounds=label.getBoundingClientRect(),container=drawingStage.getBoundingClientRect();
+   const x=bounds.left+bounds.width/2-container.left-70;
+   const y=bounds.top+bounds.height/2-container.top-24;
+   inlineEditor.style.left=Math.max(8,Math.min(container.width-148,x))+'px';
+   inlineEditor.style.top=Math.max(8,Math.min(container.height-55,y))+'px';
+ }
+ function closeInlineEditor(){
+   inlineEditor.hidden=true;inlineEditor.replaceChildren();inlineKey=null;
+ }
+ function openInlineMeasure(key){
+   const field=fieldForMeasure(key);
+   if(!field||view!=='plan')return;
+   if($('drawing-dialog').open)$('drawing-dialog').close();
+   if(step!==1)showStep(1);
+   closeInlineEditor();inlineKey=key;inlineOriginal=field.value;
+   active=visibleMeasureKey(key);renderDrawing();
+   const caption=element('label','',active+' in cm');
+   const input=element('input');
+   input.type='text';input.inputMode='decimal';input.value=field.value;
+   input.setAttribute('aria-label',active+' direkt in der Zeichnung in Zentimetern bearbeiten');
+   input.setAttribute('autocomplete','off');
+   inlineEditor.replaceChildren(caption,input,element('span','', 'cm'));
+   inlineEditor.hidden=false;positionInlineEditor();
+   input.addEventListener('input',()=>{
+     field.value=input.value;
+     field.dispatchEvent(new Event('input',{bubbles:true}));
+   });
+   input.addEventListener('keydown',event=>{
+     if(event.key==='Enter'){event.preventDefault();closeInlineEditor();}
+     if(event.key==='Escape'){
+       event.preventDefault();field.value=inlineOriginal;
+       field.dispatchEvent(new Event('input',{bubbles:true}));
+       closeInlineEditor();
+     }
+   });
+   input.addEventListener('blur',()=>closeInlineEditor());
+   input.focus({preventScroll:true});input.select();
+ }
 function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const markup=svg(lastGeometry,active,{decor,showDimensions:showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm'});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm'}),'large');
+  positionInlineEditor();}
 function summary(config,invalid=false){
-  $('summary-shape').textContent=names[product];$('preview-family').textContent=product==='straight'?'Vorschau':names[product]+' · Planung';
+  $('summary-shape').textContent=names[product];
+  $('preview-family').textContent=names[product];
   const decorName=c.decors.find(d=>d.id===decor).label;
-  $('preview-material').textContent=`${material==='APL38'?'38':'17,5'} mm · ${decorName}`;
+  const thickness=material==='APL38'?'38':'17,5';
+  $('preview-material').textContent=`${thickness} mm · ${decorName}`;
   $('selected-surface-name').textContent=decorName;
-  $('selected-surface-thickness').textContent=`${material==='APL38'?'38':'17,5'} mm · Schichtstoff`;
+  $('selected-surface-thickness').textContent=`${thickness} mm · Schichtstoff`;
   const rows=[];
-  if(!config)rows.push(['Maße',invalid?'Bitte korrigieren':'Wird geprüft …']);
-  else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
-  else if(product==='l'){
-    const d=config.dimensions;
-    rows.push(['Außenmaße',`${mmToCmText(d.L1)} × ${mmToCmText(d.L2)} cm`]);
-    if(['L3','L4'].includes(variants.l)){
-      rows.push(['Schenkelbreite',`${mmToCmText(d.B1)} cm`],['Eckbereich',`${mmToCmText(d.B3)} cm`]);
-      if(variants.l==='L4')rows.push(['Diagonalbereich',`${mmToCmText(d.B5)} cm`]);
-    }else{
-      rows.push(['Schenkelbreite',`${mmToCmText(d.B1)} cm`],['Tiefe oben',`${mmToCmText(d.B2)} cm`]);
-    }
+  if(!config){
+    rows.push(['Maße',invalid?'–':'Wird berechnet …']);
+  }else if(product==='straight'){
+    rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
+  }else{
+    const d=config.dimensions,main=product==='l'?['L1','L2']:['L1','L2','L3'];
+    const widths=product==='l'?lVisibleDimensionKeys(variants.l).filter(k=>k.startsWith('B')):['B1','B2','B3'];
+    rows.push(['Längen',main.map(k=>`${k} ${mmToCmText(d[k])}`).join(' · ')+' cm']);
+    rows.push(['Breiten',widths.map(k=>`${k} ${mmToCmText(d[k])}`).join(' · ')+' cm']);
   }
-  else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
-  rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
-  if(product==='l'){
-    rows.push(['Ecken',lSide==='none'?'Ohne Bearbeitung':lSides[lSide]+' · '+treatments[lTreatment]]);
-    if(config?.lCorner?.parameters&&lSide!=='none'){
-      for(const side of (lSide==='both'?['left','right']:[lSide])){
-        const keys=lCornerKeys(variants.l,side,lTreatment);
-        const values=keys.map(k=>mmToCmText(config.lCorner.parameters[k]));
-        rows.push([side==='left'?'Linke Ecke':'Rechte Ecke',
-          lTreatment==='round'?`Radius ${values[0]} cm`:`${values[0]} × ${values[1]} cm`]);
-      }
-    }
+  rows.push(['Oberfläche',`${decorName} · ${thickness} mm`]);
+  if(product==='l'&&lSide!=='none'){
+    const p=config?.lCorner?.parameters??{},chosen=lSide==='both'?['left','right']:[lSide];
+    const label=chosen.map(side=>{
+      const keys=lCornerKeys(variants.l,side,lTreatment);
+      const numbers=keys.map(k=>p[k]!==undefined?mmToCmText(p[k]):'–');
+      const variant=lTreatment==='round'?`R ${numbers[0]} cm`:`${numbers.join(' × ')} cm`;
+      return `${side==='left'?'Links':'Rechts'} ${variant}`;
+    });
+    rows.push(['Ecken',`${treatments[lTreatment]} · ${label.join(' / ')}`]);
   }
-  if(product==='straight'){
-    const location={none:'Ohne Bearbeitung',left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
-    const finish={round:'Abgerundet',chamfer_square:'Eckig abgeschrägt',chamfer_continuous:'Vorderkante durchlaufend'}[straightTreatment];
-    rows.push(['Ecken',straightSide==='none'?location:`${location} · ${finish}`]);
-    const p=config?.straightCorner?.parameters;
-    if(p&&straightSide!=='none'){
-      if(straightTreatment==='round'){
-        if(p.R1!==undefined)rows.push(['Links',`Radius ${mmToCmText(p.R1)} cm`]);
-        if(p.R2!==undefined)rows.push(['Rechts',`Radius ${mmToCmText(p.R2)} cm`]);
-      }else{
-        if(p.L2!==undefined&&p.B2!==undefined)rows.push(['Links',`${mmToCmText(p.L2)} × ${mmToCmText(p.B2)} cm`]);
-        if(p.L3!==undefined&&p.B3!==undefined)rows.push(['Rechts',`${mmToCmText(p.L3)} × ${mmToCmText(p.B3)} cm`]);
-      }
-    }
+  if(product==='straight'&&straightSide!=='none'){
+    const side={left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
+    const name=treatments[straightTreatment];
+    const size=config?.straightCorner?.parameters??{};
+    rows.push(['Ecken',side+' · '+name+(Object.keys(size).length
+      ?' · '+Object.values(size).map(mmToCmText).join(' / ')+' cm':'')]);
   }
-  $('summary').replaceChildren(...rows.map(([key,value])=>{const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;}));
+  $('summary').replaceChildren(...rows.map(([key,value])=>{
+    const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;
+  }));
 }
 let saleReady=false,purchaseBusy=false;
 function purchaseState(enabled){saleReady=enabled&&!!adapters.purchase&&valid&&!purchaseBusy;$('cart').disabled=!saleReady;if(adapters.purchase)$('cart').textContent=saleReady?'In den Warenkorb →':'Konfiguration wird geprüft';}
@@ -450,6 +500,7 @@ function updateCornerBounds(){
 function applyVisual(result){
   if(disposed)return;
   valid=true;
+  shell.dataset.measureInvalid='false';
   lastGeometry=result.geometry;
   clearFieldErrors();
   $('drawing-status').hidden=true;
@@ -494,26 +545,30 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     if(disposed)return;
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
-    const message=customerMeasureError(error);
-    const match=message.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
-    if(match&&!fieldErrors.has(match[1]))setFieldError(match[1],message.slice(match[0].length));
+    const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment});
+    const rawMessage=customerMeasureError(error).replace(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])): In dieser Konfiguration ([0-9]+(?:,[0-9]+)?)–([0-9]+(?:,[0-9]+)?) cm zulässig.*$/, '$1: Erlaubt $2–$3 cm.');
+    const match=rawMessage.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
+    const activeField=/^(?:corner-)?(?:L[1-6]|B[1-6]|R[12])$/.test(active)
+      ?$(active.startsWith('corner-')?active:'dim-'+active):null;
+    let activeTextInvalid=false;
+    if(activeField){try{cmInputToMmText(activeField.value);}catch{activeTextInvalid=true;}}
+    const message=issue?.message??(activeTextInvalid
+      ?active.replace(/^corner-/,'')+': Bitte eine Zahl in cm eingeben (z. B. 15).'
+      :rawMessage);
+    clearFieldErrors();
+    const invalidKey=issue?.key??match?.[1]??(activeTextInvalid?active:null);
+    if(invalidKey)setFieldError(invalidKey,message);
+    // Exactly one visible error notice; the last valid contour is dimmed.
     formError.textContent=message;formError.hidden=false;
+    shell.dataset.measureInvalid='true';
     $('drawing').setAttribute('aria-busy','false');
-    if(lastGeometry){
-      renderDrawing();
-      $('drawing-status').textContent='Letzter gültiger Stand – bitte die markierte Eingabe korrigieren.';
-      $('drawing-status').hidden=false;
-    }else{
-      $('drawing').replaceChildren();$('large-drawing').replaceChildren();
-      $('drawing-status').hidden=true;
-    }
+    if(lastGeometry)renderDrawing();
+    else{$('drawing').replaceChildren();$('large-drawing').replaceChildren();}
+    $('drawing-status').hidden=true;
+    $('error').hidden=true;
     summary(null,true);
-    $('error').textContent=message;$('error').hidden=fieldErrors.size>0;
-    $('shape-note').textContent=lastGeometry
-      ?'Die Skizze zeigt die zuletzt gültigen Maße, nicht die aktuelle ungültige Eingabe.'
-      :'Bitte gültige Maße eingeben, damit die Skizze angezeigt werden kann.';
     priceDisplay('–','Maße prüfen');$('tax-note').textContent='';
-    $('price-note').textContent='Bitte Maße korrigieren. Für diese Eingabe wird kein Preis berechnet.';
+    $('price-note').textContent='';
     $('next').disabled=true;
   }
 });
@@ -525,21 +580,21 @@ function refresh(){
   $('corner-note').textContent=['round','chamfer'].includes(corner)?'Eckmuster oben links. Größe im Schritt „Maße“ anpassen; Ausführung noch zu prüfen.':corner==='continuous'?'Kontur und Verbindung dieser Ausführung sind noch zu prüfen.':'Klare, rechtwinklige Ecken. Die Außenkante ist im gleichen Dekor vorgesehen.';
   if(product==='l'){
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=lSide==='none'?'Ohne Eckbearbeitung.':lTreatment==='round'?'Rundungen im nächsten Schritt einstellen.':lTreatment==='chamfer_square'?'Gerade Abschrägungen im nächsten Schritt einstellen.':'Kante durchlaufend · gerade Abschrägung; Kantenverlauf noch zu prüfen.';
+    $('corner-note').textContent='';
     $('parts-note').querySelector('strong').textContent='Teilflächen zur Orientierung · keine Zuschnittdaten';
-    $('parts-note').querySelector('p').textContent='Wähle eine Teilfläche aus. Die Stoßlinien zeigen nur die aus Speedmaster-Bildern erkennbare Lage. Exakte Fräsungen, Verbinder und Teileabmessungen bleiben ungeprüft.';
+    $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
   }
   if(product==='u'){
     $('corner-note').textContent=corner==='square'
       ?'Grundform nach Speedmaster-Fotos. Zwei Stoßstellen sind nur als Lagebeobachtung belegt.'
       :'Eckbearbeitung derzeit nur schematisch; Speedmaster-Referenzen dafür fehlen.';
     $('parts-note').querySelector('strong').textContent='Drei sichtbare Teilflächen · keine Zuschnittdaten';
-    $('parts-note').querySelector('p').textContent='U1–U4: Wähle Teilbereiche oder Stoß A/B. Verbindersymbole, Lieferstückzahl, Fräsmaße und Packstücke sind noch nicht geprüft.';
+    $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
   }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
     $('special-wrap').hidden=true;
-    $('corner-note').textContent=v.id==='none'?'Vorderkante unten. Ohne Eckbearbeitung.':v.treatment==='round'?'Rundungen im nächsten Schritt einstellen.':v.treatment==='chamfer_square'?'Gerade Diagonalen. Länge und Tiefe im nächsten Schritt einstellen.':'Weichere Übergänge, schematisch dargestellt. Alle zulässigen Plattenmaße möglich.';
+    $('corner-note').textContent='';
     $('summary-shape').textContent=`Gerade · ${sides[v.side]}`;
   }
   for(const id of (product==='l'?lVisibleDimensionKeys(variants.l):c.families[product].fields)){
@@ -558,7 +613,7 @@ function refresh(){
   return controller.refresh(()=>payload());
 }
 retryPriceButton.addEventListener('click',()=>{retryPriceButton.hidden=true;refresh();});
-$('geometry').addEventListener('change',()=>{variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
+$('geometry').addEventListener('change',()=>{closeInlineEditor();variants[product]=$('geometry').value;selectedPart=null;selectedSeam=null;if(product==='l'){lCornerValues=Object.fromEntries(Object.entries(defaultLCorner(variants.l,lSide,lTreatment).parameters).map(([k,v])=>[k,mmToCmText(Number(v))]));rebuild();}refresh();});
 for(const id of ['quantity','special'])$(id).addEventListener('input',refresh);
 for(const [id,amount] of [['minus',-1],['plus',1]])$(id).addEventListener('click',()=>{const n=Number($('quantity').value);$('quantity').value=String(Math.min(1000,Math.max(1,(Number.isFinite(n)?Math.trunc(n):1)+amount)));refresh();});
 $('cart').addEventListener('click',async ()=>{
@@ -582,8 +637,24 @@ $('config').addEventListener('submit',event=>event.preventDefault());$('back').a
 $('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
-for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';$('measure-toggle').hidden=view==='parts';$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
-for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{const seam=event.target.closest('[data-seam-id]');if(product!=='straight'&&view==='parts'&&seam){selectedSeam=seam.dataset.seamId;selectedPart=null;renderDrawing();return;}const part=event.target.closest('[data-part-id]');if(product!=='straight'&&view==='parts'&&part){selectedPart=part.dataset.partId;selectedSeam=null;renderDrawing();return;}const measure=event.target.closest('[data-field]');if(measure){if($('drawing-dialog').open)$('drawing-dialog').close();showStep(1);const key=measure.dataset.field;const field=$(key.startsWith('corner-')?key:`dim-${key}`);field?.focus();}});
+for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';if(view==='parts')closeInlineEditor();$('measure-toggle').hidden=true;$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
+for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{
+  const seam=event.target.closest('[data-seam-id]');
+  if(product!=='straight'&&view==='parts'&&seam){
+    selectedSeam=seam.dataset.seamId;selectedPart=null;renderDrawing();return;
+  }
+  const part=event.target.closest('[data-part-id]');
+  if(product!=='straight'&&view==='parts'&&part){
+    selectedPart=part.dataset.partId;selectedSeam=null;renderDrawing();return;
+  }
+  const measure=event.target.closest('.apl-measure[data-field]');
+  if(measure)openInlineMeasure(measure.dataset.field);
+});
+for(const id of ['drawing','large-drawing'])$(id).addEventListener('keydown',event=>{
+  if(event.key!=='Enter'&&event.key!==' ')return;
+  const measure=event.target.closest('.apl-measure[data-field]');
+  if(measure){event.preventDefault();openInlineMeasure(measure.dataset.field);}
+});
 $('help').addEventListener('click',()=>$('help-dialog').showModal());$('enlarge').addEventListener('click',()=>{if(!lastGeometry)return;drawingDetail=product==='straight'&&straightSide!=='none'&&root.getBoundingClientRect().width<=760?(straightSide==='right'||['R2','L3','B3'].includes(active)?'right':'left'):null;$('drawing-dialog').showModal();renderDrawing();});
 for(const dialog of shadow.querySelectorAll('dialog'))dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
 rebuild();showStep(0);refresh();

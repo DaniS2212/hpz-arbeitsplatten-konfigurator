@@ -95,28 +95,66 @@ final class HPZ_APL_Admin_Preview {
         return HPZ_APL_WP_Straight_Runtime_09::canRenderPublic($id)
             || HPZ_APL_WP_LU_Runtime_11::canRenderPublic((int)$id);
     }
+    /**
+     * Minimal Woo product header for the exact three configurator products.
+     * Only when our automatic preview/live presentation is actually enabled.
+     * Keeps H1 and configurator; never modifies ordinary store products.
+     */
     public static function prepare_top_configurator_cta() {
-        if (!function_exists('get_queried_object_id')
-            || !self::can_public_configurator(get_queried_object_id())) return;
-        remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30);
-        add_action('woocommerce_single_product_summary', array(__CLASS__, 'top_configurator_cta'), 30);
-        add_action('wp_head', array(__CLASS__, 'top_configurator_style'), 30);
+        if (!function_exists('get_queried_object_id')) return;
+        $id=(int)get_queried_object_id();
+        if (!isset(self::PRODUCTS[$id]) || self::options()['placement']!=='automatic'
+            || (!self::allowed() && !self::can_public_configurator($id))) return;
+        remove_action('woocommerce_before_single_product_summary','woocommerce_show_product_sale_flash',10);
+        remove_action('woocommerce_before_single_product_summary','woocommerce_show_product_images',20);
+        foreach (array(
+            5=>'woocommerce_template_single_title',
+            10=>'woocommerce_template_single_rating',
+            20=>'woocommerce_template_single_excerpt',
+            30=>'woocommerce_template_single_add_to_cart',
+            40=>'woocommerce_template_single_meta',
+            50=>'woocommerce_template_single_sharing'
+        ) as $priority=>$callback) {
+            remove_action('woocommerce_single_product_summary',$callback,$priority);
+        }
+        remove_action('woocommerce_single_product_summary','woocommerce_template_single_price',10);
+        remove_action('woocommerce_after_single_product_summary','woocommerce_output_product_data_tabs',10);
+        remove_action('woocommerce_after_single_product_summary','woocommerce_upsell_display',15);
+        remove_action('woocommerce_after_single_product_summary','woocommerce_output_related_products',20);
+        add_action('woocommerce_single_product_summary',array(__CLASS__,'compact_product_title'),5);
+        add_filter('body_class',array(__CLASS__,'compact_body_class'));
+        add_action('wp_head',array(__CLASS__,'top_configurator_style'),30);
     }
-    public static function top_configurator_cta() {
-        if (!self::can_public_configurator(get_queried_object_id())) return;
-        echo '<a class="button alt hpz-apl-top-cta" href="#hpz-apl-konfigurator">Jetzt konfigurieren <span aria-hidden="true">↓</span></a>';
+    public static function compact_body_class($classes) {
+        $classes[]='hpz-apl-compact-product';
+        return $classes;
+    }
+    public static function compact_product_title() {
+        $id=(int)get_queried_object_id();
+        if (!isset(self::PRODUCTS[$id])) return;
+        echo '<h1 class="hpz-apl-minimal-h1">'.esc_html(get_the_title($id)).'</h1>';
     }
     public static function top_configurator_style() {
-        if (!self::can_public_configurator(get_queried_object_id())) return;
-        // Flatsome and third-party themes may print the Woo form directly.
-        // Defensive CSS is emitted only on this exact, publicly enabled product.
-        echo '<style id="hpz-apl-cta-103">body.single-product form.cart{display:none!important}'
-            .'.hpz-apl-top-cta{display:inline-flex;align-items:center;gap:10px;background:#16444d!important;'
-            .'border-radius:7px;color:#fff!important;font-weight:650;text-decoration:none;padding:12px 20px}'
-            .'.hpz-apl-top-cta:hover{background:#0e3540!important}'
-            .'#hpz-apl-konfigurator{scroll-margin-top:110px}'
-            .'html{scroll-behavior:smooth}'
-            .'@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}'
+        $id=(int)get_queried_object_id();
+        if (!isset(self::PRODUCTS[$id]) ||
+            (!self::allowed() && !self::can_public_configurator($id))) return;
+        echo '<style id="hpz-apl-compact-product">'
+            .'body.hpz-apl-compact-product .product-main{padding:14px 0 0!important}'
+            .'body.hpz-apl-compact-product .product-gallery,'
+            .'body.hpz-apl-compact-product .woocommerce-product-gallery,'
+            .'body.hpz-apl-compact-product .shop-page-title,'
+            .'body.hpz-apl-compact-product .woocommerce-breadcrumb{display:none!important}'
+            .'body.hpz-apl-compact-product .product-summary,'
+            .'body.hpz-apl-compact-product .summary.entry-summary{float:none!important;'
+            .'max-width:100%!important;width:100%!important;flex:0 0 100%!important;'
+            .'margin:0!important;padding:0 0 12px!important;min-height:0!important}'
+            .'body.hpz-apl-compact-product .product-main .row{margin-bottom:0!important}'
+            .'body.hpz-apl-compact-product .hpz-apl-minimal-h1{font-size:clamp(24px,2.6vw,36px);'
+            .'line-height:1.25;font-weight:700;letter-spacing:-.025em;margin:8px 0 16px!important}'
+            .'body.hpz-apl-compact-product form.cart{display:none!important}'
+            .'body.hpz-apl-compact-product #hpz-apl-konfigurator{scroll-margin-top:100px}'
+            .'@media(max-width:760px){body.hpz-apl-compact-product .hpz-apl-minimal-h1{'
+            .'font-size:24px;margin:4px 0 12px!important}}'
             .'</style>';
     }
     public static function automatic() {

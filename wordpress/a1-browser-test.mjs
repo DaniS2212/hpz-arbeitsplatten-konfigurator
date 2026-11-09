@@ -13,6 +13,21 @@ const s=root.shadowRoot;
 try{
  await ready();
  check('Unbearbeitet: Rechteck und Vorderkante unten',s.querySelector('#drawing').textContent.includes('Vorderkante'));
+
+ const label=s.querySelector('#drawing .apl-measure[data-field="L1"] .apl-measure-label rect');
+ check('Maß L1 ist in der Draufsicht anklickbar',!!label);
+ label.dispatchEvent(new MouseEvent('click',{bubbles:true,composed:true}));
+ const inline=s.querySelector('.inline-measure-editor input');
+ check('Skizzenklick öffnet direkt ein cm-Eingabefeld',!!inline&&!inline.closest('.inline-measure-editor').hidden);
+ inline.value='230';inline.dispatchEvent(new Event('input',{bubbles:true}));
+ await ready();await wait();
+ check('Skizzenedit synchronisiert das normale Maßeingabefeld',s.getElementById('dim-L1').value==='230');
+ check('Skizzenedit zeichnet den neuen Umriss',s.querySelector('#drawing').textContent.includes('L1: 230 cm'));
+ inline.value='200';inline.dispatchEvent(new Event('input',{bubbles:true}));
+ await ready();await wait();
+ inline.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+ check('Enter beendet die Direkteingabe, ohne den Wert zu verändern',s.querySelector('.inline-measure-editor').hidden&&s.getElementById('dim-L1').value==='200');
+
  for(const side of ['left','right','both']){
   await select('straight-side',side);
   for(const treatment of ['round','chamfer_square','chamfer_continuous']){

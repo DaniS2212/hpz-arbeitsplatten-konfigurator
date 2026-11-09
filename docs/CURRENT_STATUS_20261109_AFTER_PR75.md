@@ -1,5 +1,8 @@
 # AKTUELLER PROJEKTSTAND — 09.11.2026, nach gemergtem PR #75
 
+> **NEUE BETREIBERPRIORITÄT 09.11.2026 – UX VOR DEM CHECKOUT:** Acht Screenshots und ein kompletter Feinschliff-Auftrag wurden nach PR #75 eingereicht: minimalistische Darstellung, **nur H1 statt großer Woo-Produktgalerie/-Infobox**, drei einfache Schrittnamen inkl. **„Maße in cm“**, wenige Texte, Oberfläche+Kanten in **einer** Kachel, kompakte Konfigurationszusammenfassung, **direkt in der SVG anklickbare und in cm editierbare Maße** (synchron zum Maße-Tab), **genau ein konkreter Fehlerhinweis** mit Grenzwerten und dynamisch richtige Skizzen. Umsetzung [UX PR #76](https://github.com/DaniS2212/hpz-arbeitsplatten-konfigurator/pull/76), [technische Entscheidung](phase-ui-minimal-interactive-measures-20261109.md). **Erst PR #76 testen, mergen und WordPress-H1/Desktop/Mobil kurz ansehen, DANN die bisherigen Pflichtschritte A/B durchführen.** Keine weitere allgemeine Preis- oder CNC-Entwicklung, keine Kauf-Live-Schaltung durch den UX-Merge. Der PR-Merge-/CI-Zustand ist vor einer neuen Arbeitssitzung live zu überprüfen.
+
+
 > **Verbindlicher Einstieg für jeden neuen Chat.** Diesen Stand zuerst lesen, danach `AGENTS.md`, `docs/CURRENT_PROJECT_HANDOFF_20261105.md` und den tatsächlichen GitHub-`main`-/CI-/WordPress-Stand prüfen. Frühere Preis- und CNC-Gate-Pläne im langen Handoff sind **historische Zwischenstände**, soweit sie dieser neueren Betreiberentscheidung widersprechen. Keine nochmalige Planung ab PR #36/#60/#70.
 
 ## 1. Geschäftsauftrag und abgeschlossene Entwicklung
@@ -38,13 +41,13 @@ Reihenfolge / Beträge: **300,03; 300,73; 510,06; 351,33; 528,89; 724,66; 767,63
 
 **Nicht behaupten:** PR-Merge/CI = reale Woo-Testbestellung oder publizierte Produkte. Für L/U ist der **öffentliche Verkauf weiterhin bewusst geschützt** durch `HPZ_APL_LU_11_AUDITED_RELEASE`, `hpz_apl_lu_sale_v1` (u. a. `enabled`, `manual_supplier_handoff_verified`, `woocommerce_checkout_verified`), Produktstatus/SKU und den privaten Betreiber-Preiskostenansatz `hpz_apl_lu_price_window_v1` (`model_price_approved`, `extended_model_approved`, `corner_model_approved`, `other_cost_net_cents`, `max_quantity`, `price_approved_on`, `approved_shipping_rate_ids`). Diese Flags **nicht automatisiert aktivieren** und keine echte Kundenbestellung oder Zahlung ohne Betreiberfreigabe auslösen. Der effektive installierte Stand im Shop und Gerade-Live-Verkauf müssen gesondert geprüft werden.
 
-## 5. NUR noch zwei Pflichtschritte, anschließend optionaler UI-Feinschliff
+## 5. Zuerst beauftragter UI-Feinschliff (PR #76), danach nur noch zwei Pflichtschritte
 
 **A. WordPress-Preis-/Kosten- und Versandprüfung:** Neue Preisregel mit tatsächlich installierter Plugin-Version in der Admin-L/U-Vorschau prüfen (typische, kleine, große, Sonder-Ecken; beide Stärken, mehrere Dekore). Den **realistischen Netto-Nebenkostenansatz** und die tatsächlichen WooCommerce-Versandarten / Steuerkonfiguration verifizieren. Keine weitere groß angelegte Speedmaster-EK-Recherche. Nur bei einem wirklich auffälligen Preis gezielt korrigieren.
 
 **B. Kontrollierter WooCommerce-End-to-End-Test und bewusste Freigabe:** Testkonfiguration → Brutto-/Netto-Preis → signierter Warenkorb/Store API → Versandkosten/Steuer/Gutschein → Checkout → vollständige Bestellposition/HPOS-Produktionsmetadaten inkl. Stoßform und L-Eckmaßen → Übergabe für **manuelle** Speedmaster-Bestellung. In abgesichertem Test, **keine echte Kundenzahlung und keine öffentliche Kaufaktivierung**. Erst danach gemeinsam mit Betreiber die L/U-Sale-Flags und tatsächliche Produktveröffentlichung setzen. Die gerade Platte ggf. nur auf ihren bestehenden Livepfad prüfen, nicht umbauen.
 
-**Erst nach A/B optionaler UI-Feinschliff:** Großen Woo-Produktkopf/Galerie durch H1 + kurze Beschreibung direkt am Konfigurator ersetzen; SVG-`viewBox` beim Eckwechsel stabil halten; L4-`B5`-Label „· Einstellung“ verständlicher machen, kleine Usability-/Mobile-Fixes. Bereits dokumentiert in `docs/phase-ui-step3-backlog-20261106.md`.
+**UI-Feinschliff PR #76 bereits VOR A/B beauftragt und implementiert:** Großen Woo-Produktkopf/Galerie durch H1 + kurze Beschreibung direkt am Konfigurator ersetzen; SVG-`viewBox` beim Eckwechsel stabil halten; L4-`B5`-Label „· Einstellung“ verständlicher machen, kleine Usability-/Mobile-Fixes. Bereits dokumentiert in `docs/phase-ui-step3-backlog-20261106.md`.
 
 ## 6. GitHub-Sichtbarkeit und Wartung
 
@@ -52,4 +55,4 @@ Das Repository `DaniS2212/hpz-arbeitsplatten-konfigurator` ist am 09.11.2026 **�
 
 ## 7. Nächster neuer Chat — sofortige Aktion
 
-Auf Anfrage „Konfigurator weiter / fertigstellen“ **nicht wieder Preisentwicklung oder Fertigungsnachweise von vorn beginnen**. Erst tatsächlichen GitHub-`main`, PR #75, CI, Plugin-Installationsversion und Woo-Produktstatus abgleichen, dann **A und B konkret durchführen**. Shopaktivierung nur nach ausdrücklicher Betreiberfreigabe. Die vollständige historische Forschung bleibt in `docs/CURRENT_PROJECT_HANDOFF_20261105.md`; **für operative Prioritäten ist diese 09.11.2026-Übergabe maßgeblich**.
+Auf Anfrage „Konfigurator weiter / fertigstellen“ **nicht wieder Preisentwicklung oder Fertigungsnachweise von vorn beginnen**. Die aktualisierte Reihenfolge ist **PR #76 UI prüfen/mergen → WordPress-Ansicht kontrollieren → A und B**. Erst tatsächlichen GitHub-`main`, PR #75, CI, Plugin-Installationsversion und Woo-Produktstatus abgleichen, dann **A und B konkret durchführen**. Shopaktivierung nur nach ausdrücklicher Betreiberfreigabe. Die vollständige historische Forschung bleibt in `docs/CURRENT_PROJECT_HANDOFF_20261105.md`; **für operative Prioritäten ist diese 09.11.2026-Übergabe maßgeblich**.
