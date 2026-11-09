@@ -66,8 +66,8 @@ export const uSplitModes=Object.freeze({
          fields:side==='left'?['corner-L4','corner-B4']:['corner-L5','corner-B5']});
        const lenKey=side==='left'?'L4':'L5',widthKey=side==='left'?'B4':'B5';
        cornerDimensions.push(
-         {id:'corner-'+lenKey,label:lenKey,mm:vertical,from:start,to:vertex,axis:'vertical',side},
-         {id:'corner-'+widthKey,label:widthKey,mm:horizontal,from:vertex,to:end,axis:'horizontal',side}
+         {id:'corner-'+lenKey,label:lenKey,mm:vertical,from:side==='left'?start:end,to:vertex,axis:'vertical',side},
+         {id:'corner-'+widthKey,label:widthKey,mm:horizontal,from:vertex,to:side==='left'?end:start,axis:'horizontal',side}
        );
      }
    }
@@ -112,7 +112,7 @@ export function u1Geometry(c){
   {id:'L1',mm:w,from:pt(0,0),to:pt(w,0),side:-1},
   {id:'L2',mm:l,from:pt(0,0),to:pt(0,l),side:-1},
   {id:'L3',mm:r,from:pt(w,0),to:pt(w,r),side:2},
-  {id:'B1',mm:d,from:pt(w,0),to:pt(w,d),side:1},
+  {id:'B1',mm:d,from:pt(w/2,0),to:pt(w/2,d),side:1,axis:'vertical',internal:true},
   {id:'B2',mm:a,from:pt(0,l),to:pt(a,l),side:1},
   {id:'B3',mm:b,from:pt(w-b,r),to:pt(w,r),side:1}
  ];
