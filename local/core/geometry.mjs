@@ -144,7 +144,13 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const rightRail=b2Crowded&&b2Baseline.from[0]===g.width;
     const bottomRail=(g.cornerDimensions??[]).some(c=>c.axis==='horizontal'&&c.from[1]===g.height);
     const leftFactor=Math.max(1+extra,leftRail?1.55:1);
-    const rightFactor=rightRail?1.55:1.3;
+    // L2's long vertical L2 ruler runs on the right with side=2, so its
+    // rotated text extends farther than the standard right-hand rail.
+    // At 390px the older 1.3*pad bound clipped the opaque "L2" label.
+    const outsideRightDimension=(g.dimensions??[]).some(d=>
+      (d.side??0)>1&&(d.from?.[0]??-1)===g.width&&d.to?.[0]===g.width
+    );
+    const rightFactor=outsideRightDimension?1.75:(rightRail?1.55:1.3);
     const bottomFactor=bottomRail?1.55:1;
     const topFactor=1+extra;
     viewBox=`${-pad*leftFactor} ${-pad*topFactor} ${g.width+pad*(leftFactor+rightFactor)} ${g.height+pad*(topFactor+bottomFactor)}`;
