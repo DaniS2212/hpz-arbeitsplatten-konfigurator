@@ -320,10 +320,11 @@ final class HPZ_APL_LU_Shop_Ratebook_12
      * extended_model_approved option required before Woo will even consider
      * this path. No hidden supplier tariff is being invented.
      *
-     * The current measured envelope still has the highest confidence.
-     * Outside that envelope, conservatively extend stock length and
-     * absolute width deltas with a 7% extra model-risk buffer. Dimension
-     * limits are shop business rules, not Speedmaster machining limits.
+     * The measured supplier configurations still have the highest confidence.
+     * Outside those exact cases, use the measured length slope, conservative
+     * width estimates and the original V3 10% cost reserve. The redundant
+     * additional 7% overlay was removed after ten November supplier checks.
+     * Dimension limits are business rules, not machining guarantees.
      */
     public static function extendedCandidate(array $c): ?array
     {
