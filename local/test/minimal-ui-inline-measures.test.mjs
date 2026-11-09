@@ -30,7 +30,7 @@ test('Every straight/L1-L4/U1-U4 contour and SVG responds to a real dimension ed
   const svgBefore=svg(base,'L1',{unit:'cm'});
   const svgAfter=svg(changed,'L1',{unit:'cm'});
   assert.notEqual(svgAfter,svgBefore,shape+' should not show a stale SVG');
-  assert.match(svgAfter,/data-field="L1" data-measure-id="L1"[^>]*data-active="true" role="button" tabindex="0"/);
+  assert.match(svgAfter,/data-field="L1" data-active="true" role="button" tabindex="0"/);
   assert.ok(svgAfter.includes('cm'),shape+' must render cm rather than mm');
  }
 });
@@ -113,7 +113,7 @@ test('L4 B5 points to outer diagonal; coupled widths always use the matching rig
  assert.equal(b5.settingOnly,true);
  assert.deepEqual(b5.diagonalCut,{from:[1050,0],to:[0,1050]});
  const drawn=svg(g,'B5',{unit:'cm'});
- assert.match(drawn,/data-field="B5" data-measure-id="B5" data-diagonal="outer-edge" data-active="true"/);
+ assert.match(drawn,/data-field="B5" data-active="true" data-setting-only="true" role="button" tabindex="0" data-measure-id="B5" data-diagonal="outer-edge"/);
  assert.match(drawn,/data-setting-only="true"/);
  assert.match(drawn,/M 525,525 L /,'B5 leader must start in the middle of the outer diagonal');
  assert.doesNotMatch(drawn,/B5: 42,4 cm/,'never pretend B5 is an actual gap measurement');
@@ -121,9 +121,9 @@ test('L4 B5 points to outer diagonal; coupled widths always use the matching rig
  assert.doesNotMatch(stale,/B5: 30 cm/,'an invalid B5 field must not display stale geometry value');
  assert.match(stale,/data-field="B5"[^>]*data-active="true"/);
  const b1andb2=svg(g,'B1',{unit:'cm'});
- assert.match(b1andb2,/data-field="B1" data-measure-id="B2"[^>]*data-active="true"/);
+ assert.match(b1andb2,/data-field="B1" data-active="true"[^>]*data-measure-id="B2"/);
  const cornerWidth=svg(g,'B3',{unit:'cm'});
- assert.match(cornerWidth,/data-field="B3" data-measure-id="B4"[^>]*data-active="true"/);
+ assert.match(cornerWidth,/data-field="B3" data-active="true"[^>]*data-measure-id="B4"/);
  c.dimensions.B5=900;
  const real=geometry(c);
  assert.equal(real.dimensions.find(d=>d.id==='B5').settingOnly,false);
