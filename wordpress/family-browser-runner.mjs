@@ -100,14 +100,20 @@ try{
      });
      assert.equal(paired.activeBase,false,'base B5 does not highlight when corner-B5 receives focus');
      assert.ok(paired.callouts>0);
-     assert.ok(paired.labels.includes('Eckbereich')&&paired.labels.includes('Diagonalbereich'),'customer-readable L summary');
+     assert.ok(paired.labels.includes('Längen')&&paired.labels.includes('Breiten'),'compact, customer-readable L summary');
      await page.evaluate(()=>{
        const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
        s.querySelector('#dim-B5').focus();
        s.querySelector('#drawing [data-field="corner-B5"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));
      });
-     const fromDrawing=await page.locator('[data-hpz-apl-preview]').evaluate(el=>el.shadowRoot.activeElement?.id);
-     assert.equal(fromDrawing,'corner-B5','clicking the L bevel diagram focuses its exact input');
+     const fromDrawing=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
+       const sh=el.shadowRoot;
+       return {visible:!sh.querySelector('.inline-measure-editor').hidden,
+         editorValue:sh.querySelector('.inline-measure-editor input')?.value,
+         fieldValue:sh.querySelector('#corner-B5')?.value};
+     });
+     assert.equal(fromDrawing.visible,true,'clicked L corner dimension opens inline editor');
+     assert.equal(fromDrawing.editorValue,fromDrawing.fieldValue,'editor binds exact corner B5');
    }
    await page.evaluate((key)=>{const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
      s.querySelector('#steps button:nth-child(2)').click();s.querySelector('#dim-'+key).focus();
@@ -124,7 +130,7 @@ try{
      };});
    assert.equal(parts.labels,0);assert.ok(parts.hiddenToggle);assert.ok(parts.over<=1);
    if(kind==='l'){
-      assert.ok(parts.seamCount>=1);assert.match(parts.warning,/fräs|Fräs|Verbinder|Fugen/);
+      assert.ok(parts.seamCount>=1);assert.match(parts.warning,/Stoßstellen|Stoß/);
       const overview=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
         const sh=el.shadowRoot;
         return {
@@ -180,7 +186,7 @@ try{
    const restored=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
      const s=el.shadowRoot;return {labels:s.querySelector('#drawing').querySelectorAll('.apl-measure').length,
        noteHidden:s.querySelector('#parts-note').hidden,hiddenToggle:s.querySelector('#measure-toggle').hidden};});
-   assert.ok(restored.labels>0);assert.ok(restored.noteHidden);assert.equal(restored.hiddenToggle,false);
+   assert.ok(restored.labels>0);assert.ok(restored.noteHidden);assert.equal(restored.hiddenToggle,true,'Maße-anzeigen toggle removed');
    assert.deepEqual(errors,[]);
    console.log('PASS '+kind+' '+width+' px: same UX, geometry, corners, preview-only seams, no checkout');
    await page.close();
