@@ -25,6 +25,8 @@ try {
   },shape,{timeout:25000});
   // WordPress bootstrap loads modules asynchronously; wait before touching shadow DOM.
   await ready('L1');
+  // Dimensions intentionally start in step 2.
+  await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot.querySelector('#steps button:nth-child(2)').click());
   for(const shape of ['L1','L2','L3','L4']) {
    await page.evaluate(shape=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
