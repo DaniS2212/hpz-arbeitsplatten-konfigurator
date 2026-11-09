@@ -63,7 +63,7 @@ try{
   assert.equal(invalid.svg,true);
   assert.equal(invalid.label,first.label);
   assert.equal(invalid.contour,first.contour);
-  assert.match(invalid.text,/Maximal 50 cm möglich/);
+  assert.match(invalid.text,/B2: Erlaubt 6–50 cm/);
   assert.equal(invalid.aria,'true');
   assert.equal(invalid.direct,true);
   assert.equal(invalid.statusVisible,false,'avoid duplicated drawing warning');
