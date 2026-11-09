@@ -28,24 +28,47 @@ function wp_enqueue_script($name,$url,$deps,$v,$footer){}
 function esc_attr($s){return htmlspecialchars((string)$s,ENT_QUOTES,'UTF-8');}
 function wp_create_nonce($action){return 'test-nonce';}
 function admin_url($path){return 'https://example.test/wp-admin/'.$path;}
+function get_the_title($id){return 'Küchenarbeitsplatte nach Maß';}
+function esc_html($s){return htmlspecialchars((string)$s,ENT_QUOTES,'UTF-8');}
 require_once __DIR__.'/hpz-apl-admin-preview/hpz-apl-admin-preview.php';
 $n=0;function check($yes,$why){global $n;$n++;if(!$yes)throw new RuntimeException($why);}
 HPZ_APL_Admin_Preview::prepare_top_configurator_cta();
-check(count($removed)===1,'exactly one native Woo add-to-cart hook removed');
-check($removed[0]['hook']==='woocommerce_single_product_summary'&&$removed[0]['callback']==='woocommerce_template_single_add_to_cart'&&$removed[0]['priority']===30,'only default Woo button suppressed');
-$found=false;foreach($actions as $action){if($action['hook']==='woocommerce_single_product_summary'&&$action['callback']===[HPZ_APL_Admin_Preview::class,'top_configurator_cta'])$found=true;}
-check($found,'one accessible CTA takes default Woo form place');
-ob_start();HPZ_APL_Admin_Preview::top_configurator_cta();$cta=ob_get_clean();
-check(strpos($cta,'href="#hpz-apl-konfigurator"')!==false&&strpos($cta,'Jetzt konfigurieren')!==false,'CTA links to embedded configurator');
+$removedCallbacks=array_column($removed,'callback');
+check(in_array('woocommerce_template_single_add_to_cart',$removedCallbacks,true),
+    'native Woo button suppressed on the matching published product');
+check(in_array('woocommerce_show_product_images',$removedCallbacks,true),
+    'standard Woo gallery suppressed');
+check(in_array('woocommerce_template_single_excerpt',$removedCallbacks,true),
+    'redundant Woo description suppressed');
+check(in_array('woocommerce_template_single_price',$removedCallbacks,true),
+    'standard Woo prices suppressed, configurator price remains');
+check(in_array('woocommerce_output_product_data_tabs',$removedCallbacks,true),
+    'redundant Woo tabs suppressed');
+$found=false;
+foreach($actions as $action){
+ if($action['hook']==='woocommerce_single_product_summary'
+     &&$action['callback']===[HPZ_APL_Admin_Preview::class,'compact_product_title'])$found=true;
+}
+check($found,'one H1 header replaces default product content');
+ob_start();HPZ_APL_Admin_Preview::compact_product_title();$heading=ob_get_clean();
+check(strpos($heading,'class="hpz-apl-minimal-h1"')!==false
+    &&strpos($heading,'Küchenarbeitsplatte nach Maß')!==false,'only compact H1 is printed');
 ob_start();HPZ_APL_Admin_Preview::top_configurator_style();$css=ob_get_clean();
-check(strpos($css,'body.single-product form.cart')!==false&&strpos($css,'scroll-margin-top:110px')!==false,'only this page hides template overrides and scrolls to configurator');
+check(strpos($css,'body.hpz-apl-compact-product')!==false
+    &&strpos($css,'.product-gallery')!==false
+    &&strpos($css,'form.cart{display:none')!==false,
+    'compact CSS hides only this configurator product content');
+$classes=HPZ_APL_Admin_Preview::compact_body_class(['single-product']);
+check(in_array('hpz-apl-compact-product',$classes,true),'body scoping for three products');
 $html=HPZ_APL_Admin_Preview::render();
-check(strpos($html,'id="hpz-apl-konfigurator"')!==false&&strpos($html,'data-public-sale="true"')!==false,'target exists with real checkout and secure price endpoints');
-$old=count($removed);$q=1000080;HPZ_APL_Admin_Preview::prepare_top_configurator_cta();
-ob_start();HPZ_APL_Admin_Preview::top_configurator_cta();$off=ob_get_clean();
-check(count($removed)===$old&&$off==='','L-Form and U-Form unaffected');
+check(strpos($html,'id="hpz-apl-konfigurator"')!==false
+    &&strpos($html,'data-public-sale="true"')!==false,
+    'configured Woo order adapter remains present and signed');
+$old=count($removed);
+$q=1000080;HPZ_APL_Admin_Preview::prepare_top_configurator_cta();
+check(count($removed)===$old,'L not enabled: original Woo actions untouched');
 $q=1000083;$sale=false;HPZ_APL_Admin_Preview::prepare_top_configurator_cta();
-check(count($removed)===$old,'disabled sale leaves default Woo actions untouched');
+check(count($removed)===$old,'no sale: do not hide a different product');
 $sale=true;$publish=false;HPZ_APL_Admin_Preview::prepare_top_configurator_cta();
-check(count($removed)===$old,'draft product does not gain public CTA');
-echo "PASS $n product-only Woo CTA and configurator anchor checks\n";
+check(count($removed)===$old,'draft without approved admin test not publicly exposed');
+echo "PASS $n scoped compact Woo product header and configurator checks\n";
