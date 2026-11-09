@@ -48,6 +48,7 @@ jobs:
           php -l wordpress/checkout-lu/HPZ_APL_WP_LU_Runtime.php
           php wordpress/checkout-lu/tests/lu-cart-order.php
           php wordpress/checkout-lu/tests/lu-runtime-hooks.php
+          php wordpress/checkout-lu/tests/lu-operator-boundary-1900.php
       - name: "Woo 0.8 draft cart: classic, Store API, coupons and manual supplier order"
         run: |
           php -l wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php
