@@ -548,9 +548,15 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment});
     const rawMessage=customerMeasureError(error).replace(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])): In dieser Konfiguration ([0-9]+(?:,[0-9]+)?)–([0-9]+(?:,[0-9]+)?) cm zulässig.*$/, '$1: Erlaubt $2–$3 cm.');
     const match=rawMessage.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
-    const message=issue?.message??rawMessage;
+    const activeField=/^(?:corner-)?(?:L[1-6]|B[1-6]|R[12])$/.test(active)
+      ?$(active.startsWith('corner-')?active:'dim-'+active):null;
+    let activeTextInvalid=false;
+    if(activeField){try{cmInputToMmText(activeField.value);}catch{activeTextInvalid=true;}}
+    const message=issue?.message??(activeTextInvalid
+      ?active.replace(/^corner-/,'')+': Bitte eine Zahl in cm eingeben (z. B. 15).'
+      :rawMessage);
     clearFieldErrors();
-    const invalidKey=issue?.key??match?.[1]??null;
+    const invalidKey=issue?.key??match?.[1]??(activeTextInvalid?active:null);
     if(invalidKey)setFieldError(invalidKey,message);
     // Exactly one visible error notice; the last valid contour is dimmed.
     formError.textContent=message;formError.hidden=false;
