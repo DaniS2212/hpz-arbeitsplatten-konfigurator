@@ -61,7 +61,7 @@ try{
      cartDisabled:s.querySelector('#cart').disabled};
   });
   assert.equal(invalid.svg,true);
-  assert.equal(invalid.label,first.label);
+  assert.equal(invalid.label,'B2','show measure name but not the last valid number while input is invalid');
   assert.equal(invalid.contour,first.contour);
   assert.match(invalid.text,/B2: Erlaubt 6–50 cm/);
   assert.equal(invalid.aria,'true');
