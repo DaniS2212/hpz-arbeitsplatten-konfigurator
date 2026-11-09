@@ -101,7 +101,7 @@ try{
   assert.equal(finish.decorCards,16);
   assert.equal(finish.label,'Terrazzo grau');
   assert.match(finish.strength,/17,5 mm/);
-  assert.equal(finish.price,'Im Shop-Test');
+  assert.equal(finish.price,'Preis wird geprüft');
   assert.equal(finish.cartDisabled,true);
   assert.ok(finish.horizontalOverflow<=1,'No horizontal overflow at '+width);
   if(width>760){
