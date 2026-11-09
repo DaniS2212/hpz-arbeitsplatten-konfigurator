@@ -25,7 +25,7 @@ test('1.0.3 summary follows all choices and keeps single guarded cart',async()=>
  assert.match(component,/const dest=window\.matchMedia/);
  assert.match(component,/selected-surface-name/);
  assert.match(component,/admin-visual-only/);
- assert.match(component,/Im Shop-Test/);
+ assert.match(component,/Preis wird geprüft/);
  assert.doesNotMatch(component,/addToCart|wc-ajax=add_to_cart/);
 });
 test('Final styling allocates the full workspace width on desktop',async()=>{
