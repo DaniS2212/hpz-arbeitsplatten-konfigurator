@@ -115,7 +115,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     const diagonal=isL&&d.axis==='diagonal';
     // B5 is a diagonal setting. Keep a real 45-degree dimension on its
     // own axis, not offset onto the B3/B4 horizontal reference rail.
-    const offset=diagonal?0:pad*(d.referenceOutside?(d.offsetFactor??.88):rail)*d.side;
+    const offset=d.internal?0:diagonal?0:pad*(d.referenceOutside?(d.offsetFactor??.88):rail)*d.side;
     const a=[d.from[0]+(vertical?offset:0),d.from[1]+(vertical?0:offset)];
     const b=[d.to[0]+(vertical?offset:0),d.to[1]+(vertical?0:offset)];
     const selected=field===active,color=selected?'#a34f1c':'#365861';
@@ -128,7 +128,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
         (d.diagonalCut.from[1]+d.diagonalCut.to[1])/2]:null;
     // Place even a real diagonal ruler's text OUTSIDE the wood, directly
     // alongside its own diagonal rather than above B3/B4 or on the surface.
-    const textX=diagonal?cutMid[0]-font*1.7:(a[0]+b[0])/2+(vertical?Math.sign(d.side)*font*.85:0);
+    const textX=diagonal?cutMid[0]-font*1.7:(a[0]+b[0])/2+(vertical?(d.internal?font*.92:Math.sign(d.side)*font*.85):0);
     const textY=diagonal?cutMid[1]-font*1.7:(a[1]+b[1])/2-(vertical?0:font*.75);
     // Capped B5 is a setting, not the physical length of the diagonal
     // line. Point the callout at the visible OUTER diagonal, without false
