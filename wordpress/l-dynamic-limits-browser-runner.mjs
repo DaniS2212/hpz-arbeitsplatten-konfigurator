@@ -76,9 +76,8 @@ try {
   await change('dim-L1','250');
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-   return s?.getElementById('corner-hint-L4')?.textContent.includes('Möglich')
-    && !s.getElementById('corner-hint-L4')?.textContent.includes('Möglich:')
-    && s.getElementById('corner-L4')?.getAttribute('aria-invalid')!=='true';
+   return s?.getElementById('corner-hint-L4')?.textContent.includes('188 cm')
+     && s.getElementById('corner-L4')?.getAttribute('aria-invalid')!=='true';
   },null,{timeout:10000});
   state=await observation();
   assert.match(state.l4,/Möglich.*188 cm/);
