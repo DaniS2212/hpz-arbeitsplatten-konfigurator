@@ -62,7 +62,13 @@ foreach($w980 as $shape=>$thicks){
                 $price=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($q['supplierNetCents'],6000,0);
                 testRate($price%1000===0 && $price>0,'common V3 margin and rounding');
                 if($decor!=='W980'&&$decor!=='H1145'){
-                    testRate($q['priceBasis']==='owner-review-commercial-cost-estimate','decor estimate not mislabeled as verified');
+                    // New independently confirmed 9 Nov U3/F128/38mm
+                    // 2500-mm reference is no longer an inferred decor EK.
+                    $measuredF128=$shape==='U3'&&$material==='APL38'
+                        &&$length===2500&&$decor==='F128';
+                    testRate($q['priceBasis']===($measuredF128
+                        ?'confirmed-net-reference':'owner-review-commercial-cost-estimate'),
+                        'only measured F128 U3 classified as confirmed');
                 }
             }
         }
