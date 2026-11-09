@@ -74,7 +74,7 @@ try{
    assert.notEqual(ui.types.chamfer_square.edge,ui.types.chamfer_continuous.edge,
      'square cut must NOT have same visual edge path as continuous banding');
    assert.match(ui.types.chamfer_square.edge,/M 25 34 L 38 21/);
-   assert.match(ui.types.chamfer_continuous.edge,/M 8 34 H 25 L 38 21 V 5/);
+   assert.match(ui.types.chamfer_continuous.edge,/M 8 34 H 21 Q 25 34 28 31 L 35 24 Q 38 21 38 17 V 5/);
    assert.ok(ui.types.chamfer_square.paths!==ui.types.chamfer_continuous.paths,
      'distinct endpoints versus unbroken edge need different actual SVG structure');
    assert.ok(ui.types.round.width>=48,'all icons remain large and legible');
