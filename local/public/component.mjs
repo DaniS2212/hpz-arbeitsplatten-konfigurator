@@ -439,6 +439,7 @@ function updateCornerBounds(){
 function applyVisual(result){
   if(disposed)return;
   valid=true;
+  shell.dataset.measureInvalid='false';
   lastGeometry=result.geometry;
   clearFieldErrors();
   $('drawing-status').hidden=true;
@@ -483,26 +484,24 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     if(disposed)return;
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
-    const message=customerMeasureError(error);
-    const match=message.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
-    if(match&&!fieldErrors.has(match[1]))setFieldError(match[1],message.slice(match[0].length));
+    const issue=firstMeasureIssue(product,variants[product],currentDimensions());
+    const rawMessage=customerMeasureError(error);
+    const match=rawMessage.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
+    const message=issue?.message??rawMessage;
+    clearFieldErrors();
+    const invalidKey=issue?.key??match?.[1]??null;
+    if(invalidKey)setFieldError(invalidKey,message);
+    // Exactly one visible error notice; the last valid contour is dimmed.
     formError.textContent=message;formError.hidden=false;
+    shell.dataset.measureInvalid='true';
     $('drawing').setAttribute('aria-busy','false');
-    if(lastGeometry){
-      renderDrawing();
-      $('drawing-status').textContent='Letzter gültiger Stand – bitte die markierte Eingabe korrigieren.';
-      $('drawing-status').hidden=false;
-    }else{
-      $('drawing').replaceChildren();$('large-drawing').replaceChildren();
-      $('drawing-status').hidden=true;
-    }
+    if(lastGeometry)renderDrawing();
+    else{$('drawing').replaceChildren();$('large-drawing').replaceChildren();}
+    $('drawing-status').hidden=true;
+    $('error').hidden=true;
     summary(null,true);
-    $('error').textContent=message;$('error').hidden=fieldErrors.size>0;
-    $('shape-note').textContent=lastGeometry
-      ?'Die Skizze zeigt die zuletzt gültigen Maße, nicht die aktuelle ungültige Eingabe.'
-      :'Bitte gültige Maße eingeben, damit die Skizze angezeigt werden kann.';
     priceDisplay('–','Maße prüfen');$('tax-note').textContent='';
-    $('price-note').textContent='Bitte Maße korrigieren. Für diese Eingabe wird kein Preis berechnet.';
+    $('price-note').textContent='';
     $('next').disabled=true;
   }
 });
