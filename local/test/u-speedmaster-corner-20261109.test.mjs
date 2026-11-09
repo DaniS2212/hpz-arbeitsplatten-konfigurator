@@ -93,3 +93,15 @@ test('U R1/R2 dimension labels avoid B2/B3 bottom rulers',()=>{
  assert.ok(right.labelAt[0]<1400 && right.labelAt[0]>600,'R2 annotation belongs in the opening');
  assert.ok(right.labelAt[1]<1800 && right.labelAt[1]>600,'R2 annotation avoids B3 bottom rail');
 });
+test('U continuous edge has soft presentation junctions but retains the exact numeric reference dimensions',()=>{
+ const hard=geometry(make('U1',defaultUCorner('left','chamfer_square')));
+ const soft=geometry(make('U1',defaultUCorner('left','chamfer_continuous')));
+ assert.equal(hard.softIndices?.length??0,0);
+ assert.equal(soft.softIndices.length,2,'transition at both diagonal endpoints');
+ assert.equal(soft.contourStatus,'schematic','not a confirmed supplier radius');
+ assert.equal(soft.areaMm2,hard.areaMm2,'no fabricated machining-based price or size change');
+ assert.equal(soft.path,hard.path,'signed straight-cut reference shape unchanged');
+ const hardSvg=svg(hard,'',{unit:'cm'}),softSvg=svg(soft,'',{unit:'cm'});
+ assert.ok(!hardSvg.includes(' Q '),'hard chamfer remains angular');
+ assert.ok(softSvg.includes(' Q '),'gentle visual blends in actual rendered surface path');
+});

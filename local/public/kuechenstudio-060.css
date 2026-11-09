@@ -759,3 +759,9 @@
   .hpz-apl .a1-side-card{min-height:73px;font-size:10px}
   .hpz-apl .a1-side-card svg{width:48px;height:38px}
 }
+
+/* The seam orientation is already selected in the main configuration. Hide
+   the duplicate private part/seam highlighter from customer-facing previews.
+   All data and internal geometry tests remain present, but no inert controls
+   or unexplained A/B labels are exposed to customers. */
+.hpz-apl .stage-top[hidden],.hpz-apl .view-tabs[hidden],.hpz-apl #parts-note[hidden]{display:none!important}

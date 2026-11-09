@@ -24,8 +24,10 @@ test('Straight labels remain geometrically aligned after unified L-sized readabl
  };
  const pad=Math.max(g.width,g.height)*.11;
  const font=Math.min(pad*.54,g.width*.052,g.height*.24);
- assert.ok(Math.abs(read('B1').x-(g.width+pad*.95+font*.85))<.001,
+ assert.ok(Math.abs(read('B1').x-(g.width+pad*1.50+font*.85))<.001,
    'B1 guide should follow straight-only visual rail without confusing L guides');
+ assert.ok(read('B1').x-read('B3').x>font*1.5,
+   'B1 must be on a distinct rail outside B3 right chamfer');
  assert.ok(Math.abs(read('L2').y-(g.height+pad*.60+font*.85))<.001,
    'straight L2 horizontal cut offset is unchanged');
  assert.ok(Math.abs(read('B2').x-(-pad*.42-font*.9))<.001,
