@@ -1,5 +1,7 @@
 # Arbeitsplatten-Konfigurator – verbindliche Projektübergabe für neue Chats
 
+> **NEUERER, VERBINDLICHER ABSCHLUSSSTAND vom 09.11.2026:** [CURRENT_STATUS_20261109_AFTER_PR75.md](CURRENT_STATUS_20261109_AFTER_PR75.md) **ZUERST LESEN**. PR #72, #73, #74 und **#75 sind gemergt**. Der Betreiber hat den Abschluss der **allgemeinen Preisentwicklung** für Gerade, L1–L4 und U1–U4 ausdrücklich gewünscht: 16 Dekore, 17,5/38 mm, alle im UI erlaubten L/U-Maße und L-Ecken erhalten im gültigen Rechenbereich kaufmännisch verwendbare Preise (außerhalb exakter Speedmaster-Anker sind es Schätzungen). **Keine weiteren großen Speedmaster-EK-Blöcke und keine Fertigungs-/Packstückbelege als generelles Preisberechnungs-Gate.** Verbleibende Pflichtaufgaben **(1) WordPress-Admin-Preis-/echte Zusatzkosten-/Woo-Versandprüfung** und **(2) signierter WooCommerce-End-to-End-Test, anschließend bewusste Freigabe/Veröffentlichung**. **Geplanter Feinschliff danach**, kein Neubau. **WICHTIG:** GitHub-Merge und grüne CI beweisen **nicht**, dass die L/U-Produkte öffentlich kaufbar sind oder dass der gerade Shop-Pfad tatsächlich live getestet wurde. Historische strengere Hürden/Startumfang in den folgenden Abschnitten sind vom 09.11.2026 **überholt**.
+
 **Aktualisiert 05.11.2026 nach GitHub-Live-Abgleich.** Diese Datei ist die Einstiegskarte, **kein Ersatz** für GitHub-Code, original gespeicherte Bilder oder Lieferantenfreigaben. Ein neuer Chat beginnt mit `AGENTS.md`, dieser Datei und der aktuellen `main`-Historie. Historische datierte Dokumente sind chronologisch zu lesen: Ältere Angaben zu Versionen/PRs können überholt sein.
 
 ## 1. Ziel, Shop, Produkte, technische Basis
@@ -269,3 +271,17 @@ Zusammen mit vorherigen H1145-L1=2500-Preisen aus PR69: **H1145 L1 UND U1 steige
 **Abschluss:** Nach GitHub-CI PR mergen, dann WordPress-Preisvorschau und Woo Checkout **nicht weitere allgemeine Speedmaster-Preislisten**. Reale Zusatzkosten/Versandmethoden prüfen, signierte L-/U-Bestellung manuell bei Speedmaster übergeben. Kein öffentliches Produkt ohne Betreiberfreigabe.
 
 [Preisabschluss-Notiz](phase-lu-final-10-price-calibration-20261109.md).
+
+## Endgültige Projektübergabe 09.11.2026 – PR #75 ist GEMERGT
+
+**Dieser Abschluss überschreibt bei Konflikten ältere Preis- und Shopstartpläne aus den Abschnitten 1–21.** Es gibt **keine offene allgemeine Preisentwicklungsphase mehr**. Die komplett dokumentierten zehn Netto-Speedmaster-Kontrollen vom 09.11. sind in `references/speedmaster-lu/LU_TEN_NET_PRICE_CHECKS_20261109.json` und im gemergten PR #75 umgesetzt. Die Preiskalkulation deckt im UI erlaubte Maße, 16 Dekore, beide Stärken, die acht L/U-Typen und angebotene L-Ecken über ein kommerziell angenähertes Modell ab; **keine Lieferantengarantie für jede Kombination**. V3-Marge 40 %, 10 % Reserve, 35 % Rabatt-Mindestmarge relativ zur Kostenannahme; deutsche 19 % Referenz-USt einmal; Lieferanten-Interne Fracht 10 € netto bzw. **60 € netto sobald eine konfigurierte L-Achse >=1900 mm**. Woo-Kundenversand getrennt. Kein weiterer großer Speedmaster-Preisvergleich ist vom Betreiber gewünscht.
+
+**Status:** Gerade-Konfigurator und seine separate V3-/Woo-Anbindung programmiert; L-/U-Konfiguratoren einschließlich Preis-/Admin-Vorschau und signierter Woo-/HPOS-/manueller Speedmaster-Übergabe programmiert. **Kein pauschal bestätigter produktiver Woo-Kauf** und keine L/U-Live-Produktfreigabe; genaue installierte WordPress-Version, Produktstatus und Shop-Funktionsfähigkeit beim nächsten Einstieg prüfen.
+
+**Nur noch zwei notwendige Schritte:**
+1. **Admin-Test / Kosten / Steuer / Versand:** Prüfe einige normale und ungewöhnliche Preis-Szenarien sowie zusätzliche tatsächliche Netto-Kosten und konfigurierte Woo-Versandarten. Die bisherige 0-€-Nebenkosten-Vorschau ist **nur provisorisch**. Nur auffällige Modelle gezielt nachjustieren, keine generelle weitere EK-Erhebung.
+2. **WooCommerce-Testbestellung → ausdrückliche Verkaufsfreigabe:** signiertes L/U-Konfigurationsobjekt, Warenkorb, DE-USt, Versand, Gutscheine/35%-Marge, Checkout, HPOS-Bestellposition, Stoßform-/Eckmaße, manuelle Speedmaster-Bestellübergabe; keine Echtgeldzahlung oder Kundenauslösung ohne Freigabe. Danach nur nach ausdrücklichem Betreiber-Go die vorhandenen L/U-Release-Flags und Woo-Produkte publizieren.
+
+**Optional danach:** H1/Kurzbeschreibung direkt am Konfigurator, großer Standard-Woo-Kopf/Galerie weg; stabiler SVG-viewBox bei Eckwechsel; L4 B5-Label und mobile Darstellung. Details: `phase-ui-step3-backlog-20261106.md`.
+
+**Verbindlicher nächster Einstieg:** [Aktuelle kompakte Übergabe](CURRENT_STATUS_20261109_AFTER_PR75.md). **Nicht** wieder bei PR #36/37/60/70/71 oder den älteren Hersteller-Nachweispflichten beginnen.
