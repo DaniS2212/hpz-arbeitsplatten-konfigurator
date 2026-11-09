@@ -254,7 +254,7 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             || !is_string($decor)||!is_string($material)
             || !isset(self::W980[$shape][$material])||!is_array($d)
             ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5'
-            ||isset($c['lCorner']))
+            ||isset($c['lCorner'])||isset($c['uCorner']))
             return null;
         $confirmed=self::nov09ConfirmedPrice($c);
         if($confirmed!==null) return self::nov09ExactCandidate($confirmed);
@@ -340,7 +340,7 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             ||!is_string($material)||!isset(self::W980[$shape][$material])
             ||!is_string($decor)||!is_array($d)
             ||($c['corner']??null)!=='square'||($c['edge']??null)!=='matching-1.5'
-            ||isset($c['lCorner']))
+            ||isset($c['lCorner'])||isset($c['uCorner']))
             return null;
         $fixed=self::REFERENCE_SIZES[$shape];
         if(count($d)!==count($fixed)+1)return null;
