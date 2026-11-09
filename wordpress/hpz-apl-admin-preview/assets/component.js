@@ -279,7 +279,7 @@ function placeSummary(){
   [...$('steps').children].forEach((e,i)=>{if(i===step)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
   $('back').disabled=step===0;$('back').style.visibility=step===0?'hidden':'visible';
   $('next').innerHTML=step===0?'Weiter zu den Maßen <span>→</span>':step===1?'Weiter zur Oberfläche <span>→</span>':'Konfiguration prüfen <span>↓</span>';
-  $('next').disabled=!valid;
+  $('next').disabled=!valid&&step!==0;
   // Stage 1 draws only the worktop contour and selected seams/corners.
   if(lastGeometry)renderDrawing();
 }
@@ -659,7 +659,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       $('price-note').textContent='Derzeit nicht bestellbar.';
     }else if(['unpriced','unavailable'].includes(result.quote.status)){
       priceDisplay('Preis offen','Dein Preis');$('tax-note').textContent='Kundenversand separat';
-      $('price-note').textContent=customerMeasureError(result.quote.message||'Für diese Kombination kann derzeit kein Preis berechnet werden.');
+      $('price-note').textContent='Für diese Auswahl ist momentan kein Preis verfügbar. Bitte andere Maße wählen oder uns kontaktieren.';
     }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Preisbeispiel · derzeit nicht bestellbar.';}
     else if(embedded&&result.quote.ruleVersion==='admin-visual-only'){
       // Local package preview deliberately has no admin-only WordPress PHP V3 endpoint.
@@ -667,7 +667,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       $('tax-note').textContent='';
       $('price-note').textContent='Aktuell kann kein Preis angezeigt werden.';
     }
-    else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
+    else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent='Für diese Kombination ist momentan kein verbindlicher Preis verfügbar. Bitte andere Maße wählen oder uns kontaktieren.';}
   },onError:error=>{
     if(disposed)return;
     retryPriceButton.hidden=true;
@@ -679,6 +679,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
         :{side:uSide,treatment:uTreatment,values:uCornerValues};
     const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment})
       ??firstCornerIssue(product,variants[product],currentDimensions(),{...corners,material,decor});
+    retryPriceButton.hidden=!!issue;
     const field=issue?fieldForMeasure(issue.key):null;
     const inlineActive=!!issue&&inlineKey===visibleMeasureKey(issue.key)
       &&inlineEditor.contains(shadow.activeElement);
@@ -710,7 +711,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     summary(null,true);
     priceDisplay('–','Maße prüfen');$('tax-note').textContent='';
     $('price-note').textContent='';
-    $('next').disabled=true;
+    $('next').disabled=step!==0;
   }
 });
 function refresh(){
@@ -800,7 +801,7 @@ $('cart').addEventListener('click',async ()=>{
   }
 });
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
-$('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
+$('next').addEventListener('click',()=>{if(!valid&&step!==0)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';if(view==='parts')closeInlineEditor();$('measure-toggle').hidden=true;$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
