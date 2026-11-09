@@ -57,11 +57,10 @@ try {
   // B1/B2 default 60 cm in this baseline case.
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-   return s?.getElementById('corner-hint-L4')?.textContent.includes('Speedmaster-Foto');
+   return s?.getElementById('corner-hint-L4')?.textContent.includes('Möglich:');
   },null,{timeout:9000});
   let state=await observation();
-  assert.match(state.l4,/Zeichnung.*135 cm/,'L1 photo case should cap at 135 cm');
-  assert.match(state.l4,/Speedmaster-Foto.*135 cm/);
+  assert.match(state.l4,/Möglich.*135 cm/,'L1 photo case should cap at 135 cm');
   assert.equal(state.cartDisabled,true);
   assert.ok(state.over<=1,'L1 horizontal mobile overflow');
   await page.screenshot({path:'dist/l-visual-photo-L1-'+width+'.png',fullPage:true});
@@ -77,12 +76,12 @@ try {
   await change('dim-L1','250');
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-   return s?.getElementById('corner-hint-L4')?.textContent.includes('Zeichnung')
-    && !s.getElementById('corner-hint-L4')?.textContent.includes('Speedmaster-Foto')
+   return s?.getElementById('corner-hint-L4')?.textContent.includes('Möglich')
+    && !s.getElementById('corner-hint-L4')?.textContent.includes('Möglich:')
     && s.getElementById('corner-L4')?.getAttribute('aria-invalid')!=='true';
   },null,{timeout:10000});
   state=await observation();
-  assert.match(state.l4,/Zeichnung.*188 cm/);
+  assert.match(state.l4,/Möglich.*188 cm/);
   assert.equal(state.cartDisabled,true);
   // L2: screenshot lists B3 60-2000 mm, yet the geometric drawing
   // needs more room on its 600 mm vertical leg. Expose BOTH ranges,
@@ -97,11 +96,10 @@ try {
   await change('dim-L2','120');
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-   return s?.getElementById('corner-hint-B3')?.textContent.includes('Speedmaster-Foto');
+   return s?.getElementById('corner-hint-B3')?.textContent.includes('Möglich:');
   },null,{timeout:10000});
   state=await observation();
-  assert.match(state.b3,/Zeichnung.*58 cm/);
-  assert.match(state.b3,/Speedmaster-Foto.*200 cm/);
+  assert.match(state.b3,/Möglich.*58 cm/);
   await change('corner-B3','60');
   await page.waitForFunction(()=>{
    const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
@@ -123,7 +121,7 @@ try {
   await select('l-treatment','round');
   await page.waitForFunction(()=>{
     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-    return s?.getElementById('corner-hint-R1')?.textContent.includes('Zeichnung: 1–58 cm');
+    return s?.getElementById('corner-hint-R1')?.textContent.includes('Möglich: 1–58 cm');
   },null,{timeout:12000});
   await change('corner-R1','59');
   await page.waitForFunction(()=>{
@@ -140,7 +138,7 @@ try {
   await change('dim-B1','30');
   await page.waitForFunction(()=>{
     const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
-    return s?.getElementById('corner-hint-R1')?.textContent.includes('Zeichnung: 1–28 cm')
+    return s?.getElementById('corner-hint-R1')?.textContent.includes('Möglich: 1–28 cm')
       && s.getElementById('corner-field-error-R1')?.textContent.includes('28');
   },null,{timeout:12000});
   const roundState=await page.evaluate(()=>{
@@ -151,9 +149,9 @@ try {
       cartDisabled:s.getElementById('cart').disabled,
       overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth};
   });
-  assert.match(roundState.r1,/Zeichnung: 1–28 cm/);
-  assert.match(roundState.r2,/Zeichnung: 1–58 cm/);
-  assert.doesNotMatch(roundState.r1,/Speedmaster-Foto/);
+  assert.match(roundState.r1,/Möglich: 1–28 cm/);
+  assert.match(roundState.r2,/Möglich: 1–58 cm/);
+  assert.match(roundState.r1,/Möglich/);
   assert.equal(roundState.invalid,'true');
   assert.equal(roundState.cartDisabled,true);
   assert.ok(roundState.overflow<=1,'L1 round responsive overflow');
