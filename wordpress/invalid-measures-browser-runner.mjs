@@ -63,7 +63,7 @@ try{
   assert.equal(invalid.svg,true);
   assert.equal(invalid.label,'B2','show measure name but not the last valid number while input is invalid');
   assert.equal(invalid.contour,first.contour);
-  assert.match(invalid.text,/B2: Erlaubt 6–50 cm/);
+  assert.match(invalid.text,/Linke Ecke · Tiefe \(B2\): Erlaubt sind 6–50 cm/);
   assert.equal(invalid.aria,'true');
   assert.equal(invalid.direct,true);
   assert.equal(invalid.statusVisible,false,'avoid duplicated drawing warning');
