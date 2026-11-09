@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {normalize} from '../core/config.mjs';
 import {geometry,svg} from '../core/geometry.mjs';
 
-test('Straight dimension guides keep correct geometry with intentional larger UX viewport',()=>{
+test('Straight labels remain geometrically aligned after unified L-sized readable dimension typography',()=>{
  const c=normalize({
   schemaVersion:2,inputUnit:'mm',product:'straight',geometry:'straight',corner:'square',
   material:'APL38',decor:'W980',quantity:1,
@@ -23,7 +23,7 @@ test('Straight dimension guides keep correct geometry with intentional larger UX
   return {x:Number(m[1]),y:Number(m[2])};
  };
  const pad=Math.max(g.width,g.height)*.11;
- const font=Math.min(pad*.28,g.width*.028,g.height*.12);
+ const font=Math.min(pad*.54,g.width*.052,g.height*.24);
  assert.ok(Math.abs(read('B1').x-(g.width+pad*.95+font*.85))<.001,
    'B1 guide should follow straight-only visual rail without confusing L guides');
  assert.ok(Math.abs(read('L2').y-(g.height+pad*.60+font*.85))<.001,
