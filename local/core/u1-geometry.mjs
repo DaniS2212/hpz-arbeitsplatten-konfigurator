@@ -17,7 +17,7 @@ export const uSplitModes=Object.freeze({
    const corner=c.uCorner;
    if(!corner || corner.side==='none')return {
      path:'M '+base.map(p=>p.join(' ')).join(' L ')+' Z',
-     points:base,arcs:[],cuts:[],cornerDimensions:[],removedArea:0};
+     points:base,arcs:[],cuts:[],cornerDimensions:[],softIndices:[],removedArea:0};
    const sides=corner.side==='both'?['left','right']:[corner.side],edits=new Map();
    let removedArea=0;
    for(const side of sides){
@@ -33,7 +33,7 @@ export const uSplitModes=Object.freeze({
      edits.set(index,{side,round,vertical,horizontal,start,end,vertex});
      removedArea+=round?vertical*vertical*(1-Math.PI/4):vertical*horizontal/2;
    }
-   const commands=['M '+base[0].join(' ')],points=[base[0]],arcs=[],cuts=[],cornerDimensions=[];
+   const commands=['M '+base[0].join(' ')],points=[base[0]],arcs=[],cuts=[],cornerDimensions=[],softIndices=[];
    for(let i=1;i<base.length;i++){
      const edit=edits.get(i);
      if(!edit){commands.push('L '+base[i].join(' '));points.push(base[i]);continue;}
@@ -42,6 +42,11 @@ export const uSplitModes=Object.freeze({
        ?'A '+vertical+' '+vertical+' 0 0 1 '+end.join(' ')
        :'L '+end.join(' '));
      points.push(start,end);
+     if(!round&&corner.treatment==='chamfer_continuous'){
+       // Schematic gentle radiusing of both diagonal transitions.
+       // Actual supplier machining radius is unknown and not encoded.
+       softIndices.push(points.length-2,points.length-1);
+     }
      if(round){
        const center=side==='left'?[vertex[0]-vertical,vertex[1]-vertical]
          :[vertex[0]+vertical,vertex[1]-vertical];
@@ -65,7 +70,7 @@ export const uSplitModes=Object.freeze({
        );
      }
    }
-   return {path:commands.join(' ')+' Z',points,arcs,cuts,cornerDimensions,removedArea};
+   return {path:commands.join(' ')+' Z',points,arcs,cuts,cornerDimensions,softIndices,removedArea};
  }
 export function u1Geometry(c){
  const split=uSplitModes[c.geometry];
@@ -113,7 +118,8 @@ export function u1Geometry(c){
  return {
   version:'speedmaster-'+c.geometry.toLowerCase()+(hasCorner?'-inner-corner-preview-20261109':'-screenshot-20261105'),
   title:c.geometry+' · nach Speedmaster-Bild'+(hasCorner?' · innere Ecke':''),
-  points,path:edit.path,
+  points,path:edit.path,softIndices:edit.softIndices,
+  ...(edit.softIndices.length?{contourStatus:'schematic'}:{}),
   width:w,height:Math.max(l,r),areaMm2:w*d+a*(l-d)+b*(r-d)-edit.removedArea,dimensions,
   edges:points.map((p,i)=>({from:p,to:points[(i+1)%points.length],finish:'matching-1.5',status:'illustration-only',kind:'line'})),
   corner:'square',cornerSizeMm:null,cornerArcs:edit.arcs,cornerCuts:edit.cuts,
