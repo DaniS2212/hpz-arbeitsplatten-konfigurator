@@ -281,7 +281,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   }).join('');
   const schematicNote=''; // the adjacent shape-note provides the non-manufacturing disclaimer
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-label="${escapeXml(g.title+(detail?' · Detail '+(detail==='left'?'vorne links':'vorne rechts'):''))}" style="width:100%;height:auto;max-height:560px">
-    <title>${escapeXml(g.title)}</title><desc>Maße in ${unit==='cm'?'Zentimetern':'Millimetern'}. Ungeprüfte Vorschau, keine Fertigungszeichnung.</desc>
+    <title>${escapeXml(g.title)}</title><desc>Maße in ${unit==='cm'?'Zentimetern':'Millimetern'}. Schematische Darstellung zur Orientierung; keine Fertigungszeichnung.</desc>
     <defs><marker id="apl-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 10 0 L 0 5 L 10 10" fill="#354b46"/></marker>
     <linearGradient id="apl-white" x2=".2" y2="1"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#e8e7df"/></linearGradient>
     <pattern id="apl-oak" width="360" height="160" patternUnits="userSpaceOnUse"><rect width="360" height="160" fill="#c49b68"/>
