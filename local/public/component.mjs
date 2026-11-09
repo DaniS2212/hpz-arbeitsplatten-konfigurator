@@ -8,6 +8,8 @@ import {template} from './component-template.mjs';
 import {resolveProduct} from '../core/products.mjs';
 import {decorImageUrl} from './decor-images.mjs';
 import {sides,treatments,straightCorner,cornerLimits,defaultCornerParameters} from '../core/straight-corners.mjs';
+import {uCornerSides,uCornerTreatments,uCornerKeys,defaultUCorner,uCornerPreviewLimits} from '../core/u-corners.mjs';
+import {uSplitModes} from '../core/u1-geometry.mjs';
 const mounts=new WeakMap();let sequence=0;
 export function mountConfigurator(root,context={},adapters={}){
  const startingDecor=context.decorId??'H1145';decorImageUrl(startingDecor);
@@ -31,9 +33,14 @@ const fieldNames={L1:'Gesamtbreite',L2:'Links außen',L3:'Rechts außen',B1:'Tie
 let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',selectedPart=null,selectedSeam=null,valid=false;
 let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCornerValues={};
+ let uSide='none',uTreatment=null,uCornerValues={};
 let radiusValues={},drawingDetail=null;
 const fieldErrors=new Map();
 const lSides={none:'Keine',left:'Links',right:'Rechts',both:'Beide Außenecken'};
+ const uVariantOptions=element('div','u-variant-grid');
+ uVariantOptions.id='u-variant-options';uVariantOptions.setAttribute('role','radiogroup');
+ uVariantOptions.setAttribute('aria-label','Stoßaufteilung');
+ $('geometry').after(uVariantOptions);
 const retryPriceButton=element('button','price-retry','Preis erneut berechnen');
 retryPriceButton.type='button';retryPriceButton.hidden=true;
 $('price-note').after(retryPriceButton);
@@ -69,6 +76,75 @@ function lTreatmentIcon(kind){
  if(kind!=='chamfer_continuous')return treatmentIcon(kind);
  return '<svg viewBox="0 0 98 46" aria-hidden="true"><path d="M10 5 H88 V39 H29 L10 20 Z" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M10 20 L29 39 H80" fill="none" stroke="#146178" stroke-width="3"/></svg>';
 }
+// The four U models share ONE outline. Only the two visible join directions
+// differ. Show these differences at the choice point, not behind "Aufteilung".
+function uJoinIcon(shape){
+ const [left,right]=uSplitModes[shape];
+ const leftPath=left==='cross'?'M 8 32 H 30':'M 30 8 V 32';
+ const rightPath=right==='cross'?'M 78 32 H 100':'M 78 8 V 32';
+ return `<svg viewBox="0 0 108 70" aria-hidden="true">
+   <path d="M 8 8 H 100 V 61 H 78 V 32 H 30 V 54 H 8 Z"
+     fill="#e6f1f1" stroke="#557b83" stroke-width="1.8"/>
+   <path d="${leftPath} M ${rightPath.slice(2)}"
+     fill="none" stroke="#af6940" stroke-width="3.2" stroke-linecap="round"/>
+ </svg>`;
+}
+const uJoinLabels={
+ U1:'Links quer · rechts quer',U2:'Links längs · rechts längs',
+ U3:'Links längs · rechts quer',U4:'Links quer · rechts längs'
+};
+function uSideIcon(side){
+ const left=['left','both'].includes(side),right=['right','both'].includes(side);
+ return `<svg viewBox="0 0 108 70" aria-hidden="true">
+ <path d="M8 8H100V61H78V32H30V54H8Z" fill="#e6f1f1" stroke="#557b83" stroke-width="1.8"/>
+ ${left?'<circle cx="30" cy="54" r="5" fill="#af6940"/>':''}
+ ${right?'<circle cx="78" cy="61" r="5" fill="#af6940"/>':''}
+ </svg>`;
+}
+function renderUVariantCards(){
+ uVariantOptions.hidden=product!=='u';
+ if(product!=='u')return;
+ const options=Object.keys(uSplitModes).map(id=>choice('u-variant',id,
+   uJoinIcon(id)+'<strong>'+id+'</strong><span>'+uJoinLabels[id]+'</span>',
+   variants.u===id,()=>{
+    $('geometry').value=id;
+    $('geometry').dispatchEvent(new Event('change',{bubbles:true}));
+   },'u-variant-card'));
+ uVariantOptions.replaceChildren(...options);
+}
+function renderUChoices(){
+ if(product!=='u')return;
+ sideWrap.hidden=false;sideLegend.textContent='Welche innere Ecke bearbeiten?';
+ sideWrap.lastElementChild.replaceChildren(...Object.entries(uCornerSides)
+   .map(([id,name])=>choice('u-side',id,uSideIcon(id)+'<span>'+name+'</span>',
+     uSide===id,()=>{
+      uSide=id;uTreatment=id==='none'?null:(uTreatment??'round');
+      uCornerValues=Object.fromEntries(Object.entries(defaultUCorner(uSide,uTreatment).parameters)
+       .map(([k,v])=>[k,mmToCmText(Number(v))]));
+      active='side-'+id;renderUChoices();renderRadiusInputs();refresh();
+     },'a1-side-card')));
+ cornerTitle.hidden=uSide==='none';$('corners').hidden=uSide==='none';
+ cornerTitle.textContent='Bearbeitung';$('corners').style.gridTemplateColumns='1fr';
+ if(uSide!=='none'){
+  $('corners').replaceChildren(...Object.entries(uCornerTreatments)
+    .map(([id,title])=>choice('u-treatment',id,uJoinTreatmentIcon(id)
+       +'<span>'+title+'</span>',uTreatment===id,()=>{
+        uTreatment=id;uCornerValues=Object.fromEntries(Object.entries(defaultUCorner(uSide,uTreatment).parameters)
+          .map(([k,v])=>[k,mmToCmText(Number(v))]));
+        renderRadiusInputs();refresh();
+       },'a1-treatment-card')));
+ }
+}
+function uJoinTreatmentIcon(treatment){
+ // A sketch of the inner leg FOOT is sufficient; the actual full contour
+ // uses uCorner in the shared SVG. This icon is not a manufacturer drawing.
+ const path=treatment==='round'?'M 8 5 V 35 H 24 Q 38 35 38 21 V 5'
+   :'M 8 5 V 35 H 25 L 38 22 V 5';
+ return `<svg viewBox="0 0 46 42" aria-hidden="true"><path d="${path}"
+   fill="none" stroke="#557b83" stroke-width="2.1"/>
+  ${treatment==='chamfer_continuous'?'<path d="M 8 35 H 25 L 38 22 V 5" stroke="#af6940" fill="none" stroke-width="2"/>':''}</svg>`;
+}
+
 function setFieldError(key,message=''){
   const isLCorner=key.startsWith('corner-'),fieldKey=isLCorner?key.slice(7):key;
   const input=$(isLCorner?`corner-${fieldKey}`:`dim-${fieldKey}`),note=$(isLCorner?`corner-field-error-${fieldKey}`:`field-error-${fieldKey}`);
