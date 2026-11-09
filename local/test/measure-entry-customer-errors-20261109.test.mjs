@@ -49,7 +49,7 @@ test('Every family, variant, side and treatment has safe valid defaults and cust
     assert.equal(issue.key,(shape==='straight'?'':'corner-')+key);
     assert.match(issue.message,new RegExp('\\('+key+'\\)'));
     assert.doesNotMatch(issue.message,/corner-|nur Vorschau|Fertigungsfreigabe|Herstellerfreigabe|Speedmaster|\\bmm\\b/i);
-    assert.match(issue.message,/cm|Plattenmaße/);
+    assert.match(issue.message,/cm|Zentimeter|Plattenmaße/);
     assert.throws(()=>normalize(raw(shape,d,side,type,broken)),shape+' must still reject invalid corner');
     const decimal={...v,[key]:'15,5'};
     const fractional=firstCornerIssue(product(shape),shape,d,context(shape,side,type,decimal));
