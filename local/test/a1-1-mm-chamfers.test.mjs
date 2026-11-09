@@ -81,7 +81,7 @@ test('L1/U4 legacy mm inputs preserve their v1 contours and physical dimensions'
 });
 test('customer template uses centimetres for lengths while slab and edging thickness stay in mm',()=>{
  assert.match(template,/Maße in cm/);assert.match(template,/inputmode="decimal" value="10"><span>cm/);
- assert.match(template,/0,1 cm/);assert.match(template,/1,5 mm im gleichen Dekor/);
+ assert.match(template,/0,1 cm/);assert.match(template,/1,5 mm dekorgleiche Kanten inklusive/);
  assert.doesNotMatch(template,/Trage deine Maße in Millimetern|Alle Maße in mm/);
 });
 test('mobile corner details omit unrelated measures and disclose schematic transitions',()=>{
