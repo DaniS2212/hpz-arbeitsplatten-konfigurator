@@ -84,6 +84,7 @@ jobs:
           node wordpress/l4-measure-focus-browser-runner.mjs
           node wordpress/minimal-layout-browser-runner.mjs
           node wordpress/u-corners-browser-runner.mjs
+          node wordpress/corner-chooser-parity-browser-runner.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
