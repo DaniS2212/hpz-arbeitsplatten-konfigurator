@@ -46,6 +46,10 @@ Reihenfolge / Beträge: **300,03; 300,73; 510,06; 351,33; 528,89; 724,66; 767,63
 
 **Erst nach A/B optionaler UI-Feinschliff:** Großen Woo-Produktkopf/Galerie durch H1 + kurze Beschreibung direkt am Konfigurator ersetzen; SVG-`viewBox` beim Eckwechsel stabil halten; L4-`B5`-Label „· Einstellung“ verständlicher machen, kleine Usability-/Mobile-Fixes. Bereits dokumentiert in `docs/phase-ui-step3-backlog-20261106.md`.
 
-## 6. Nächster neuer Chat — sofortige Aktion
+## 6. GitHub-Sichtbarkeit und Wartung
+
+Das Repository `DaniS2212/hpz-arbeitsplatten-konfigurator` ist am 09.11.2026 **öffentlich** (vom Betreiber vorübergehend so gewünscht, um die kostenlosen öffentlichen GitHub-Actions-Runner bis zur Fertigstellung zu nutzen). **Nach Abschluss des Konfigurators soll die Sichtbarkeit bewusst wieder auf privat gesetzt werden**; Repository nicht löschen, weil Versionshistorie, WordPress-Updates und Wartung weiterhin benötigt werden. Öffentlich gemachte Kopien/Forks können auch nach dem Rückwechsel bestehen bleiben. Keine Zugangsdaten committen. Auch die alte Bezeichnung des CI-Workflows „private GitHub“ ist kein aktueller Sichtbarkeitsbeweis.
+
+## 7. Nächster neuer Chat — sofortige Aktion
 
 Auf Anfrage „Konfigurator weiter / fertigstellen“ **nicht wieder Preisentwicklung oder Fertigungsnachweise von vorn beginnen**. Erst tatsächlichen GitHub-`main`, PR #75, CI, Plugin-Installationsversion und Woo-Produktstatus abgleichen, dann **A und B konkret durchführen**. Shopaktivierung nur nach ausdrücklicher Betreiberfreigabe. Die vollständige historische Forschung bleibt in `docs/CURRENT_PROJECT_HANDOFF_20261105.md`; **für operative Prioritäten ist diese 09.11.2026-Übergabe maßgeblich**.
