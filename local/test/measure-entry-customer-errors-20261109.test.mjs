@@ -1,4 +1,5 @@
 import {test} from 'node:test';
+import {readFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {firstMeasureIssue,firstCornerIssue,isUnfinishedCmEntry} from '../core/measure-feedback.mjs';
 import {lDefaultDimensions,lCornerKeys} from '../core/l-geometry.mjs';
@@ -95,4 +96,18 @@ test('A valid field stays valid when switching material/decor and invalid neighb
   assert.equal(base?.key,'B5');
   assert.equal(firstCornerIssue('l','L4',bad,context('L4','right','chamfer_square',{L6:'15',B6:'15'})),null,
     'base field owns its own error; corner validator should not invent corner limits from invalid input');
+});
+
+test('Customer storefront never echoes raw supplier/preview errors; invalid size can return from step 1 to editable step 2',async()=>{
+  const source=await readFile(new URL('../public/component.mjs',import.meta.url),'utf8');
+  const bundled=await readFile(new URL('../../wordpress/hpz-apl-admin-preview/assets/component.js',import.meta.url),'utf8');
+  for(const c of [source,bundled]){
+    assert.match(c,/firstCornerIssue\(product,variants\[product\],currentDimensions\(\),\{\.\.\.corners,material,decor\}\)/);
+    assert.match(c,/isUnfinishedCmEntry\(rawValue,issue\)/);
+    assert.match(c,/\$\('next'\)\.disabled=!valid&&step!==0/);
+    assert.match(c,/\$\('next'\)\.addEventListener\('click',\(\)=>\{if\(!valid&&step!==0\)return/);
+    assert.match(c,/retryPriceButton\.hidden=!!issue/);
+    assert.doesNotMatch(c,/customerMeasureError\(result\.quote\.message/);
+    assert.doesNotMatch(c,/customerMeasureError\(result\.quote\.availabilityNote/);
+  }
 });
