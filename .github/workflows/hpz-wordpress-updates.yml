@@ -31,6 +31,7 @@ jobs:
           php wordpress/price-preview.test.php
           php wordpress/price-ajax.test.php
           php pricing-v3/tests/lu-shop-ratebook.php
+          php pricing-v3/tests/lu-final-ten-price-checks.php
           php pricing-v3/tests/lu-admin-price-preview.php
           php wordpress/lu-price-ajax.test.php
           php wordpress/top-cta.test.php
