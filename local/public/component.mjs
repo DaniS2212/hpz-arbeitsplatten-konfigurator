@@ -520,9 +520,9 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
      if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase){
       priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Bruttopreis · ${result.config.quantity} Stück`);
       $('tax-note').textContent=(result.quote.taxNote||'').includes('DE-Bruttopreis inkl. 19 %')
-        ?'inkl. 19 % MwSt. · zzgl. Versand (im Checkout)'
+        ?'inkl. 19 % MwSt. · zzgl. Versand'
         :(result.quote.taxNote||'inkl. 19 % MwSt. · zzgl. Versand');
-      // Server-side signed cart and checkout revalidation remains untouched.
+      // Server-side signed validation remains untouched.
       $('price-note').textContent='';
       purchaseState(true);
      }else if(result.quote.status==='calculated-not-sale-approved'){
