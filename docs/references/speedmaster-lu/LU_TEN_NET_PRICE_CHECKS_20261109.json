@@ -1,0 +1,181 @@
+{
+  "schema": "operator-confirmed-ten-speedmaster-net-prices-v1",
+  "recordedOn": "2026-11-09",
+  "receivedAs": "structured chat text, no supplier screenshots",
+  "currency": "EUR",
+  "amountTax": "net",
+  "edge": "matching-1.5",
+  "supplier": "speedmaster",
+  "notSupplierContract": true,
+  "caseCount": 10,
+  "cases": [
+    {
+      "id": "01",
+      "geometry": "L1",
+      "decor": "W980",
+      "material": "APL17.5",
+      "dimensions": {
+        "L1": 1890,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "confirmedNetEUR": "300.03",
+      "previousModelNetEUR": "325.11"
+    },
+    {
+      "id": "02",
+      "geometry": "L1",
+      "decor": "W980",
+      "material": "APL17.5",
+      "dimensions": {
+        "L1": 1900,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "confirmedNetEUR": "300.73",
+      "previousModelNetEUR": "325.49"
+    },
+    {
+      "id": "03",
+      "geometry": "L1",
+      "decor": "W980",
+      "material": "APL38",
+      "dimensions": {
+        "L1": 2250,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "lCorner": {
+        "side": "left",
+        "treatment": "chamfer_square",
+        "parameters": {
+          "L3": 150,
+          "B3": 150
+        }
+      },
+      "confirmedNetEUR": "510.06",
+      "previousModelNetEUR": "527.01"
+    },
+    {
+      "id": "04",
+      "geometry": "L2",
+      "decor": "H1145",
+      "material": "APL17.5",
+      "dimensions": {
+        "L1": 2250,
+        "L2": 1200,
+        "B1": 600,
+        "B2": 600
+      },
+      "lCorner": {
+        "side": "right",
+        "treatment": "round",
+        "parameters": {
+          "R2": 150
+        }
+      },
+      "confirmedNetEUR": "351.33",
+      "previousModelNetEUR": "378.23"
+    },
+    {
+      "id": "05",
+      "geometry": "L3",
+      "decor": "W980",
+      "material": "APL17.5",
+      "dimensions": {
+        "L1": 2500,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 950,
+        "B4": 950
+      },
+      "confirmedNetEUR": "528.89",
+      "previousModelNetEUR": "529.14"
+    },
+    {
+      "id": "06",
+      "geometry": "L4",
+      "decor": "W980",
+      "material": "APL38",
+      "dimensions": {
+        "L1": 2700,
+        "L2": 2000,
+        "B1": 600,
+        "B2": 600,
+        "B3": 900,
+        "B4": 900,
+        "B5": 700
+      },
+      "confirmedNetEUR": "724.66",
+      "previousModelNetEUR": "812.41"
+    },
+    {
+      "id": "07",
+      "geometry": "U1",
+      "decor": "W980",
+      "material": "APL38",
+      "dimensions": {
+        "L1": 2500,
+        "L2": 1700,
+        "L3": 1800,
+        "B1": 675,
+        "B2": 600,
+        "B3": 600
+      },
+      "confirmedNetEUR": "767.63",
+      "previousModelNetEUR": "771.76"
+    },
+    {
+      "id": "08",
+      "geometry": "U2",
+      "decor": "H1145",
+      "material": "APL17.5",
+      "dimensions": {
+        "L1": 2300,
+        "L2": 1600,
+        "L3": 2100,
+        "B1": 650,
+        "B2": 600,
+        "B3": 650
+      },
+      "confirmedNetEUR": "547.40",
+      "previousModelNetEUR": "602.65"
+    },
+    {
+      "id": "09",
+      "geometry": "U3",
+      "decor": "F128",
+      "material": "APL38",
+      "dimensions": {
+        "L1": 2500,
+        "L2": 1200,
+        "L3": 1800,
+        "B1": 600,
+        "B2": 600,
+        "B3": 600
+      },
+      "confirmedNetEUR": "837.82",
+      "previousModelNetEUR": "874.55"
+    },
+    {
+      "id": "10",
+      "geometry": "U4",
+      "decor": "F128",
+      "material": "APL17.5",
+      "dimensions": {
+        "L1": 2600,
+        "L2": 1600,
+        "L3": 2000,
+        "B1": 700,
+        "B2": 600,
+        "B3": 650
+      },
+      "confirmedNetEUR": "828.24",
+      "previousModelNetEUR": "972.07"
+    }
+  ]
+}

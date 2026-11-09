@@ -29,6 +29,9 @@ jobs:
           php -l pricing-v3/HPZ_APL_LU_Shop_Ratebook_12.php
           php -l wordpress/hpz-apl-admin-preview/includes/lu-shop-ratebook.php
           php pricing-v3/tests/lu-shop-ratebook.php
+      - name: November ten Speedmaster net prices and adjacent dimension regressions
+        run: |
+          php pricing-v3/tests/lu-final-ten-price-checks.php
       - name: Admin-only L/U gross-price preview incl. L corner scenarios
         run: |
           php -l pricing-v3/HPZ_APL_LU_Admin_Price_Preview_13.php
