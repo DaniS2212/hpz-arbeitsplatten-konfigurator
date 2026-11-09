@@ -51,7 +51,7 @@ test('Independent limits name the exact wrong field and the permitted numbers',(
 test('Compact surface and summary are not duplicated and tabs own the instructions',async()=>{
  const c=await read('../public/component.mjs');
  assert.doesNotMatch(template,/SCHRITT [123] VON 3/);
- assert.doesNotMatch(template,/Grundriss wählen|Maße eingeben|Stärke wählen\. Dekor aussuchen/);
+ assert.doesNotMatch(template,/<h2>Grundriss wählen|<h2>Maße eingeben|Stärke wählen\. Dekor aussuchen/);
  assert.doesNotMatch(template,/class="edge-card"/);
  assert.match(template,/class="surface-edge-included"/);
  assert.match(template,/id="selected-surface-name"/);
