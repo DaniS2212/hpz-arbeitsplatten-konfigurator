@@ -111,11 +111,11 @@ test('L4 B5 points to outer diagonal; coupled widths always use the matching rig
  const g=geometry(c);
  const b5=g.dimensions.find(d=>d.id==='B5');
  assert.equal(b5.settingOnly,true);
- assert.deepEqual(b5.diagonalCut,{from:[900,0],to:[0,900]});
+ assert.deepEqual(b5.diagonalCut,{from:[1050,0],to:[0,1050]});
  const drawn=svg(g,'B5',{unit:'cm'});
  assert.match(drawn,/data-field="B5" data-measure-id="B5" data-diagonal="outer-edge" data-active="true"/);
  assert.match(drawn,/data-setting-only="true"/);
- assert.match(drawn,/M 450,450 L /,'B5 leader must start in the middle of the outer diagonal');
+ assert.match(drawn,/M 525,525 L /,'B5 leader must start in the middle of the outer diagonal');
  assert.doesNotMatch(drawn,/B5: 42,4 cm/,'never pretend B5 is an actual gap measurement');
  const stale=svg(g,'B5',{unit:'cm',invalidField:'B5'});
  assert.doesNotMatch(stale,/B5: 30 cm/,'an invalid B5 field must not display stale geometry value');
