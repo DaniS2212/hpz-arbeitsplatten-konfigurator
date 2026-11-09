@@ -511,6 +511,18 @@ function summary(config,invalid=false){
     rows.push(['Breiten',widths.map(k=>`${k} ${mmToCmText(d[k])}`).join(' · ')+' cm']);
   }
   rows.push(['Oberfläche',`${decorName} · ${thickness} mm`]);
+   if(product==='u'){
+     rows.push(['Stoßaufteilung',uJoinLabels[variants.u]]);
+     if(uSide!=='none'){
+       const params=config?.uCorner?.parameters??{},pieces=uSide==='both'?['left','right']:[uSide];
+       const details=pieces.map(side=>{
+         const fields=uCornerKeys(side,uTreatment);
+         return (side==='left'?'Links':'Rechts')+' '+fields
+           .map(k=>k+' '+(params[k]===undefined?'–':mmToCmText(params[k]))).join(' / ')+' cm';
+       });
+       rows.push(['Innenecken',uCornerTreatments[uTreatment]+' · '+details.join(' · ')]);
+     }
+   }
   if(product==='l'&&lSide!=='none'){
     const p=config?.lCorner?.parameters??{},chosen=lSide==='both'?['left','right']:[lSide];
     const label=chosen.map(side=>{
@@ -691,11 +703,10 @@ function refresh(){
     $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
   }
   if(product==='u'){
-    $('corner-note').textContent=corner==='square'
-      ?'Grundform nach Speedmaster-Fotos. Zwei Stoßstellen sind nur als Lagebeobachtung belegt.'
-      :'Eckbearbeitung derzeit nur schematisch; Speedmaster-Referenzen dafür fehlen.';
-    $('parts-note').querySelector('strong').textContent='Drei sichtbare Teilflächen · keine Zuschnittdaten';
-    $('parts-note').querySelector('p').textContent='Stoßstellen zur Orientierung.';
+    $('special-wrap').hidden=true;
+    $('corner-note').textContent='';
+    $('parts-note').querySelector('strong').textContent='Drei Teilflächen · Stoßfugen zur Orientierung';
+    $('parts-note').querySelector('p').textContent='U1–U4: Die gewählte Stoßaufteilung ist in der Draufsicht erkennbar.';
   }
   if(product==='straight'){
     const v=straightCorner(straightSide,straightTreatment);
@@ -713,6 +724,22 @@ function refresh(){
       try{cmInputToMmText(lCornerValues[key]);setFieldError('corner-'+key);}
       catch{setFieldError('corner-'+key,'Bitte ein gültiges Eckmaß in cm eingeben.');}
     }
+  }
+  if(product==='u'&&uSide!=='none'){
+    for(const key of uCornerKeys(uSide,uTreatment)){
+      try{cmInputToMmText(uCornerValues[key]);setFieldError('corner-'+key);}
+      catch{setFieldError('corner-'+key,'Bitte ein gültiges Eckmaß in cm eingeben.');}
+    }
+    try{
+      const dims=Object.fromEntries(Object.entries(currentDimensions())
+        .map(([k,v])=>[k,Number(cmInputToMmText(v))]));
+      const limits=uCornerPreviewLimits(dims,uSide,uTreatment).fields;
+      for(const key of uCornerKeys(uSide,uTreatment)){
+        const info=limits[key],hint=$('corner-hint-'+key);
+        if(hint)hint.textContent=info.max>=info.min
+          ?mmToCmText(info.min)+'–'+mmToCmText(info.max)+' cm':'Mit diesen Schenkelmaßen nicht möglich.';
+      }
+    }catch{/* Invalid base dimensions keep their own validation active. */}
   }
   if(product==='straight')updateCornerBounds();
    if(product==='l')updateLRangeHints();
