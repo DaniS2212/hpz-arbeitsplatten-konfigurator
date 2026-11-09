@@ -7,8 +7,10 @@ const get=path=>readFile(new URL(path,import.meta.url),'utf8');
 test('Invalid input retains the last valid SVG and blocks the price',async()=>{
  const c=await get('../public/component.mjs');
  assert.match(c,/onError:error=>\{/);
- assert.match(c,/if\(lastGeometry\)\{/);
- assert.match(c,/Letzter gültiger Stand/);
+ assert.match(c,/if\(lastGeometry\)renderDrawing\(\)/);
+ assert.match(c,/firstMeasureIssue/);
+ assert.match(c,/formError\.textContent=message/);
+ assert.doesNotMatch(c,/Letzter gültiger Stand/);
  assert.match(c,/summary\(null,true\)/);
  assert.match(c,/priceDisplay\('–','Maße prüfen'\)/);
  assert.doesNotMatch(c,/onError:error=>\{[^}]*lastGeometry=null/);
