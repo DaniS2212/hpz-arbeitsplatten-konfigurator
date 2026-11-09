@@ -332,53 +332,45 @@ function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamC
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
   if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:product==='straight'||view==='plan',partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm'}),'large');}
 function summary(config,invalid=false){
-  $('summary-shape').textContent=names[product];$('preview-family').textContent=names[product];
+  $('summary-shape').textContent=names[product];
+  $('preview-family').textContent=names[product];
   const decorName=c.decors.find(d=>d.id===decor).label;
-  $('preview-material').textContent=`${material==='APL38'?'38':'17,5'} mm · ${decorName}`;
+  const thickness=material==='APL38'?'38':'17,5';
+  $('preview-material').textContent=`${thickness} mm · ${decorName}`;
   $('selected-surface-name').textContent=decorName;
-  $('selected-surface-thickness').textContent=`${material==='APL38'?'38':'17,5'} mm · Schichtstoff`;
+  $('selected-surface-thickness').textContent=`${thickness} mm · Schichtstoff`;
   const rows=[];
-  if(!config)rows.push(['Maße',invalid?'Bitte korrigieren':'Wird geprüft …']);
-  else if(product==='straight')rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
-  else if(product==='l'){
-    const d=config.dimensions;
-    rows.push(['Außenmaße',`${mmToCmText(d.L1)} × ${mmToCmText(d.L2)} cm`]);
-    if(['L3','L4'].includes(variants.l)){
-      rows.push(['Schenkelbreite',`${mmToCmText(d.B1)} cm`],['Eckbereich',`${mmToCmText(d.B3)} cm`]);
-      if(variants.l==='L4')rows.push(['Diagonalbereich',`${mmToCmText(d.B5)} cm`]);
-    }else{
-      rows.push(['Schenkelbreite',`${mmToCmText(d.B1)} cm`],['Tiefe oben',`${mmToCmText(d.B2)} cm`]);
-    }
+  if(!config){
+    rows.push(['Maße',invalid?'–':'Wird berechnet …']);
+  }else if(product==='straight'){
+    rows.push(['Maße',`${mmToCmText(config.dimensions.L1)} × ${mmToCmText(config.dimensions.B1)} cm`]);
+  }else{
+    const d=config.dimensions,main=product==='l'?['L1','L2']:['L1','L2','L3'];
+    const widths=product==='l'?lVisibleDimensionKeys(variants.l).filter(k=>k.startsWith('B')):['B1','B2','B3'];
+    rows.push(['Längen',main.map(k=>`${k} ${mmToCmText(d[k])}`).join(' · ')+' cm']);
+    rows.push(['Breiten',widths.map(k=>`${k} ${mmToCmText(d[k])}`).join(' · ')+' cm']);
   }
-  else rows.push(['Maße',Object.entries(config.dimensions).map(([key,value])=>`${key}: ${mmToCmText(value)} cm`).join(' · ')]);
-  rows.push(['Material',`Schichtstoff · ${material==='APL38'?'38':'17,5'} mm`],['Dekor',decorName]);
-  if(product==='l'){
-    rows.push(['Ecken',lSide==='none'?'Ohne Bearbeitung':lSides[lSide]+' · '+treatments[lTreatment]]);
-    if(config?.lCorner?.parameters&&lSide!=='none'){
-      for(const side of (lSide==='both'?['left','right']:[lSide])){
-        const keys=lCornerKeys(variants.l,side,lTreatment);
-        const values=keys.map(k=>mmToCmText(config.lCorner.parameters[k]));
-        rows.push([side==='left'?'Linke Ecke':'Rechte Ecke',
-          lTreatment==='round'?`Radius ${values[0]} cm`:`${values[0]} × ${values[1]} cm`]);
-      }
-    }
+  rows.push(['Oberfläche',`${decorName} · ${thickness} mm`]);
+  if(product==='l'&&lSide!=='none'){
+    const p=config?.lCorner?.parameters??{},chosen=lSide==='both'?['left','right']:[lSide];
+    const label=chosen.map(side=>{
+      const keys=lCornerKeys(variants.l,side,lTreatment);
+      const numbers=keys.map(k=>p[k]!==undefined?mmToCmText(p[k]):'–');
+      const variant=lTreatment==='round'?`R ${numbers[0]} cm`:`${numbers.join(' × ')} cm`;
+      return `${side==='left'?'Links':'Rechts'} ${variant}`;
+    });
+    rows.push(['Ecken',`${treatments[lTreatment]} · ${label.join(' / ')}`]);
   }
-  if(product==='straight'){
-    const location={none:'Ohne Bearbeitung',left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
-    const finish={round:'Abgerundet',chamfer_square:'Eckig abgeschrägt',chamfer_continuous:'Vorderkante durchlaufend'}[straightTreatment];
-    rows.push(['Ecken',straightSide==='none'?location:`${location} · ${finish}`]);
-    const p=config?.straightCorner?.parameters;
-    if(p&&straightSide!=='none'){
-      if(straightTreatment==='round'){
-        if(p.R1!==undefined)rows.push(['Links',`Radius ${mmToCmText(p.R1)} cm`]);
-        if(p.R2!==undefined)rows.push(['Rechts',`Radius ${mmToCmText(p.R2)} cm`]);
-      }else{
-        if(p.L2!==undefined&&p.B2!==undefined)rows.push(['Links',`${mmToCmText(p.L2)} × ${mmToCmText(p.B2)} cm`]);
-        if(p.L3!==undefined&&p.B3!==undefined)rows.push(['Rechts',`${mmToCmText(p.L3)} × ${mmToCmText(p.B3)} cm`]);
-      }
-    }
+  if(product==='straight'&&straightSide!=='none'){
+    const side={left:'Links',right:'Rechts',both:'Beidseitig'}[straightSide];
+    const name=treatments[straightTreatment];
+    const size=config?.straightCorner?.parameters??{};
+    rows.push(['Ecken',side+' · '+name+(Object.keys(size).length
+      ?' · '+Object.values(size).map(mmToCmText).join(' / ')+' cm':'')]);
   }
-  $('summary').replaceChildren(...rows.map(([key,value])=>{const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;}));
+  $('summary').replaceChildren(...rows.map(([key,value])=>{
+    const row=element('div');row.append(element('dt','',key),element('dd','',value));return row;
+  }));
 }
 let saleReady=false,purchaseBusy=false;
 function purchaseState(enabled){saleReady=enabled&&!!adapters.purchase&&valid&&!purchaseBusy;$('cart').disabled=!saleReady;if(adapters.purchase)$('cart').textContent=saleReady?'In den Warenkorb →':'Konfiguration wird geprüft';}
