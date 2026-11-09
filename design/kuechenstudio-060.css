@@ -634,3 +634,49 @@
  .hpz-apl[data-product="l"] #drawing svg,
  .hpz-apl[data-product="u"] #drawing svg{max-height:390px!important}
 }
+
+/* 2026-11-09: keep straight/L/U consistently readable at a glance.
+   Only presentation changes: no geometry, prices or purchasability. */
+@media (min-width:761px){
+  .hpz-apl[data-product="straight"]:not([data-current-step="2"]) #drawing{
+    height:clamp(350px,34vw,490px);min-height:350px;padding:4px 8px!important
+  }
+  .hpz-apl[data-product="straight"]:not([data-current-step="2"]) #drawing svg{
+    max-height:100%!important
+  }
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid{
+  gap:16px 13px
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid > div{
+  min-width:0
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .dimension-label{
+  display:flex;justify-content:space-between;align-items:center;gap:7px;
+  min-height:34px;margin-bottom:6px;font-size:14px;line-height:1.3;
+  font-weight:650;color:var(--studio-ink)
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .dimension-label span{
+  flex:0 0 auto;display:inline-block;border-radius:5px;
+  padding:4px 7px;font-size:11px;font-weight:750;white-space:nowrap
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .unit-input{
+  min-height:54px;border-width:1.5px;border-radius:9px
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .unit-input input{
+  min-height:52px;padding:13px 12px;font-size:22px;font-weight:550
+}
+@media (max-width:760px){
+  :is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid{
+    gap:13px 11px
+  }
+  :is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .dimension-label{
+    min-height:41px;font-size:12.5px;line-height:1.22;gap:5px
+  }
+  :is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .dimension-label span{
+    font-size:10px;padding:4px 5px
+  }
+  :is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .dimension-grid .unit-input input{
+    font-size:20px
+  }
+}
