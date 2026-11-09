@@ -575,25 +575,23 @@ function updateLRangeHints(){
     const hint=$('corner-hint-'+key);if(!hint)continue;
     const bound=limits?.fields[key];
     if(!bound){
-      hint.textContent='Nur Vorschauwert · Herstellergrenzen noch offen.';
+      hint.textContent='Bitte zuerst die Grundmaße prüfen.';
     }else if(bound.max<bound.min){
       hint.textContent='Mit diesen Grundmaßen keine Abschrägung in der Zeichnung möglich.';
     }else{
-      const sketch='Zeichnung: '+mmToCmText(bound.min)+'–'+mmToCmText(bound.max)+' cm';
-      const supplier=bound.photoMax===null?''
-        :' · Speedmaster-Foto: 6–'+mmToCmText(bound.photoMax)+' cm';
-      hint.textContent=sketch+supplier+' · keine Fertigungsfreigabe';
+      const sketch='Möglich: '+mmToCmText(bound.min)+'–'+mmToCmText(bound.max)+' cm';
+      hint.textContent=sketch;
     }
   }
   const note=radiusWrap.querySelector('.a1-limit-note');
   if(!note)return;
   note.textContent=!limits
-    ?'Bitte erst gültige Grundmaße eingeben. Herstellergrenzen sind ungeprüft.'
+    ?'Bitte zuerst gültige Grundmaße eingeben.'
     :limits.photo
-      ?'Foto-Eingabewerte gelten nur für die gezeigten Grundmaße. Zeichnungsgrenzen können abweichen; keine Fertigungsfreigabe.'
+      ?'Die möglichen Eckmaße passen sich deinen Grundmaßen an.'
       :lTreatment==='round'
-        ?'Rundungswerte sind nur skizziert. Tatsächliche Speedmaster-Grenzen fehlen.'
-        :'Zeichnungsgrenzen folgen den Plattenmaßen. Speedmaster-Grenzen für andere Kombinationen sind noch offen.';
+        ?'Die möglichen Rundungen hängen von den gewählten Maßen ab.'
+        :'Die möglichen Eckmaße hängen von deinen Plattenmaßen ab.';
 }
 function updateCornerBounds(){
   if(product!=='straight'||straightSide==='none')return;
@@ -618,7 +616,7 @@ function updateCornerBounds(){
       :'Dafür bleibt zu wenig Platz. Andere Eckmaße oder Plattenmaße anpassen.';
   }
   radiusWrap.querySelector('.a1-limit-note').textContent=limits.enabled
-    ?'Konservative Vorschaugrenzen · Fertigungsprüfung bleibt erforderlich.'
+    ?'Die möglichen Eckmaße hängen von deinen Plattenmaßen ab.'
     :customerMeasureError(limits.reason);
 }
 function applyVisual(result){
@@ -634,15 +632,12 @@ function applyVisual(result){
   renderDrawing();
   summary(result.config);
   $('next').disabled=false;
-  $('warnings').textContent=customerMeasureError(result.geometry.warnings.join(' '));
-  $('shape-note').textContent=product==='straight'
-    ?(straightTreatment==='chamfer_continuous'
-       ?'Weiche Übergänge schematisch · Keine Fertigungsfreigabe.'
-       :'Planungsvorschau – Maße und Ausführung vor Bestellung prüfen.')
-    :(product==='l'?`${variants.l}: Kontur nach Speedmaster-Fotos · Stöße und Diagonalzusatzmaße vorläufig.`:((product==='u'&&result.geometry.version.startsWith('speedmaster-u'))?variants.u+': Grundkontur und Stoßrichtungen nach Speedmaster-Fotos · CNC/Versand offen.':`${variants[product]} noch nicht zeichnerisch belegt: allgemeine ${names[product]}-Skizze, ohne bestätigte Teile und Stoßkanten.`));
+  // Supplier verification warnings remain in geometry/quote data, not shopper copy.
+  $('warnings').textContent='';$('warnings').hidden=true;
+  $('shape-note').textContent='';$('shape-note').hidden=true;
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});throw new Error('Vorschauadapter fehlt. Kauf bleibt gesperrt.');},
-  onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Preisvorschau');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
+  onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Dein Preis');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
    onVisual:applyVisual,
   onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);retryPriceButton.hidden=result.quote.status!=='unavailable';
      if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase){
@@ -654,21 +649,21 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       $('price-note').textContent='';
       purchaseState(true);
      }else if(result.quote.status==='calculated-not-sale-approved'){
-      priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Unverbindlicher Bruttopreis${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);
+      priceDisplay(money(result.quote.totalGrossReferenceCents/100),`Preis zur Orientierung${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);
       $('tax-note').textContent=result.quote.taxNote?.includes('19 %')
         ?'inkl. 19 % MwSt. · Versand separat':'Versand separat';
       // Internal estimate warnings remain in backend status, not in the
       // compact customer summary; sales eligibility remains unchanged.
-      $('price-note').textContent='';
+      $('price-note').textContent='Derzeit nicht bestellbar.';
     }else if(['unpriced','unavailable'].includes(result.quote.status)){
-      priceDisplay('Preis offen','Unverbindliche Vorschau');$('tax-note').textContent='Kundenversand separat';
-      $('price-note').textContent=customerMeasureError(result.quote.message||'Für diese Kombination liegt noch keine Preisvorschau vor.');
-    }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Rechenbeispiel zum belegten Referenzpreis, unter der Annahme einer ungeteilten Platte. Noch kein verbindliches Angebot.';}
+      priceDisplay('Preis offen','Dein Preis');$('tax-note').textContent='Kundenversand separat';
+      $('price-note').textContent=customerMeasureError(result.quote.message||'Für diese Kombination kann derzeit kein Preis berechnet werden.');
+    }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Preisbeispiel · derzeit nicht bestellbar.';}
     else if(embedded&&result.quote.ruleVersion==='admin-visual-only'){
       // Local package preview deliberately has no admin-only WordPress PHP V3 endpoint.
-      priceDisplay(product==='straight'?'Im Shop-Test':'Noch offen',product==='straight'?'V3-Preisvorschau':'Preisvorschau');
+      priceDisplay('Preis wird geprüft','Dein Preis');
       $('tax-note').textContent='';
-      $('price-note').textContent=product==='straight'?'Im lokalen Test nicht verfügbar. Der echte V3-Preis wird im geschützten WordPress-Admin-Test berechnet.':'L-/U-Formen haben noch keine freigegebene Preisvorschau.';
+      $('price-note').textContent='Aktuell kann kein Preis angezeigt werden.';
     }
     else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
   },onError:error=>{
@@ -816,7 +811,7 @@ rebuild();showStep(0);refresh();
 
 if(embedded){
  shell.querySelector('#products').hidden=true;
- if(!adapters.purchase)$('cart').textContent='Bestellung gesperrt · Admin-Test';
+ if(!adapters.purchase)$('cart').textContent='Derzeit nicht bestellbar';
 }
 const handle={destroy(){if(disposed)return;disposed=true;controller.cancel();abort.abort();for(const d of shadow.querySelectorAll('dialog'))if(d.open)d.close();shadow.replaceChildren();mounts.delete(root);},updateContext(next){return mountConfigurator(root,{...context,...next},adapters);}};
 mounts.set(root,handle);return handle;
