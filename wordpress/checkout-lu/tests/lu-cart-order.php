@@ -201,4 +201,42 @@ $fields=HPZ_APL_WC_LU_Cart_Bridge::displayFields($checked['production']);
 luCheck($fields['B5']==='600 mm','L4 base B5 remains unchanged');
 luCheck($fields['Eckmaß B5']==='150 mm','L4 independent corner B5 in Woo order');
 
+
+// U inner-foot corners also require an EXACT signed configuration key. The
+// manufacturing text carries R1/R2 or L4/B4/L5/B5 independently of U seams.
+// Test proof is synthetic ONLY: does not authorize these U offers in Woo.
+$uEdited=rawLU('U3');
+$uEdited['uCorner']=['side'=>'both','treatment'=>'chamfer_square',
+    'parameters'=>['L4'=>'150','B4'=>'150','L5'=>'150','B5'=>'150']];
+$uProof=syntheticProof($uEdited);
+$uKey=$uProof['configurationKey'];$uLookup=fn($key)=>$key===$uKey?$uProof:null;
+$uCart=HPZ_APL_WC_LU_Cart_Bridge::issue($uEdited,$uLookup,$secret,$now);
+$uChecked=HPZ_APL_WC_LU_Cart_Bridge::inspect($uCart,1,$uLookup,$secret,$now);
+luCheck(($uChecked['production']['uCorner']['side']??null)==='both',
+    'signed U corner side preserved in production');
+$uFields=HPZ_APL_WC_LU_Cart_Bridge::displayFields($uChecked['production']);
+luCheck($uFields['Eckbearbeitung']==='Beidseitig · Eckige Abschrägung',
+    'U manual manufacturing text includes both inner feet');
+luCheck($uFields['Eckmaß L4']==='150 mm'&&$uFields['Eckmaß B4']==='150 mm'
+    &&$uFields['Eckmaß L5']==='150 mm'&&$uFields['Eckmaß B5']==='150 mm',
+    'all four U machining dimensions preserved');
+luCheck($uFields['Stoßvariante (Schema)']==='Links längs · Rechts quer',
+    'U3 seam variant remains independent from its corners');
+$uOrder=new DemoLUOrderItem();$uCheckout=HPZ_APL_WC_LU_Cart_Bridge::checkout(
+    $uCart,1,$uLookup,testCheckout(),$secret,$now);
+HPZ_APL_WC_LU_Cart_Bridge::writeOrderLine($uOrder,$uCheckout);
+luCheck(($uOrder->meta['_hpz_apl_manufacturing_v2']['uCorner']['parameters']['B5']??null)===150,
+    'U inner corner mm survive the HPOS item record');
+luFails(function()use($uCart,$uLookup,$secret,$now){
+    $wrong=$uCart;
+    $wrong[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY]['config']['uCorner']['parameters']['B4']=160;
+    HPZ_APL_WC_LU_Cart_Bridge::inspect($wrong,1,$uLookup,$secret,$now);
+},'tampering with U corner dimension invalidates HMAC');
+$uBase=rawLU('U3');$uBaseProof=syntheticProof($uBase);
+$uBaseKey=$uBaseProof['configurationKey'];
+$uBaseLookup=fn($k)=>$k===$uBaseKey?$uBaseProof:null;
+luFails(function()use($uCart,$uBaseLookup,$secret,$now){
+    HPZ_APL_WC_LU_Cart_Bridge::inspect($uCart,1,$uBaseLookup,$secret,$now);
+},'U basic supplier proof never reused for special inner-corner machining');
+
 echo "PASS $n synthetic L/U cart/order bridge tests (no live sale)\n";
