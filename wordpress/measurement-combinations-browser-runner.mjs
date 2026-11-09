@@ -8,6 +8,7 @@ const server=createPackageTestServer();
 await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
 const base='http://127.0.0.1:'+server.address().port;
 let browser;
+const collisionsFound=[];
 try{
  browser=await chromium.launch({headless:true,args:['--disable-dev-shm-usage']});
  for(const width of [1366,390]){
@@ -75,7 +76,10 @@ try{
          view:svg.getAttribute('viewBox'),path:svg.querySelector('.apl-surface')?.getAttribute('d')??''};
      });
      assert.equal(data.overflow<=1,true,family+' '+label+' @'+width+' unexpected horizontal overflow');
-     assert.deepEqual(data.collisions,[],family+' '+label+' @'+width+' labels collide: '+JSON.stringify(data.labels));
+     if(data.collisions.length){
+       const issue=family+' '+label+' @'+width+' '+JSON.stringify(data.collisions)+' '+JSON.stringify(data.labels);
+       collisionsFound.push(issue);console.log('MEASURE COLLISION '+issue);
+     }
      return data;
    };
    if(family==='straight'){
@@ -123,6 +127,7 @@ try{
    await page.close();
   }
  }
+ assert.deepEqual(collisionsFound,[],'Unexpected visible measurement label intersections');
 }finally{
  await browser?.close();
  await new Promise(resolve=>{server.close(resolve);server.closeAllConnections();});
