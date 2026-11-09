@@ -59,7 +59,7 @@ test('L joint badges and selection live ONLY in Aufteilung, never in customer dr
   assert.equal((parts.match(/class="apl-seam-badge"/g)||[]).length,expected.length,shape);
   assert.match(parts,/data-seam-id="seam-1" data-selected="true"/);
   if(expected.length===2)assert.match(parts,/data-seam-id="seam-2" data-selected="false"/);
-  assert.match(parts,/illustration-only|Ungepr.fte Vorschau/);
+  assert.match(parts,/illustration-only|Schematische Darstellung zur Orientierung/);
   assert.doesNotMatch(parts,/class="apl-measure"/);
  }
 });

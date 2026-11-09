@@ -91,7 +91,7 @@ test('parts view shows numbered, selectively highlighted regions, but no cutting
   assert.equal((parts.match(/class="apl-part-number"/g)||[]).length,3);
   assert.equal((parts.match(/class="apl-preview-seam"/g)||[]).length,2);
   assert.doesNotMatch(parts,/class="apl-measure"/);
-  assert.match(parts,/Ungepr.fte Vorschau, keine Fertigungszeichnung/);
+  assert.match(parts,/Schematische Darstellung zur Orientierung; keine Fertigungszeichnung/);
   assert.equal(g.joints,null);
   assert.equal(g.shippingParts,null);
 });
