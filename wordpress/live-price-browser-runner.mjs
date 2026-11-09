@@ -85,7 +85,12 @@ try{
     assert.equal(immediate.busy,'false');
     assert.equal(immediate.nextDisabled,false,'Customer should navigate while price pending');
     assert.equal(immediate.cartDisabled,true);
-    assert.equal(immediate.rightRadius,true);
+    assert.equal(immediate.rightRadius,false,'Step 1 intentionally hides all dimension callouts');
+    await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]').shadowRoot
+      .querySelector('#steps button:nth-child(2)').click());
+    assert.equal(await page.evaluate(()=>!!document.querySelector('[data-hpz-apl-preview]')
+      .shadowRoot.querySelector('#drawing [data-field="R2"]')),true,
+      'Step 2 restores the matching right radius ruler');
 
     // Rapid choice changes: server replies are slow and may arrive out of
     // order. Drawing and summary must always represent the latest selection.
