@@ -106,7 +106,28 @@ try{
   assert.equal(error.nextDisabled,true);
   assert.match(error.summary,/Maße/);
   assert.ok(error.horizontalOverflow<=1,'no overflow '+shape+'/'+width);
-  if(shape==='L4')await page.screenshot({path:'dist/last-mile-L4-'+width+'.png',fullPage:true});
+  if(shape==='L4'){
+    // An invalid step-2 number must not trap the shopper at step 1.
+    await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]')
+      .shadowRoot.getElementById('back').click());
+    const back=await page.evaluate(()=>{
+      const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+      return {step:s.querySelector('.hpz-apl').dataset.currentStep,
+        nextDisabled:s.getElementById('next').disabled};
+    });
+    assert.equal(back.step,'0');
+    assert.equal(back.nextDisabled,false,'allow returning to measure editing without bypassing validation');
+    await page.evaluate(()=>document.querySelector('[data-hpz-apl-preview]')
+      .shadowRoot.getElementById('next').click());
+    const forward=await page.evaluate(()=>{
+      const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+      return {step:s.querySelector('.hpz-apl').dataset.currentStep,
+        nextDisabled:s.getElementById('next').disabled};
+    });
+    assert.equal(forward.step,'1');
+    assert.equal(forward.nextDisabled,true,'next step still guarded by invalid measure');
+    await page.screenshot({path:'dist/last-mile-L4-'+width+'.png',fullPage:true});
+  }
   await page.evaluate(fieldName=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot,field=s.getElementById(fieldName);
     field.focus();field.value='15';field.dispatchEvent(new Event('input',{bubbles:true}));
