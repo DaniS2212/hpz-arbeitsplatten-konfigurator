@@ -201,7 +201,7 @@ final class HPZ_APL_Admin_Preview {
                 .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_add')).'"'
                 .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_add_'.$id)).'"';
         }
-        $notice=$adminTest?'<p class="hpz-apl-test-notice">Admin-Testvorschau · Kein Angebot und keine Bestellung. L-/U-Stoßstellen sind Bildbeobachtungen, keine CNC-Freigabe.</p>':'';
+        $notice=$adminTest?'<p class="hpz-apl-test-notice">Administratoransicht · Bestellung derzeit nicht möglich.</p>':'';
         return $css.'<section class="hpz-apl-admin-preview" id="hpz-apl-konfigurator" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
     /**
