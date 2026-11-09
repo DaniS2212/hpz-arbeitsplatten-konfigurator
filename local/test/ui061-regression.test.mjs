@@ -44,11 +44,10 @@ test('customer summary is concise, not supplier-coded, and keeps cart disabled',
   for(const required of [
     'function summary(config,invalid=false){',
     "['Maße',",
-    "['Material',",
-    "['Dekor',",
+    "['Oberfläche',",
     "['Ecken',",
-    "['Links',",
-    "['Rechts',",
+    "['Längen',",
+    "['Breiten',",
     'mmToCmText(config.dimensions.L1)',
     "summary(null);"
   ])assert.ok(component.includes(required),required);
