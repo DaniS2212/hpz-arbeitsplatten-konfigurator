@@ -291,6 +291,7 @@ function updateFamilyCopy(){
  $('parts-note').hidden=true;
  const viewTabs=$('view-plan').parentElement;
  viewTabs.hidden=true;viewTabs.setAttribute('aria-hidden','true');
+ viewTabs.parentElement.hidden=true;
  $('view-plan').tabIndex=-1;$('view-parts').tabIndex=-1;
  $('view-plan').setAttribute('aria-pressed','true');
  $('view-parts').setAttribute('aria-pressed','false');
