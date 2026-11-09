@@ -1,7 +1,7 @@
 import {catalog} from '/core/config.mjs';
 import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions,lCornerPreviewLimits} from '../core/l-geometry.mjs';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from '/core/customer-measures.mjs';
-import {firstMeasureIssue} from '/core/measure-feedback.mjs';
+import {firstMeasureIssue,firstCornerIssue,isUnfinishedCmEntry} from '/core/measure-feedback.mjs';
 import {svg} from '/core/geometry.mjs';
 import {createPreviewController} from '/latest.mjs';
 import {template} from './component-template.mjs';
@@ -199,7 +199,7 @@ function renderRadiusInputs(){
    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l||u?'Breite':'Tiefe';
    const cornerId=l||u?`corner-${key}`:`dim-${key}`;
    label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
-   input.id=cornerId;input.type='text';input.inputMode='decimal';
+   input.id=cornerId;input.type='text';input.inputMode='numeric';
    input.value=l?lCornerValues[key]:u?uCornerValues[key]:radiusValues[key];
    input.setAttribute('aria-describedby',l||u?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
    input.setAttribute('aria-label',property+' '+place+' ('+key+')');
@@ -209,6 +209,7 @@ function renderRadiusInputs(){
      refresh();
    });
    input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l||u?`corner-${key}`:key);});
+    input.addEventListener('blur',()=>{if(shell.dataset.measureEditing==='true')refresh();});
    const hint=element('p','microcopy');hint.id=l||u?`corner-hint-${key}`:`hint-${key}`;
    const inline=element('p','field-error');inline.id=l||u?`corner-field-error-${key}`:`field-error-${key}`;
    inline.hidden=true;inline.setAttribute('aria-live','polite');
@@ -350,6 +351,7 @@ function rebuild(){
       }
       refresh();});
     input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(id);});
+    input.addEventListener('blur',()=>{if(shell.dataset.measureEditing==='true')refresh();});
     const inline=element('p','field-error');inline.id='field-error-'+id;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);target.append(wrap);
   };
@@ -496,7 +498,7 @@ function renderSeamChoices(){
        closeInlineEditor();
      }
    });
-   input.addEventListener('blur',()=>closeInlineEditor());
+   input.addEventListener('blur',()=>{closeInlineEditor();if(shell.dataset.measureEditing==='true')refresh();});
    input.focus({preventScroll:true});input.select();
  }
 function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
@@ -622,7 +624,7 @@ function updateCornerBounds(){
 function applyVisual(result){
   if(disposed)return;
   valid=true;
-  shell.dataset.measureInvalid='false';invalidMeasureKey=null;
+  shell.dataset.measureInvalid='false';shell.dataset.measureEditing='false';invalidMeasureKey=null;
   lastGeometry=result.geometry;
   clearFieldErrors();
   $('drawing-status').hidden=true;
@@ -637,7 +639,7 @@ function applyVisual(result){
   $('shape-note').textContent='';$('shape-note').hidden=true;
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});const response=await fetch('/api/preview',{signal,method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw new Error(result.error);return result;},
-  onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Dein Preis');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
+  onPending:()=>{if(disposed)return;formError.hidden=true;clearFieldErrors();shell.dataset.measureEditing='false';retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Dein Preis');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
    onVisual:applyVisual,
   onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);retryPriceButton.hidden=result.quote.status!=='unavailable';
      if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase){
@@ -670,22 +672,35 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     if(disposed)return;
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
-    const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment});
-    const rawMessage=customerMeasureError(error).replace(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])): In dieser Konfiguration ([0-9]+(?:,[0-9]+)?)–([0-9]+(?:,[0-9]+)?) cm zulässig.*$/, '$1: Erlaubt $2–$3 cm.');
-    const match=rawMessage.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
-    const activeField=/^(?:corner-)?(?:L[1-6]|B[1-6]|R[12])$/.test(active)
-      ?$(active.startsWith('corner-')?active:'dim-'+active):null;
-    let activeTextInvalid=false;
-    if(activeField){try{cmInputToMmText(activeField.value);}catch{activeTextInvalid=true;}}
-    const message=issue?.message??(activeTextInvalid
-      ?active.replace(/^corner-/,'')+': Bitte eine Zahl in cm eingeben.'
-      :rawMessage);
+    const corners=product==='straight'
+      ?{side:straightSide,treatment:straightTreatment,values:radiusValues}
+      :product==='l'
+        ?{side:lSide,treatment:lTreatment,values:lCornerValues}
+        :{side:uSide,treatment:uTreatment,values:uCornerValues};
+    const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment})
+      ??firstCornerIssue(product,variants[product],currentDimensions(),{...corners,material,decor});
+    const field=issue?fieldForMeasure(issue.key):null;
+    const inlineActive=!!issue&&inlineKey===visibleMeasureKey(issue.key)
+      &&inlineEditor.contains(shadow.activeElement);
+    const editing=!!issue&&(shadow.activeElement===field||inlineActive);
+    const rawValue=inlineActive?inlineEditor.querySelector('input')?.value:field?.value;
+    const unfinished=!!issue&&editing&&isUnfinishedCmEntry(rawValue,issue);
     clearFieldErrors();
-    const invalidKey=issue?.key??match?.[1]??(activeTextInvalid?active:null);
-    invalidMeasureKey=invalidKey?visibleMeasureKey(invalidKey):null;
-    if(invalidKey)setFieldError(invalidKey,message);
-    // Exactly one visible error notice; the last valid contour is dimmed.
-    formError.textContent=message;formError.hidden=false;
+    invalidMeasureKey=issue?visibleMeasureKey(issue.key):null;
+    shell.dataset.measureEditing=String(unfinished);
+    if(issue&&!unfinished){
+      const message=issue.message;
+      setFieldError(issue.key,message);
+      // One short explanation instead of technical corner-* / preview / supplier messages.
+      formError.textContent=message;formError.hidden=false;
+    }else if(!issue){
+      const message='Diese Konfiguration konnte gerade nicht aktualisiert werden. Bitte erneut versuchen.';
+      formError.textContent=message;formError.hidden=false;
+    }else{
+      // A partial number (for example 1 before 15) is not yet a finished entry.
+      // Price and navigation stay blocked without a red warning while typing.
+      formError.textContent='';formError.hidden=true;
+    }
     shell.dataset.measureInvalid='true';
     $('drawing').setAttribute('aria-busy','false');
     if(lastGeometry)renderDrawing();
@@ -699,6 +714,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
   }
 });
 function refresh(){
+  formError.hidden=true;
   purchaseState(false);
   shell.style.setProperty('--hpz-decor-image',`url("${decorImageUrl(decor)}")`);
   shell.dataset.corner=corner;
