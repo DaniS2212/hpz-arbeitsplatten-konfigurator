@@ -32,21 +32,21 @@ try{
    assert.equal(info.summaryCount,1);assert.equal(info.cartDisabled,true);assert.equal(info.productCardsHidden,true);
    if(kind==='l'){
      // The package test server loads the component stylesheet asynchronously.
-     // A drawn SVG can become ready before the 4/2-column CSS is applied.
+     // A drawn SVG can become ready before the shared four-column CSS is applied.
      // Wait for the target layout rather than asserting on the early 1-column
      // browser default; a genuinely broken stylesheet still times out/fails.
      await page.waitForFunction(expected=>{
        const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
        const opts=s?.querySelector('.a1-side-options');
        return !!opts&&getComputedStyle(opts).gridTemplateColumns.split(' ').filter(Boolean).length===expected;
-     },width>=761?4:2,{timeout:25000});
+     },4,{timeout:25000});
      const cards=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
        const root=el.shadowRoot;
        const opts=root.querySelector('.a1-side-options');
        const svg=opts.querySelector('.a1-side-card svg');
        return {cols:getComputedStyle(opts).gridTemplateColumns.split(' ').filter(Boolean).length,svgWidth:svg.getBoundingClientRect().width};
      });
-     assert.equal(cards.cols,width>=761?4:2,'L side cards must match straight UX grid');
+     assert.equal(cards.cols,4,'L side cards match U and Straight with four columns on desktop and mobile');
      assert.ok(cards.svgWidth<=85,'L line icons must stay compact like straight');
      assert.deepEqual(info.measures,['dim-L1','dim-L2','dim-B1','dim-B2']);
      assert.ok(info.labels.some(x=>x.includes('Schenkelbreite links')));
