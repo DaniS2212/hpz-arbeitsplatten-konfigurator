@@ -177,7 +177,7 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             && $d['B1']>=600 && $d['B1']<=700) {
             $measurements=[
                 'APL17.5'=>[600=>52876,650=>53433,700=>53990],
-                'APL38'=>[600=>78569,650=>77640,700=>76712],
+                'APL38'=>[600=>78569,650=>77640,675=>76763,700=>76712],
             ];
             if (!isset($measurements[$material])) return null;
             $prices=$measurements[$material];
@@ -186,12 +186,18 @@ final class HPZ_APL_LU_Shop_Ratebook_12
                 $supplier=$prices[$width];
                 $basis='confirmed-net-reference';
             } else {
-                $lower=$width<650?600:650;
-                $higher=$width<650?650:700;
-                $supplier=$prices[$lower]+self::ceilRatio(
-                    ($prices[$higher]-$prices[$lower])*($width-$lower),
-                    $higher-$lower
-                );
+                $keys=array_keys($prices);
+                sort($keys,SORT_NUMERIC);
+                foreach ($keys as $index=>$lower) {
+                    $higher=$keys[$index+1]??null;
+                    if ($higher!==null && $lower<$width && $width<$higher) {
+                        $supplier=$prices[$lower]+self::ceilRatio(
+                            ($prices[$higher]-$prices[$lower])*($width-$lower),
+                            $higher-$lower
+                        );
+                        break;
+                    }
+                }
             }
             $label='U1 B1 600..700mm; L1=2500 L2=1700 L3=1800 B2/B3=600mm';
         } elseif ($shape==='L3' && $material==='APL17.5' && count($d)===6
@@ -199,8 +205,20 @@ final class HPZ_APL_LU_Shop_Ratebook_12
             && ($d['B1']??null)===600 && ($d['B2']??null)===600
             && is_int($d['B3']??null) && ($d['B4']??null)===$d['B3']
             && $d['B3']>=900 && $d['B3']<=1000) {
-            $supplier=52329+self::ceilRatio(1169*($d['B3']-900),100);
-            if ($d['B3']===900||$d['B3']===1000) $basis='confirmed-net-reference';
+            $anchors=[900=>52329,950=>52889,1000=>53498];
+            $w=$d['B3'];
+            if(isset($anchors[$w])) {
+                $supplier=$anchors[$w];
+                $basis='confirmed-net-reference';
+            }elseif($w<950) {
+                $supplier=$anchors[900]+self::ceilRatio(
+                    ($anchors[950]-$anchors[900])*($w-900),50
+                );
+            }else {
+                $supplier=$anchors[950]+self::ceilRatio(
+                    ($anchors[1000]-$anchors[950])*($w-950),50
+                );
+            }
             $label='L3 B3/B4 coupled 900..1000mm; L1=2500 L2=2000 B1/B2=600mm';
         } elseif ($shape==='L4' && $material==='APL17.5' && count($d)===7
             && ($d['L1']??null)===2500 && ($d['L2']??null)===2000
