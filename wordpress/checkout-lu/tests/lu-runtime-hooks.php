@@ -7,7 +7,6 @@ require_once __DIR__.'/../../hpz-apl-admin-preview/includes/decor-catalog.php';
 require_once __DIR__.'/../../../pricing-v3/HPZ_APL_Price_V3.php';
 require_once __DIR__.'/../../../pricing-v3/HPZ_APL_LU_Price_Readiness.php';
 require_once __DIR__.'/../../checkout-v08/HPZ_APL_WC_Cart_Bridge.php';
-require_once __DIR__.'/../../sale-launch-090/HPZ_APL_WP_Freight_190.php';
 require_once __DIR__.'/../../sale-launch-090/HPZ_APL_WP_Woo_Context.php';
 require_once __DIR__.'/../HPZ_APL_WC_LU_Cart_Bridge.php';
 require_once __DIR__.'/../HPZ_APL_WP_LU_Runtime.php';
@@ -17,7 +16,6 @@ function luOk($yes,string $label){global $count;$count++;if(!$yes)throw new Runt
 $actions=[];$filters=[];$notices=[];$options=[
  'hpz_apl_lu_sale_v1'=>['enabled'=>true,'manual_supplier_handoff_verified'=>true,'woocommerce_checkout_verified'=>true],
  'hpz_apl_lu_verified_proofs'=>[],
- 'hpz_apl_freight_190_v1'=>['confirmed'=>true,'rate_ids'=>['test_rate:1'],'minimum_cents'=>1000],
  'woocommerce_prices_include_tax'=>'no','woocommerce_price_num_decimals'=>2
 ];
 function add_action($name,$fn,$priority=10,$args=1){global $actions;$actions[$name][]=$fn;}
