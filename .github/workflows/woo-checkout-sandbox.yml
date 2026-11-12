@@ -1,0 +1,54 @@
+name: WooCommerce checkout sandbox (no live orders)
+on:
+  pull_request:
+    paths:
+      - 'wordpress/**'
+      - 'pricing-v3/**'
+      - 'build-plugin.mjs'
+      - '.github/workflows/woo-checkout-sandbox.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolated-woocommerce:
+    name: Real Woo cart, VAT, shipping, metadata in ephemeral WordPress
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: hpz_test
+          MYSQL_USER: hpz
+          MYSQL_PASSWORD: hpz
+          MYSQL_ROOT_PASSWORD: root_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli, mbstring, xml, zip, curl, intl
+      - name: Install isolated WordPress + WooCommerce (no production secrets)
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /tmp/hpz-wp-cli.phar
+          mkdir -p /tmp/hpz-woo-test
+          php /tmp/hpz-wp-cli.phar core download --path=/tmp/hpz-woo-test --quiet
+          php /tmp/hpz-wp-cli.phar config create --path=/tmp/hpz-woo-test --dbname=hpz_test --dbuser=hpz --dbpass=hpz --dbhost=127.0.0.1:3306 --quiet
+          php /tmp/hpz-wp-cli.phar core install --path=/tmp/hpz-woo-test --url=http://localhost:8080 --title=HPZ-CI --admin_user=ci-admin --admin_password=only-in-ci --admin_email=ci@example.test --skip-email --quiet
+          php /tmp/hpz-wp-cli.phar plugin install woocommerce --activate --path=/tmp/hpz-woo-test --quiet
+          ln -s "$GITHUB_WORKSPACE/wordpress/hpz-apl-admin-preview" /tmp/hpz-woo-test/wp-content/plugins/hpz-apl-admin-preview
+          php /tmp/hpz-wp-cli.phar plugin activate hpz-apl-admin-preview --path=/tmp/hpz-woo-test --quiet
+      - name: Exercise real Woo cart/tax/shipping/metadata without order creation
+        shell: bash
+        run: |
+          set -euo pipefail
+          php /tmp/hpz-wp-cli.phar eval-file "$GITHUB_WORKSPACE/wordpress/tests/woo-sandbox-checkout.php" --path=/tmp/hpz-woo-test
