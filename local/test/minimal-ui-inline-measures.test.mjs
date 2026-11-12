@@ -135,7 +135,7 @@ test('Every customer dimension error and inline overlay uses concise German labe
  assert.match(c,/displayKey=inlineKey\.replace\(\/\^corner-\//);
  assert.match(c,/function activateMeasure\(key\)/);
  assert.match(c,/dataset\.measureId===inlineAnchor/);
- assert.match(c,/invalidMeasureKey=invalidKey\?visibleMeasureKey\(invalidKey\):null/);
+ assert.match(c,/invalidMeasureKey=issue\?visibleMeasureKey\(issue.key\):null/);
  assert.match(c,/\$\('price-note'\)\.textContent='';/);
  assert.doesNotMatch(c,/customerMeasureError\(result\.quote\.availabilityNote\)/);
  const feedback=await read('../core/measure-feedback.mjs');

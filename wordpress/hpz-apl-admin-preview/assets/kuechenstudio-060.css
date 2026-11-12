@@ -589,6 +589,7 @@
  color:#8a361f;border-radius:10px;line-height:1.45!important;
 }
 .hpz-apl[data-measure-invalid="true"] #drawing svg{opacity:.48;transition:opacity .15s}
+.hpz-apl[data-measure-editing="true"] #drawing svg{opacity:.84}
 .hpz-apl .stage{position:relative}
 .hpz-apl #drawing .apl-measure-label{cursor:pointer;pointer-events:all}
 .hpz-apl #drawing .apl-measure[role="button"]{cursor:pointer;outline:none}

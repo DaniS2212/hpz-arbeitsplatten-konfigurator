@@ -1,7 +1,7 @@
 import {catalog} from './core/config.js?v=1.0.3';
 import {lCornerKeys,defaultLCorner,lDimensionKeys,lVisibleDimensionKeys,lDefaultDimensions,lCornerPreviewLimits} from './core/l-geometry.js?v=1.0.3';
 import {cmInputToMmText,mmToCmText,cmRange,customerMeasureError} from './core/customer-measures.js?v=1.0.3';
-import {firstMeasureIssue} from './core/measure-feedback.js?v=1.0.3';
+import {firstMeasureIssue,firstCornerIssue,isUnfinishedCmEntry} from './core/measure-feedback.js?v=1.0.3';
 import {svg} from './core/geometry.js?v=1.0.3';
 import {createPreviewController} from './latest.js?v=1.0.3';
 import {template} from './component-template.js?v=1.0.3';
@@ -199,7 +199,7 @@ function renderRadiusInputs(){
    const property=key.startsWith('R')?'Radius':key.startsWith('L')?'Länge':l||u?'Breite':'Tiefe';
    const cornerId=l||u?`corner-${key}`:`dim-${key}`;
    label.htmlFor=cornerId;label.textContent=property;label.append(element('span','',key));
-   input.id=cornerId;input.type='text';input.inputMode='decimal';
+   input.id=cornerId;input.type='text';input.inputMode='numeric';
    input.value=l?lCornerValues[key]:u?uCornerValues[key]:radiusValues[key];
    input.setAttribute('aria-describedby',l||u?`corner-hint-${key} corner-field-error-${key}`:`hint-${key} field-error-${key}`);
    input.setAttribute('aria-label',property+' '+place+' ('+key+')');
@@ -209,6 +209,7 @@ function renderRadiusInputs(){
      refresh();
    });
    input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(l||u?`corner-${key}`:key);});
+    input.addEventListener('blur',()=>{if(shell.dataset.measureEditing==='true')refresh();});
    const hint=element('p','microcopy');hint.id=l||u?`corner-hint-${key}`:`hint-${key}`;
    const inline=element('p','field-error');inline.id=l||u?`corner-field-error-${key}`:`field-error-${key}`;
    inline.hidden=true;inline.setAttribute('aria-live','polite');
@@ -278,7 +279,7 @@ function placeSummary(){
   [...$('steps').children].forEach((e,i)=>{if(i===step)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current');});
   $('back').disabled=step===0;$('back').style.visibility=step===0?'hidden':'visible';
   $('next').innerHTML=step===0?'Weiter zu den Maßen <span>→</span>':step===1?'Weiter zur Oberfläche <span>→</span>':'Konfiguration prüfen <span>↓</span>';
-  $('next').disabled=!valid;
+  $('next').disabled=!valid&&step!==0;
   // Stage 1 draws only the worktop contour and selected seams/corners.
   if(lastGeometry)renderDrawing();
 }
@@ -350,6 +351,7 @@ function rebuild(){
       }
       refresh();});
     input.addEventListener('focus',()=>{if(inlineKey)closeInlineEditor();activateMeasure(id);});
+    input.addEventListener('blur',()=>{if(shell.dataset.measureEditing==='true')refresh();});
     const inline=element('p','field-error');inline.id='field-error-'+id;inline.hidden=true;inline.setAttribute('aria-live','polite');
     unit.append(input,element('span','','cm'));wrap.append(label,unit,inline);target.append(wrap);
   };
@@ -496,7 +498,7 @@ function renderSeamChoices(){
        closeInlineEditor();
      }
    });
-   input.addEventListener('blur',()=>closeInlineEditor());
+   input.addEventListener('blur',()=>{closeInlineEditor();if(shell.dataset.measureEditing==='true')refresh();});
    input.focus({preventScroll:true});input.select();
  }
 function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
@@ -622,7 +624,7 @@ function updateCornerBounds(){
 function applyVisual(result){
   if(disposed)return;
   valid=true;
-  shell.dataset.measureInvalid='false';invalidMeasureKey=null;
+  shell.dataset.measureInvalid='false';shell.dataset.measureEditing='false';invalidMeasureKey=null;
   lastGeometry=result.geometry;
   clearFieldErrors();
   $('drawing-status').hidden=true;
@@ -637,7 +639,7 @@ function applyVisual(result){
   $('shape-note').textContent='';$('shape-note').hidden=true;
 }
 const controller=createPreviewController({request:async (body,{signal,onVisual})=>{if(adapters.preview)return adapters.preview(body,{signal,onVisual});throw new Error('Vorschauadapter fehlt. Kauf bleibt gesperrt.');},
-  onPending:()=>{if(disposed)return;retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Dein Preis');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
+  onPending:()=>{if(disposed)return;formError.hidden=true;clearFieldErrors();shell.dataset.measureEditing='false';retryPriceButton.hidden=true;valid=false;purchaseState(false);$('next').disabled=true;$('drawing').setAttribute('aria-busy',String(!lastGeometry));$('error').hidden=true;priceDisplay('Wird berechnet …','Dein Preis');$('tax-note').textContent='';$('price-note').textContent='';if(!lastGeometry)summary(null);},
    onVisual:applyVisual,
   onResult:result=>{if(disposed)return;applyVisual(result);purchaseState(false);retryPriceButton.hidden=result.quote.status!=='unavailable';
      if(result.quote.status==='calculated-ready-for-cart'&&result.quote.purchasable===true&&embedded&&adapters.purchase){
@@ -657,7 +659,7 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       $('price-note').textContent='Derzeit nicht bestellbar.';
     }else if(['unpriced','unavailable'].includes(result.quote.status)){
       priceDisplay('Preis offen','Dein Preis');$('tax-note').textContent='Kundenversand separat';
-      $('price-note').textContent=customerMeasureError(result.quote.message||'Für diese Kombination kann derzeit kein Preis berechnet werden.');
+      $('price-note').textContent='Für diese Auswahl ist momentan kein Preis verfügbar. Bitte andere Maße wählen oder uns kontaktieren.';
     }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Preisbeispiel · derzeit nicht bestellbar.';}
     else if(embedded&&result.quote.ruleVersion==='admin-visual-only'){
       // Local package preview deliberately has no admin-only WordPress PHP V3 endpoint.
@@ -665,27 +667,41 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       $('tax-note').textContent='';
       $('price-note').textContent='Aktuell kann kein Preis angezeigt werden.';
     }
-    else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent=result.quote.referenceMatched?'Preisreferenz vorhanden. Für den Gesamtpreis fehlen noch die bestätigte Teileaufteilung und Versandprüfung.':'Diese Kombination wird noch geprüft. Wir zeigen keinen geschätzten Bestellpreis.';}
+    else {priceDisplay('Preis auf Anfrage','Dein Preis');$('tax-note').textContent='Noch kein bestätigter Gesamtpreis';$('price-note').textContent='Für diese Kombination ist momentan kein verbindlicher Preis verfügbar. Bitte andere Maße wählen oder uns kontaktieren.';}
   },onError:error=>{
     if(disposed)return;
     retryPriceButton.hidden=true;
     valid=false;purchaseState(false);
-    const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment});
-    const rawMessage=customerMeasureError(error).replace(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])): In dieser Konfiguration ([0-9]+(?:,[0-9]+)?)–([0-9]+(?:,[0-9]+)?) cm zulässig.*$/, '$1: Erlaubt $2–$3 cm.');
-    const match=rawMessage.match(/^((?:corner-)?(?:L[1-6]|B[1-6]|R[12])):\s*/);
-    const activeField=/^(?:corner-)?(?:L[1-6]|B[1-6]|R[12])$/.test(active)
-      ?$(active.startsWith('corner-')?active:'dim-'+active):null;
-    let activeTextInvalid=false;
-    if(activeField){try{cmInputToMmText(activeField.value);}catch{activeTextInvalid=true;}}
-    const message=issue?.message??(activeTextInvalid
-      ?active.replace(/^corner-/,'')+': Bitte eine Zahl in cm eingeben.'
-      :rawMessage);
+    const corners=product==='straight'
+      ?{side:straightSide,treatment:straightTreatment,values:radiusValues}
+      :product==='l'
+        ?{side:lSide,treatment:lTreatment,values:lCornerValues}
+        :{side:uSide,treatment:uTreatment,values:uCornerValues};
+    const issue=firstMeasureIssue(product,variants[product],currentDimensions(),{material,straightTreatment})
+      ??firstCornerIssue(product,variants[product],currentDimensions(),{...corners,material,decor});
+    retryPriceButton.hidden=!!issue;
+    const field=issue?fieldForMeasure(issue.key):null;
+    const inlineActive=!!issue&&inlineKey===visibleMeasureKey(issue.key)
+      &&inlineEditor.contains(shadow.activeElement);
+    const editing=!!issue&&(shadow.activeElement===field||inlineActive);
+    const rawValue=inlineActive?inlineEditor.querySelector('input')?.value:field?.value;
+    const unfinished=!!issue&&editing&&isUnfinishedCmEntry(rawValue,issue);
     clearFieldErrors();
-    const invalidKey=issue?.key??match?.[1]??(activeTextInvalid?active:null);
-    invalidMeasureKey=invalidKey?visibleMeasureKey(invalidKey):null;
-    if(invalidKey)setFieldError(invalidKey,message);
-    // Exactly one visible error notice; the last valid contour is dimmed.
-    formError.textContent=message;formError.hidden=false;
+    invalidMeasureKey=issue?visibleMeasureKey(issue.key):null;
+    shell.dataset.measureEditing=String(unfinished);
+    if(issue&&!unfinished){
+      const message=issue.message;
+      setFieldError(issue.key,message);
+      // One short explanation instead of technical corner-* / preview / supplier messages.
+      formError.textContent=message;formError.hidden=false;
+    }else if(!issue){
+      const message='Diese Konfiguration konnte gerade nicht aktualisiert werden. Bitte erneut versuchen.';
+      formError.textContent=message;formError.hidden=false;
+    }else{
+      // A partial number (for example 1 before 15) is not yet a finished entry.
+      // Price and navigation stay blocked without a red warning while typing.
+      formError.textContent='';formError.hidden=true;
+    }
     shell.dataset.measureInvalid='true';
     $('drawing').setAttribute('aria-busy','false');
     if(lastGeometry)renderDrawing();
@@ -695,10 +711,11 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
     summary(null,true);
     priceDisplay('–','Maße prüfen');$('tax-note').textContent='';
     $('price-note').textContent='';
-    $('next').disabled=true;
+    $('next').disabled=step!==0;
   }
 });
 function refresh(){
+  formError.hidden=true;
   purchaseState(false);
   shell.style.setProperty('--hpz-decor-image',`url("${decorImageUrl(decor)}")`);
   shell.dataset.corner=corner;
@@ -784,7 +801,7 @@ $('cart').addEventListener('click',async ()=>{
   }
 });
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
-$('next').addEventListener('click',()=>{if(!valid)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
+$('next').addEventListener('click',()=>{if(!valid&&step!==0)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';if(view==='parts')closeInlineEditor();$('measure-toggle').hidden=true;$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
