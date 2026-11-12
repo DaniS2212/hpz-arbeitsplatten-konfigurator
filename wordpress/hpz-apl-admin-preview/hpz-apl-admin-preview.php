@@ -333,6 +333,7 @@ final class HPZ_APL_Admin_Preview {
     }
     public static function settings() {
         register_setting('hpz_apl_preview', self::OPTION, array('type'=>'array', 'sanitize_callback'=>array(__CLASS__, 'sanitize')));
+        register_setting('hpz_apl_freight_190', HPZ_APL_WP_Freight_190::OPTION, array('type'=>'array', 'sanitize_callback'=>array('HPZ_APL_WP_Freight_190','sanitize')));
     }
     public static function page() {
         if (!current_user_can('manage_options')) return;
@@ -345,7 +346,55 @@ final class HPZ_APL_Admin_Preview {
         echo '<hr><h2>Gerade Arbeitsplatte verkaufen</h2>';
         echo '<p>Erst nach dem Warenkorb- und Checkout-Test einschalten. Voraussetzung: Produkt 1000083 ist veröffentlicht. Es sind keine einzelnen Speedmaster-Freigaben nötig.</p>';
         echo '<p><label><input type="checkbox" name="'.esc_attr(self::OPTION).'[sale_enabled]" value="1" '.checked($o['sale_enabled'], true, false).'> Verkauf der geraden Arbeitsplatte aktivieren</label></p>';
-        submit_button(); echo '</form></div>';
+        submit_button(); echo '</form>';
+        // Read-only release truth, from this exact connected WooCommerce shop.
+        // Never infer a real checkout from a synthetic GitHub test.
+        echo '<hr><h2>Verkaufsstart – tatsächlicher Shopstatus</h2>';
+        echo '<p>Die folgenden Werte stammen unmittelbar aus WooCommerce. Die Preisregressionen ersetzen keine reale Checkout-Bestätigung.</p>';
+        echo '<table class="widefat striped" style="max-width:860px"><thead><tr><th>Produkt</th><th>Veröffentlichung</th><th>SKU/Steuer/Produkttyp</th></tr></thead><tbody>';
+        foreach (self::PRODUCTS as $id=>$type) {
+            $product=function_exists('wc_get_product')?wc_get_product($id):false;
+            $name=['straight'=>'Gerade','l'=>'L-Form','u'=>'U-Form'][$type];
+            $published=is_object($product)&&method_exists($product,'get_status')&&$product->get_status()==='publish';
+            $status=is_object($product)&&method_exists($product,'get_status')?$product->get_status():'fehlt';
+            $expected=$type==='straight'?'HPZ-APL-GERADE-2026':($type==='l'?'HPZ-APL-L-FORM-2026':'HPZ-APL-U-FORM-2026');
+            $valid=is_object($product) && method_exists($product,'get_sku')
+                && $product->get_sku()===$expected && method_exists($product,'is_type')
+                && $product->is_type('simple') && method_exists($product,'is_taxable')
+                && $product->is_taxable();
+            echo '<tr><td>'.esc_html($name.' (#'.$id.')').'</td><td>'.esc_html($published?'Veröffentlicht':$status).'</td><td>'.esc_html($valid?'SKU, einfacher Typ und Steuer: OK':'Produktdaten prüfen').'</td></tr>';
+        }
+        echo '</tbody></table>';
+        $lu=get_option(HPZ_APL_WP_LU_Runtime_11::SALE_OPTION,[]);
+        $lu=is_array($lu)?$lu:[];
+        $policy=get_option('hpz_apl_lu_price_window_v1',[]);
+        $policy=is_array($policy)?$policy:[];
+        $audited=defined('HPZ_APL_LU_11_AUDITED_RELEASE')&&HPZ_APL_LU_11_AUDITED_RELEASE===true;
+        echo '<p><strong>Gerade:</strong> '.esc_html(!empty($o['sale_enabled'])?'Verkaufsoption eingeschaltet':'Verkaufsoption aus').'<br>';
+        echo '<strong>L/U:</strong> '.esc_html($audited?'Audit-Konstante vorhanden':'Audit-Konstante fehlt')
+            .' · '.esc_html(($lu['enabled']??false)===true?'Verkaufsoption an':'Verkaufsoption aus')
+            .' · '.esc_html(($lu['manual_supplier_handoff_verified']??false)===true?'Manuelle Übergabe bestätigt':'Manuelle Übergabe offen')
+            .' · '.esc_html(($lu['woocommerce_checkout_verified']??false)===true?'Woo-Checkout bestätigt':'Woo-Checkout offen').'<br>';
+        echo '<strong>L/U-Preisregel:</strong> '.esc_html(($policy['model_price_approved']??false)===true?'Preismodell freigegeben':'Preismodell nicht freigegeben')
+            .' · '.esc_html(($policy['extended_model_approved']??false)===true?'variable Maße freigegeben':'variable Maße nicht freigegeben')
+            .' · '.esc_html(($policy['corner_model_approved']??false)===true?'Ecken freigegeben':'Ecken nicht freigegeben')
+            .' · '.esc_html(is_int($policy['other_cost_net_cents']??null)?'Zusatzkosten hinterlegt':'Zusatzkosten fehlen').'</p>';
+        $shippingOption=get_option(HPZ_APL_WP_Freight_190::OPTION,[]);
+        $shippingOption=is_array($shippingOption)?$shippingOption:[];
+        $verified=HPZ_APL_WP_Freight_190::shippingPolicy();
+        echo '<hr><h2>Ab 190 cm: Speditionsversand</h2>';
+        echo '<p>Über 190 cm bleibt der Warenkorb ohne hinterlegte, tatsächlich geprüfte WooCommerce-Speditionsmethode und Kundenversandbetrag gesperrt. Das ist getrennt von den 10/60 € internen Bezugskosten. Hier wird <strong>keine</strong> Versandregel erfunden oder ein neuer Tarif angelegt.</p>';
+        echo '<p><strong>Status:</strong> '.esc_html($verified?'Speditionsregel bestätigt':'Speditionsregel noch nicht bestätigt').'</p>';
+        echo '<form method="post" action="options.php" style="max-width:760px">';
+        settings_fields('hpz_apl_freight_190');
+        echo '<p><label><strong>Geprüfte Woo-Speditions-Raten-IDs (kommasepariert)</strong><br>';
+        echo '<input type="text" style="width:100%" name="'.esc_attr(HPZ_APL_WP_Freight_190::OPTION).'[rate_ids]" value="'.esc_attr(implode(',',is_array($shippingOption['rate_ids']??null)?$shippingOption['rate_ids']:[])).'" placeholder="flexible_shipping:12" required></label></p>';
+        echo '<p><label><strong>Mindestbetrag für Kundenversand (€)</strong><br>';
+        echo '<input type="text" name="'.esc_attr(HPZ_APL_WP_Freight_190::OPTION).'[minimum_eur]" value="'.esc_attr(isset($shippingOption['minimum_cents'])?number_format($shippingOption['minimum_cents']/100,2,',',''):'').'" placeholder="z. B. laut deiner Versandzone" required></label></p>';
+        echo '<p><label><input type="checkbox" name="'.esc_attr(HPZ_APL_WP_Freight_190::OPTION).'[confirmed]" value="1" '.checked(($shippingOption['confirmed']??false),true,false).'> Ich habe diese Versandmethode und ihren Betrag in WooCommerce für Deutschland tatsächlich geprüft.</label></p>';
+        submit_button('Speditionsregel nach Prüfung speichern');
+        echo '</form><p><em>Vor Freischaltung: Test in WooCommerce bei 189,9 / 190,0 / 190,1 cm. Ein Kunde kann die interne Bezugskostenpauschale nicht als Woo-Versandzuschlag erkennen.</em></p>';
+        echo '</div>';
     }
 }
 HPZ_APL_Admin_Preview::init();
