@@ -4,7 +4,7 @@
  * NEVER call on production: test-only publish/flags exist inside the CI DB.
  * Does NOT create WC_Order, send mail, invoke a payment, or call Speedmaster.
  */
-declare(strict_types=1);
+// WP-CLI eval-file prepends bootstrap code; strict_types cannot be declared here.
 if (!defined('ABSPATH') || !function_exists('WC') || !class_exists('WC_Cart')) {
     throw new RuntimeException('Requires isolated bootstrapped WooCommerce.');
 }
