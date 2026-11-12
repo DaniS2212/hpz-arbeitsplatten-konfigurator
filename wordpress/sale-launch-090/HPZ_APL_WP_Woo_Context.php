@@ -70,16 +70,12 @@ final class HPZ_APL_WP_Woo_Context_09 {
                 && method_exists($cart,'get_shipping_total')) {
                 $amount=$cart->get_shipping_total();
                 if (is_numeric($amount) && is_finite((float)$amount) && (float)$amount>=0) {
-                    $cents=(int)round((float)$amount*100,0,PHP_ROUND_HALF_UP);
-                    // 190cm is a CUSTOMER freight gate, separate from the
-                    // supplier's 10/60 EUR inbound cost in the V3 price.
-                    // If no verified Woo freight rate/amount exists: fail closed.
-                    if (class_exists('HPZ_APL_WP_Freight_190')
-                        && HPZ_APL_WP_Freight_190::approved($line,$selected[0],$cents)) {
-                        $blocked['shippingCalculated']=true;
-                        $blocked['selectedShippingRateId']=$selected[0];
-                        $blocked['shippingAmountCents']=$cents;
-                    }
+                    // Existing WooCommerce shipping method, regardless of
+                    // worktop length: 10/60 EUR inbound costs are already
+                    // calculated in the product-price engine, NOT here.
+                    $blocked['shippingCalculated']=true;
+                    $blocked['selectedShippingRateId']=$selected[0];
+                    $blocked['shippingAmountCents']=(int)round((float)$amount*100,0,PHP_ROUND_HALF_UP);
                 }
             }
             // These flags cannot come from checkout query parameters,

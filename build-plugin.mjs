@@ -50,7 +50,6 @@ for(const [source,target] of [
  ['wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php','woo-hooks.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php','supplier-proofs.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Woo_Context.php','woo-context.php'],
- ['wordpress/sale-launch-090/HPZ_APL_WP_Freight_190.php','freight-190.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Straight_Runtime.php','straight-runtime.php'],
  ['wordpress/sale-launch-100/HPZ_APL_WP_Proof_Admin.php','proof-admin.php'],
 ])await copyFile(new URL(source,base),new URL('../includes/'+target,out));

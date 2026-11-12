@@ -23,7 +23,6 @@ require_once __DIR__.'/includes/sale-readiness.php';
 require_once __DIR__.'/includes/cart-bridge.php';
 require_once __DIR__.'/includes/woo-hooks.php';
 require_once __DIR__.'/includes/supplier-proofs.php';
-require_once __DIR__.'/includes/freight-190.php';
 require_once __DIR__.'/includes/woo-context.php';
 require_once __DIR__.'/includes/straight-runtime.php';
 // Same plugin, same WooCommerce store; L/U is separately gated and defaults OFF.
@@ -41,7 +40,6 @@ final class HPZ_APL_Admin_Preview {
     private static $rendered = false;
 
     public static function init() {
-        add_filter('woocommerce_package_rates',array('HPZ_APL_WP_Freight_190','rates'),PHP_INT_MAX,2);
         // Safe by default: self-registers no public route or Woo hooks without
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
@@ -333,7 +331,6 @@ final class HPZ_APL_Admin_Preview {
     }
     public static function settings() {
         register_setting('hpz_apl_preview', self::OPTION, array('type'=>'array', 'sanitize_callback'=>array(__CLASS__, 'sanitize')));
-        register_setting('hpz_apl_freight_190', HPZ_APL_WP_Freight_190::OPTION, array('type'=>'array', 'sanitize_callback'=>array('HPZ_APL_WP_Freight_190','sanitize')));
     }
     public static function page() {
         if (!current_user_can('manage_options')) return;
@@ -379,21 +376,10 @@ final class HPZ_APL_Admin_Preview {
             .' · '.esc_html(($policy['extended_model_approved']??false)===true?'variable Maße freigegeben':'variable Maße nicht freigegeben')
             .' · '.esc_html(($policy['corner_model_approved']??false)===true?'Ecken freigegeben':'Ecken nicht freigegeben')
             .' · '.esc_html(is_int($policy['other_cost_net_cents']??null)?'Zusatzkosten hinterlegt':'Zusatzkosten fehlen').'</p>';
-        $shippingOption=get_option(HPZ_APL_WP_Freight_190::OPTION,[]);
-        $shippingOption=is_array($shippingOption)?$shippingOption:[];
-        $verified=HPZ_APL_WP_Freight_190::shippingPolicy();
-        echo '<hr><h2>Ab 190 cm: Speditionsversand</h2>';
-        echo '<p>Über 190 cm bleibt der Warenkorb ohne hinterlegte, tatsächlich geprüfte WooCommerce-Speditionsmethode und Kundenversandbetrag gesperrt. Das ist getrennt von den 10/60 € internen Bezugskosten. Hier wird <strong>keine</strong> Versandregel erfunden oder ein neuer Tarif angelegt.</p>';
-        echo '<p><strong>Status:</strong> '.esc_html($verified?'Speditionsregel bestätigt':'Speditionsregel noch nicht bestätigt').'</p>';
-        echo '<form method="post" action="options.php" style="max-width:760px">';
-        settings_fields('hpz_apl_freight_190');
-        echo '<p><label><strong>Geprüfte Woo-Speditions-Raten-IDs (kommasepariert)</strong><br>';
-        echo '<input type="text" style="width:100%" name="'.esc_attr(HPZ_APL_WP_Freight_190::OPTION).'[rate_ids]" value="'.esc_attr(implode(',',is_array($shippingOption['rate_ids']??null)?$shippingOption['rate_ids']:[])).'" placeholder="flexible_shipping:12" required></label></p>';
-        echo '<p><label><strong>Mindestbetrag für Kundenversand (€)</strong><br>';
-        echo '<input type="text" name="'.esc_attr(HPZ_APL_WP_Freight_190::OPTION).'[minimum_eur]" value="'.esc_attr(isset($shippingOption['minimum_cents'])?number_format($shippingOption['minimum_cents']/100,2,',',''):'').'" placeholder="z. B. laut deiner Versandzone" required></label></p>';
-        echo '<p><label><input type="checkbox" name="'.esc_attr(HPZ_APL_WP_Freight_190::OPTION).'[confirmed]" value="1" '.checked(($shippingOption['confirmed']??false),true,false).'> Ich habe diese Versandmethode und ihren Betrag in WooCommerce für Deutschland tatsächlich geprüft.</label></p>';
-        submit_button('Speditionsregel nach Prüfung speichern');
-        echo '</form><p><em>Vor Freischaltung: Test in WooCommerce bei 189,9 / 190,0 / 190,1 cm. Ein Kunde kann die interne Bezugskostenpauschale nicht als Woo-Versandzuschlag erkennen.</em></p>';
+        echo '<hr><h2>Versand im Checkout</h2>';
+        echo '<p>Der konfigurierte WooCommerce-Kundentarif bleibt unverändert. Die internen Bezugskosten von 10 € netto unter 190 cm bzw. 60 € netto ab 190 cm kalkuliert die bestehende Preisengine in den Produktpreis. Hier ist keine zusätzliche Speditionsregel und kein weiterer Speditionszuschlag einzurichten.</p>';
+        echo '<p><em>Für die Verkaufsfreigabe dennoch 189,9 / 190,0 / 190,1 cm mit dem echten WooCommerce-Versandtarif im Warenkorb testen; die Höhe des bestehenden Kundentarifs wird nicht durch das Plugin festgelegt.</em></p>';
+
         echo '</div>';
     }
 }
