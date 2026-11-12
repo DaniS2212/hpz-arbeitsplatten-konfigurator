@@ -23,6 +23,7 @@ require_once __DIR__.'/includes/sale-readiness.php';
 require_once __DIR__.'/includes/cart-bridge.php';
 require_once __DIR__.'/includes/woo-hooks.php';
 require_once __DIR__.'/includes/supplier-proofs.php';
+require_once __DIR__.'/includes/freight-190.php';
 require_once __DIR__.'/includes/woo-context.php';
 require_once __DIR__.'/includes/straight-runtime.php';
 // Same plugin, same WooCommerce store; L/U is separately gated and defaults OFF.
@@ -40,6 +41,7 @@ final class HPZ_APL_Admin_Preview {
     private static $rendered = false;
 
     public static function init() {
+        add_filter('woocommerce_package_rates',array('HPZ_APL_WP_Freight_190','rates'),PHP_INT_MAX,2);
         // Safe by default: self-registers no public route or Woo hooks without
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
