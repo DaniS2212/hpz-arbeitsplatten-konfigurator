@@ -46,6 +46,9 @@ jobs:
           php wordpress/checkout-v08/tests/simple-101-hooks.php
           php wordpress/sale-launch-090/tests/disabled.php
           php wordpress/sale-launch-090/tests/standard-shipping-contract.php
+          php -l wordpress/optional-freight-190/HPZ_APL_WP_Freight_190.php
+          php wordpress/sale-launch-090/tests/dormant-freight-190.php
+          php pricing-v3/tests/straight-190-margin-proxy.php
           php wordpress/sale-launch-100/tests/admin-input.php
   node:
     name: Node integration and release safeguards
