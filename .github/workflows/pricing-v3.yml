@@ -62,6 +62,9 @@ jobs:
           php -l wordpress/sale-launch-090/HPZ_APL_WP_Straight_Runtime.php
           php -l wordpress/hpz-apl-admin-preview/hpz-apl-admin-preview.php
           php wordpress/sale-launch-090/tests/disabled.php
+          php -l wordpress/sale-launch-090/HPZ_APL_WP_Freight_190.php
+          php -l wordpress/hpz-apl-admin-preview/includes/freight-190.php
+          php wordpress/sale-launch-090/tests/freight-190-live-gate.php
       - name: Version 1.0 supplier proof admin input validation
         run: php -l wordpress/sale-launch-100/HPZ_APL_WP_Proof_Admin.php && php wordpress/sale-launch-100/tests/admin-input.php
       - name: PHP preview syntax and security
