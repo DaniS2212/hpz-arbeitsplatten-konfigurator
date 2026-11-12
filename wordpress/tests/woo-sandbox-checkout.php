@@ -34,6 +34,7 @@ function hpzTestProduct(int $id,string $sku,string $name): void {
 }
 update_option('woocommerce_calc_taxes','yes');
 update_option('woocommerce_currency','EUR');
+update_option('woocommerce_default_country','DE:BY');
 update_option('woocommerce_prices_include_tax','yes');
 update_option('woocommerce_price_num_decimals',2);
 update_option('woocommerce_tax_based_on','shipping');
