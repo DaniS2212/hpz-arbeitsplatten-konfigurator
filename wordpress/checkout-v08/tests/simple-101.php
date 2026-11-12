@@ -31,11 +31,48 @@ check($info['proof']===null,'no supplier proof');
 check($info['production']['supplierDecorCode']==='W980 ST7','Speedmaster decor code preserved for manual order');
 check(HPZ_APL_WC_Cart_Bridge_08::priceForWoo(67000,true,'DE')==='670.00','Woo gross');
 check(HPZ_APL_WC_Cart_Bridge_08::priceForWoo(67000,false,'DE')==='563.025210','Woo net');
-$ctx=['country'=>'DE','pricesConfigured'=>true,'taxVerified'=>true,'preDiscountGrossCents'=>67000,'actualNetLineRevenueCents'=>56303];
+$ctx=[
+ 'country'=>'DE','pricesConfigured'=>true,'taxVerified'=>true,
+ 'shippingCalculated'=>true,'selectedShippingRateId'=>'shop_rate:1',
+ 'shippingAmountCents'=>580,
+ 'preDiscountGrossCents'=>67000,'actualNetLineRevenueCents'=>56303
+];
 $r=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,$ctx,$secret);
-check($r['validForReleaseReview']===true,'valid DE cart with no supplier approval or shipping rate');
+check($r['validForReleaseReview']===true,'valid DE cart with existing Woo method and no supplier approval');
 check($r['purchasable']===false,'review never opens public sale automatically');
-check($r['blockers']===[],'no shipping/Speedmaster artificial gate');
+check($r['blockers']===[],'no additional 190cm freight gate');
+$missingShipping=HPZ_APL_WC_Cart_Bridge_08::checkout(
+ $c,1,$noProof,array_replace($ctx,['shippingCalculated'=>false]),$secret);
+check(!$missingShipping['validForReleaseReview']
+ &&in_array('woo-customer-shipping-unverified',$missingShipping['blockers'],true),
+ 'missing real Woo shipping calculation rejects checkout');
+$unselectedShipping=HPZ_APL_WC_Cart_Bridge_08::checkout(
+ $c,1,$noProof,array_replace($ctx,['selectedShippingRateId'=>'']),$secret);
+check(in_array('woo-customer-shipping-unverified',$unselectedShipping['blockers'],true),
+ 'empty selected Woo rate rejected');
+$missingAmount=HPZ_APL_WC_Cart_Bridge_08::checkout(
+ $c,1,$noProof,array_replace($ctx,['shippingAmountCents'=>-1]),$secret);
+check(in_array('woo-customer-shipping-unverified',$missingAmount['blockers'],true),
+ 'unknown shipping amount rejected');
+$normalFree=HPZ_APL_WC_Cart_Bridge_08::checkout(
+ $c,1,$noProof,array_replace($ctx,['shippingAmountCents'=>0]),$secret);
+check($normalFree['validForReleaseReview']===true,
+ 'genuine Woo free-shipping rate remains allowed');
+foreach([1899,1900,1901] as $length){
+ $testLine=HPZ_APL_WC_Cart_Bridge_08::issue(
+    raw(['dimensions'=>['L1'=>(string)$length,'B1'=>'600']]),$noProof,$secret);
+ $snapshot=HPZ_APL_WC_Cart_Bridge_08::inspect($testLine,1,$noProof,$secret);
+ $gross=$snapshot['quote']['unitGrossReferenceCents'];
+ $contexts=array_replace($ctx,[
+    'preDiscountGrossCents'=>$gross,
+    'actualNetLineRevenueCents'=>(int)round($gross/1.19),
+ ]);
+ $testCheckout=HPZ_APL_WC_Cart_Bridge_08::checkout(
+    $testLine,1,$noProof,$contexts,$secret);
+ check($testCheckout['validForReleaseReview']===true,
+    'ordinary shop shipping works for straight '.$length.'mm');
+}
+
 $other=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,array_replace($ctx,['country'=>'AT']),$secret);
 check(in_array('country-not-tested',$other['blockers'],true),'international tax needs explicit test');
 $wrong=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,array_replace($ctx,['preDiscountGrossCents'=>66900]),$secret);

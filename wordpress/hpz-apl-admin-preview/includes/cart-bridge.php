@@ -147,6 +147,16 @@ final class HPZ_APL_WC_Cart_Bridge_08
         if (($trustedWooContext['pricesConfigured']??null)!==true
             || ($trustedWooContext['taxVerified']??null)!==true) $blocked[]='tax-context';
         if (($trustedWooContext['country']??null)!=='DE') $blocked[]='country-not-tested';
+        // Existing WooCommerce shipping must really be calculated/selected.
+        // No 190cm method, tariff or surcharge is imposed here. The inbound
+        // 10/60 EUR is a product-cost component, not the customer's shipping.
+        if (($trustedWooContext['shippingCalculated']??null)!==true
+            || !is_string($trustedWooContext['selectedShippingRateId']??null)
+            || trim($trustedWooContext['selectedShippingRateId'])===''
+            || !is_int($trustedWooContext['shippingAmountCents']??null)
+            || $trustedWooContext['shippingAmountCents']<0) {
+            $blocked[]='woo-customer-shipping-unverified';
+        }
         $gross=$trustedWooContext['preDiscountGrossCents']??null;
         $net=$trustedWooContext['actualNetLineRevenueCents']??null;
         if (!is_int($gross) || abs($gross-$item['quote']['totalGrossReferenceCents'])>1
