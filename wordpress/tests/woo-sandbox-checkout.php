@@ -46,7 +46,7 @@ WC_Tax::_insert_tax_rate([
 $zone=new WC_Shipping_Zone();
 $zone->set_zone_name('CI Deutschland');
 $zone->set_zone_order(1);
-$zone->set_zone_locations([['code'=>'DE','type'=>'country']]);
+$zone->set_zone_locations([(object)['code'=>'DE','type'=>'country']]);
 $zone->save();
 $instance=$zone->add_shipping_method('flat_rate');
 hpzLiveCheck(is_int($instance)&&$instance>0,'Woo shipping instance created');
@@ -158,6 +158,21 @@ foreach(['straight','L1','U1'] as $shape){
         $item=new WC_Order_Item_Product();
         if ($shape==='straight') {
             $problems=HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart);
+            if($problems!==[]) {
+                $debugCtx=HPZ_APL_WP_Woo_Context_09::context($row,$cart);
+                $debugCtx['preDiscountGrossCents']=(int)round(
+                    (float)$row['line_subtotal']*100 + (float)$row['line_subtotal_tax']*100);
+                $debugCtx['actualNetLineRevenueCents']=(int)round((float)$row['line_total']*100);
+                $debug=HPZ_APL_WC_Cart_Bridge_08::checkout(
+                    $row,1,static fn($key)=>null,$debugCtx,$secret);
+                echo 'DEBUG checkout: '.json_encode([
+                    'shape'=>$shape,'length'=>$length,'itemPrice'=>$row['data']->get_price(),
+                    'lineSubtotal'=>$row['line_subtotal'],
+                    'lineSubtotalTax'=>$row['line_subtotal_tax'],
+                    'lineTotal'=>$row['line_total'],'customerShipping'=>$cart->get_shipping_total(),
+                    'context'=>$debugCtx,'blockers'=>$debug['blockers'],'messages'=>$problems
+                ],JSON_UNESCAPED_SLASHES)."\n";
+            }
             hpzLiveCheck($problems===[],
                 'Straight Woo precheckout '.$length.': '.implode(';',$problems));
             HPZ_APL_WC_Dormant_Hooks_08::writeOrderItem($item,$cartKey,$row,null);
