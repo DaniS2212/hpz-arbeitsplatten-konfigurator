@@ -59,7 +59,7 @@ ok190(count(HPZ_APL_WP_Freight_190::rates($rates,['contents'=>[['product_id'=>10
   'unknown signed state does not fall back to a parcel method');
 // One-shipping-package Woo server context integration; no cart or order writes.
 class FakeProduct190 {
- function __construct(private int $id){}
+ private $id;function __construct($id){$this->id=$id;}
  function get_id(){return $this->id;}
  function get_sku(){return [1000080=>'HPZ-APL-L-FORM-2026',1000081=>'HPZ-APL-U-FORM-2026',1000083=>'HPZ-APL-GERADE-2026'][$this->id];}
  function is_taxable(){return true;} function get_tax_class(){return '';}
