@@ -8,10 +8,9 @@
 if (!defined('ABSPATH') || !function_exists('WC') || !class_exists('WC_Cart')) {
     throw new RuntimeException('Requires isolated bootstrapped WooCommerce.');
 }
-$hpzChecks = 0;
+$GLOBALS['hpzChecks'] = 0;
 function hpzLiveCheck(bool $yes, string $message): void {
-    global $hpzChecks;
-    ++$hpzChecks;
+    ++$GLOBALS['hpzChecks'];
     if (!$yes) throw new RuntimeException('Woo sandbox FAIL: '.$message);
 }
 function hpzTestProduct(int $id,string $sku,string $name): void {
@@ -93,6 +92,17 @@ hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::canSell(1000081),'U test-only release act
 // Core plugin ran init while all gate flags were OFF; register test hooks now.
 HPZ_APL_WP_Straight_Runtime_09::register();
 HPZ_APL_WP_LU_Runtime_11::register();
+$secret=wp_salt('auth').wp_salt('secure_auth');
+// Even in the test-only enabled store, a naked WooCommerce add-to-cart
+// must not be usable to bypass the signed worktop configuration.
+foreach([1000083,1000080,1000081] as $unsignedId) {
+    WC()->cart->empty_cart(true);
+    $unsigned=false;
+    try {$unsigned=WC()->cart->add_to_cart($unsignedId,1);}
+    catch(Throwable $ignored) {$unsigned=false;}
+    hpzLiveCheck($unsigned===false,'unsigned Woo add-to-cart rejected '.$unsignedId);
+    if(function_exists('wc_clear_notices')) wc_clear_notices();
+}
 $secret=wp_salt('auth').wp_salt('secure_auth');
 function hpzStraightRaw(int $length):array {
     return [
@@ -189,7 +199,41 @@ foreach(['straight','L1','U1'] as $shape){
         }
         hpzLiveCheck(is_array($item->get_meta('_hpz_apl_manufacturing_v2')),
             'real Woo product item has manufacturing record '.$shape.'/'.$length);
+        if($length===1901) {
+            $changed=$cart->set_quantity($cartKey,2);
+            hpzLiveCheck($changed!==false,'Woo quantity update accepted '.$shape);
+            $cart->calculate_totals();
+            $twoProblems=$shape==='straight'
+                ?HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)
+                :HPZ_APL_WP_LU_Runtime_11::finalChecks($cart);
+            hpzLiveCheck($twoProblems===[],
+                'two configured units keep a valid precheckout '.$shape.' '.implode(';',$twoProblems));
+            if($shape==='L1') {
+                // Coupon handling through ACTUAL Woo totals; L/U must keep the
+                // 35% floor and reject an extreme post-discount under-margin.
+                $cart->set_quantity($cartKey,1);
+                $cart->calculate_totals();
+                foreach([5,50] as $percentage) {
+                    $coupon=new WC_Coupon();
+                    $code='hpz-ci-coupon-'.$percentage;
+                    $coupon->set_code($code);
+                    $coupon->set_discount_type('percent');
+                    $coupon->set_amount((string)$percentage);
+                    $coupon->save();
+                    $cart->remove_coupons();
+                    $applied=$cart->apply_coupon($code);
+                    hpzLiveCheck($applied===true,
+                        'Woo coupon '.$percentage.'% applied to L cart');
+                    $cart->calculate_totals();
+                    $couponProblems=HPZ_APL_WP_LU_Runtime_11::finalChecks($cart);
+                    hpzLiveCheck($percentage===5?$couponProblems===[]
+                            :$couponProblems!==[],
+                        'L/U minimum margin after Woo '.$percentage.'% coupon');
+                }
+            }
+        }
         // No WC_Order::save(), payment provider, email, or Speedmaster call.
     }
 }
-echo "PASS $hpzChecks actual WooCommerce sandbox assertions; nine configured cart scenarios, 19% VAT, normal flat-rate customer shipping, unsigned cart isolation and unsaved Woo order-line metadata. NO ORDER CREATED.\n";
+echo 'PASS '.$GLOBALS['hpzChecks'].
+    " real WooCommerce sandbox assertions; nine configured cart scenarios, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";
