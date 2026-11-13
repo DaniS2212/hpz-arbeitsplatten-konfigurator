@@ -37,6 +37,10 @@ let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCor
 let radiusValues={},drawingDetail=null;
 const fieldErrors=new Map();
 const lSides={none:'Keine',left:'Links',right:'Rechts',both:'Beide Außenecken'};
+ const lVariantOptions=element('div','l-variant-grid');
+ lVariantOptions.id='l-variant-options';lVariantOptions.setAttribute('role','radiogroup');
+ lVariantOptions.setAttribute('aria-label','L-Ausführung');
+ $('geometry').after(lVariantOptions);
  const uVariantOptions=element('div','u-variant-grid');
  uVariantOptions.id='u-variant-options';uVariantOptions.setAttribute('role','radiogroup');
  uVariantOptions.setAttribute('aria-label','Stoßaufteilung');
@@ -114,6 +118,39 @@ function uSideIcon(side){
  ${left?'<circle cx="30" cy="54" r="5" fill="#af6940"/>':''}
  ${right?'<circle cx="78" cy="61" r="5" fill="#af6940"/>':''}
  </svg>`;
+}
+// Schematic outer contours from lGeometry (no invented supplier seam or CNC).
+const lVariantShapes={
+ L1:{outline:'M8 8 H100 V30 H32 V60 H8 Z',diagonals:''},
+ L2:{outline:'M8 8 H100 V60 H76 V30 H8 Z',diagonals:''},
+ L3:{outline:'M8 8 H100 V30 H52 L32 48 V60 H8 Z',diagonals:'M52 30 L32 48'},
+ L4:{outline:'M32 8 H100 V30 H52 L32 48 V60 H8 V32 Z',
+     diagonals:'M52 30 L32 48 M8 32 L32 8'}
+};
+const lVariantLabels={
+ L1:'Schenkel links',L2:'Schenkel rechts',
+ L3:'Diagonale innen',L4:'Innen und außen diagonal'
+};
+function lVariantIcon(shape){
+ const icon=lVariantShapes[shape];
+ return `<svg viewBox="0 0 108 70" aria-hidden="true" data-l-shape="${shape}">
+   <path d="${icon.outline}" fill="#e6f1f1" stroke="#557b83" stroke-width="1.8"
+     stroke-linejoin="round"/>
+   ${icon.diagonals?'<path d="'+icon.diagonals+'" fill="none" stroke="#af6940" stroke-width="3" stroke-linecap="round"/>':''}
+ </svg>`;
+}
+function renderLVariantCards(){
+ lVariantOptions.hidden=product!=='l';
+ if(product!=='l')return;
+ const options=c.families.l.geometries.map(id=>choice('l-variant',id,
+   lVariantIcon(id)+'<strong>'+id+'</strong><span>'+lVariantLabels[id]+'</span>',
+   variants.l===id,()=>{
+     // Keep the tested select/change path for dimensions, corners,
+     // price, signed manufacturing data and Woo checkout.
+     $('geometry').value=id;
+     $('geometry').dispatchEvent(new Event('change',{bubbles:true}));
+   },'l-variant-card'));
+ lVariantOptions.replaceChildren(...options);
 }
 function renderUVariantCards(){
  uVariantOptions.hidden=product!=='u';
@@ -325,15 +362,15 @@ function rebuild(){
   shell.dataset.product=product;
   if(product==='straight'||product==='l'||product==='u')corner='square';
   renderChoices();$('variant-wrap').hidden=product==='straight';
-  if(product==='u'){
-    $('variant-wrap').querySelector('.field-title').textContent='Wo sollen die Stoßfugen liegen?';
+  if(product==='u'||product==='l'){
+    $('variant-wrap').querySelector('.field-title').textContent=product==='u'?'Wo sollen die Stoßfugen liegen?':'Welche L-Ausführung passt zu deiner Küche?';
     $('geometry').setAttribute('aria-hidden','true');$('geometry').tabIndex=-1;
   }else{
     $('variant-wrap').querySelector('.field-title').textContent='Ausführung';
     $('geometry').removeAttribute('aria-hidden');$('geometry').removeAttribute('tabindex');
   }
   const shapeTitles={L1:'L1 · Schenkel links',L2:'L2 · Schenkel rechts',L3:'L3 · Diagonale innen',L4:'L4 · Diagonale innen und außen',U1:'U1 · quer/quer',U2:'U2 · längs/längs',U3:'U3 · längs/quer',U4:'U4 · quer/längs'};
-  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];renderUVariantCards();
+  $('geometry').replaceChildren(...c.families[product].geometries.map(id=>{const o=element('option','',shapeTitles[id]||`${id} · Prüfung offen`);o.value=id;return o;}));$('geometry').value=variants[product];renderLVariantCards();renderUVariantCards();
   // No supplier technical explanation below the shape selector.
   
   $('dimensions').replaceChildren();
