@@ -360,8 +360,8 @@ function updateFamilyCopy(){
  viewTabs.hidden=true;viewTabs.setAttribute('aria-hidden','true');
  viewTabs.parentElement.hidden=true;
  $('view-plan').tabIndex=-1;$('view-parts').tabIndex=-1;
- $('view-plan').setAttribute('aria-pressed','true');
- $('view-parts').setAttribute('aria-pressed','false');
+ $('view-plan').setAttribute('aria-pressed',String(view==='plan'));
+ $('view-parts').setAttribute('aria-pressed',String(view==='parts'));
 }
 function renderChoices(){
   cornerTitle.hidden=false;cornerTitle.textContent='Wie soll die Ecke aussehen?';
