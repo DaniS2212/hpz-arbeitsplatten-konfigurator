@@ -60,6 +60,41 @@ try{
       &&s.querySelector('#drawing svg title')?.textContent.startsWith(shape+' ·')
       &&s.getElementById('measurement-error')?.hidden===true;
    },shape,{timeout:25000});
+   // Live-report regression: the paired widths B3/B4 and L4 B5 must
+   // remain printed while L1 is the active dimension.
+   await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    // Step 0 intentionally shows silhouette only; the customer sees the
+    // measurement rails in step 1 ("Maße in cm").
+    s.getElementById('next').click();
+    s.getElementById('dim-L1').focus();
+   });
+   const labels=await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    const drawing=s.querySelector('#drawing svg');
+    const bounds=drawing.getBoundingClientRect();
+    const form=s.getElementById('geometry').value;
+    const expected=form==='L4'?['B3','B4','B5']:['B3','B4'];
+    return {data:expected.map(id=>{
+       const el=drawing.querySelector('.apl-measure[data-measure-id="'+id+'"]');
+       const r=el?.querySelector('.apl-measure-label rect')?.getBoundingClientRect();
+       return {id,label:el?.querySelector('.apl-measure-label text')?.textContent?.trim(),active:el?.dataset.active,
+         visible:!!r&&r.width>0&&r.height>0,
+         clipped:!!r&&(r.left<bounds.left-2||r.right>bounds.right+2
+             ||r.top<bounds.top-2||r.bottom>bounds.bottom+2)};
+     }),halo:drawing.querySelectorAll('.apl-preview-seam-halo').length};
+   });
+   for(const entry of labels.data){
+     assert.equal(entry.visible,true,shape+' '+width+'px missing '+entry.id);
+     assert.equal(entry.active,'false',shape+' '+width+'px depends on input focus');
+     assert.equal(entry.label,entry.id+': '+(entry.id==='B5'?'60':'90')+' cm');
+     assert.equal(entry.clipped,false,shape+' '+width+'px clipped '+entry.id);
+   }
+   assert.equal(labels.halo,2,shape+' should show two contrast-enhanced seams');
+   await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    s.getElementById('back').click();
+   });
    await page.evaluate(()=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
     s.getElementById('view-parts').click();

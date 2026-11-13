@@ -657,9 +657,13 @@ const controller=createPreviewController({request:async (body,{signal,onVisual})
       // Internal estimate warnings remain in backend status, not in the
       // compact customer summary; sales eligibility remains unchanged.
       $('price-note').textContent='Derzeit nicht bestellbar.';
-    }else if(['unpriced','unavailable'].includes(result.quote.status)){
+    }else if(result.quote.status==='unavailable'){
       priceDisplay('Preis offen','Dein Preis');$('tax-note').textContent='Kundenversand separat';
-      $('price-note').textContent='Für diese Auswahl ist momentan kein Preis verfügbar. Bitte andere Maße wählen oder uns kontaktieren.';
+      // Server/timeout failure is NOT evidence that the selected dimensions are invalid.
+      $('price-note').textContent=result.quote.message||'Die Preisprüfung ist momentan nicht erreichbar. Bitte erneut berechnen.';
+    }else if(result.quote.status==='unpriced'){
+      priceDisplay('Preis offen','Dein Preis');$('tax-note').textContent='Kundenversand separat';
+      $('price-note').textContent=result.quote.message||'Für diese Maße oder Bearbeitung liegt noch kein Preis vor.';
     }else if(result.quote.illustration){priceDisplay(money(result.quote.illustration.gross),`Preisbeispiel${result.config.quantity>1?' · '+result.config.quantity+' Stück':''}`);$('tax-note').textContent='inkl. 19 % MwSt. · zzgl. Kundenversand';$('price-note').textContent='Preisbeispiel · derzeit nicht bestellbar.';}
     else if(embedded&&result.quote.ruleVersion==='admin-visual-only'){
       // Local package preview deliberately has no admin-only WordPress PHP V3 endpoint.
