@@ -1,3 +1,11 @@
+# AKTUELLER PREISREGEL-STATUS 13.11.2026
+
+Bei jeder Arbeitsplatte Gerade/L/U werden 150 € NETTO interne Speedmaster-Anlieferung **je Stück** in den Brutto-Produktpreis eingerechnet, ohne separate Kundenfracht. Gerade historische V3-Formel plus 330 € Bruttoanteil; L/U 150 € netto in der Netto-EK-/Marge-Kalkulation. Die bisherige 10/60-€-Regel inkl. 190-cm-Grenze ist vollständig abgelöst. Keine Änderung am normalen WooCommerce-Kundenversand. [Aktueller Vertrag und Tests](docs/20261113-flat-150-net-inbound.md).
+
+**Die nachfolgende Projektchronik enthält historische Stände, nicht die aktuelle Preisregel.**
+
+---
+
 > **AKTUALISIERUNG 05.11.2026:** Dieses Dokument beginnt mit einem historischen Stand vom 26.10.2026 und ist NICHT der aktuelle Projektstatus. Verbindlichen Tagesstand und nächsten Entwicklungsschritt siehe [docs/CURRENT_PROJECT_HANDOFF_20261105.md](docs/CURRENT_PROJECT_HANDOFF_20261105.md): PR #53/#54/#55 bereits gemergt, U1–U4 visueller Grundriss/Stoßaufteilung plus interne Kalkulationsszenarien; noch fehlende realen Fertigungs-/Packstückbelege und L/U-Checkout. Kein Live-Status aus GitHub ableiten.\n\n# Status – 26.10.2026
 
 ## Aktuell: Zwischenversion 0.6.0 – Küchenstudio-Oberfläche
