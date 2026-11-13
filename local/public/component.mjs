@@ -30,7 +30,7 @@ const icons={straight:'M8 11 H68 V35 H8 Z',l:'M8 6 H68 V22 H26 V42 H8 Z',u:'M8 6
 const cornerIcons={square:'M5 25 V5 H30',round:'M5 25 V17 Q5 5 17 5 H30',chamfer:'M5 25 V16 L16 5 H30',continuous:'M5 25 V5 H30 M10 25 V10 H30'};
 const cornerNames={square:'Eckig',round:'Abgerundet',chamfer:'Abgeschrägt',continuous:'Durchlaufend'};
 const fieldNames={L1:'Gesamtbreite',L2:'Links außen',L3:'Rechts außen',B1:'Tiefe oben',B2:'Breite links',B3:'Breite rechts'};
-let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',selectedPart=null,selectedSeam=null,valid=false;
+let product=resolved?.family??'straight',step=0,active='',lastGeometry=null,showDimensions=true,view='plan',lastViewProduct=null,selectedPart=null,selectedSeam=null,valid=false;
 let material='APL38',decor=startingDecor,corner='square';
 let straightSide='none',straightTreatment=null,lSide='none',lTreatment=null,lCornerValues={};
  let uSide='none',uTreatment=null,uCornerValues={};
@@ -341,13 +341,20 @@ function updateFamilyCopy(){
  // Customers already choose join positions in U1–U4. The optional
  // part/seam controls below the diagram only highlight illustrative
  // geometry, without changing price, order or manufacturing fields.
- // Keep internal test access but remove this redundant customer UI.
- view='plan';selectedPart=null;selectedSeam=null;
+ // Preserve the user's active connection view on dimensions, decor and
+ // L1–L4/U1–U4 choice changes; reset only when the PRODUCT family changes.
+ if(lastViewProduct!==product){
+   view='plan';selectedPart=null;selectedSeam=null;
+   lastViewProduct=product;
+ }
+ const connectionView=product!=='straight'&&view==='parts';
  transparentToggle.hidden=product==='straight';
- transparentToggle.setAttribute('aria-pressed','false');
- transparentToggle.setAttribute('aria-label','Schematische Verbindungen einblenden');
- transparentToggle.title='Verbindungen schematisch anzeigen';
- transparentNote.hidden=true;
+ transparentToggle.setAttribute('aria-pressed',String(connectionView));
+ transparentToggle.setAttribute('aria-label',connectionView
+   ?'Schematische Verbindungen ausblenden'
+   :'Schematische Verbindungen einblenden');
+ transparentToggle.title=connectionView?'Normale Holzansicht anzeigen':'Verbindungen schematisch anzeigen';
+ transparentNote.hidden=!connectionView;
  $('parts-note').hidden=true;
  const viewTabs=$('view-plan').parentElement;
  viewTabs.hidden=true;viewTabs.setAttribute('aria-hidden','true');
