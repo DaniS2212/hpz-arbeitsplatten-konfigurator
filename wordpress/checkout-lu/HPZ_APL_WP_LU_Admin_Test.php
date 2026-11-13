@@ -119,6 +119,12 @@ final class HPZ_APL_LU_Admin_Test_98
         self::adminAction('stop');
         $key=self::key();
         if($key!=='')delete_transient($key);
+        // WP-admin normally does not bootstrap the Woo frontend cart.
+        // Load it only for this explicit stop action, so temporary L/U
+        // lines are actually removed while unrelated cart items remain.
+        if(function_exists('wc_load_cart')&&function_exists('WC')&&WC()&&!WC()->cart) {
+            wc_load_cart();
+        }
         // Remove only the two temporary draft lines; never touch normal
         // customer/straight or other Woo cart products.
         if(function_exists('WC')&&WC()&&WC()->cart){
