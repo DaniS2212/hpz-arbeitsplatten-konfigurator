@@ -766,3 +766,50 @@
    All data and internal geometry tests remain present, but no inert controls
    or unexplained A/B labels are exposed to customers. */
 .hpz-apl .stage-top[hidden],.hpz-apl .view-tabs[hidden],.hpz-apl #parts-note[hidden]{display:none!important}
+
+/* L1–L4 mirrors the U 2x2 selector, but uses compact cards to leave
+   the external corner options directly below. The select remains a
+   programmatic compatibility surface, not a second visible control. */
+.hpz-apl[data-product="l"] #geometry{
+  position:absolute!important;width:1px!important;height:1px!important;
+  padding:0!important;border:0!important;opacity:0;pointer-events:none;
+  clip-path:inset(50%);overflow:hidden
+}
+.hpz-apl[data-product="l"] #variant-wrap>.field-title{
+  display:block!important;margin:8px 0 11px!important;font-size:15px!important;
+  font-weight:700;color:var(--studio-ink)
+}
+.hpz-apl .l-variant-grid[hidden]{display:none!important}
+.hpz-apl[data-product="l"] .l-variant-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;margin-bottom:8px
+}
+.hpz-apl[data-product="l"] .l-variant-card{
+  min-width:0;min-height:86px;display:grid;
+  grid-template-columns:65px minmax(0,1fr);
+  grid-template-rows:min-content 1fr;
+  column-gap:5px;row-gap:3px;align-items:center;
+  text-align:left;padding:8px 7px;border-radius:12px
+}
+.hpz-apl[data-product="l"] .l-variant-card svg{
+  grid-column:1;grid-row:1/3;width:63px;height:56px;
+  max-width:100%;overflow:visible;justify-self:center
+}
+.hpz-apl[data-product="l"] .l-variant-card>strong{
+  grid-column:2;grid-row:1;font-size:14px;color:#16444d
+}
+.hpz-apl[data-product="l"] .l-variant-card>span{
+  grid-column:2;grid-row:2;color:#365b65;font-size:11px;
+  line-height:1.25;overflow-wrap:anywhere
+}
+.hpz-apl[data-product="l"] .a1-sides{margin-top:6px}
+.hpz-apl[data-product="l"] #variant-wrap{margin-bottom:4px}
+@media(max-width:760px){
+  .hpz-apl[data-product="l"] .l-variant-card{
+    min-height:78px;grid-template-columns:52px minmax(0,1fr);
+    padding:7px 5px;column-gap:4px
+  }
+  .hpz-apl[data-product="l"] .l-variant-card svg{width:50px;height:51px}
+  .hpz-apl[data-product="l"] .l-variant-card>strong{font-size:13px}
+  .hpz-apl[data-product="l"] .l-variant-card>span{font-size:10px}
+}
