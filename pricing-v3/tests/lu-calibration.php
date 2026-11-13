@@ -457,15 +457,15 @@ foreach ([
         $shape.' cannot buy based on a model even if screenshots match');
 }
 
-// User clarified that the EXISTING V3 inbound rule is correct:
-// 10 EUR base net + 50 EUR additional at >=1900 mm per verified delivered
-// part = 60 EUR TOTAL, not 10 + 60. Never charge freight per shape arm.
-expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===1000,
-    'inbound 1899 mm only EUR 10 net');
-expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===6000,
-    'inbound at 1900 mm EUR 10 + EUR 50 net = EUR 60 TOTAL');
-expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1000,1900,2200])===6000,
-    'only one EUR 50 surcharge, never EUR 50 per long part');
+// The old, separate calibration scenarios with 10/60 EUR are historical
+// witnesses only. ACTUAL V3 selling price now has flat 150 EUR NET inbound
+// per whole worktop, irrespective of how many legs the supplier ships.
+expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===15000,
+    '1899 mm costs 150 EUR inbound net per finished worktop');
+expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===15000,
+    '1900 mm costs 150 EUR inbound net without any threshold');
+expectCal(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1000,1900,2200])===15000,
+    'multiple cut parts do not multiply 150 EUR internal inbound');
 
 // FOUR NEW owner-confirmed W980/1.5mm decor-matched WIDTH samples.
 // U1 is non-monotone across thicknesses: 17.5mm rises with width while
