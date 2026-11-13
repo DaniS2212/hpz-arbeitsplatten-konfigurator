@@ -176,11 +176,13 @@ try{
         return {regions:[...sh.querySelectorAll('#drawing .apl-preview-part')].map(e=>e.dataset.partId),
           noteHidden:sh.querySelector('#parts-note').hidden,
           mode:sh.querySelector('#view-plan').getAttribute('aria-pressed'),
+          connections:sh.getElementById('transparent-toggle').getAttribute('aria-pressed'),
           cartDisabled:sh.querySelector('#cart').disabled};
       });
-      assert.deepEqual(changed.regions,[],'changing L layout always returns customers to the single top view');
+      assert.deepEqual(changed.regions,['top','leg'],'active connection view shows the newly selected L1 layout');
       assert.equal(changed.noteHidden,true,'internal area highlighters remain hidden after configuration change');
-      assert.equal(changed.mode,'true','normal top view is active');
+      assert.equal(changed.mode,'false','plan view is inactive while the customer connection view persists');
+      assert.equal(changed.connections,'true','connection switch stays active across variant change');
       assert.ok(changed.cartDisabled,'L never becomes purchasable');
       // Advanced segmentation remains testable internally, but has no
       // shopper-visible controls and does not mutate a real order.
