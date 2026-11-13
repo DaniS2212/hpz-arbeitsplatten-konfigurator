@@ -13,12 +13,12 @@ function settleInput(signal,waitMs=180) {
 const unavailable=(visual,message='Preisprüfung momentan nicht erreichbar. Bitte „Preis erneut berechnen“ wählen.')=>({
   ...visual,quote:{status:'unavailable',purchasable:false,message}
 });
-async function postQuote(endpoint,nonce,request,signal) {
+async function postQuote(endpoint,nonce,request,signal,timeoutMs=6000) {
   const own=new AbortController();
   const cancel=()=>own.abort();
   signal?.addEventListener('abort',cancel,{once:true});
   if(signal?.aborted)cancel();
-  const timeout=setTimeout(cancel,6000);
+  const timeout=setTimeout(cancel,timeoutMs);
   try{
     const response=await fetch(endpoint.href,{method:'POST',credentials:'same-origin',cache:'no-store',
       headers:{'Content-Type':'application/json','X-WP-Nonce':nonce},
@@ -52,10 +52,15 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
       ...(product.family==='straight'?{straightCorner:raw.straightCorner}:{}),
       ...(product.family==='l'?{lCorner:raw.lCorner}:{}),
       material:raw.material,decor:raw.decor,edge:raw.edge,quantity:raw.quantity};
-    for(let attempt=0;attempt<2;attempt++){
+    // Admin product preview may cycle dozens of valid decor combinations.
+    // One extra retry is allowed ONLY for the unsellable admin quotation;
+    // public store sales still require a fresh response within two attempts.
+    const maxAttempts=pricePreview.sale===true?2:3;
+    for(let attempt=0;attempt<maxAttempts;attempt++){
       if(signal?.aborted)return visual;
       try{
-        const {response,data}=await postQuote(endpoint,pricePreview.nonce,request,signal);
+        const timeoutMs=attempt===0?6000:attempt===1?8000:10000;
+        const {response,data}=await postQuote(endpoint,pricePreview.nonce,request,signal,timeoutMs);
         if(signal?.aborted)return visual;
         if(response.status===401||response.status===403)
           return unavailable(visual,'Die Preisprüfung wurde abgelehnt oder ist abgelaufen. Bitte Produktseite neu laden.');
@@ -80,7 +85,7 @@ export async function preview(raw,{signal,pricePreview,onVisual}={}) {
         // Timeout, intermittent network or gateway response; retry once only.
         // No JS price fallback and no cart permission without a real PHP quote.
       }
-      if(attempt===0)await settleInput(signal,240);
+      if(attempt<maxAttempts-1)await settleInput(signal,attempt===0?350:800);
     }
     return unavailable(visual);
   }catch{

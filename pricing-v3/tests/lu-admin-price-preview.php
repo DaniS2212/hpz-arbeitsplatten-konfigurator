@@ -75,6 +75,17 @@ $raw['dimensions']['B1']='700';
 $p=HPZ_APL_LU_Admin_Price_Preview_13::quote($raw,'');
 pCheck($p['unitGrossReferenceCents']>0,'combined variable U1 dimensions modeled');
 pCheck(strpos($p['taxNote'],'inkl. 19')===false,'other countries not implied to have DE tax');
+// Work preview on 13 Nov: U1/U2 38mm differs by a 4.13 EUR supplier
+// reference; the 10-EUR *gross* retail step follows existing rounding.
+foreach(['APL17.5'=>0,'APL38'=>413] as $mat=>$expectedDelta){
+    $u1=HPZ_APL_LU_Shop_Ratebook_12::candidate(
+        HPZ_APL_LU_Price_Readiness::normalize(priceLURaw('U1','W980',$mat,2000)));
+    $u2=HPZ_APL_LU_Shop_Ratebook_12::candidate(
+        HPZ_APL_LU_Price_Readiness::normalize(priceLURaw('U2','W980',$mat,2000)));
+    pCheck(is_array($u1)&&is_array($u2),'U1/U2 cost references exist '.$mat);
+    pCheck($u1['supplierNetCents']-$u2['supplierNetCents']===$expectedDelta,
+        'U1/U2 declared form-specific supplier cost reference '.$mat);
+}
 $bad=priceLURaw('L1');$bad['sku']='not-the-L-sku';
 try{HPZ_APL_LU_Admin_Price_Preview_13::quote($bad,'DE');pCheck(false,'foreign sku accepted');}
 catch(InvalidArgumentException $e){pCheck(true,'foreign sku cannot request pricing');}

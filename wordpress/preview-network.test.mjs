@@ -50,6 +50,40 @@ test('350x90 maintains verified V3 gross price with one backend response',async(
   assert.equal(calls,1);
  });
 });
+test('admin L/U quote retries two transient 503 failures, still forbids purchasing',async()=>{
+ let calls=0;
+ await mockFetch(async()=>{
+  calls++;
+  return calls<3?reply(503,{success:false}):reply(200,{success:true,data:{quote:{
+   status:'calculated-not-sale-approved',currency:'EUR',purchasable:false,quantity:1,
+   unitGrossReferenceCents:166000,totalGrossReferenceCents:166000
+  }}});
+ },async()=>{
+  const input={
+   schemaVersion:2,inputUnit:'mm',productId:1000081,sku:'HPZ-APL-U-FORM-2026',
+   product:'u',geometry:'U1',corner:'square',
+   dimensions:{L1:'2000',L2:'1200',L3:'1800',B1:'600',B2:'600',B3:'600'},
+   material:'APL38',decor:'H1145',quantity:1
+  };
+  const q=(await preview(input,{pricePreview:{
+    url:'https://example.test/wp-admin/admin-ajax.php?action=hpz_apl_lu_price_preview',
+    nonce:'test'
+  }})).quote;
+  assert.equal(calls,3);
+  assert.equal(q.unitGrossReferenceCents,166000);
+  assert.equal(q.purchasable,false);
+ });
+});
+test('three temporary admin failures never produce a price or buying permission',async()=>{
+ let calls=0;
+ await mockFetch(async()=>{calls++;return reply(503,{success:false});},async()=>{
+  const q=(await preview(raw(),{pricePreview:{...settings,sale:false}})).quote;
+  assert.equal(calls,3);
+  assert.equal(q.status,'unavailable');
+  assert.equal(q.purchasable,false);
+  assert.equal(q.unitGrossReferenceCents,undefined);
+ });
+});
 test('a genuine 422 dimensional rejection does not retry or give a local price',async()=>{
  let calls=0;
  await mockFetch(async()=>{calls++;return reply(422,{success:false,data:{message:'L1: Länge außerhalb des erlaubten Bereichs.'}});},async()=>{
