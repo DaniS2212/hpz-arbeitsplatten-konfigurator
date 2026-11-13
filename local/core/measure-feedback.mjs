@@ -50,9 +50,24 @@ export function firstMeasureIssue(product,shape,values,{material='APL38',straigh
       const bound=key==='L1'?mm.B3:mm.B4;
       return issue(key,`${key}: Mindestens ${mmToCmText(bound+101)} cm, damit die diagonale Innenöffnung frei bleibt.`);
     }
-    if(shape==='L4'&&(mm.L1<mm.B3||mm.L2<mm.B4)){
-      const key=mm.L1<mm.B3?'L1':'L2';
-      return issue(key,`${key} muss mindestens so lang wie die Eckbreite ${mmToCmText(mm.B3)} cm sein.`);
+    if(shape==='L4'){
+      if(mm.L1<mm.B3||mm.L2<mm.B4){
+        const key=mm.L1<mm.B3?'L1':'L2';
+        return issue(key,`${key} muss mindestens so lang wie die Eckbreite ${mmToCmText(mm.B3)} cm sein.`);
+      }
+      // Same 45-degree outer-cut guard as lGeometry(): previously these
+      // values failed the drawing and fell through to a generic network
+      // error. Do not silently change lengths or clamp the B5 setting.
+      const outer=Math.min(mm.B3,mm.B1+mm.B3-mm.B5*Math.SQRT2);
+      if(outer<100){
+        return issue('B5','B5: Die äußere Diagonale lässt zu wenig Restkante. Bitte den Diagonalbereich verkleinern.');
+      }
+      if(outer>=Math.min(mm.L1,mm.L2)-100){
+        const key=mm.L1<=mm.L2?'L1':'L2';
+        const minMm=Math.floor((outer+100)/10)*10+10;
+        return issue(key,`${key}: Mindestens ${mmToCmText(minMm)} cm für den gewählten Diagonalbereich B5 (${mmToCmText(mm.B5)} cm). Alternativ B5 vergrößern.`,
+          {minMm,maxMm:4000,stepMm:10});
+      }
     }
   }
   if(product==='u'){
