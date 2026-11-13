@@ -265,5 +265,115 @@ foreach(['straight','L1','U1'] as $shape){
         // No WC_Order::save(), payment provider, email, or Speedmaster call.
     }
 }
+// The previous CI changed quantity directly on WC_Cart::set_quantity(),
+// bypassing WooCommerce's real [woocommerce_cart] form handler. Work found
+// 2 -> 1 on a real classic-cart POST/reload. Exercise that actual pathway.
+hpzResetCart($rateId);
+$liveRaw=hpzStraightRaw(1899,'H1145');
+$liveSigned=HPZ_APL_WC_Cart_Bridge_08::issue(
+    $liveRaw,static fn($key)=>null,$secret);
+$liveKey=WC()->cart->add_to_cart(1000083,1,0,[],$liveSigned);
+hpzLiveCheck(is_string($liveKey)&&$liveKey!=='',
+    'Bardolino 1899x600 straight in real Woo cart');
+WC()->cart->calculate_totals();
+$before=WC()->cart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($before)&&$before['quantity']===1,
+    'classic form starts at quantity 1');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$before,2)===true,'straight quantity filter allows two whole boards');
+// Prevent WP-CLI test from following WooCommerce's redirect after a
+// successful form POST. The actual WC_Form_Handler still validates nonce,
+// products, signed configuration and quantity, and mutates the real WC cart.
+add_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$_SERVER['REQUEST_METHOD']='POST';
+$_POST=[
+    'update_cart'=>'1','woocommerce-cart-nonce'=>wp_create_nonce('woocommerce-cart'),
+    'cart'=>[$liveKey=>['qty'=>'2']],
+];
+$_REQUEST=$_POST;
+WC_Form_Handler::update_cart_action();
+unset($_POST,$_REQUEST);
+remove_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$updated=WC()->cart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($updated)&&$updated['quantity']===2,
+    'real classic Woo cart POST saves 2 boards, not 1');
+WC()->cart->calculate_totals();
+hpzLiveCheck(HPZ_APL_WC_Dormant_Hooks_08::finalChecks(WC()->cart)===[],
+    'straight two boards still validate after classic form');
+// WC_Cart_Session owns session persistence; do not assume a public
+// WC_Cart->session property is a service object on every Woo version.
+$cartSessionWriter=new WC_Cart_Session(WC()->cart);
+$cartSessionWriter->set_session();
+$savedCart=WC()->session->get('cart',[]);
+hpzLiveCheck(is_array($savedCart)&&isset($savedCart[$liveKey])
+    &&(int)$savedCart[$liveKey]['quantity']===2,
+    'WooCommerce persisted cart session contains quantity 2');
+$reloadedCart=new WC_Cart();
+WC()->cart=$reloadedCart;
+$cartSessionReader=new WC_Cart_Session($reloadedCart);
+$cartSessionReader->get_cart_from_session();
+$restored=$reloadedCart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($restored)&&$restored['quantity']===2,
+    'fresh WooCommerce cart reload restores quantity 2');
+hpzLiveCheck(($restored['hpz_apl_v08']['config']['decor']??'')==='H1145'
+    &&($restored['hpz_apl_v08']['config']['dimensions']['L1']??null)===1899,
+    'signed Bardolino, 1899mm manufacturing configuration retained');
+$restoredCheck=HPZ_APL_WC_Cart_Bridge_08::inspect(
+    $restored,2,static fn($key)=>null,$secret);
+hpzLiveCheck($restoredCheck['production']['quantity']===2,
+    'manufacturing record reflects real updated line quantity');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$restored,2.0)===true,'Woo whole-number float 2.0 valid');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$restored,'2')===true,'Woo whole-number string 2 valid');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$restored,2.5)===false,'fractional worktop count rejected');
+// Simulate a Woo plugin returning a valid whole-number FLOAT quantity.
+$floatQty=static fn($amount,$itemKey)=>(float)$amount;
+add_filter('woocommerce_stock_amount_cart_item',$floatQty,PHP_INT_MAX,2);
+add_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$_SERVER['REQUEST_METHOD']='POST';
+$_POST=['update_cart'=>'1','woocommerce-cart-nonce'=>wp_create_nonce('woocommerce-cart'),
+    'cart'=>[$liveKey=>['qty'=>'3']]];
+$_REQUEST=$_POST;
+WC_Form_Handler::update_cart_action();
+unset($_POST,$_REQUEST);
+remove_filter('woocommerce_stock_amount_cart_item',$floatQty,PHP_INT_MAX);
+remove_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$afterFloat=$reloadedCart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($afterFloat)&&(float)$afterFloat['quantity']===3.0,
+    'real classic POST accepts whole-number float 3.0');
+$reloadedCart->calculate_totals();
+$floatChecked=HPZ_APL_WC_Cart_Bridge_08::inspect(
+    $afterFloat,3,static fn($key)=>null,$secret);
+hpzLiveCheck($floatChecked['production']['quantity']===3
+    &&$floatChecked['production']['decorName']==='Bardolino Eiche',
+    'material H1145 and manufacturing qty 3 remain valid');
+(new WC_Cart_Session($reloadedCart))->set_session();
+hpzLiveCheck((float)(WC()->session->get('cart',[])[$liveKey]['quantity']??0)===3.0,
+    'float-typed whole quantity saved in WooCommerce session');
+// Same numeric validation for L/U; supplier-approved max quantity still applies.
+foreach(['L1','U1'] as $shape){
+    hpzResetCart($rateId);
+    $raw=hpzLURaw($shape,1901);
+    $normalized=HPZ_APL_LU_Price_Readiness::normalize($raw);
+    $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($normalized,$policy);
+    hpzLiveCheck(is_array($proof),'quantity test price window '.$shape);
+    $lookup=static fn($key)=>$key===$proof['configurationKey']?$proof:null;
+    $signed=HPZ_APL_WC_LU_Cart_Bridge::issue($raw,$lookup,$secret);
+    $k=WC()->cart->add_to_cart($shape==='L1'?1000080:1000081,1,0,[],$signed);
+    WC()->cart->calculate_totals();
+    $row=WC()->cart->get_cart()[$k]??null;
+    hpzLiveCheck(is_array($row),'L/U signed quantity test item '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::classicQuantity(
+        true,$k,$row,2.0)===true,'L/U accepts whole-number 2.0 '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::classicQuantity(
+        true,$k,$row,'2')===true,'L/U accepts numeric-string 2 '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::classicQuantity(
+        true,$k,$row,2.5)===false,'L/U refuses fractional quantities '.$shape);
+}
+
+// No WC_Order is saved, no payment is collected and no supplier call is made.
+
 echo 'PASS '.$GLOBALS['hpzChecks'].
     " real WooCommerce sandbox assertions; nine configured cart scenarios, classic-cart to checkout progression, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";

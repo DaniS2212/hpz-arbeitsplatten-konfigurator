@@ -512,17 +512,27 @@ final class HPZ_APL_WP_LU_Runtime_11
         return $out;
     }
 
+    /** Accept whole-number Woo int/float/string, never fractional boards. */
+    private static function wholeQuantity($raw): ?int {
+        if(is_int($raw))$n=$raw;
+        elseif(is_float($raw)&&is_finite($raw)&&$raw>=1&&$raw<=1000&&floor($raw)===$raw)$n=(int)$raw;
+        elseif(is_string($raw)&&preg_match('/^[1-9][0-9]{0,3}$/D',$raw))$n=(int)$raw;
+        else return null;
+        return $n>=1&&$n<=1000?$n:null;
+    }
+
     public static function storeQuantity($allowed,$qty,$product,$cartItem)
     {
         if(!is_object($product)||!method_exists($product,'get_id')
             ||!self::isTarget($product->get_id()))return $allowed;
-        if(!$allowed||!is_int($qty)||!is_array($cartItem)
+        $whole=self::wholeQuantity($qty);
+        if(!$allowed||$whole===null||!is_array($cartItem)
             ||!self::canSell((int)$product->get_id())) {
             return class_exists('WP_Error')
                 ? new WP_Error('hpz_apl_lu_quantity','L-/U-Menge nicht bestätigt.',['status'=>400]) : false;
         }
         try{
-            self::checked($cartItem,$qty);
+            self::checked($cartItem,$whole);
             return true;
         }catch(Throwable $error){
             return class_exists('WP_Error')
@@ -533,7 +543,18 @@ final class HPZ_APL_WP_LU_Runtime_11
     public static function classicQuantity($allowed,$cartKey,$values,$qty)
     {
         if(!is_array($values)||!self::isTarget($values['product_id']??null))return $allowed;
-        if(!$allowed||!is_int($qty)||!self::canSell((int)$values['product_id']))return false;
-        try{self::checked($values,$qty);return true;}catch(Throwable $error){return false;}
+        $whole=self::wholeQuantity($qty);
+        if(!$allowed)return false;
+        if($whole===null||!self::canSell((int)$values['product_id'])){
+            if(function_exists('wc_add_notice'))wc_add_notice(
+                'L-/U-Arbeitsplatte: Bitte eine gültige ganze Stückzahl eingeben.','error');
+            return false;
+        }
+        try{self::checked($values,$whole);return true;}
+        catch(Throwable $error){
+            if(function_exists('wc_add_notice'))wc_add_notice(
+                'L-/U-Arbeitsplatte: Die Stückzahl oder Fertigungsmöglichkeit ist nicht bestätigt.','error');
+            return false;
+        }
     }
 }

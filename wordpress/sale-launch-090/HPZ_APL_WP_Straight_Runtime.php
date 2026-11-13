@@ -139,13 +139,23 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
         }
     }
 
+    /** Woo cart/Store API can send 2, 2.0 or '2'; never truncate fractions. */
+    private static function wholeQuantity($raw): ?int {
+        if(is_int($raw))$n=$raw;
+        elseif(is_float($raw)&&is_finite($raw)&&$raw>=1&&$raw<=1000&&floor($raw)===$raw)$n=(int)$raw;
+        elseif(is_string($raw)&&preg_match('/^[1-9][0-9]{0,3}$/D',$raw))$n=(int)$raw;
+        else return null;
+        return $n>=1&&$n<=1000?$n:null;
+    }
+
     public static function storeQuantity($allowed,$quantity,$product,$cartItem) {
         if (!is_object($product) || !method_exists($product,'get_id')
             || (int)$product->get_id()!==self::PRODUCT_ID) return $allowed;
-        if (!$allowed || !self::canSell() || !is_int($quantity) || !is_array($cartItem)) return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);
+        $whole=self::wholeQuantity($quantity);
+        if (!$allowed || !self::canSell() || $whole===null || !is_array($cartItem)) return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);
         try {
             HPZ_APL_WC_Cart_Bridge_08::inspect(
-                $cartItem,$quantity,function($key){return null;},self::secret()
+                $cartItem,$whole,function($key){return null;},self::secret()
             );
             return true;
         }catch(Throwable $error){return new WP_Error('hpz_apl_invalid_quantity','Die Menge dieser Arbeitsplatte ist nicht freigegeben.', ['status'=>400]);}
@@ -153,12 +163,22 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
 
     public static function classicQuantity($allowed,$cartKey,$values,$quantity) {
         if (!is_array($values) || (int)($values['product_id']??0)!==self::PRODUCT_ID) return $allowed;
-        if (!$allowed || !self::canSell() || !is_int($quantity)) return false;
+        $whole=self::wholeQuantity($quantity);
+        if (!$allowed) return false;
+        if (!self::canSell() || $whole===null) {
+            if (function_exists('wc_add_notice')) wc_add_notice(
+                'Arbeitsplatte: Bitte eine ganze Stückzahl zwischen 1 und 1.000 eingeben.','error');
+            return false;
+        }
         try{
             HPZ_APL_WC_Cart_Bridge_08::inspect(
-                $values,$quantity,function($key){return null;},self::secret()
+                $values,$whole,function($key){return null;},self::secret()
             );
             return true;
-        }catch(Throwable $error){return false;}
+        }catch(Throwable $error){
+            if (function_exists('wc_add_notice')) wc_add_notice(
+                'Arbeitsplatte: Stückzahl oder Konfiguration konnte nicht bestätigt werden. Bitte Warenkorb neu laden.','error');
+            return false;
+        }
     }
 }
