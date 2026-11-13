@@ -160,7 +160,7 @@ final class HPZ_APL_WC_Cart_Bridge_08
         $gross=$trustedWooContext['preDiscountGrossCents']??null;
         $net=$trustedWooContext['actualNetLineRevenueCents']??null;
         if (!is_int($gross) || abs($gross-$item['quote']['totalGrossReferenceCents'])>1
-            || !is_int($net) || $net<1 || $net>$gross) $blocked[]='price-mismatch';
+            || !is_int($net) || $net<0 || $net>$gross) $blocked[]='price-mismatch';
         return [
             'validForReleaseReview'=>!$blocked,
             'purchasable'=>false,
