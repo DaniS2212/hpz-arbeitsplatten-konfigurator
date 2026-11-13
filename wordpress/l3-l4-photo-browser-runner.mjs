@@ -75,7 +75,7 @@ try{
     return {data:expected.map(id=>{
        const el=drawing.querySelector('.apl-measure[data-measure-id="'+id+'"]');
        const r=el?.querySelector('.apl-measure-label rect')?.getBoundingClientRect();
-       return {id,label:el?.textContent?.trim(),active:el?.dataset.active,
+       return {id,label:el?.querySelector('.apl-measure-label text')?.textContent?.trim(),active:el?.dataset.active,
          visible:!!r&&r.width>0&&r.height>0,
          clipped:!!r&&(r.left<bounds.left-2||r.right>bounds.right+2
              ||r.top<bounds.top-2||r.bottom>bounds.bottom+2)};
