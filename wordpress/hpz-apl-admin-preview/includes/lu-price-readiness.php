@@ -364,12 +364,11 @@ final class HPZ_APL_LU_Price_Readiness
         if (!$evidenceOkay) {
             $blocked[] = 'exact-supplier-cut-list-or-price-proof-missing';
         } else {
-            // Use the physical longest PACKAGED side, not a potentially
-            // shorter declared cutting length: freight tier is 1900 mm.
+            // Flat 150 EUR net inbound per finished worktop, regardless of
+            // physical part lengths; verify packages but never charge each arm.
             if (($r['pricingBasis'] ?? null) === 'operator-priced-lu-ratebook-v1') {
-                // Owner decision 06.11.2026: the shop rule is based on the
-                // configured lengths, independent of actual supplier parts.
-                // >=1900 mm on ANY L-axis triggers the one-time EUR 50 tier.
+                // Operator-priced L/U: validated dimensions, but EVERY unit
+                // gets the same 150 EUR net supplier inbound (no length tiers).
                 $inboundCents = HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c);
             } else {
                 $verifiedPackageLengths = array_map(

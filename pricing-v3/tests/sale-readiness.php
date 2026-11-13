@@ -20,7 +20,7 @@ function checkContext(array $extra=[]):array{
   return array_replace([
     'country'=>'DE','taxVerified'=>true,'baseTaxRateBasisPoints'=>1900,'pricesConfigured'=>true,
     'shippingCalculated'=>true,'selectedShippingRateId'=>'test_rate:1','shippingAmountCents'=>1999,
-    'preDiscountGrossCents'=>67000,'actualNetLineRevenueCents'=>56303,
+    'preDiscountGrossCents'=>100000,'actualNetLineRevenueCents'=>84034,
     'checkoutIntegrationVerified'=>true,'fulfilmentWorkflowVerified'=>true,
   ],$extra);
 }
@@ -45,7 +45,7 @@ ck(in_array('supplier-proof-missing-or-expired',$absent['blockers'],true),'missi
 ck(in_array('weight-and-customer-shipping-unverified',$absent['blockers'],true),'missing shipping proof');
 ck(in_array('woocommerce-tax-context-unverified',$absent['blockers'],true),'missing real tax');
 ck(in_array('woocommerce-checkout-integration-not-verified',$absent['blockers'],true),'missing checkout verification');
-ck($absent['unitGrossReferenceCents']===67000,'V3 quote reused unchanged');
+ck($absent['unitGrossReferenceCents']===100000,'updated V3 quote with flat inbound');
 ck(strpos(json_encode($absent),'supplierNetCents')===false,'no private cost in public result');
 $proof=verifiedProof($raw);
 $contexts=checkContext();
@@ -62,11 +62,11 @@ ck(!isset($all['production']['supplierNetCents'],$all['production']['packedWeigh
 $two=raw(['quantity'=>2]);
 ck(HPZ_APL_Straight_Sale_Readiness::configurationKey(HPZ_APL_Price_Preview::normalize($two))===$key,'quantity independent config key');
 $twoGood=HPZ_APL_Straight_Sale_Readiness::review($two,[$key=>$proof],checkContext([
- 'preDiscountGrossCents'=>134000,'actualNetLineRevenueCents'=>112606
+ 'preDiscountGrossCents'=>200000,'actualNetLineRevenueCents'=>168067
 ]),$now);
 ck($twoGood['preflightComplete']===true,'quantities multiply supplier and inbound properly');
 $cheap=HPZ_APL_Straight_Sale_Readiness::review($two,[$key=>$proof],checkContext([
- 'preDiscountGrossCents'=>134000,'actualNetLineRevenueCents'=>85000
+ 'preDiscountGrossCents'=>200000,'actualNetLineRevenueCents'=>85000
 ]),$now);
 ck(in_array('margin-below-35-after-reserve-and-discounts',$cheap['blockers'],true),'discount destroys margin');
 $fraud=raw(['supplierNetCents'=>1,'supplierApproved'=>true,'price'=>1,'purchasable'=>true]);
@@ -93,14 +93,14 @@ foreach ([
  ['baseTaxRateBasisPoints'=>2000],['pricesConfigured'=>false],
  ['shippingCalculated'=>false],['selectedShippingRateId'=>'other_rate:99'],
  ['shippingAmountCents'=>-1],['preDiscountGrossCents'=>1],
- ['actualNetLineRevenueCents'=>0],['actualNetLineRevenueCents'=>90000],
+ ['actualNetLineRevenueCents'=>0],['actualNetLineRevenueCents'=>120000],
  ['checkoutIntegrationVerified'=>false],['fulfilmentWorkflowVerified'=>false],
 ] as $idx=>$patch) {
   $blocked=HPZ_APL_Straight_Sale_Readiness::review($raw,[$key=>$proof],checkContext($patch),$now);
   ck(!$blocked['preflightComplete']&&!$blocked['purchasable'],'no WC bypass '.$idx);
 }
 $badQty=HPZ_APL_Straight_Sale_Readiness::review(raw(['quantity'=>4]),[$key=>$proof],checkContext([
-  'preDiscountGrossCents'=>268000,'actualNetLineRevenueCents'=>225212
+  'preDiscountGrossCents'=>400000,'actualNetLineRevenueCents'=>336134
 ]),$now);
 ck(in_array('supplier-quantity-not-confirmed',$badQty['blockers'],true),'supplier stock not guessed');
 $round=raw(['straightCorner'=>['side'=>'left','treatment'=>'round','parameters'=>['R1'=>'150']]]);
@@ -119,7 +119,7 @@ $ref=[];
 foreach(['APL17.5','APL38'] as $mat) {
   $sample=raw(['material'=>$mat]);
   $out=HPZ_APL_Straight_Sale_Readiness::review($sample,[],[],$now);
-  ck($out['unitGrossReferenceCents']===($mat==='APL38'?67000:45000),'two unchanged V3 baselines');
+  ck($out['unitGrossReferenceCents']===($mat==='APL38'?100000:78000),'two historical straight curves plus internal 150 EUR net inbound');
 }
 foreach ([
  ['productId'=>1000080],['sku'=>'wrong'],['product'=>'l'],['geometry'=>'L1'],

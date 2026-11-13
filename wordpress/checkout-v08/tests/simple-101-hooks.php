@@ -55,12 +55,12 @@ $signed=HPZ_APL_WC_Dormant_Hooks_08::classicCartData([],1000083,0,1);
 ok(isset($signed['hpz_apl_v08']['signature']),'signed item generated');
 $product=new ItemProduct();$cart=new DemoCart();$cart->cart_contents=['row'=>array_merge($signed,[
  'product_id'=>1000083,'quantity'=>1,'data'=>$product,
- 'line_subtotal'=>'563.03','line_subtotal_tax'=>'106.97','line_total'=>'563.03'
+ 'line_subtotal'=>'840.34','line_subtotal_tax'=>'159.66','line_total'=>'840.34'
 ])];
 $demo=new DemoWoo($cart);
 HPZ_APL_WC_Dormant_Hooks_08::beforeTotals($cart);
 ok($product->price==='111.00','original product remains unchanged');
-ok($cart->cart_contents['row']['data']->price==='563.025210','V3 price only applied to cart item');
+ok($cart->cart_contents['row']['data']->price==='840.336134','V3 price only applied to cart item');
 ok(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)===[],'valid Woo cart passes with ordinary shipping, no supplier proof');
 ok(isset($actions['woocommerce_checkout_process'])
    &&$actions['woocommerce_checkout_process']===[HPZ_APL_WC_Dormant_Hooks_08::class,'classicCheckoutCheck'],
@@ -93,7 +93,7 @@ HPZ_APL_WC_Dormant_Hooks_08::storeCartErrors($issues,$cart);
 ok(count($issues->errors)===0,'Store API cart has no false approval error');
 $cart->cart_contents['row']['line_subtotal_tax']='0.00';
 ok(count(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart))>0,'incorrect VAT calculation blocked');
-$cart->cart_contents['row']['line_subtotal_tax']='106.97';
+$cart->cart_contents['row']['line_subtotal_tax']='159.66';
 $cart->cart_contents['row']['hpz_apl_v08']['signature']=str_repeat('0',64);
 ok(count(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart))>0,'corrupt signed config blocked at checkout');
 ok(HPZ_APL_WC_Dormant_Hooks_08::cartEntryChecks($cart)!==[],

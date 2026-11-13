@@ -55,7 +55,7 @@ function checkout(array $extra=[]): array {
         'country'=>'DE','taxVerified'=>true,'baseTaxRateBasisPoints'=>1900,
         'pricesConfigured'=>true,'shippingCalculated'=>true,
         'selectedShippingRateId'=>'test_rate:1','shippingAmountCents'=>1999,
-        'preDiscountGrossCents'=>164000,'actualNetLineRevenueCents'=>137815,
+        'preDiscountGrossCents'=>184000,'actualNetLineRevenueCents'=>154622,
         'checkoutIntegrationVerified'=>true,'manualSupplierHandoffVerified'=>true,
         'operatorSaleApproval'=>true
     ],$extra);
@@ -73,9 +73,9 @@ $good=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw)],checkout(),$no
 must($good['preflightComplete']===true,'complete synthetic preflight');
 must($good['status']==='manual-release-review-ready','not salable status');
 must($good['purchasable']===false,'even all-synthetic green cannot buy');
-must($good['unitGrossReferenceCents']===164000,'U1 691.49 net, 60 inbound, 40 pct, 10 pct reserve');
+must($good['unitGrossReferenceCents']===184000,'U1 691.49 net, 150 inbound per worktop, 40 pct, 10 pct reserve');
 must(
-    $good['unitGrossReferenceCents']===HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,6000,0),
+    $good['unitGrossReferenceCents']===HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69149,15000,0),
     'L/U preflight must call V3 shared commercial cost calculation'
 );
 must($good['pricingPolicyId']==='margin40-reserve10-floor35','auditable selected operator policy');
@@ -117,7 +117,7 @@ foreach ([
     ['baseTaxRateBasisPoints'=>2000],['pricesConfigured'=>false],
     ['shippingCalculated'=>false],['selectedShippingRateId'=>'wrong'],
     ['shippingAmountCents'=>-1],['preDiscountGrossCents'=>1],
-    ['actualNetLineRevenueCents'=>-1],['actualNetLineRevenueCents'=>165000],
+    ['actualNetLineRevenueCents'=>-1],['actualNetLineRevenueCents'=>185000],
     ['checkoutIntegrationVerified'=>false],['manualSupplierHandoffVerified'=>false],
     ['operatorSaleApproval'=>false]
 ] as $idx=>$bad) {
@@ -133,16 +133,16 @@ $noMatch=HPZ_APL_LU_Price_Readiness::review($changed,[$key=>proof($raw)],checkou
 must(!$noMatch['preflightComplete'],'changed mm invalidates supplier reference');
 $qty=rawU('U1',['quantity'=>2]);
 must(HPZ_APL_LU_Price_Readiness::configurationKey(HPZ_APL_LU_Price_Readiness::normalize($qty))===$key,'identity quantity independent');
-$two=HPZ_APL_LU_Price_Readiness::review($qty,[$key=>proof($raw)],checkout(['preDiscountGrossCents'=>328000,'actualNetLineRevenueCents'=>275630]),$now);
+$two=HPZ_APL_LU_Price_Readiness::review($qty,[$key=>proof($raw)],checkout(['preDiscountGrossCents'=>368000,'actualNetLineRevenueCents'=>309244]),$now);
 must($two['preflightComplete']===true&&$two['quantity']===2,'quantity costs and price multiplier');
-$three=HPZ_APL_LU_Price_Readiness::review(rawU('U1',['quantity'=>4]),[$key=>proof($raw)],checkout(['preDiscountGrossCents'=>656000,'actualNetLineRevenueCents'=>551260]),$now);
+$three=HPZ_APL_LU_Price_Readiness::review(rawU('U1',['quantity'=>4]),[$key=>proof($raw)],checkout(['preDiscountGrossCents'=>736000,'actualNetLineRevenueCents'=>618487]),$now);
 must(in_array('supplier-quantity-unverified',$three['blockers'],true),'quantity ceiling');
 // A malicious/mistaken 1800-mm "shipping length" must not suppress
 // the 1900-mm freight surcharge when the *real package* is 2070 mm.
 $understated=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
   'verifiedShippingPartLengthsMm'=>[1800]
 ])],checkout(),$now);
-must($understated['unitGrossReferenceCents']===164000,'use actual 2070-mm package, not understated shipping length');
+must($understated['unitGrossReferenceCents']===184000,'even alternative verified package lengths still cost 150 net inbound');
 $notFitting=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
   'verifiedCutParts'=>[['partId'=>'test-piece','lengthMm'=>3000,'widthMm'=>600]]
 ])],checkout(),$now);
@@ -153,14 +153,14 @@ $shortPackage=proof($raw,[
   'verifiedPackages'=>[['lengthMm'=>1899,'widthMm'=>670,'heightMm'=>110,'weightGrams'=>30000]]
 ]);
 $shortCase=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$shortPackage],checkout(),$now);
-must($shortCase['unitGrossReferenceCents']===154000,'1899-mm packed unit uses 10 EUR inbound');
+must($shortCase['unitGrossReferenceCents']===184000,'1899-mm package also costs 150 net inbound');
 $thresholdPackage=proof($raw,[
   'verifiedCutParts'=>[['partId'=>'test-piece','lengthMm'=>1500,'widthMm'=>600]],
   'verifiedShippingPartLengthsMm'=>[1500],
   'verifiedPackages'=>[['lengthMm'=>1900,'widthMm'=>670,'heightMm'=>110,'weightGrams'=>30000]]
 ]);
 $thresholdCase=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$thresholdPackage],checkout(),$now);
-must($thresholdCase['unitGrossReferenceCents']===164000,'1900-mm packed unit uses 60 EUR inbound');
+must($thresholdCase['unitGrossReferenceCents']===184000,'1900-mm package uses same 150 net inbound');
 $old30=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>proof($raw,[
     'operatorPricingPolicy'=>'legacy30','operatorPolicyReviewed'=>false
 ])],checkout(),$now);

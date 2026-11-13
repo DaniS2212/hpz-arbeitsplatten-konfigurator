@@ -105,7 +105,7 @@ foreach($shapes as $shape){
                     coverageAssert(is_int($estimate['supplierNetCents'])&&$estimate['supplierNetCents']>0,
                         $name.' positive cost estimate');
                     $inbound=HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c);
-                    coverageAssert(in_array($inbound,[1000,6000],true),$name.' inbound tier');
+                    coverageAssert($inbound===15000,$name.' inbound tier');
                     $gross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
                         $estimate['supplierNetCents'],$inbound,2000);
                     $preview=HPZ_APL_LU_Admin_Price_Preview_13::quote(
@@ -201,21 +201,21 @@ foreach($materials as $material)foreach($decors as $decor){
         }
     }
 }
-foreach([1899=>1000,1900=>6000,1901=>6000] as $length=>$expected) {
+foreach([1899=>15000,1900=>15000,1901=>15000] as $length=>$expected) {
     foreach([['L1'=>$length,'L2'=>1200],['L1'=>1200,'L2'=>$length],
         ['L1'=>1000,'L2'=>1200,'L3'=>$length]] as $d) {
         coverageAssert(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents(
-            ['dimensions'=>$d])===$expected || ($d['L1']===1200 && $d['L2']===1900 && $expected===6000),
-            '190cm configured L axis threshold '.$length.' '.json_encode($d));
+            ['dimensions'=>$d])===$expected,
+            '150 net configured L/U price per plate '.$length.' '.json_encode($d));
         $counts['border']++;
     }
 }
 coverageAssert(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents(
-    ['dimensions'=>['L1'=>2000,'L2'=>2200,'L3'=>3000]])===6000,
+    ['dimensions'=>['L1'=>2000,'L2'=>2200,'L3'=>3000]])===15000,
     'three long arms charge only once');
-coverageAssert(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===1000,
+coverageAssert(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===15000,
     '1899 internal procurement');
-coverageAssert(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===6000,
+coverageAssert(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===15000,
     '1900 internal procurement');
 if($unpriced) {
     echo "UNPRICED (" .count($unpriced)."):\n".implode("\n",array_slice($unpriced,0,80))."\n";

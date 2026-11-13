@@ -125,11 +125,11 @@ luOk(isset($storeData['cart_item_data'][HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY]),'S
 $originalProduct=new FakeLUProduct(1000081);
 $woo->cart->cart_contents['row']=array_merge($signed,[
  'product_id'=>1000081,'quantity'=>1,'data'=>$originalProduct,
- 'line_subtotal'=>'1378.15','line_subtotal_tax'=>'261.85','line_total'=>'1378.15'
+ 'line_subtotal'=>'1546.22','line_subtotal_tax'=>'293.78','line_total'=>'1546.22'
 ]);
 HPZ_APL_WP_LU_Runtime_11::beforeTotals($woo->cart);
 luOk($originalProduct->price==='10.00','persistent Woo product price never edited');
-luOk($woo->cart->cart_contents['row']['data']->price==='1378.151261','V3 price set on cloned cart line only');
+luOk($woo->cart->cart_contents['row']['data']->price==='1546.218487','V3 price set on cloned cart line only');
 luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)===[],'synthetic Woo taxes/ship/coupons pass');
 luOk(isset($actions['woocommerce_checkout_process'])
  &&in_array([HPZ_APL_WP_LU_Runtime_11::class,'checkClassicCheckout'],
@@ -168,7 +168,7 @@ luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)===[],
 $woo->cart->cart_contents['row']['line_total']='-1.00';
 luOk(count(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart))>0,
   'negative Woo item amount rejected');
-$woo->cart->cart_contents['row']['line_total']='1378.15';
+$woo->cart->cart_contents['row']['line_total']='1546.22';
 $woo->session->rate='other_rate:1';
 luOk(count(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart))>0,'unexpected customer shipping rate rejected');
 $woo->session->rate='test_rate:1';

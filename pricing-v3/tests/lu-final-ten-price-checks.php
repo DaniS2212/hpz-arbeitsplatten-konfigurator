@@ -98,10 +98,10 @@ assertLU($p['supplierNetCents']>=75000 && $p['supplierNetCents']<=90000,
     'U4 F128 17.5 nearby variant no unreasonably exaggerated cost');
 $short=HPZ_APL_LU_Price_Readiness::normalize(rawCase($doc['cases'][0]));
 $threshold=HPZ_APL_LU_Price_Readiness::normalize(rawCase($doc['cases'][1]));
-assertLU(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($short)===1000,
-    '1890mm inward freight EUR 10 net');
-assertLU(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($threshold)===6000,
-    '1900mm inward freight EUR 60 net once');
+assertLU(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($short)===15000,
+    '1890mm inbound EUR 150 net');
+assertLU(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($threshold)===15000,
+    '1900mm inbound EUR 150 net independent of length');
 $raw=rawCase($doc['cases'][2]);
 $raw['lCorner']['parameters']['L3']='160';
 $c=HPZ_APL_LU_Price_Readiness::normalize($raw);

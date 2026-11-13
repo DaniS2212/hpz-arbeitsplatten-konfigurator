@@ -57,12 +57,12 @@ pCheck(strpos($extra['availabilityNote'],'Zusatzkosten laut hinterlegtem')!==fal
 $raw['quantity']=3;
 $p=HPZ_APL_LU_Admin_Price_Preview_13::quote($raw,'DE');
 pCheck($p['totalGrossReferenceCents']===$p['unitGrossReferenceCents']*3,
-    'multi-quantity does not reapply tier');
+    'multi-quantity multiplies unit flat 150 inbound price');
 $raw['quantity']=1;
 $raw['lCorner']=['side'=>'left','treatment'=>'chamfer_continuous',
     'parameters'=>['L3'=>'150','B3'=>'150']];
 $p=HPZ_APL_LU_Admin_Price_Preview_13::quote($raw,'DE');
-$expected=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(51002,6000,0);
+$expected=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(51002,15000,0);
 pCheck($p['unitGrossReferenceCents']===$expected,'real single chamfer example preview');
 pCheck($p['purchasable']===false,'even real corner supplier quote not automatically sold');
 $raw['lCorner']=['side'=>'both','treatment'=>'round','parameters'=>['R1'=>'100','R2'=>'100']];

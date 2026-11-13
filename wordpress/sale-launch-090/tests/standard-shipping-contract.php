@@ -82,13 +82,13 @@ $standardWoo->session->selected='not-offered:99';
 $line=['product_id'=>1000080,'data'=>new StandardProduct(1000080)];
 $bad=HPZ_APL_WP_Woo_Context_09::context($line,new StandardCart());
 assertStandard($bad['shippingCalculated']===false,'nonexistent Woo rate still rejected');
-assertStandard(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===1000,
-    'internal procurement under 1900: 10 EUR net');
-assertStandard(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===6000,
-    'internal procurement at 1900: 60 EUR net');
-assertStandard(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900,3000])===6000,
-    'several long legs: 60 EUR net only once per unit');
-foreach([1899=>1000,1900=>6000,1901=>6000] as $length=>$expected){
+assertStandard(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1899])===15000,
+    'internal procurement under 1900: flat 150 EUR net');
+assertStandard(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900])===15000,
+    'internal procurement at 1900: flat 150 EUR net');
+assertStandard(HPZ_APL_Price_V3::inboundCostForVerifiedParts([1900,3000])===15000,
+    'several long legs: 150 EUR net only once per worktop');
+foreach([1899=>15000,1900=>15000,1901=>15000] as $length=>$expected){
     foreach([
         ['L1'=>$length,'L2'=>1200],
         ['L1'=>1200,'L2'=>$length],
@@ -96,11 +96,11 @@ foreach([1899=>1000,1900=>6000,1901=>6000] as $length=>$expected){
     ] as $dimensions){
         assertStandard(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents(
             ['dimensions'=>$dimensions])===$expected,
-            'L/U real price engine 190cm tier '.$length);
+            'L/U single fixed 150 EUR net per plate '.$length);
     }
 }
 $cost=30000;
-$shortGross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($cost,1000,0);
-$freightGross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($cost,6000,0);
-assertStandard($freightGross>$shortGross,'gross price includes higher internal freight cost');
-echo "PASS $checks internal 10/60 EUR and ordinary Woo shipping separation checks (synthetic; not live checkout)\n";
+$shortGross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($cost,15000,0);
+$longGross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($cost,15000,0);
+assertStandard($shortGross===$longGross,'identical internal inbound at any length');
+echo "PASS $checks flat 150 EUR NET inbound per board and ordinary Woo shipping separation checks (synthetic; not live checkout)\n";

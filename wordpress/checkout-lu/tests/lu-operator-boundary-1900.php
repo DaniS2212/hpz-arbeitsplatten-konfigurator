@@ -51,8 +51,8 @@ foreach(['L1','U1'] as $shape) {
     $estimate=HPZ_APL_LU_Shop_Ratebook_12::extendedCandidate($c);
     borderCheck(is_array($estimate),'extended $shape / $length estimated without fake supplier quote');
     $inbound=HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c);
-    borderCheck($inbound===($length>=1900?6000:1000),
-      "$shape $length internal inbound 10/60 EUR");
+    borderCheck($inbound===15000,
+      "$shape $length always 150 EUR net inbound per board");
     $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($c,$policy);
     borderCheck(is_array($proof)&&$proof['operatorPriceApproved']===true,
       "$shape $length requires trusted explicit commercial approval");
@@ -116,9 +116,9 @@ foreach(['L1','U1'] as $shape) {
     if($length===1899 || $length===1901)borderCheck(
       HPZ_APL_LU_Shop_Ratebook_12::operatorProof($c,$noPricePolicy)===null,
       "$shape $length extended width/length cannot bypass policy");
-    if($prev!==null && $length===1900)borderCheck($gross>$prev+8000,
-      "$shape 1900 crosses freight tier and calculated gross increases");
+    if($prev!==null && $length===1900)borderCheck($gross>=$prev,
+      "$shape 1900 has no independent freight tier, only supplier size changes");
     $prev=$gross;
   }
 }
-echo "PASS $tests isolated operator-price/190cm signed Woo cart, VAT, coupon and HPOS metadata checks. No live orders.\n";
+echo "PASS $tests isolated operator-price flat-150-eur inbound, 190cm signed Woo cart, VAT, coupon and HPOS checks. No live orders.\n";

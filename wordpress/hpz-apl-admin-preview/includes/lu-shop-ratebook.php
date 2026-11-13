@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 final class HPZ_APL_LU_Shop_Ratebook_12
 {
-    public const VERSION = 'lu-ratebook-10point-commercial-final-20261109-v5';
+    public const VERSION = 'lu-ratebook-150eur-inbound-net-per-unit-v6';
 
     private const W980 = [
         'L1'=>['APL17.5'=>[2000=>30767,2500=>34241],'APL38'=>[2000=>46445,2500=>51156]],
@@ -95,7 +95,7 @@ final class HPZ_APL_LU_Shop_Ratebook_12
         ];
     }
 
-    /** Internal inbound freight rule; user override of 06.11.2026. */
+    /** 150 EUR NET internal inbound per configured L/U worktop, regardless of lengths. */
     public static function configuredInboundCents(array $c): int
     {
         $d=$c['dimensions'] ?? null;

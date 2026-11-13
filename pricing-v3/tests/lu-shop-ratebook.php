@@ -53,13 +53,13 @@ foreach($w980 as $shape=>$thicks){
             $got=HPZ_APL_LU_Shop_Ratebook_12::candidate($c);
             $expect=$pair[0]+intdiv(($pair[1]-$pair[0])*($length-2000)+499,500);
             testRate(is_array($got)&&$got['supplierNetCents']===$expect,"W980/$shape/$material/$length");
-            testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===6000,'190cm applies on configured arms');
+            testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===15000,'150 net per configured L/U unit');
             foreach($decors as $decor){
                 $copy=$c;$copy['decor']=$decor;
                 $q=HPZ_APL_LU_Shop_Ratebook_12::candidate($copy);
                 testRate(is_array($q)&&$q['supplierNetCents']>0,"all 16 decors / $shape / $material / $length / $decor");
                 testRate($q['supplierNetCents']>=$expect,'decor cannot undercut W980');
-                $price=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($q['supplierNetCents'],6000,0);
+                $price=HPZ_APL_Price_V3::targetGrossForVerifiedCosts($q['supplierNetCents'],15000,0);
                 testRate($price%1000===0 && $price>0,'common V3 margin and rounding');
                 if($decor!=='W980'&&$decor!=='H1145'){
                     // New independently confirmed 9 Nov U3/F128/38mm
@@ -99,11 +99,11 @@ foreach(['L1','L3','L4','U1'] as $shape){
     testRate(HPZ_APL_LU_Shop_Ratebook_12::candidate($c)===null,'changed non-L1 measures must be blocked');
 }
 $c=['dimensions'=>['L1'=>1899,'L2'=>1200]];
-testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===1000,'1899mm no heavy surcharge');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===15000,'1899mm fixed inbound');
 $c['dimensions']['L1']=1900;
-testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===6000,'1900mm threshold exact');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===15000,'1900mm no special tier');
 $c['dimensions']=['L1'=>1600,'L2'=>2000,'L3'=>2100];
-testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===6000,'multiple arms surcharge only once');
+testRate(HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($c)===15000,'multiple arms still one inbound per board');
 
 $raw=testRaw('U1','H1145','APL38',2000);
 $normalized=HPZ_APL_LU_Price_Readiness::normalize($raw);
@@ -117,7 +117,7 @@ $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($normalized,$policy);
 testRate(is_array($proof)&&$proof['supplierNetCents']===69655,'operator price assumption');
 testRate($proof['verifiedPackages']===[]&&$proof['verifiedCutParts']===[],'no fictitious packaging/CNC proofs');
 $key=HPZ_APL_LU_Price_Readiness::configurationKey($normalized);
-$gross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69655,6000,0);
+$gross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69655,15000,0);
 $ctx=[
     'country'=>'DE','taxVerified'=>true,'baseTaxRateBasisPoints'=>1900,
     'pricesConfigured'=>true,'shippingCalculated'=>true,
@@ -156,7 +156,7 @@ $grossShort=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
 $grossLong=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
     $extendedLong['supplierNetCents'],HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($long),0
 );
-testRate($grossLong>$grossShort+9000,'1900mm adds one-time freight to extended gross');
+testRate($grossLong>=$grossShort && $grossLong<=$grossShort+1000,'1899 to 1900 mm has no additional internal freight tier');
 $changed=HPZ_APL_LU_Price_Readiness::normalize(testRaw('U1','F128','APL17.5',2250));
 $changed['dimensions']['L2']=1700;
 $changed['dimensions']['B1']=700;

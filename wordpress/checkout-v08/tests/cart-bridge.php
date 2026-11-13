@@ -48,7 +48,7 @@ function checkoutContext(array $patch=[]):array{
   'country'=>'DE','taxVerified'=>true,'baseTaxRateBasisPoints'=>1900,
   'pricesConfigured'=>true,'shippingCalculated'=>true,
   'selectedShippingRateId'=>'test-rate:1','shippingAmountCents'=>8500,
-  'preDiscountGrossCents'=>67000,'actualNetLineRevenueCents'=>56303,
+  'preDiscountGrossCents'=>100000,'actualNetLineRevenueCents'=>84034,
   'checkoutIntegrationVerified'=>true,'fulfilmentWorkflowVerified'=>true
  ],$patch);
 }
@@ -63,7 +63,7 @@ ok(!strstr(json_encode($cart),'24311'),'supplier price not in cart');
 ok($cart[HPZ_APL_WC_Cart_Bridge_08::ITEM_KEY]['config']['quantity']===1,'saved quantity is normalized 1');
 ok(!HPZ_APL_WC_Cart_Bridge_08::targets(1000080)&&!HPZ_APL_WC_Cart_Bridge_08::targets(999985),'L/U and other products unaffected');
 $checked=HPZ_APL_WC_Cart_Bridge_08::inspect($cart,1,'lookup',$secret,$now);
-ok($checked['quote']['unitGrossReferenceCents']===67000,'price independently recalculated from V3');
+ok($checked['quote']['unitGrossReferenceCents']===100000,'price independently recalculated from V3');
 ok($checked['production']['lengthMm']===2000&&$checked['production']['depthMm']===600,'exact normalized millimetres');
 ok($checked['production']['decorName']==='Platinweiß','customer decor name');
 ok($checked['production']['supplierDecorCode']==='W980 ST7','manual supplier decor code');
@@ -76,7 +76,7 @@ $good=HPZ_APL_WC_Cart_Bridge_08::checkout($cart,1,'lookup',checkoutContext(),$se
 ok($good['validForReleaseReview']===true,'all synthetic checks would pass review');
 ok($good['purchasable']===false,'0.8 never opens purchase gate');
 ok($good['blockers']===[],'complete synthetic evidence yields no open preflight blockers');
-ok($good['totalGrossReferenceCents']===67000,'gross total passed');
+ok($good['totalGrossReferenceCents']===100000,'gross total passed');
 $meta=new class {public $fields=[];public function add_meta_data($k,$v,$unique=false){$this->fields[$k]=$v;}};
 HPZ_APL_WC_Cart_Bridge_08::writeOrderLine($meta,$good);
 ok(isset($meta->fields['_hpz_apl_manufacturing_v2']),'HPOS-safe private production metadata');
@@ -106,17 +106,17 @@ rejected(function()use($cart,$secret,$now){HPZ_APL_WC_Cart_Bridge_08::inspect($c
 rejected(function()use($cart,$secret,$now){HPZ_APL_WC_Cart_Bridge_08::inspect($cart,1001,'lookup',$secret,$now);},'1001 quantity refused');
 rejected(function()use($cart,$secret,$now){HPZ_APL_WC_Cart_Bridge_08::inspect($cart,4,'lookup',$secret,$now);},'supplier quantity rechecked');
 $qty2=HPZ_APL_WC_Cart_Bridge_08::checkout($cart,2,'lookup',checkoutContext([
- 'preDiscountGrossCents'=>134000,'actualNetLineRevenueCents'=>112606
+ 'preDiscountGrossCents'=>200000,'actualNetLineRevenueCents'=>168067
 ]),$secret,$now);
-ok($qty2['validForReleaseReview']===true&&$qty2['totalGrossReferenceCents']===134000,'quantity2 proper price, 2x costs');
+ok($qty2['validForReleaseReview']===true&&$qty2['totalGrossReferenceCents']===200000,'quantity2 proper price, 2x costs');
 $discount=HPZ_APL_WC_Cart_Bridge_08::checkout($cart,2,'lookup',checkoutContext([
- 'preDiscountGrossCents'=>134000,'actualNetLineRevenueCents'=>85000
+ 'preDiscountGrossCents'=>200000,'actualNetLineRevenueCents'=>85000
 ]),$secret,$now);
 ok(in_array('margin-below-35-after-reserve-and-discounts',$discount['blockers'],true),'coupon cannot bypass margin');
 foreach([
  ['country'=>'AT'],['taxVerified'=>false],['baseTaxRateBasisPoints'=>2000],
  ['selectedShippingRateId'=>'unknown'],['shippingCalculated'=>false],
- ['preDiscountGrossCents'=>66900],['actualNetLineRevenueCents'=>0],
+ ['preDiscountGrossCents'=>99900],['actualNetLineRevenueCents'=>0],
  ['checkoutIntegrationVerified'=>false],['fulfilmentWorkflowVerified'=>false]
 ] as $i=>$v) {
  $r=HPZ_APL_WC_Cart_Bridge_08::checkout($cart,1,'lookup',checkoutContext($v),$secret,$now);

@@ -9,7 +9,10 @@ declare(strict_types=1);
 
 final class HPZ_APL_Price_V3
 {
-    public const VERSION = 'v3.0.0-approved-formula';
+    public const VERSION = 'v3.1.0-flat-inbound-150-net';
+    // Speedmaster supplies EVERY configured worktop with 150 EUR NET inbound,
+    // regardless of shape, arm length or WooCommerce customer shipping.
+    public const INBOUND_PER_WORKTOP_NET_CENTS = 15000;
     public const CORNER_GROSS_CENTS = 12000;
     public const MIN_MARGIN = 0.35;
     public const TARGET_MARGIN = 0.40;
@@ -84,7 +87,10 @@ final class HPZ_APL_Price_V3
         // Up to the next EUR 10; tiny tolerance only avoids binary-float false bumps.
         $baseGrossCents = (int) (1000 * ceil(($base + $surcharge - 0.000000001) / 10.0));
         $cornerGrossCents = $c['straightCorner']['side'] === 'none' ? 0 : self::CORNER_GROSS_CENTS;
-        $unitGrossCents = $baseGrossCents + $cornerGrossCents;
+        // The historic straight curve never separately priced its internal
+        // delivery cost. Include the FULL 150 EUR net inbound at the same
+        // 10% reserve / 40% target margin, rounded to EUR 10 per worktop.
+        $unitGrossCents = $baseGrossCents + $cornerGrossCents + self::inboundGrossContributionCents();
         $quantity = $c['quantity'];
         // German gross reference only. Tax is NOT hardcoded into a Woo line price.
         return [
@@ -194,29 +200,38 @@ final class HPZ_APL_Price_V3
     }
 
     /**
-     * One internal procurement per configured worktop unit, based on verified
-     * shipping parts (NOT the client-defined outside dimensions).
-     * 10 EUR regular procurement plus 50 EUR if any part is >=1900 mm.
+     * 150 EUR NET inbound freight per finished configured worktop unit.
+     * Verified physical lengths must still be well formed, but never affect
+     * the commercial inbound rate (no old 1900-mm threshold, no per-arm fees).
      */
     public static function inboundCostForVerifiedParts(array $partLengthsMm): int
     {
         if (count($partLengthsMm) === 0) {
             throw new InvalidArgumentException('Verified shipping parts are required.');
         }
-        $hasLongPart = false;
         foreach ($partLengthsMm as $part) {
             if (!is_int($part) || $part < 1 || $part > 100000) {
                 throw new InvalidArgumentException('Invalid verified shipping-part length.');
             }
-            if ($part >= 1900) { $hasLongPart = true; }
         }
-        return 1000 + ($hasLongPart ? 5000 : 0);
+        return self::INBOUND_PER_WORKTOP_NET_CENTS;
+    }
+
+    /**
+     * Straight historic sale curve did not include an explicit inbound fee:
+     * add the retail contribution for 150 EUR NET / piece. Same reserve,
+     * target margin and DE 19% VAT as verified-cost L/U, rounded to EUR 10.
+     * This is a constituent of the PRODUCT price, not a customer shipping fee.
+     */
+    public static function inboundGrossContributionCents(): int
+    {
+        return intdiv(self::INBOUND_PER_WORKTOP_NET_CENTS * 1309 + 600000 - 1, 600000) * 1000;
     }
 
     /**
      * Shared commercial price POLICY for a supplier-priced worktop.
      *
-     * Straight continues to use its existing V3 dimension/decor price curve.
+     * Straight uses its existing V3 dimension/decor curve plus the flat inbound contribution.
      * L/U may call this ONLY after their exact supplier and shipping evidence
      * is verified on the server. Same company rules as Straight: 10% cost
      * reserve, 40% target margin and German 19%-VAT reference gross.

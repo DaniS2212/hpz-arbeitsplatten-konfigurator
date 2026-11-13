@@ -197,8 +197,8 @@ foreach(['straight','L1','L2','L3','L4','U1','U2','U3','U4'] as $shape){
             $baseGross=(int)round(
                 ((float)$row['line_subtotal']+(float)$row['line_subtotal_tax'])*100
             );
-            hpzLiveCheck($baseGross===67000,
-                'live regression Bardolino Eiche 1899x600 gross 670.00');
+            hpzLiveCheck($baseGross===100000,
+                'flat-inbound regression Bardolino Eiche 1899x600 gross 1000.00');
             $signedDecor=$row['hpz_apl_v08']['config']['decor']??'';
             hpzLiveCheck($signedDecor==='H1145',
                 'live regression Bardolino decor code remains signed');

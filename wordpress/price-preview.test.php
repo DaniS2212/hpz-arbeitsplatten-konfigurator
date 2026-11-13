@@ -25,22 +25,22 @@ foreach ($catalog as $id=>$row) foreach (['APL17.5','APL38'] as $material) {
     ensure(!isset($out['supplierNet'],$out['marginPct']) && !isset($out['decorSupplierCode']),'no internal cost/code '.$id.'/'.$material);
 }
 $baseline=HPZ_APL_Price_Preview::publicQuote(sample());
-ensure($baseline['unitGrossReferenceCents']===45000 && $baseline['totalGrossReferenceCents']===45000,'base V3 price');
-ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','1200','600'))['unitGrossReferenceCents']===51000,'small worktop 120x60 510 EUR');
-ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','3500','900'))['unitGrossReferenceCents']===203000,'large worktop 350x90 2030 EUR');
+ensure($baseline['unitGrossReferenceCents']===78000 && $baseline['totalGrossReferenceCents']===78000,'base V3 price');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','1200','600'))['unitGrossReferenceCents']===84000,'small worktop 120x60 510 EUR');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','3500','900'))['unitGrossReferenceCents']===236000,'large worktop 350x90 2030 EUR');
 ensure(strpos($baseline['taxNote'],'19')===false,'unknown destination does not claim applied 19% tax');
 ensure(strpos(HPZ_APL_Price_Preview::publicQuote(sample(),'DE')['taxNote'],'19')!==false,'DE reference explicitly labeled');
 ensure(strpos(HPZ_APL_Price_Preview::publicQuote(sample(),'CH')['taxNote'],'19')===false,'foreign destination does not claim applied 19% tax');
-ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','2501','880'))['unitGrossReferenceCents']===74000,'2501 jump');
-ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2781','600'))['unitGrossReferenceCents']===89000,'2781 jump');
-ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2500','881'))['unitGrossReferenceCents']===149000,'881 jump');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','2501','880'))['unitGrossReferenceCents']===107000,'2501 jump');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2781','600'))['unitGrossReferenceCents']===122000,'2781 jump');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2500','881'))['unitGrossReferenceCents']===182000,'881 jump');
 $one=sample();$one['straightCorner']=['side'=>'left','treatment'=>'round','parameters'=>['R1'=>'150']];
 $both=sample();$both['straightCorner']=['side'=>'both','treatment'=>'round','parameters'=>['R1'=>'150','R2'=>'150']];
-ensure(HPZ_APL_Price_Preview::publicQuote($one)['unitGrossReferenceCents']===57000,'one corner +120');
-ensure(HPZ_APL_Price_Preview::publicQuote($both)['unitGrossReferenceCents']===57000,'both corners +120 only once');
-ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','2000','600',3))['totalGrossReferenceCents']===135000,'quantity multiplies unit');
+ensure(HPZ_APL_Price_Preview::publicQuote($one)['unitGrossReferenceCents']===90000,'one corner +120');
+ensure(HPZ_APL_Price_Preview::publicQuote($both)['unitGrossReferenceCents']===90000,'both corners +120 only once');
+ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','2000','600',3))['totalGrossReferenceCents']===234000,'quantity multiplies unit');
 $forged=sample();$forged['price']=1;$forged['supplierNet']=1;$forged['marginPct']=99;$forged['decorSupplierCode']='F128 PA';
-ensure(HPZ_APL_Price_Preview::publicQuote($forged)['totalGrossReferenceCents']===45000,'forged price fields ignored');
+ensure(HPZ_APL_Price_Preview::publicQuote($forged)['totalGrossReferenceCents']===78000,'forged price fields ignored');
 foreach ([
     ['productId'=>999985],['product'=>'l'],['geometry'=>'L1'],['schemaVersion'=>1],['inputUnit'=>'cm'],
     ['sku'=>'wrong'],['decor'=>'F128 PA'],['decor'=>44375],['material'=>'APL99'],['quantity'=>1.5],['quantity'=>0],

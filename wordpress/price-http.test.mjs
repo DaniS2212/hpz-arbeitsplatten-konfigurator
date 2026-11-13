@@ -32,18 +32,18 @@ test('actual PHP WordPress-test adapter: admin gate, V3 prices and no internal d
     assert.equal(data.data.quote.purchasable,false);assert.ok(data.data.quote.unitGrossReferenceCents>0);
     assert.doesNotMatch(JSON.stringify(data),/supplierNet|marginPct|decorSupplierCode|inboundNet|EK_REFERENCE/);
   }
-  assert.equal((await send(input('W980','APL17.5','2501','880'))).data.data.quote.unitGrossReferenceCents,74000);
-  assert.equal((await send(input('W980','APL38','2781','600'))).data.data.quote.unitGrossReferenceCents,89000);
-  assert.equal((await send(input('W980','APL38','1200','600'))).data.data.quote.unitGrossReferenceCents,51000,'120x60 PHP HTTP quote');
-  assert.equal((await send(input('W980','APL38','3500','900'))).data.data.quote.unitGrossReferenceCents,203000,'350x90 PHP HTTP quote');
-  assert.equal((await send(input('W980','APL38','2500','881'))).data.data.quote.unitGrossReferenceCents,149000);
+  assert.equal((await send(input('W980','APL17.5','2501','880'))).data.data.quote.unitGrossReferenceCents,107000);
+  assert.equal((await send(input('W980','APL38','2781','600'))).data.data.quote.unitGrossReferenceCents,122000);
+  assert.equal((await send(input('W980','APL38','1200','600'))).data.data.quote.unitGrossReferenceCents,84000,'120x60 PHP HTTP quote');
+  assert.equal((await send(input('W980','APL38','3500','900'))).data.data.quote.unitGrossReferenceCents,236000,'350x90 PHP HTTP quote');
+  assert.equal((await send(input('W980','APL38','2500','881'))).data.data.quote.unitGrossReferenceCents,182000);
   for(const [material,one,two,depth] of [['APL17.5','250','250,1','60'],['APL38','278','278,1','60'],['APL38','250','250','88']]){
     const before=input('W980',material,cmInputToMmText(one),cmInputToMmText(depth));
     const after=input('W980',material,cmInputToMmText(two),cmInputToMmText(depth==='88'?'88,1':depth));
     const a=(await send(before)).data.data.quote.unitGrossReferenceCents,b=(await send(after)).data.data.quote.unitGrossReferenceCents;
     assert.notEqual(a,b,`${material}: ${one}→${two} cm, ${depth} cm`);
   }
-  const two=input('W980','APL17.5','2000','600',2);assert.equal((await send(two)).data.data.quote.totalGrossReferenceCents,90000);
+  const two=input('W980','APL17.5','2000','600',2);assert.equal((await send(two)).data.data.quote.totalGrossReferenceCents,156000);
   const through=input('W980','APL38','2500','800');
   through.straightCorner={side:'both',treatment:'chamfer_continuous',parameters:{L2:'150',B2:'150',L3:'200',B3:'200'}};
   const expanded=await send(through);
@@ -57,7 +57,7 @@ test('actual PHP WordPress-test adapter: admin gate, V3 prices and no internal d
   for(const mode of ['visitor','no-test','disabled','published','wrong-sku'])assert.equal((await send(input(),mode)).status,403,mode);
   assert.equal((await send(input(),'','bad')).status,403,'bad nonce');
   const sockel=input();sockel.productId=999985;assert.equal((await send(sockel)).status,403,'sockel denied');
-  const tamper=input();tamper.price=1;tamper.supplierNet=1;assert.equal((await send(tamper)).data.data.quote.totalGrossReferenceCents,45000);
+  const tamper=input();tamper.price=1;tamper.supplierNet=1;assert.equal((await send(tamper)).data.data.quote.totalGrossReferenceCents,78000);
   for(const wrong of [input('W980','APL38','2500','901'),input('W980','APL17.5','999','600'),input('BAD')])assert.equal((await send(wrong)).status,422);
   assert.equal((await send(input(),'CH')).data.data.quote.taxNote.includes('19'),false,'foreign address has no applied DE tax statement');
   assert.equal((await send(input(),'DE')).data.data.quote.taxNote.includes('19'),true,'DE context gets DE tax label');

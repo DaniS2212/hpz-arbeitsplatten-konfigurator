@@ -24,9 +24,9 @@ $c=HPZ_APL_WC_Cart_Bridge_08::issue(raw(),$noProof,$secret);
 check(is_array($c['hpz_apl_v08']),'cart can issue without any Speedmaster-specific approval');
 check(!array_key_exists('supplierNetCents',$c['hpz_apl_v08']),'no EK data');
 $info=HPZ_APL_WC_Cart_Bridge_08::inspect($c,1,$noProof,$secret);
-check($info['quote']['unitGrossReferenceCents']===67000,'V3 baseline 670 gross');
+check($info['quote']['unitGrossReferenceCents']===100000,'V3 baseline with flat inbound 1000 gross');
 $small=HPZ_APL_WC_Cart_Bridge_08::issue(raw(['dimensions'=>['L1'=>'1200','B1'=>'600']]),$noProof,$secret);
-check(HPZ_APL_WC_Cart_Bridge_08::inspect($small,1,$noProof,$secret)['quote']['unitGrossReferenceCents']===51000,'small 120x60 can be signed and priced for cart');
+check(HPZ_APL_WC_Cart_Bridge_08::inspect($small,1,$noProof,$secret)['quote']['unitGrossReferenceCents']===84000,'small 120x60 includes internal inbound in cart quote');
 check($info['proof']===null,'no supplier proof');
 check($info['production']['supplierDecorCode']==='W980 ST7','Speedmaster decor code preserved for manual order');
 check(HPZ_APL_WC_Cart_Bridge_08::priceForWoo(67000,true,'DE')==='670.00','Woo gross');
@@ -35,7 +35,7 @@ $ctx=[
  'country'=>'DE','pricesConfigured'=>true,'taxVerified'=>true,
  'shippingCalculated'=>true,'selectedShippingRateId'=>'shop_rate:1',
  'shippingAmountCents'=>580,
- 'preDiscountGrossCents'=>67000,'actualNetLineRevenueCents'=>56303
+ 'preDiscountGrossCents'=>100000,'actualNetLineRevenueCents'=>84034
 ];
 $r=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,$ctx,$secret);
 check($r['validForReleaseReview']===true,'valid DE cart with existing Woo method and no supplier approval');
@@ -82,9 +82,9 @@ foreach([1899,1900,1901] as $length){
 
 $other=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,array_replace($ctx,['country'=>'AT']),$secret);
 check(in_array('country-not-tested',$other['blockers'],true),'international tax needs explicit test');
-$wrong=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,array_replace($ctx,['preDiscountGrossCents'=>66900]),$secret);
+$wrong=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,array_replace($ctx,['preDiscountGrossCents'=>99900]),$secret);
 check(in_array('price-mismatch',$wrong['blockers'],true),'tampered price blocked');
-$second=HPZ_APL_WC_Cart_Bridge_08::checkout($c,2,$noProof,array_replace($ctx,['preDiscountGrossCents'=>134000,'actualNetLineRevenueCents'=>112606]),$secret);
+$second=HPZ_APL_WC_Cart_Bridge_08::checkout($c,2,$noProof,array_replace($ctx,['preDiscountGrossCents'=>200000,'actualNetLineRevenueCents'=>168067]),$secret);
 check($second['validForReleaseReview']===true,'quantity update recalculates gross and stays valid');
 $fake=$c;$fake['hpz_apl_v08']['unitGrossReferenceCents']=1;
 throws(function()use($fake,$noProof,$secret){HPZ_APL_WC_Cart_Bridge_08::inspect($fake,1,$noProof,$secret);},'forged price cannot overwrite V3');
