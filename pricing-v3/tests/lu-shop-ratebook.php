@@ -131,7 +131,11 @@ $review=HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$ctx,$now);
 testRate($review['preflightComplete']===true,'owner-priced Woo review can pass without CNC');
 testRate($review['purchasable']===false,'price preflight cannot publish');
 $discount=$ctx;$discount['actualNetLineRevenueCents']=100000;
-testRate(!HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$discount,$now)['preflightComplete'],'35 percent floor');
+testRate(HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$discount,$now)['preflightComplete'],'valid Woo discount may reduce effective margin below 35 percent');
+$fullDiscount=$ctx;$fullDiscount['actualNetLineRevenueCents']=0;
+testRate(HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$fullDiscount,$now)['preflightComplete'],'full Woo coupon may reduce net to zero');
+$forgedGross=$discount;$forgedGross['preDiscountGrossCents']=$gross-1000;
+testRate(!HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$forgedGross,$now)['preflightComplete'],'unchanged base gross still mandatory');
 $bad=$ctx;$bad['selectedShippingRateId']='wrong';
 testRate(!HPZ_APL_LU_Price_Readiness::review($raw,[$key=>$proof],$bad,$now)['preflightComplete'],'Woo shipping rate check');
 // Separate extended model for variable dimensions, no public sale approval.
