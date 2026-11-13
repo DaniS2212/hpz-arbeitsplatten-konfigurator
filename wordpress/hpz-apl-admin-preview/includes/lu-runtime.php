@@ -544,7 +544,17 @@ final class HPZ_APL_WP_LU_Runtime_11
     {
         if(!is_array($values)||!self::isTarget($values['product_id']??null))return $allowed;
         $whole=self::wholeQuantity($qty);
-        if(!$allowed||$whole===null||!self::canSell((int)$values['product_id']))return false;
-        try{self::checked($values,$whole);return true;}catch(Throwable $error){return false;}
+        if(!$allowed)return false;
+        if($whole===null||!self::canSell((int)$values['product_id'])){
+            if(function_exists('wc_add_notice'))wc_add_notice(
+                'L-/U-Arbeitsplatte: Bitte eine gültige ganze Stückzahl eingeben.','error');
+            return false;
+        }
+        try{self::checked($values,$whole);return true;}
+        catch(Throwable $error){
+            if(function_exists('wc_add_notice'))wc_add_notice(
+                'L-/U-Arbeitsplatte: Die Stückzahl oder Fertigungsmöglichkeit ist nicht bestätigt.','error');
+            return false;
+        }
     }
 }
