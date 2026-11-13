@@ -1,3 +1,5 @@
+> **Historischer Beschluss vom 12.11.2026 – seit 13.11.2026 ersetzt.** Die unten genannten **10/60 € und die 190-cm-Schwelle** gelten **nicht mehr** für die aktive Preisberechnung. Jetzt verbindlich: **150 € netto interne Speedmaster-Fracht pro Arbeitsplatte**, einkalkuliert im Produktpreis; Woo-Kundenversand unverändert. Aktuelle Regel: [13.11.2026 – 150 € netto pro Platte](20261113-flat-150-net-inbound.md).
+
 # Arbeitsplatten: Verkaufsstart-Preflight und Versandentscheidung (12.11.2026)
 
 ## Verbindliche Versand-Voreinstellung
