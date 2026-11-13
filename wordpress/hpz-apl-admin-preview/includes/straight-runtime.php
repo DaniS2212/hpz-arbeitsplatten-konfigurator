@@ -164,12 +164,21 @@ final class HPZ_APL_WP_Straight_Runtime_09 {
     public static function classicQuantity($allowed,$cartKey,$values,$quantity) {
         if (!is_array($values) || (int)($values['product_id']??0)!==self::PRODUCT_ID) return $allowed;
         $whole=self::wholeQuantity($quantity);
-        if (!$allowed || !self::canSell() || $whole===null) return false;
+        if (!$allowed) return false;
+        if (!self::canSell() || $whole===null) {
+            if (function_exists('wc_add_notice')) wc_add_notice(
+                'Arbeitsplatte: Bitte eine ganze Stückzahl zwischen 1 und 1.000 eingeben.','error');
+            return false;
+        }
         try{
             HPZ_APL_WC_Cart_Bridge_08::inspect(
                 $values,$whole,function($key){return null;},self::secret()
             );
             return true;
-        }catch(Throwable $error){return false;}
+        }catch(Throwable $error){
+            if (function_exists('wc_add_notice')) wc_add_notice(
+                'Arbeitsplatte: Stückzahl oder Konfiguration konnte nicht bestätigt werden. Bitte Warenkorb neu laden.','error');
+            return false;
+        }
     }
 }
