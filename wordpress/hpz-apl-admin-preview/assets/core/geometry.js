@@ -299,7 +299,7 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
         '<circle r="'+(unit*.13).toFixed(1)+'" fill="#5c696b" stroke="#e0e8e6" stroke-width="'+
         (unit*.035).toFixed(1)+'"/></g>';
     }).join('');
-    return '<g class="apl-schematic-hardware" data-seam-id="'+escapeXml(meta.id)+
+    return '<g class="apl-schematic-hardware" data-preview-joint="'+escapeXml(meta.id)+
       '" data-illustration-only="true" pointer-events="none">'+
       '<title>'+escapeXml(meta.label)+
       ': schematische Verbindungselemente nach Speedmaster-Beispiel, keine Bohrpositionen.</title>'+
