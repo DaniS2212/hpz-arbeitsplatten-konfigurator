@@ -53,7 +53,9 @@ final class HPZ_APL_WC_Dormant_Hooks_08
         add_filter('woocommerce_get_cart_item_from_session',[__CLASS__,'fromSession'],50,3);
         add_action('woocommerce_before_calculate_totals',[__CLASS__,'beforeTotals'],50,1);
         add_action('woocommerce_check_cart_items',[__CLASS__,'classicCartCheck'],50,0);
-        add_action('woocommerce_checkout_process',[__CLASS__,'classicCartCheck'],50,0);
+        // Cart page: verify the signed plate and SKU only. The customer may
+        // still need to enter their destination and select shipping at checkout.
+        add_action('woocommerce_checkout_process',[__CLASS__,'classicCheckoutCheck'],50,0);
         add_action('woocommerce_store_api_cart_errors',[__CLASS__,'storeCartErrors'],50,2);
         add_action('woocommerce_store_api_checkout_order_processed',[__CLASS__,'storeCheckoutCheck'],50,1);
         add_action('woocommerce_checkout_create_order_line_item',[__CLASS__,'writeOrderItem'],50,4);
@@ -272,7 +274,20 @@ final class HPZ_APL_WC_Dormant_Hooks_08
                     $ctx,self::$secret,self::$clock
                 );
                 if ($result['validForReleaseReview'] !== true) {
-                    $messages[]='Arbeitsplatte: Maße, Lieferbarkeit, Steuer, Versand oder Mindestmarge nicht bestätigt.';
+                    // Diagnose ohne EK, HMAC, Versandpreise oder Nutzerdaten.
+                    // Die Endabnahme bleibt unverändert streng.
+                    $reasons=(array)($result['blockers']??[]);
+                    if(in_array('price-mismatch',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Der Warenkorbpreis stimmt nicht mit der Konfiguration überein. Bitte erneut konfigurieren.';
+                    } elseif(in_array('country-not-tested',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Die Bestellung ist derzeit nur für Lieferadressen in Deutschland freigegeben.';
+                    } elseif(in_array('tax-context',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Die deutsche Mehrwertsteuer konnte nicht bestätigt werden. Bitte die Lieferadresse prüfen.';
+                    } elseif(in_array('woo-customer-shipping-unverified',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Die Versandart wurde noch nicht von WooCommerce bestätigt. Bitte Lieferadresse und Versandart prüfen.';
+                    } else {
+                        $messages[]='Arbeitsplatte: Die Bestellprüfung ist noch nicht abgeschlossen. Bitte die Konfiguration prüfen.';
+                    }
                 }
             } catch (Throwable $e) {
                 $messages[]='Arbeitsplatten-Bestellprüfung fehlgeschlagen.';
@@ -281,7 +296,46 @@ final class HPZ_APL_WC_Dormant_Hooks_08
         return array_values(array_unique($messages));
     }
 
+    /**
+     * Cart-page entry gate, NOT a sale approval. The signed configuration,
+     * quantity, product ID and SKU are required now. Woo destination, VAT,
+     * a selected shipping package and totals remain mandatory at actual
+     * checkout; they can legitimately be incomplete on [woocommerce_cart].
+     */
+    public static function cartEntryChecks($cart): array
+    {
+        $messages=array_values(self::$pendingErrors);
+        if (!is_object($cart) || !method_exists($cart,'get_cart')) return $messages;
+        foreach ($cart->get_cart() as $key=>$row) {
+            if (!self::requireTarget($row['product_id'] ?? null)) continue;
+            try {
+                self::checkSigned($row,(int)($row['quantity'] ?? 0));
+                $product=$row['data'] ?? null;
+                if (!is_object($product) || !method_exists($product,'get_id')
+                    || (int)$product->get_id()!==HPZ_APL_WC_Cart_Bridge_08::PRODUCT_ID
+                    || !method_exists($product,'get_sku')
+                    || $product->get_sku()!==HPZ_APL_WC_Cart_Bridge_08::SKU
+                    || !method_exists($product,'is_taxable') || !$product->is_taxable()) {
+                    throw new InvalidArgumentException('WooCommerce-Produkt ungueltig.');
+                }
+            } catch (Throwable $error) {
+                $messages[]='Arbeitsplatten-Konfiguration im Warenkorb ungueltig.';
+            }
+        }
+        return array_values(array_unique($messages));
+    }
+
+    /** Called while displaying/updating the CLASSIC cart. No shipping gate. */
     public static function classicCartCheck(): void
+    {
+        if (!function_exists('WC') || !WC() || !WC()->cart) return;
+        foreach (self::cartEntryChecks(WC()->cart) as $message) {
+            if (function_exists('wc_add_notice')) wc_add_notice($message,'error');
+        }
+    }
+
+    /** Called for submitting CLASSIC checkout; keep all strict final gates. */
+    public static function classicCheckoutCheck(): void
     {
         if (!function_exists('WC') || !WC() || !WC()->cart) return;
         foreach (self::finalChecks(WC()->cart) as $message) {

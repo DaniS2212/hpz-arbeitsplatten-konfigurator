@@ -131,6 +131,24 @@ HPZ_APL_WP_LU_Runtime_11::beforeTotals($woo->cart);
 luOk($originalProduct->price==='10.00','persistent Woo product price never edited');
 luOk($woo->cart->cart_contents['row']['data']->price==='1378.151261','V3 price set on cloned cart line only');
 luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)===[],'synthetic Woo taxes/ship/coupons pass');
+luOk(isset($actions['woocommerce_checkout_process'])
+ &&in_array([HPZ_APL_WP_LU_Runtime_11::class,'checkClassicCheckout'],
+            $actions['woocommerce_checkout_process'],true),
+ 'L/U checkout submission keeps strict final gate');
+$woo->session->rate='not-yet-chosen';
+luOk(HPZ_APL_WP_LU_Runtime_11::cartEntryChecks($woo->cart)===[],
+ 'L/U classic cart can proceed before shipping selection');
+luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)!==[],
+ 'L/U final checkout rejects shipping not chosen by Woo');
+luOk(strpos(implode(' ',HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)),'Versandart')!==false,
+ 'L/U shipping error names the missing Woo choice');
+$notices=[];HPZ_APL_WP_LU_Runtime_11::checkClassicCart();
+luOk($notices===[],'L/U cart navigation not blocked on future shipping');
+HPZ_APL_WP_LU_Runtime_11::checkClassicCheckout();
+luOk(count($notices)>0,'L/U checkout submission still blocks without shipping');
+$woo->session->rate='test_rate:1';$notices=[];
+HPZ_APL_WP_LU_Runtime_11::checkClassicCheckout();
+luOk($notices===[],'L/U with standard Woo rate passes final gate');
 $display=HPZ_APL_WP_LU_Runtime_11::cartDisplayData([],$woo->cart->cart_contents['row']);
 luOk(count($display)>=11,'all U2 measurement and seam fields visible in cart');
 $order=new FakeLUOrderLine();
@@ -160,4 +178,6 @@ $woo->customer->country='DE';
 $options['hpz_apl_lu_sale_v1']['enabled']=false;
 luOk(!HPZ_APL_WP_LU_Runtime_11::canSell(1000081),'operator can disable sale');
 luOk(count(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart))>0,'old cart blocked immediately when disabled');
+luOk(HPZ_APL_WP_LU_Runtime_11::cartEntryChecks($woo->cart)!==[],
+ 'L/U cart still blocks when operator disables product');
 echo "PASS $count synthetic L/U Woo hook tests (no real sale)\n";
