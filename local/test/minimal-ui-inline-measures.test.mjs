@@ -71,6 +71,29 @@ test('Independent limits name the exact wrong field and the permitted numbers',(
  assert.equal(firstMeasureIssue('l','L1',{L1:'200,22',L2:'170',B1:'60',B2:'60'}).message,'L1: Bitte eine Zahl in cm eingeben.');
  assert.equal(firstMeasureIssue('u','U4',{L1:'250',L2:'180',L3:'180',B1:'60',B2:'60',B3:'60'}),null);
 });
+test('L4 105/201/90/105/44cm screenshot gets precise outer-diagonal guidance',()=>{
+ const fields={L1:'105',L2:'201',B1:'90',B3:'105',B5:'44'};
+ const error=firstMeasureIssue('l','L4',fields);
+ assert.equal(error.key,'L1');
+ assert.match(error.message,/L1: Mindestens 116 cm/);
+ assert.match(error.message,/B5 \(44 cm\)/);
+ assert.equal(error.minMm,1160);
+ assert.notEqual(error.message,'Diese Konfiguration konnte gerade nicht aktualisiert werden.');
+ const edit={...fields,L1:'130'};
+ assert.equal(firstMeasureIssue('l','L4',edit),null,
+   'longer top panel restores geometric outside edge without altering B5');
+ const largerDiagonal={...fields,B5:'90'};
+ assert.equal(firstMeasureIssue('l','L4',largerDiagonal),null,
+   'alternative B5 adjustment can also restore the outer edge');
+});
+test('L4 outer-diagonal guard rejects zero-size cut without inventing a supplier minimum',()=>{
+ const screenshot={L1:'200',L2:'200',B1:'90',B3:'105',B5:'90'};
+ assert.equal(firstMeasureIssue('l','L4',screenshot),null);
+ const b5TooBig={...screenshot,B5:'90',B1:'30',B3:'35'};
+ const issue=firstMeasureIssue('l','L4',b5TooBig);
+ assert.equal(issue.key,'B5');
+ assert.match(issue.message,/Restkante/);
+});
 test('Compact surface and summary are not duplicated and tabs own the instructions',async()=>{
  const c=await read('../public/component.mjs');
  assert.doesNotMatch(template,/SCHRITT [123] VON 3/);
