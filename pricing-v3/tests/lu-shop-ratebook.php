@@ -156,7 +156,7 @@ $grossShort=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
 $grossLong=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(
     $extendedLong['supplierNetCents'],HPZ_APL_LU_Shop_Ratebook_12::configuredInboundCents($long),0
 );
-testRate($grossLong>$grossShort+9000,'1900mm adds one-time freight to extended gross');
+testRate($grossLong>=$grossShort && $grossLong<=$grossShort+1000,'1899 to 1900 mm has no additional internal freight tier');
 $changed=HPZ_APL_LU_Price_Readiness::normalize(testRaw('U1','F128','APL17.5',2250));
 $changed['dimensions']['L2']=1700;
 $changed['dimensions']['B1']=700;
