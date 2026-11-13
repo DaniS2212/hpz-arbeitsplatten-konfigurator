@@ -257,6 +257,54 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
       +'<g class="apl-seam-badge" transform="translate('+x+' '+y+')" pointer-events="none"><circle r="'+(font*.43)+'" fill="'+(selected?'#bc7045':'#fffefa')+'" stroke="#365861" stroke-width="'+(font/23)+'"/><text text-anchor="middle" dominant-baseline="central" font-size="'+(font*.48)+'" font-weight="700" fill="'+(selected?'#fffefa':'#365861')+'">'+marker+'</text></g>'
       +'<path class="apl-seam-hit" d="'+d+'" stroke="transparent" stroke-width="'+(font*.64)+'" fill="none" pointer-events="stroke"/></g>';
   }).join('');
+
+  // Speedmaster L/U references (13.11.2026) show elongated yellow
+  // alignment pieces and dark transverse worktop clamps along joins.
+  // These are deliberately NON-DIMENSIONAL SVG ILLUSTRATIONS, derived
+  // only from the selected preview seam vectors. Fractions and visual
+  // quantities below are NOT CNC drilling points, supplied hardware counts
+  // or BOM; never serialize them into order/manufacturing data.
+  const illustratedHardware=(!straightPreview && partsView && transparentView
+    ?(g.previewSeams??[]):[]).map((joint,index)=>{
+    const meta=g.previewSeamDetails?.[index];
+    const start=joint?.from,end=joint?.to;
+    if(!meta?.id||meta.status!=='illustration-only'
+       ||!Array.isArray(start)||!Array.isArray(end))return '';
+    const dx=end[0]-start[0],dy=end[1]-start[1],length=Math.hypot(dx,dy);
+    if(!Number.isFinite(length)||length<130)return '';
+    const angle=(Math.atan2(dy,dx)*180/Math.PI).toFixed(1);
+    const unit=Math.max(24,Math.min(length*.095,72));
+    // Fewer SYMBOLS on shorter seams only to keep the drawing legible.
+    // Not a physical fastener-spacing algorithm.
+    const biscuitFractions=length>=370?[.13,.37,.63,.87]:[.26,.74];
+    const clampFractions=length>=370?[.26,.74]:[.5];
+    const transform=t=>'translate('+(start[0]+dx*t).toFixed(1)+' '+
+      (start[1]+dy*t).toFixed(1)+') rotate('+angle+')';
+    const biscuits=biscuitFractions.map(t=>
+      '<g class="apl-schematic-biscuit" transform="'+transform(t)+'">'+
+      '<ellipse rx="'+(unit*.63).toFixed(1)+'" ry="'+(unit*.22).toFixed(1)+
+      '" fill="#c2a424" stroke="#8e7819" stroke-width="'+(unit*.035).toFixed(1)+'"/>'+
+      '<path d="M '+(-unit*.40).toFixed(1)+' 0 H '+(unit*.40).toFixed(1)+
+      '" stroke="#efdc69" stroke-width="'+(unit*.047).toFixed(1)+'" opacity=".7"/></g>'
+    ).join('');
+    const clamps=clampFractions.map(t=>{
+      const arm=(unit*1.22).toFixed(1),half=(unit*.22).toFixed(1);
+      return '<g class="apl-schematic-clamp" transform="'+transform(t)+'">'+
+        '<path d="M 0 -'+arm+' V '+arm+'" stroke="#435056" stroke-width="'+
+        (unit*.12).toFixed(1)+'" stroke-linecap="round"/>'+
+        '<path d="M -'+half+' -'+arm+' H '+half+
+        ' M -'+half+' '+arm+' H '+half+
+        '" stroke="#435056" stroke-width="'+(unit*.16).toFixed(1)+
+        '" stroke-linecap="round"/>'+
+        '<circle r="'+(unit*.13).toFixed(1)+'" fill="#5c696b" stroke="#e0e8e6" stroke-width="'+
+        (unit*.035).toFixed(1)+'"/></g>';
+    }).join('');
+    return '<g class="apl-schematic-hardware" data-seam-id="'+escapeXml(meta.id)+
+      '" data-illustration-only="true" pointer-events="none">'+
+      '<title>'+escapeXml(meta.label)+
+      ': schematische Verbindungselemente nach Speedmaster-Beispiel, keine Bohrpositionen.</title>'+
+      biscuits+clamps+'</g>';
+  }).join('');
   // Part polygons come from the same illustrative split planes as the seams.
   // Clip the overlays to the actual corner-edited contour, including round arcs.
   // Never render these regions as factory-approved cut plans.
@@ -293,5 +341,5 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     <pattern id="apl-oak" width="360" height="160" patternUnits="userSpaceOnUse"><rect width="360" height="160" fill="#c49b68"/>
     <path d="M-40 20 Q100 1 400 18 M-40 44 Q190 68 400 34 M-40 86 Q150 55 400 94 M-40 121 Q150 143 400 116 M-40 150 Q150 129 400 152" fill="none" stroke="#a77b4d" stroke-width="5" opacity=".46"/>
     <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><rect width="${g.width}" height="${g.height}" fill="#e9eeec"/><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}${partsClip}</defs>
-    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" fill-opacity="${transparentView?'.25':'1'}" stroke="#8c887a" stroke-width="${font/12}"/>${front}${overlays}${seams}${partNumbers}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
+    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" fill-opacity="${transparentView?'.25':'1'}" stroke="#8c887a" stroke-width="${font/12}"/>${front}${overlays}${seams}${illustratedHardware}${partNumbers}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
 }
