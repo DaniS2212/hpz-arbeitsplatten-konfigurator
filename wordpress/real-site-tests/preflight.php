@@ -150,9 +150,9 @@ if ($present) {
         ];
         try {
             $quote = HPZ_APL_Price_Preview::publicQuote($reference, 'DE');
-            $safe = $quote['totalGrossReferenceCents'] === 67000
+            $safe = $quote['totalGrossReferenceCents'] === 100000
                 && $quote['purchasable'] === false && $quote['status'] === 'calculated-not-sale-approved';
-            $record('real-wp-v3-quote', $safe ? 'PASS' : 'FAIL', 'Expected 670.00 EUR reference, explicitly not purchasable');
+            $record('real-wp-v3-quote', $safe ? 'PASS' : 'FAIL', 'Expected 1000.00 EUR gross with flat 150 EUR net inbound, explicitly not purchasable');
             $serialized = wp_json_encode($quote);
             $leak = preg_match('/supplierNet|marginPct|decorSupplierCode|inboundNet|EK_REFERENCE/', $serialized) === 1;
             $record('price-does-not-leak-costs', !$leak ? 'PASS' : 'FAIL', 'No internal pricing data exposed');
