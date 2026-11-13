@@ -1,0 +1,131 @@
+{
+  "source": "User supplied Speedmaster UI screenshots, 2026-11-13",
+  "repository": "DaniS2212/hpz-arbeitsplatten-konfigurator",
+  "reference_archive": {
+    "service": "ChatGPT personal Library",
+    "path": "/Holz-Liebling/Arbeitsplatten/Speedmaster/Speedmaster_LU_Verbindungen_Referenzen_2026-11-13.zip",
+    "library_file_id": "libfile_841cd72ee7a08191a56b4fd1eb892793",
+    "sha256": "8f6adc7d3c838664cbd4cc06b2bd0a7dfa9fb492f09148a1546b867b623e59b1",
+    "contains_original_pngs": true,
+    "contains_readme": true
+  },
+  "files": [
+    {
+      "sequence": 1,
+      "id": "L-01",
+      "original": "image(20261113-153924).png",
+      "form": "L",
+      "pixels": {
+        "width": 2048,
+        "height": 718
+      },
+      "bytes": 1426655,
+      "sha256": "7f3190643ed7ee2f6e60df0ff6baff899f1fa51b1dd2552595c4454ef49fd2f4",
+      "description": "3D-Nahansicht einer Fuge; gelbe ovale Verbindungselemente und dunkle Spannverbinder"
+    },
+    {
+      "sequence": 2,
+      "id": "L-02",
+      "original": "image(20261113-153933).png",
+      "form": "L",
+      "pixels": {
+        "width": 2048,
+        "height": 792
+      },
+      "bytes": 352493,
+      "sha256": "edd9948f598f42e139ec5726db37b78771fb42b71b08a1f93a8499ef509249d8",
+      "description": "Verbindungsteile bei ausgeblendeten Platten; nur Anschauung"
+    },
+    {
+      "sequence": 3,
+      "id": "L-03",
+      "original": "image(20261113-153956).png",
+      "form": "L",
+      "pixels": {
+        "width": 1818,
+        "height": 850
+      },
+      "bytes": 42558,
+      "sha256": "8370813461bc64dbf5fc959d7f1b271d14a9427dc63237c450eaa0e095a6b7b8",
+      "description": "Freigestellte Draufsicht; L1=1899, L2=1200, B1/B2=600 mm"
+    },
+    {
+      "sequence": 4,
+      "id": "U-01",
+      "original": "image(20261113-154012).png",
+      "form": "U",
+      "pixels": {
+        "width": 2047,
+        "height": 802
+      },
+      "bytes": 954099,
+      "sha256": "386e2321b7d0c214d6e541f4178856d7e4ac828af9be372ea54043c7f742a666",
+      "description": "3D-Gesamtperspektive mit zwei Stossbereichen"
+    },
+    {
+      "sequence": 5,
+      "id": "U-02",
+      "original": "image(20261113-154021).png",
+      "form": "U",
+      "pixels": {
+        "width": 2048,
+        "height": 921
+      },
+      "bytes": 1353450,
+      "sha256": "54e7bfa35b3f6f6d1af23efe12155d009bff75f6bee6a12b798f73082a33d2ed",
+      "description": "U-Perspektive mit L1=1899, L2=1200, L3=1800 und B1/B2/B3=600 mm"
+    },
+    {
+      "sequence": 6,
+      "id": "U-03",
+      "original": "image(20261113-154033).png",
+      "form": "U",
+      "pixels": {
+        "width": 1517,
+        "height": 1123
+      },
+      "bytes": 52448,
+      "sha256": "d10cc37a106c23e85b0c31bcd01ea24be32be2ccee548c0c822910351417ffad",
+      "description": "Zwei Verbindungsgruppen bei ausgeblendeten Holzflaechen"
+    },
+    {
+      "sequence": 7,
+      "id": "U-04",
+      "original": "image(20261113-154055).png",
+      "form": "U",
+      "pixels": {
+        "width": 1651,
+        "height": 1061
+      },
+      "bytes": 547634,
+      "sha256": "808e3fea4984a9b185614f51abb4fd2d71f3c8b2df3d49a6e1f6a58eb49c9574",
+      "description": "Draufsicht schraeg mit beiden Stossfugen"
+    },
+    {
+      "sequence": 8,
+      "id": "U-05",
+      "original": "image(20261113-154110).png",
+      "form": "U",
+      "pixels": {
+        "width": 1657,
+        "height": 1071
+      },
+      "bytes": 57155,
+      "sha256": "a61918833767c43ad989779fc9185aec930272e5e5d17365e48b10724a070efc",
+      "description": "Freigestellte Draufsicht zweier Verbindungsgruppen"
+    },
+    {
+      "sequence": 9,
+      "id": "U-06",
+      "original": "image(20261113-154133).png",
+      "form": "U",
+      "pixels": {
+        "width": 2048,
+        "height": 593
+      },
+      "bytes": 1129571,
+      "sha256": "99796cab1903d8421c81cb9ee2e7c172d246c7d240c0a621ab7e5d60cca03eaf",
+      "description": "Kantennahe 3D-Perspektive mit gelben und dunklen Verbindungselementen"
+    }
+  ]
+}
