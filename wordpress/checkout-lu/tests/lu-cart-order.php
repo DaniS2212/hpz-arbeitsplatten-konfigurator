@@ -56,7 +56,7 @@ function testCheckout(int $qty=1,array $overrides=[]):array{
   'country'=>'DE','pricesConfigured'=>true,'taxVerified'=>true,
   'baseTaxRateBasisPoints'=>1900,'shippingCalculated'=>true,
   'selectedShippingRateId'=>'test_rate:1','shippingAmountCents'=>2000,
-  'preDiscountGrossCents'=>164000*$qty,'actualNetLineRevenueCents'=>137815*$qty,
+  'preDiscountGrossCents'=>184000*$qty,'actualNetLineRevenueCents'=>154622*$qty,
   'checkoutIntegrationVerified'=>true,'manualSupplierHandoffVerified'=>true,
   'operatorSaleApproval'=>true
  ],$overrides);
@@ -80,7 +80,7 @@ foreach(['L1','L2','L3','L4','U1','U2','U3','U4'] as $shape){
  luCheck(array_keys($cart)===[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY],$shape.' separate cart key');
  luCheck(strpos(json_encode($cart),'supplierNetCents')===false,$shape.' no EK in signed cart');
  $checked=HPZ_APL_WC_LU_Cart_Bridge::inspect($cart,1,$lookup,$secret,$now);
- luCheck($checked['quote']['unitGrossReferenceCents']===164000,$shape.' V3 target gross');
+ luCheck($checked['quote']['unitGrossReferenceCents']===184000,$shape.' V3 target gross');
  $result=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(),$secret,$now);
  luCheck($result['validForReleaseReview']===true,$shape.' synthetic checkout gate');
  luCheck($result['purchasable']===false,$shape.' preflight never authorizes checkout');
