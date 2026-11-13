@@ -300,14 +300,18 @@ hpzLiveCheck(is_array($updated)&&$updated['quantity']===2,
 WC()->cart->calculate_totals();
 hpzLiveCheck(HPZ_APL_WC_Dormant_Hooks_08::finalChecks(WC()->cart)===[],
     'straight two boards still validate after classic form');
-WC()->cart->session->set_session();
+// WC_Cart_Session owns session persistence; do not assume a public
+// WC_Cart->session property is a service object on every Woo version.
+$cartSessionWriter=new WC_Cart_Session(WC()->cart);
+$cartSessionWriter->set_session();
 $savedCart=WC()->session->get('cart',[]);
 hpzLiveCheck(is_array($savedCart)&&isset($savedCart[$liveKey])
     &&(int)$savedCart[$liveKey]['quantity']===2,
     'WooCommerce persisted cart session contains quantity 2');
 $reloadedCart=new WC_Cart();
 WC()->cart=$reloadedCart;
-$reloadedCart->session->get_cart_from_session();
+$cartSessionReader=new WC_Cart_Session($reloadedCart);
+$cartSessionReader->get_cart_from_session();
 $restored=$reloadedCart->get_cart()[$liveKey]??null;
 hpzLiveCheck(is_array($restored)&&$restored['quantity']===2,
     'fresh WooCommerce cart reload restores quantity 2');
