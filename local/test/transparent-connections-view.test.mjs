@@ -8,9 +8,9 @@ function example(product,shape){
  const dims=product==='u'
    ?{L1:1899,L2:1200,L3:1800,B1:600,B2:600,B3:600}
    :shape==='L4'
-     ?{L1:2000,L2:1700,B1:600,B2:600,B3:600,B4:600,B5:440}
+     ?{L1:2000,L2:1700,B1:600,B2:600,B3:900,B4:900,B5:440}
      :shape==='L3'
-       ?{L1:2000,L2:1700,B1:600,B2:600,B3:600,B4:600}
+       ?{L1:2000,L2:1700,B1:600,B2:600,B3:900,B4:900}
        :{L1:2000,L2:1700,B1:600,B2:600};
  return normalize({
   schemaVersion:2,inputUnit:'mm',product,geometry:shape,corner:'square',
