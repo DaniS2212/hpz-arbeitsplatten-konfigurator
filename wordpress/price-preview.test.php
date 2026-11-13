@@ -37,7 +37,7 @@ ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL38','2500','881'))['
 $one=sample();$one['straightCorner']=['side'=>'left','treatment'=>'round','parameters'=>['R1'=>'150']];
 $both=sample();$both['straightCorner']=['side'=>'both','treatment'=>'round','parameters'=>['R1'=>'150','R2'=>'150']];
 ensure(HPZ_APL_Price_Preview::publicQuote($one)['unitGrossReferenceCents']===90000,'one corner +120');
-ensure(HPZ_APL_Price_Preview::publicQuote($both)['unitGrossReferenceCents']===57000,'both corners +120 only once');
+ensure(HPZ_APL_Price_Preview::publicQuote($both)['unitGrossReferenceCents']===90000,'both corners +120 only once');
 ensure(HPZ_APL_Price_Preview::publicQuote(sample('W980','APL17.5','2000','600',3))['totalGrossReferenceCents']===234000,'quantity multiplies unit');
 $forged=sample();$forged['price']=1;$forged['supplierNet']=1;$forged['marginPct']=99;$forged['decorSupplierCode']='F128 PA';
 ensure(HPZ_APL_Price_Preview::publicQuote($forged)['totalGrossReferenceCents']===78000,'forged price fields ignored');
