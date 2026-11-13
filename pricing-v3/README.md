@@ -39,11 +39,16 @@ Schutzgatter, keine Aussage ueber alle nicht belegten Lieferantenkombinationen.
 3. Vor Bestellung eine unabhaengige **serverseitige** Quelle fuer den tatsaechlich
    geprueften Speedmaster-EK **dieser** Kombination und fuer die wirklichen
    Versandteillangen heranziehen. Bei fehlenden Daten: sperren / manuell pruefen.
-4. Die internen Bezugskosten mit
-   `inboundCostForVerifiedParts($trustedPartLengthsMm)` bestimmen: 10 EUR netto
-   Basis plus 50 EUR netto, wenn mindestens ein Versandteil >=1900 mm lang ist;
-   pro konfigurierter Einheit nur einmal. Nie von rohen Plattenaussenmassen oder
-   vom Browser gelieferten Versandteil-Arrays ableiten.
+4. Seit 13.11.2026 gilt pro Arbeitsplatte eine **feste interne
+   Speedmaster-Anlieferung von 150 EUR netto**. Das ersetzt die komplette
+   alte 10/60-EUR-Regel; die Laenge spielt keine Rolle mehr.
+   `inboundCostForVerifiedParts($trustedPartLengthsMm)` validiert weiterhin
+   Laengen, liefert aber immer **15000 Cent pro konfigurierte Platte**.
+   Im Brutto-Produktpreis inklusive, **nicht** als Kunden-Versandgebuehr.
+   Gerade historische V3-Preiskurve +330 EUR brutto je Platte, L/U
+   Lieferanten-EK +150 EUR netto als Basis der 40%-Zielmarge.
+   Aktueller Vertrag: `docs/20261113-flat-150-net-inbound.md`.
+   Nie von Browser-Werten ableiten.
 5. Nach WooCommerce-Rabatten/Steuermodell mit der **wirklichen Netto-Einnahme**
    (ohne USt, nach Coupons) `checkNetMarginForParts($supplierNetCents,
    $trustedPartLengthsMm, $actualNetRevenueCents)` erneut pruefen. Unter 35 %
