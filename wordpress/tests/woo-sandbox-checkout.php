@@ -322,6 +322,57 @@ $restoredCheck=HPZ_APL_WC_Cart_Bridge_08::inspect(
     $restored,2,static fn($key)=>null,$secret);
 hpzLiveCheck($restoredCheck['production']['quantity']===2,
     'manufacturing record reflects real updated line quantity');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$restored,2.0)===true,'Woo whole-number float 2.0 valid');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$restored,'2')===true,'Woo whole-number string 2 valid');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$restored,2.5)===false,'fractional worktop count rejected');
+// Simulate a Woo plugin returning a valid whole-number FLOAT quantity.
+$floatQty=static fn($amount,$itemKey)=>(float)$amount;
+add_filter('woocommerce_stock_amount_cart_item',$floatQty,PHP_INT_MAX,2);
+add_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$_SERVER['REQUEST_METHOD']='POST';
+$_POST=['update_cart'=>'1','woocommerce-cart-nonce'=>wp_create_nonce('woocommerce-cart'),
+    'cart'=>[$liveKey=>['qty'=>'3']]];
+$_REQUEST=$_POST;
+WC_Form_Handler::update_cart_action();
+unset($_POST,$_REQUEST);
+remove_filter('woocommerce_stock_amount_cart_item',$floatQty,PHP_INT_MAX);
+remove_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$afterFloat=$reloadedCart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($afterFloat)&&(float)$afterFloat['quantity']===3.0,
+    'real classic POST accepts whole-number float 3.0');
+$reloadedCart->calculate_totals();
+$floatChecked=HPZ_APL_WC_Cart_Bridge_08::inspect(
+    $afterFloat,3,static fn($key)=>null,$secret);
+hpzLiveCheck($floatChecked['production']['quantity']===3
+    &&$floatChecked['production']['decorName']==='Bardolino Eiche',
+    'material H1145 and manufacturing qty 3 remain valid');
+(new WC_Cart_Session($reloadedCart))->set_session();
+hpzLiveCheck((float)(WC()->session->get('cart',[])[$liveKey]['quantity']??0)===3.0,
+    'float-typed whole quantity saved in WooCommerce session');
+// Same numeric validation for L/U; supplier-approved max quantity still applies.
+foreach(['L1','U1'] as $shape){
+    hpzResetCart($rateId);
+    $raw=hpzLURaw($shape,1901);
+    $normalized=HPZ_APL_LU_Price_Readiness::normalize($raw);
+    $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($normalized,$policy);
+    hpzLiveCheck(is_array($proof),'quantity test price window '.$shape);
+    $lookup=static fn($key)=>$key===$proof['configurationKey']?$proof:null;
+    $signed=HPZ_APL_WC_LU_Cart_Bridge::issue($raw,$lookup,$secret);
+    $k=WC()->cart->add_to_cart($shape==='L1'?1000080:1000081,1,0,[],$signed);
+    WC()->cart->calculate_totals();
+    $row=WC()->cart->get_cart()[$k]??null;
+    hpzLiveCheck(is_array($row),'L/U signed quantity test item '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::classicQuantity(
+        true,$k,$row,2.0)===true,'L/U accepts whole-number 2.0 '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::classicQuantity(
+        true,$k,$row,'2')===true,'L/U accepts numeric-string 2 '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::classicQuantity(
+        true,$k,$row,2.5)===false,'L/U refuses fractional quantities '.$shape);
+}
+
 // No WC_Order is saved, no payment is collected and no supplier call is made.
 
 echo 'PASS '.$GLOBALS['hpzChecks'].
