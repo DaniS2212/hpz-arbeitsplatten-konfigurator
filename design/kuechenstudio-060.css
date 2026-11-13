@@ -813,3 +813,32 @@
   .hpz-apl[data-product="l"] .l-variant-card>strong{font-size:13px}
   .hpz-apl[data-product="l"] .l-variant-card>span{font-size:10px}
 }
+
+/* Optional L/U part/seam illustration; actual connector drilling not proven. */
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .stage-bottom{
+  justify-content:space-between!important;gap:8px
+}
+.hpz-apl .apl-transparent-toggle[hidden],.hpz-apl .apl-transparent-note[hidden]{
+  display:none!important
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .stage-bottom .apl-transparent-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:104px;min-height:38px;padding:8px 11px;
+  border:1px solid #b7cfcc;border-radius:9px;
+  color:#146178;background:#f7fafa;
+  font-size:11px;font-weight:650;line-height:1.2;
+  white-space:nowrap;cursor:pointer
+}
+:is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .stage-bottom .apl-transparent-toggle[aria-pressed="true"]{
+  background:#e0f0ee;border-color:#146178;color:#16444d
+}
+.hpz-apl .apl-transparent-note{
+  margin:0 16px 8px;padding:7px 10px;
+  border-left:3px solid #146178;border-radius:5px;
+  background:#f5f8f7;color:#365b65;font-size:11px;line-height:1.4
+}
+@media(max-width:760px){
+  :is(.hpz-apl[data-product="l"],.hpz-apl[data-product="u"]) .stage-bottom .apl-transparent-toggle{
+    min-width:92px;min-height:40px;padding:8px;font-size:10px
+  }
+}

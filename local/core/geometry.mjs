@@ -61,7 +61,7 @@ function schematicPath(g,trim){
   }
   return path+' Z';
 }
-export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,selectedPart=null,selectedSeam=null,detail=null,textureUrl=null,unit='mm',invalidField=null}={}) {
+export function svg(g,active='',{decor='W980',showDimensions=true,partsView=false,transparentView=false,selectedPart=null,selectedSeam=null,detail=null,textureUrl=null,unit='mm',invalidField=null}={}) {
   const measure=mm=>unit==='cm'?`${mmToCmText(mm)} cm`:`${mm} mm`;
   // A straight worktop is visually much flatter than an L/U. A tighter
   // preview viewport makes the actual slab larger without changing its
@@ -293,5 +293,5 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
     <pattern id="apl-oak" width="360" height="160" patternUnits="userSpaceOnUse"><rect width="360" height="160" fill="#c49b68"/>
     <path d="M-40 20 Q100 1 400 18 M-40 44 Q190 68 400 34 M-40 86 Q150 55 400 94 M-40 121 Q150 143 400 116 M-40 150 Q150 129 400 152" fill="none" stroke="#a77b4d" stroke-width="5" opacity=".46"/>
     <path d="M-40 29 Q180 12 400 27 M-40 102 Q150 78 400 106" fill="none" stroke="#e5c599" stroke-width="7" opacity=".5"/></pattern>${textureUrl?`<pattern id="apl-texture" width="${g.width}" height="${g.height}" patternUnits="userSpaceOnUse"><rect width="${g.width}" height="${g.height}" fill="#e9eeec"/><image href="${escapeXml(textureUrl)}" width="${g.width}" height="${g.height}" preserveAspectRatio="xMidYMid slice"/></pattern>`:''}${partsClip}</defs>
-    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" stroke="#8c887a" stroke-width="${font/12}"/>${front}${overlays}${seams}${partNumbers}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
+    <g stroke-width="${font/20}" font-family="system-ui,sans-serif"><path class="apl-surface" d="${escapeXml(schematicPath(g,trim))}" fill="url(#${textureUrl?'apl-texture':decor==='H1145'?'apl-oak':'apl-white'})" fill-opacity="${transparentView?'.25':'1'}" stroke="#8c887a" stroke-width="${font/12}"/>${front}${overlays}${seams}${partNumbers}${cuts}${radii}${showDimensions?measures+cornerMeasures:''}${schematicNote}</g></svg>`;
 }

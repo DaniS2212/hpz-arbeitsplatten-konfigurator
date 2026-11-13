@@ -67,6 +67,18 @@ for(const [value,title] of [['overview','Gesamtansicht'],['left','Detail vorne l
   const button=element('button','',title);button.type='button';button.dataset.detail=value;button.addEventListener('click',()=>{drawingDetail=value==='overview'?null:value;renderDrawing();});detailOptions.append(button);
 }
 $('large-drawing').before(detailOptions);
+ // Display only the existing illustrative L/U part/seam geometry.
+ // No unverified dowel, Lamello or connector coordinates are invented.
+ const transparentToggle=element('button','apl-transparent-toggle','◫ Durchsicht');
+ transparentToggle.id='transparent-toggle';
+ transparentToggle.type='button';
+ transparentToggle.setAttribute('aria-pressed','false');
+ transparentToggle.setAttribute('aria-label','Schematische Teilung und Stoßfugen anzeigen');
+ $('enlarge').before(transparentToggle);
+ const transparentNote=element('p','apl-transparent-note',
+   'Schematische Teilflächen und Stoßstellen. Dübel und Verbinderpositionen folgen nach Herstellerabgleich.');
+ transparentNote.id='transparent-note';transparentNote.hidden=true;
+ $('drawing').after(transparentNote);
 function sideIcon(side){
   return `<svg viewBox="0 0 96 46" aria-hidden="true"><path d="M8 6H88V38H8Z" fill="#e6f1f1" stroke="#557b83" stroke-width="2"/><path d="M25 38H71" stroke="#146178" stroke-width="3"/>${['left','both'].includes(side)?'<path d="M8 24V38H22" fill="none" stroke="#ad8667" stroke-width="5"/>':''}${['right','both'].includes(side)?'<path d="M74 38H88V24" fill="none" stroke="#ad8667" stroke-width="5"/>':''}</svg>`;
 }
@@ -328,6 +340,10 @@ function updateFamilyCopy(){
  // geometry, without changing price, order or manufacturing fields.
  // Keep internal test access but remove this redundant customer UI.
  view='plan';selectedPart=null;selectedSeam=null;
+ transparentToggle.hidden=product==='straight';
+ transparentToggle.setAttribute('aria-pressed','false');
+ transparentToggle.textContent='◫ Durchsicht';
+ transparentNote.hidden=true;
  $('parts-note').hidden=true;
  const viewTabs=$('view-plan').parentElement;
  viewTabs.hidden=true;viewTabs.setAttribute('aria-hidden','true');
@@ -538,10 +554,10 @@ function renderSeamChoices(){
    input.addEventListener('blur',()=>{closeInlineEditor();if(shell.dataset.measureEditing==='true')refresh();});
    input.focus({preventScroll:true});input.select();
  }
-function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions&&view==='plan',partsView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions&&view==='plan',partsView:view==='parts',transparentView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:step>=1&&(product==='straight'||view==='plan'),partsView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm',invalidField}),'large');
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:step>=1&&(product==='straight'||view==='plan'),partsView:view==='parts',transparentView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm',invalidField}),'large');
   positionInlineEditor();}
 function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];
@@ -844,6 +860,16 @@ $('cart').addEventListener('click',async ()=>{
 $('config').addEventListener('submit',event=>event.preventDefault());$('back').addEventListener('click',()=>showStep(Math.max(0,step-1)));
 $('next').addEventListener('click',()=>{if(!valid&&step!==0)return;if(step===2)shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'});else showStep(step+1);});
 $('mobile-summary').addEventListener('click',()=>shadow.querySelector('.order-summary').scrollIntoView({behavior:'smooth',block:'center'}));
+transparentToggle.addEventListener('click',()=>{
+  if(product==='straight')return;
+  view=view==='parts'?'plan':'parts';
+  selectedPart=null;selectedSeam=null;
+  const isTransparent=view==='parts';
+  transparentToggle.setAttribute('aria-pressed',String(isTransparent));
+  transparentToggle.textContent=isTransparent?'◧ Normalansicht':'◫ Durchsicht';
+  transparentNote.hidden=!isTransparent;
+  closeInlineEditor();renderDrawing();
+});
 $('measure-toggle').addEventListener('click',()=>{showDimensions=!showDimensions;$('measure-toggle').setAttribute('aria-pressed',String(showDimensions));renderDrawing();});
 for(const [id,mode] of [['view-plan','plan'],['view-parts','parts']])$(id).addEventListener('click',()=>{view=mode;$('parts-note').hidden=view!=='parts';if(view==='parts')closeInlineEditor();$('measure-toggle').hidden=true;$('view-plan').setAttribute('aria-pressed',String(view==='plan'));$('view-parts').setAttribute('aria-pressed',String(view==='parts'));renderDrawing();});
 for(const id of ['drawing','large-drawing'])$(id).addEventListener('click',event=>{
