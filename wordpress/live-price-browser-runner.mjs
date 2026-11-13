@@ -141,8 +141,9 @@ try{
     assert.equal(priced.busy,'false');
 
     if(width===1366){
-      // Force a PHP-style never-finishing request. After two bounded 6-second
-      // attempts only the price becomes unavailable; SVG and inputs stay live.
+      // Force a PHP-style never-finishing request. The admin-only quote
+      // now tries 6/8/10-second bounded requests; still no guessed prices.
+      // Only the price becomes unavailable; SVG and inputs stay responsive.
       await page.evaluate(()=>{
         const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
         const input=s.querySelector('input[name="decor"][value="F095"]');
@@ -156,7 +157,7 @@ try{
       await page.waitForFunction(()=>{
         const s=document.querySelector('[data-hpz-apl-preview]')?.shadowRoot;
         return s?.querySelector('#price').textContent==='Preis offen';
-      },null,{timeout:17000});
+      },null,{timeout:33000});
       const blocked=await page.evaluate(()=>{
         const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
         return {image:!!s.querySelector('#drawing svg'),busy:s.querySelector('#drawing').getAttribute('aria-busy'),
