@@ -99,9 +99,19 @@ foreach(['L1','U1'] as $shape) {
       "$shape $length rejects unmatched customer shipping rate");
     $tooCheap=$context;
     $tooCheap['actualNetLineRevenueCents']=intdiv($gross,4);
-    borderCheck(!HPZ_APL_WC_LU_Cart_Bridge::checkout(
+    borderCheck(HPZ_APL_WC_LU_Cart_Bridge::checkout(
       $cart,1,$lookup,$tooCheap,$secret,$now)['validForReleaseReview'],
-      "$shape $length excessive discount fails 35 pct net margin");
+      "$shape $length coupon allowed below minimum after discount");
+    $fullDiscount=$context;
+    $fullDiscount['actualNetLineRevenueCents']=0;
+    borderCheck(HPZ_APL_WC_LU_Cart_Bridge::checkout(
+      $cart,1,$lookup,$fullDiscount,$secret,$now)['validForReleaseReview'],
+      "$shape $length 100 percent coupon permitted");
+    $badGross=$tooCheap;
+    $badGross['preDiscountGrossCents']=$gross-1000;
+    borderCheck(!HPZ_APL_WC_LU_Cart_Bridge::checkout(
+      $cart,1,$lookup,$badGross,$secret,$now)['validForReleaseReview'],
+      "$shape $length original V3 price cannot be reduced by coupon metadata");
     $noPricePolicy=$policy;$noPricePolicy['extended_model_approved']=false;
     if($length===1899 || $length===1901)borderCheck(
       HPZ_APL_LU_Shop_Ratebook_12::operatorProof($c,$noPricePolicy)===null,

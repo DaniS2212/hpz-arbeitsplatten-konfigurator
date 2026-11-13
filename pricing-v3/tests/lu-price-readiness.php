@@ -80,6 +80,19 @@ must(
 );
 must($good['pricingPolicyId']==='margin40-reserve10-floor35','auditable selected operator policy');
 must($good['blockers']===[],'all synthetic proofs accounted for');
+foreach ([100000,10000,0] as $couponNet) {
+    $discounted=HPZ_APL_LU_Price_Readiness::review(
+        $raw,[$key=>proof($raw)],
+        checkout(['actualNetLineRevenueCents'=>$couponNet]),$now);
+    must($discounted['preflightComplete']===true,
+        'genuine Woo coupon net revenue '.$couponNet.' allowed below 35% margin');
+}
+$fakeRegularPrice=HPZ_APL_LU_Price_Readiness::review(
+    $raw,[$key=>proof($raw)],
+    checkout(['preDiscountGrossCents'=>160000,'actualNetLineRevenueCents'=>100000]),$now);
+must(!$fakeRegularPrice['preflightComplete']
+    &&in_array('woocommerce-line-price-unverified',$fakeRegularPrice['blockers'],true),
+    'coupon cannot forge the original regular gross price');
 must($good['production']['form']==='U1'&&$good['production']['dimensionsMm']['L3']===1800,'manual order exact data');
 must($good['production']['supplierDecorCode']==='W980 ST7','real decor code');
 must(strpos(json_encode($good),'supplierNetCents')===false,'no supplier costs in review output');
@@ -104,7 +117,7 @@ foreach ([
     ['baseTaxRateBasisPoints'=>2000],['pricesConfigured'=>false],
     ['shippingCalculated'=>false],['selectedShippingRateId'=>'wrong'],
     ['shippingAmountCents'=>-1],['preDiscountGrossCents'=>1],
-    ['actualNetLineRevenueCents'=>0],['actualNetLineRevenueCents'=>100000],
+    ['actualNetLineRevenueCents'=>-1],['actualNetLineRevenueCents'=>165000],
     ['checkoutIntegrationVerified'=>false],['manualSupplierHandoffVerified'=>false],
     ['operatorSaleApproval'=>false]
 ] as $idx=>$bad) {

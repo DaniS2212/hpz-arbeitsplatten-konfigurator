@@ -134,8 +134,12 @@ luFails(function()use($raw,$proof,$key,$secret,$now){
  $cart=HPZ_APL_WC_LU_Cart_Bridge::issue($raw,function($k)use($proof,$key){return $k===$key?$proof:null;},$secret,$now);
  HPZ_APL_WC_LU_Cart_Bridge::inspect($cart,1,$lookup,$secret,$now);
 },'supplier EK change makes old quote invalid');
-$denied=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(1,['actualNetLineRevenueCents'=>100000]),$secret,$now);
-luCheck(!$denied['validForReleaseReview'],'coupon below 35% floor blocks');
+$discounted=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(1,['actualNetLineRevenueCents'=>100000]),$secret,$now);
+luCheck($discounted['validForReleaseReview'],'valid Woo coupon can lower margin below 35%');
+$fullCoupon=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(1,['actualNetLineRevenueCents'=>0]),$secret,$now);
+luCheck($fullCoupon['validForReleaseReview'],'100% coupon may yield zero net revenue');
+$negative=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(1,['actualNetLineRevenueCents'=>-1]),$secret,$now);
+luCheck(!$negative['validForReleaseReview'],'negative Woo line amount remains blocked');
 $denied=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(1,['selectedShippingRateId'=>'unknown']),$secret,$now);
 luCheck(!$denied['validForReleaseReview'],'unapproved shipping method blocks');
 $denied=HPZ_APL_WC_LU_Cart_Bridge::checkout($cart,1,$lookup,testCheckout(1,['country'=>'CH']),$secret,$now);

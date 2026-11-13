@@ -360,7 +360,6 @@ final class HPZ_APL_LU_Price_Readiness
         $r = $trustedEvidence[$key] ?? null;
         $blocked = [];
         $unitGross = null;
-        $marginPasses = false;
         $evidenceOkay = is_array($r) && self::verifiedEvidence($r, $key, $now ?? time());
         if (!$evidenceOkay) {
             $blocked[] = 'exact-supplier-cut-list-or-price-proof-missing';
@@ -413,20 +412,22 @@ final class HPZ_APL_LU_Price_Readiness
         $net = $checkout['actualNetLineRevenueCents'] ?? null;
         if ($grossExpected === null || !is_int($gross)
             || abs($gross-$grossExpected) > max(1,$c['quantity'])
-            || !is_int($net) || $net <= 0 || $net > $grossExpected) {
+            || !is_int($net) || $net < 0 || $net > $grossExpected) {
             $blocked[] = 'woocommerce-line-price-unverified';
-        } else {
-            // Minimum 35% AFTER 10% reserve, quantity, discounts, freight
-            // and processing; 40% remains the initial target, not the floor.
-            // Same strict post-discount 35%-minimum as Straight V3. Add
-            // verified packing/outbound/payment expenses to the cost base.
+        } elseif ($evidenceOkay) {
+            // Owner decision 13 Nov 2026: 35% minimum applies only to the
+            // regular, signed V3 selling price BEFORE WooCommerce coupons.
+            // Valid Woo coupons may reduce the effective margin arbitrarily,
+            // including an entirely free (100% off) order line.
+            $regularNetRevenue = (int)round($grossExpected / 1.19, 0, PHP_ROUND_HALF_UP);
             $marginReview = HPZ_APL_Price_V3::checkNetMargin(
                 $r['supplierNetCents'] * $c['quantity'],
                 ($inboundCents + $additionalNetCents) * $c['quantity'],
-                $net
+                $regularNetRevenue
             );
-            $marginPasses = $marginReview['passesMinimum35'];
-            if (!$marginPasses) $blocked[] = 'margin-below-35-after-discounts';
+            if (!$marginReview['passesMinimum35']) {
+                $blocked[] = 'base-price-margin-below-35';
+            }
         }
         if (($checkout['checkoutIntegrationVerified'] ?? null) !== true)
             $blocked[] = 'woocommerce-checkout-integration-unverified';

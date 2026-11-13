@@ -41,6 +41,13 @@ $r=HPZ_APL_WC_Cart_Bridge_08::checkout($c,1,$noProof,$ctx,$secret);
 check($r['validForReleaseReview']===true,'valid DE cart with existing Woo method and no supplier approval');
 check($r['purchasable']===false,'review never opens public sale automatically');
 check($r['blockers']===[],'no additional 190cm freight gate');
+$freeWithCoupon=HPZ_APL_WC_Cart_Bridge_08::checkout(
+    $c,1,$noProof,array_replace($ctx,['actualNetLineRevenueCents'=>0]),$secret);
+check($freeWithCoupon['validForReleaseReview']===true,
+    'legitimate 100% Woo coupon permitted with original signed gross');
+$negative=HPZ_APL_WC_Cart_Bridge_08::checkout(
+    $c,1,$noProof,array_replace($ctx,['actualNetLineRevenueCents'=>-1]),$secret);
+check(!$negative['validForReleaseReview'],'negative line amount blocked');
 $missingShipping=HPZ_APL_WC_Cart_Bridge_08::checkout(
  $c,1,$noProof,array_replace($ctx,['shippingCalculated'=>false]),$secret);
 check(!$missingShipping['validForReleaseReview']

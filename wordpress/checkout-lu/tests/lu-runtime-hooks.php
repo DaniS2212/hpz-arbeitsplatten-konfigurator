@@ -142,7 +142,14 @@ luOk(isset($order->meta['_hpz_apl_manufacturing_v2']),'HPOS-safe structured work
 luOk(HPZ_APL_WP_LU_Runtime_11::storeQuantity(true,2,new FakeLUProduct(1000081),$woo->cart->cart_contents['row'])===true,'qty 2 revalidated');
 luOk(HPZ_APL_WP_LU_Runtime_11::classicQuantity(true,'row',$woo->cart->cart_contents['row'],4)===false,'qty 4 supplier limit');
 $woo->cart->cart_contents['row']['line_total']='800.00';
-luOk(count(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart))>0,'discount below 35% floor rejected');
+luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)===[],
+  'Woo coupon below 35% margin permitted');
+$woo->cart->cart_contents['row']['line_total']='0.00';
+luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)===[],
+  '100% Woo coupon permitted');
+$woo->cart->cart_contents['row']['line_total']='-1.00';
+luOk(count(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart))>0,
+  'negative Woo item amount rejected');
 $woo->cart->cart_contents['row']['line_total']='1378.15';
 $woo->session->rate='other_rate:1';
 luOk(count(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart))>0,'unexpected customer shipping rate rejected');

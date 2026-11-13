@@ -208,14 +208,14 @@ foreach(['straight','L1','U1'] as $shape){
                 :HPZ_APL_WP_LU_Runtime_11::finalChecks($cart);
             hpzLiveCheck($twoProblems===[],
                 'two configured units keep a valid precheckout '.$shape.' '.implode(';',$twoProblems));
-            if($shape==='L1') {
-                // Coupon handling through ACTUAL Woo totals; L/U must keep the
-                // 35% floor and reject an extreme post-discount under-margin.
+            if(in_array($shape,['straight','L1','U1'],true)) {
+                // Genuine Woo coupons may reduce the margin below 35% while
+                // the original HMAC-signed regular price must remain intact.
                 $cart->set_quantity($cartKey,1);
                 $cart->calculate_totals();
-                foreach([5,50] as $percentage) {
+                foreach([5,50,100] as $percentage) {
                     $coupon=new WC_Coupon();
-                    $code='hpz-ci-coupon-'.$percentage;
+                    $code='hpz-ci-coupon-'.strtolower($shape).'-'.$percentage;
                     $coupon->set_code($code);
                     $coupon->set_discount_type('percent');
                     $coupon->set_amount((string)$percentage);
@@ -225,10 +225,11 @@ foreach(['straight','L1','U1'] as $shape){
                     hpzLiveCheck($applied===true,
                         'Woo coupon '.$percentage.'% applied to L cart');
                     $cart->calculate_totals();
-                    $couponProblems=HPZ_APL_WP_LU_Runtime_11::finalChecks($cart);
-                    hpzLiveCheck($percentage===5?$couponProblems===[]
-                            :$couponProblems!==[],
-                        'L/U minimum margin after Woo '.$percentage.'% coupon');
+                    $couponProblems=$shape==='straight'
+                        ?HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)
+                        :HPZ_APL_WP_LU_Runtime_11::finalChecks($cart);
+                    hpzLiveCheck($couponProblems===[],
+                        $shape.' Woo '.$percentage.'% coupon allowed: '.implode(';',$couponProblems));
                 }
             }
         }
