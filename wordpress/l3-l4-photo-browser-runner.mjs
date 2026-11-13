@@ -46,6 +46,12 @@ try{
     overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth};
   });
   for(const shape of ['L3','L4']){
+   // This case verifies the normal measured plan. Since the connection
+   // mode now intentionally persists across variants, select it explicitly.
+   await page.evaluate(()=>{
+     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+     s.getElementById('view-plan').click();
+   });
    const date=shape==='L3'?'02.11.2026':'05.11.2026';
    await page.evaluate(value=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
