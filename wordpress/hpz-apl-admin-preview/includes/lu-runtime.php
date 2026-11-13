@@ -402,7 +402,20 @@ final class HPZ_APL_WP_LU_Runtime_11
                     $ctx,self::secret()
                 );
                 if(!$checked['validForReleaseReview']) {
-                    $messages[]='L-/U-Arbeitsplatte: Maße, Lieferbarkeit, Versand oder 35-%-Marge nicht bestätigt.';
+                    // Customer-safe stage-specific reason; do not disclose
+                    // private supplier costs or signed manufacturing records.
+                    $reasons=(array)($checked['blockers']??[]);
+                    if(in_array('woocommerce-line-price-unverified',$reasons,true)){
+                        $messages[]='L-/U-Arbeitsplatte: Der Warenkorbpreis stimmt nicht mit der Konfiguration überein. Bitte erneut konfigurieren.';
+                    }elseif(in_array('destination-not-released',$reasons,true)){
+                        $messages[]='L-/U-Arbeitsplatte: Die Bestellung ist derzeit nur für Lieferadressen in Deutschland freigegeben.';
+                    }elseif(in_array('woocommerce-tax-unverified',$reasons,true)){
+                        $messages[]='L-/U-Arbeitsplatte: Die deutsche Mehrwertsteuer konnte nicht bestätigt werden. Bitte die Lieferadresse prüfen.';
+                    }elseif(in_array('customer-shipping-unverified',$reasons,true)){
+                        $messages[]='L-/U-Arbeitsplatte: Die Versandart wurde noch nicht von WooCommerce bestätigt. Bitte Lieferadresse und Versandart prüfen.';
+                    }else{
+                        $messages[]='L-/U-Arbeitsplatte: Die Bestellfreigabe für diese Konfiguration ist noch nicht bestätigt.';
+                    }
                 }
             }catch(Throwable $error){
                 $messages[]='L-/U-Arbeitsplatte: Warenkorbprüfung fehlgeschlagen.';

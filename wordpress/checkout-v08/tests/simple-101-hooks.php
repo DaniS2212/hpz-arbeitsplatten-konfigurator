@@ -70,6 +70,8 @@ ok(HPZ_APL_WC_Dormant_Hooks_08::cartEntryChecks($cart)===[],
    'shortcode cart permits signed worktop before customer selects shipping');
 ok(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)!==[],
    'actual checkout still refuses an unselected shipping rate');
+ok(strpos(implode(' ',HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)),'Versandart')!==false,
+   'customer sees concrete missing Woo shipping reason');
 $notices=[];
 HPZ_APL_WC_Dormant_Hooks_08::classicCartCheck();
 ok($notices===[],'classic cart navigation has no premature shipping error');

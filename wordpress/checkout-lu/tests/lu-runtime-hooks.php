@@ -140,6 +140,8 @@ luOk(HPZ_APL_WP_LU_Runtime_11::cartEntryChecks($woo->cart)===[],
  'L/U classic cart can proceed before shipping selection');
 luOk(HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)!==[],
  'L/U final checkout rejects shipping not chosen by Woo');
+luOk(strpos(implode(' ',HPZ_APL_WP_LU_Runtime_11::finalChecks($woo->cart)),'Versandart')!==false,
+ 'L/U shipping error names the missing Woo choice');
 $notices=[];HPZ_APL_WP_LU_Runtime_11::checkClassicCart();
 luOk($notices===[],'L/U cart navigation not blocked on future shipping');
 HPZ_APL_WP_LU_Runtime_11::checkClassicCheckout();

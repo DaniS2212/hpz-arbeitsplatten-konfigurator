@@ -274,7 +274,20 @@ final class HPZ_APL_WC_Dormant_Hooks_08
                     $ctx,self::$secret,self::$clock
                 );
                 if ($result['validForReleaseReview'] !== true) {
-                    $messages[]='Arbeitsplatte: Maße, Lieferbarkeit, Steuer, Versand oder Mindestmarge nicht bestätigt.';
+                    // Diagnose ohne EK, HMAC, Versandpreise oder Nutzerdaten.
+                    // Die Endabnahme bleibt unverändert streng.
+                    $reasons=(array)($result['blockers']??[]);
+                    if(in_array('price-mismatch',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Der Warenkorbpreis stimmt nicht mit der Konfiguration überein. Bitte erneut konfigurieren.';
+                    } elseif(in_array('country-not-tested',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Die Bestellung ist derzeit nur für Lieferadressen in Deutschland freigegeben.';
+                    } elseif(in_array('tax-context',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Die deutsche Mehrwertsteuer konnte nicht bestätigt werden. Bitte die Lieferadresse prüfen.';
+                    } elseif(in_array('woo-customer-shipping-unverified',$reasons,true)) {
+                        $messages[]='Arbeitsplatte: Die Versandart wurde noch nicht von WooCommerce bestätigt. Bitte Lieferadresse und Versandart prüfen.';
+                    } else {
+                        $messages[]='Arbeitsplatte: Die Bestellprüfung ist noch nicht abgeschlossen. Bitte die Konfiguration prüfen.';
+                    }
                 }
             } catch (Throwable $e) {
                 $messages[]='Arbeitsplatten-Bestellprüfung fehlgeschlagen.';
