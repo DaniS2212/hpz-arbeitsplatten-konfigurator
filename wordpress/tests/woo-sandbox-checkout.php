@@ -8,6 +8,26 @@
 if (!defined('ABSPATH') || !function_exists('WC') || !class_exists('WC_Cart')) {
     throw new RuntimeException('Requires isolated bootstrapped WooCommerce.');
 }
+// The script persists two real Woo orders later. Fail closed BEFORE any
+// DB mutation unless running via WP-CLI in the disposable GitHub Actions DB.
+// This is NOT an administrator test endpoint and must never touch the live DB.
+if (!defined('WP_CLI') || !WP_CLI
+    || !defined('DB_NAME') || DB_NAME !== 'hpz_test'
+    || parse_url(home_url(),PHP_URL_HOST) !== 'localhost') {
+    throw new RuntimeException('CI-only WooCommerce order test: production forbidden.');
+}
+// Even CI-local order hooks may attempt mail or outbound services. Prevent
+// every such attempt; no real customer notifications or supplier requests.
+$GLOBALS['hpzCiBlockedMails']=0;
+$GLOBALS['hpzCiBlockedRequests']=0;
+add_filter('pre_wp_mail',static function($preempt,$atts){
+    ++$GLOBALS['hpzCiBlockedMails'];
+    return true;
+},PHP_INT_MAX,2);
+add_filter('pre_http_request',static function($preempt,$args,$url){
+    ++$GLOBALS['hpzCiBlockedRequests'];
+    return new WP_Error('hpz_ci_network_blocked','Outgoing HTTP blocked in CI-only order test.');
+},PHP_INT_MAX,3);
 $GLOBALS['hpzChecks'] = 0;
 function hpzLiveCheck(bool $yes, string $message): void {
     ++$GLOBALS['hpzChecks'];
@@ -394,7 +414,118 @@ foreach(['L1','U1'] as $shape){
         true,$k,$row,2.5)===false,'L/U refuses fractional quantities '.$shape);
 }
 
-// No WC_Order is saved, no payment is collected and no supplier call is made.
+// Persist a REAL WooCommerce order for one L and one U in this disposable
+// database, exercising the SAME checkout validation and line-item writer.
+// No checkout submission/payment method and no live system are contacted.
+foreach (['L1','U3'] as $shape) {
+    hpzResetCart($rateId);
+    $length=$shape==='L1'?2250:2000;
+    $raw=hpzLURaw($shape,$length);
+    if($shape==='L1') {
+        // Supplier-confirmed reference dimensions and the left chamfer.
+        $raw['lCorner']=[
+            'side'=>'left','treatment'=>'chamfer_continuous',
+            'parameters'=>['L3'=>'150','B3'=>'150'],
+        ];
+    }else{
+        // U3 has left-longitudinal/right-transverse joining, two inner
+        // foot chamfers; this is a CI-only operator-approved MODEL proof.
+        $raw['uCorner']=[
+            'side'=>'both','treatment'=>'chamfer_square',
+            'parameters'=>['L4'=>'150','B4'=>'150','L5'=>'150','B5'=>'150'],
+        ];
+    }
+    $id=$shape==='L1'?1000080:1000081;
+    $normalized=HPZ_APL_LU_Price_Readiness::normalize($raw);
+    $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($normalized,$policy);
+    hpzLiveCheck(is_array($proof),'isolated order has verified model/corner price '.$shape);
+    $lookup=static fn($key)=>$key===$proof['configurationKey']?$proof:null;
+    $signed=HPZ_APL_WC_LU_Cart_Bridge::issue($raw,$lookup,$secret);
+    $cartKey=WC()->cart->add_to_cart($id,1,0,[],$signed);
+    hpzLiveCheck(is_string($cartKey)&&$cartKey!=='','CI cart signed line for saved order '.$shape);
+    WC()->cart->calculate_totals();
+    $cart=WC()->cart;
+    $row=$cart->get_cart()[$cartKey]??null;
+    hpzLiveCheck(is_array($row),'CI saved order has Woo cart row '.$shape);
+    hpzLiveCheck(HPZ_APL_WP_LU_Runtime_11::finalChecks($cart)===[],
+        'CI checkout fully approved before order persistence '.$shape);
+    $wooContext=HPZ_APL_WP_Woo_Context_09::context($row,$cart);
+    hpzLiveCheck($wooContext['country']==='DE'
+       &&$wooContext['baseTaxRateBasisPoints']===1900
+       &&$wooContext['selectedShippingRateId']===$rateId,
+       'real CI Woo customer VAT/shipping context '.$shape);
+    $expectedGross=(int)round((float)$cart->get_total('edit')*100);
+    $line=new WC_Order_Item_Product();
+    $line->set_product($row['data']);
+    $line->set_quantity((int)$row['quantity']);
+    $line->set_subtotal($row['line_subtotal']);
+    $line->set_total($row['line_total']);
+    $line->set_taxes($row['line_tax_data']);
+    HPZ_APL_WP_LU_Runtime_11::writeOrderItem($line,$cartKey,$row,null);
+    $shipping=new WC_Order_Item_Shipping();
+    $shipping->set_method_title('CI normaler Kundenversand');
+    $shipping->set_method_id('flat_rate');
+    $shipping->set_instance_id($instance);
+    $shipping->set_total($cart->get_shipping_total());
+    $shipping->set_taxes(['total'=>$cart->get_shipping_taxes()]);
+    // Persistent HPOS/Woo CRUD write is safe only in the disposable CI DB.
+    // No payment-completion/status transition, mail or customer credentials.
+    $order=wc_create_order(['status'=>'pending','customer_id'=>0]);
+    if(is_wp_error($order))throw new RuntimeException('CI Woo order creation failed.');
+    $order->set_created_via('hpz-ci-only-never-live');
+    $order->set_billing_country('DE');
+    $order->set_shipping_country('DE');
+    $order->set_shipping_postcode('80331');
+    $order->add_item($line);
+    $order->add_item($shipping);
+    $order->calculate_totals(false);
+    $order->save();
+    $oid=$order->get_id();
+    hpzLiveCheck(is_int($oid)&&$oid>0,'CI order persisted through Woo CRUD '.$shape);
+    $stored=wc_get_order($oid);
+    hpzLiveCheck($stored instanceof WC_Order,'CI order reloaded from Woo storage '.$shape);
+    hpzLiveCheck($stored->get_status()==='pending'
+        &&$stored->get_created_via()==='hpz-ci-only-never-live',
+        'CI order has safe pending/test-only state '.$shape);
+    hpzLiveCheck((int)round((float)$stored->get_total()*100)===$expectedGross,
+        'saved Woo order total matches cart VAT + ordinary shipping '.$shape);
+    $items=array_values($stored->get_items('line_item'));
+    hpzLiveCheck(count($items)===1,'exactly one persisted worktop line '.$shape);
+    $saved=$items[0];
+    $production=$saved->get_meta('_hpz_apl_manufacturing_v2',true);
+    hpzLiveCheck(is_array($production)
+       &&($production['productId']??null)===$id
+       &&($production['form']??null)===$shape
+       &&($production['dimensionsMm']['L1']??null)===$length
+       &&($production['decorId']??null)==='W980'
+       &&($production['thicknessMm']??null)===38
+       &&($production['quantity']??null)===1,
+       'reloaded manufacturing metadata retain exact shape/length/decor/thickness/qty '.$shape);
+    hpzLiveCheck($saved->get_meta('_hpz_apl_config_key',true)===$proof['configurationKey']
+        &&$saved->get_meta('_hpz_apl_manual_supplier_status',true)==='manuell bei Speedmaster bestellen',
+        'persistent HMAC config key and manual-only supplier status '.$shape);
+    if($shape==='L1') {
+        hpzLiveCheck(($production['lCorner']['parameters']['L3']??null)===150
+          &&($production['lCorner']['parameters']['B3']??null)===150
+          &&$saved->get_meta('Eckmaß L3',true)==='150 mm',
+          'saved L chamfer angles and field labels survive order readback');
+    }else {
+        hpzLiveCheck(($production['uCorner']['side']??null)==='both'
+          &&($production['uCorner']['parameters']['B5']??null)===150
+          &&$saved->get_meta('Stoßvariante (Schema)',true)==='Links längs · Rechts quer'
+          &&$saved->get_meta('Eckmaß B5',true)==='150 mm',
+          'saved U3 seam directions and four machined corner offsets survive readback');
+    }
+    hpzLiveCheck(!str_contains(json_encode($saved->get_meta_data()),'supplierNetCents'),
+        'supplier unit net cost not leaked to order metadata '.$shape);
+    hpzLiveCheck(count($stored->get_items('shipping'))===1,
+        'ordinary Woo shipping line persisted '.$shape);
+    // Only in GitHub's isolated MySQL: remove test order to leave no trace.
+    $stored->delete(true);
+    hpzLiveCheck(!wc_get_order($oid),'CI order deleted after verification '.$shape);
+}
+hpzLiveCheck($GLOBALS['hpzCiBlockedMails']>=0 && $GLOBALS['hpzCiBlockedRequests']>=0,
+    'CI mail and outgoing HTTP explicitly blocked');
 
 echo 'PASS '.$GLOBALS['hpzChecks'].
-    " real WooCommerce sandbox assertions; 27 configured cart scenarios (straight 3, L1-L4 12, U1-U4 12), classic-cart to checkout progression, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";
+    " real WooCommerce sandbox assertions; 27 configured cart scenarios, real Woo VAT/shipping/quantities/coupons, TWO SAVED-AND-RELOADED L/U ORDERS (isolated CI only), manufacturing corners and seams. NO LIVE ORDER, PAYMENT, EMAIL OR SUPPLIER REQUEST.\n";
