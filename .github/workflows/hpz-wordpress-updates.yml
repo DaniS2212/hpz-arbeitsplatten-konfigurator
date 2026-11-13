@@ -43,6 +43,7 @@ jobs:
           php wordpress/decor-catalog.test.php
           php wordpress/admin-supplier-decor.test.php
           php pricing-v3/tests/run.php
+          php pricing-v3/tests/flat-150-inbound.php
           php pricing-v3/tests/sale-readiness.php
           php wordpress/checkout-v08/tests/simple-101.php
           php wordpress/checkout-v08/tests/simple-101-hooks.php
