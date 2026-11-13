@@ -128,7 +128,7 @@ try{
        hiddenToggle:s.querySelector('#measure-toggle').hidden,
        over:document.documentElement.scrollWidth-document.documentElement.clientWidth
      };});
-   assert.equal(parts.labels,0);assert.ok(parts.hiddenToggle);assert.ok(parts.over<=1);
+   assert.ok(parts.labels>0,'measures remain readable in the transparent connection view');assert.ok(parts.hiddenToggle);assert.ok(parts.over<=1);
    if(kind==='l'){
       assert.ok(parts.seamCount>=1);assert.match(parts.warning,/Stoßstellen|Stoß/);
       const overview=await page.locator('[data-hpz-apl-preview]').evaluate(el=>{
