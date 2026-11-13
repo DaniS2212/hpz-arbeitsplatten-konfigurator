@@ -1,6 +1,6 @@
 # PR #103 – Speedmaster-Verbindungen: Bildbeispiel als schematische SVG-Ansicht
 
-Grundlage: [Neun Original-Screenshots und Quellenmanifest](../speedmaster/2026-11-13-lu-verbindungen/README.md), PR #102. Die L-/U-Plattenvorschau zeigt nach PR #100 bereits die originalen **schematischen Stoßlinien**.
+Grundlage: [Neun Original-Screenshots und Quellenmanifest](speedmaster/2026-11-13-lu-verbindungen/README.md), PR #102. Die L-/U-Plattenvorschau zeigt nach PR #100 bereits die originalen **schematischen Stoßlinien**.
 
 ## Änderung
 
