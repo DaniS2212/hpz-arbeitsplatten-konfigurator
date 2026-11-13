@@ -2,7 +2,8 @@
 /**
  * Straight 190cm margin PROXY using historical 2000x600 net supplier
  * reference for nearby 1899/1900/1901 configurations; NOT live supplier EK.
- * The existing V3 price curve must not be silently changed.
+ * The historic V3 price curve remains, plus a fixed gross contribution for
+ * the 150 EUR net internal inbound on EACH configured board.
  */
 declare(strict_types=1);
 define('ABSPATH', __DIR__);
@@ -38,8 +39,8 @@ foreach (['APL17.5'=>14499,'APL38'=>24311] as $material=>$baseSupplierNet) {
             marginCheck(is_int($gross)&&$gross>0&&$gross%1000===0,
                 "$material/$decor/$length valid V3 gross quote");
             $inbound=HPZ_APL_Price_V3::inboundCostForVerifiedParts([$length]);
-            marginCheck($inbound===($length>=1900?6000:1000),
-                "$material/$decor/$length internal 10/60 EUR boundary");
+            marginCheck($inbound===15000,
+                "$material/$decor/$length internal flat 150 EUR net per piece");
             $netRevenue=(int)round($gross/1.19,0,PHP_ROUND_HALF_UP);
             $margin=HPZ_APL_Price_V3::checkNetMargin(
                 $supplierReference,$inbound,$netRevenue);
@@ -50,10 +51,10 @@ foreach (['APL17.5'=>14499,'APL38'=>24311] as $material=>$baseSupplierNet) {
         }
         marginCheck($grossByLength[1899]<=$grossByLength[1900] &&
             $grossByLength[1900]<=$grossByLength[1901],
-            "$material/$decor no negative threshold price movement");
+            "$material/$decor no outdated 190cm freight threshold");
     }
 }
-echo 'PASS '.$checks.' straight 190cm proxy assertions (96 price points; 16 decors x 2 materials x 3 lengths).'
+echo 'PASS '.$checks.' flat 150-EUR inbound straight proxy assertions (96 price points; 16 decors x 2 materials x 3 lengths).'
     .' Minimum buffered margin by length: '.json_encode($minByLength)
     .'; below 40% target proxy cases: '.$belowTarget
     .'. NO verified supplier quote and NO real Woo test.\n';
