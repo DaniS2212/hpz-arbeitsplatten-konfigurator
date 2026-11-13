@@ -146,7 +146,7 @@ function renderLVariantCards(){
    lVariantIcon(id)+'<strong>'+id+'</strong><span>'+lVariantLabels[id]+'</span>',
    variants.l===id,()=>{
      // Keep the tested select/change path for dimensions, corners,
-     // price, signed manufacturing data and Woo checkout.
+     // pricing and the signed manufacturing-data pathway.
      $('geometry').value=id;
      $('geometry').dispatchEvent(new Event('change',{bubbles:true}));
    },'l-variant-card'));
