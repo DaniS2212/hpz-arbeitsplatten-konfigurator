@@ -47,7 +47,7 @@ foreach ($names as $decor) foreach (['APL17.5','APL38'] as $material) {
     check($out['purchasable'] === false, 'never authorizes checkout');
     check(!array_key_exists('supplierNet', $out), 'never leaks EK');
 }
-check(gross(input())===45000,'17.5 white baseline');
+check(gross(input())===45000+HPZ_APL_Price_V3::inboundGrossContributionCents(),'17.5 white baseline plus flat inbound');
 check(gross(input('APL38'))===67000+HPZ_APL_Price_V3::inboundGrossContributionCents(),'38 white baseline');
 check(gross(input('APL38','W980',1200,600))===51000+HPZ_APL_Price_V3::inboundGrossContributionCents(),'120x60 must price at 510 EUR');
 check(gross(input('APL38','W980',3500,900))===203000+HPZ_APL_Price_V3::inboundGrossContributionCents(),'350x90 38 mm gross price 2030 EUR');
