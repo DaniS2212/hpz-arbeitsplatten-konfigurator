@@ -265,5 +265,60 @@ foreach(['straight','L1','U1'] as $shape){
         // No WC_Order::save(), payment provider, email, or Speedmaster call.
     }
 }
+// The previous CI changed quantity directly on WC_Cart::set_quantity(),
+// bypassing WooCommerce's real [woocommerce_cart] form handler. Work found
+// 2 -> 1 on a real classic-cart POST/reload. Exercise that actual pathway.
+hpzResetCart($rateId);
+$liveRaw=hpzStraightRaw(1899,'H1145');
+$liveSigned=HPZ_APL_WC_Cart_Bridge_08::issue(
+    $liveRaw,static fn($key)=>null,$secret);
+$liveKey=WC()->cart->add_to_cart(1000083,1,0,[],$liveSigned);
+hpzLiveCheck(is_string($liveKey)&&$liveKey!=='',
+    'Bardolino 1899x600 straight in real Woo cart');
+WC()->cart->calculate_totals();
+$before=WC()->cart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($before)&&$before['quantity']===1,
+    'classic form starts at quantity 1');
+hpzLiveCheck(HPZ_APL_WP_Straight_Runtime_09::classicQuantity(
+    true,$liveKey,$before,2)===true,'straight quantity filter allows two whole boards');
+// Prevent WP-CLI test from following WooCommerce's redirect after a
+// successful form POST. The actual WC_Form_Handler still validates nonce,
+// products, signed configuration and quantity, and mutates the real WC cart.
+add_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$_SERVER['REQUEST_METHOD']='POST';
+$_POST=[
+    'update_cart'=>'1','woocommerce-cart-nonce'=>wp_create_nonce('woocommerce-cart'),
+    'cart'=>[$liveKey=>['qty'=>'2']],
+];
+$_REQUEST=$_POST;
+WC_Form_Handler::update_cart_action();
+unset($_POST,$_REQUEST);
+remove_filter('woocommerce_update_cart_action_cart_updated','__return_false',PHP_INT_MAX);
+$updated=WC()->cart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($updated)&&$updated['quantity']===2,
+    'real classic Woo cart POST saves 2 boards, not 1');
+WC()->cart->calculate_totals();
+hpzLiveCheck(HPZ_APL_WC_Dormant_Hooks_08::finalChecks(WC()->cart)===[],
+    'straight two boards still validate after classic form');
+WC()->cart->session->set_session();
+$savedCart=WC()->session->get('cart',[]);
+hpzLiveCheck(is_array($savedCart)&&isset($savedCart[$liveKey])
+    &&(int)$savedCart[$liveKey]['quantity']===2,
+    'WooCommerce persisted cart session contains quantity 2');
+$reloadedCart=new WC_Cart();
+WC()->cart=$reloadedCart;
+$reloadedCart->session->get_cart_from_session();
+$restored=$reloadedCart->get_cart()[$liveKey]??null;
+hpzLiveCheck(is_array($restored)&&$restored['quantity']===2,
+    'fresh WooCommerce cart reload restores quantity 2');
+hpzLiveCheck(($restored['hpz_apl_v08']['config']['decor']??'')==='H1145'
+    &&($restored['hpz_apl_v08']['config']['dimensions']['L1']??null)===1899,
+    'signed Bardolino, 1899mm manufacturing configuration retained');
+$restoredCheck=HPZ_APL_WC_Cart_Bridge_08::inspect(
+    $restored,2,static fn($key)=>null,$secret);
+hpzLiveCheck($restoredCheck['production']['quantity']===2,
+    'manufacturing record reflects real updated line quantity');
+// No WC_Order is saved, no payment is collected and no supplier call is made.
+
 echo 'PASS '.$GLOBALS['hpzChecks'].
     " real WooCommerce sandbox assertions; nine configured cart scenarios, classic-cart to checkout progression, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";
