@@ -34,6 +34,8 @@ jobs:
           php pricing-v3/tests/lu-final-ten-price-checks.php
           php pricing-v3/tests/launch-commercial-coverage-20261109.php
           php wordpress/checkout-lu/tests/lu-operator-boundary-1900.php
+          php -l wordpress/checkout-lu/HPZ_APL_WP_LU_Admin_Test.php
+          php wordpress/checkout-lu/tests/lu-admin-cart-test.php
           php pricing-v3/tests/lu-u-corners-20261109.php
           php pricing-v3/tests/lu-admin-price-preview.php
           php wordpress/lu-price-ajax.test.php
