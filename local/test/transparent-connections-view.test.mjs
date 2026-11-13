@@ -26,7 +26,7 @@ test('all four L and U joins: normal unchanged, connection view uses only config
    const g=geometry(example(product,shape));
    const standard=svg(g,'',{decor:'H1145',partsView:false,transparentView:false,showDimensions:true});
    const visible=svg(g,'',{decor:'H1145',partsView:true,transparentView:true,showDimensions:true});
-   const overlays=[...visible.matchAll(/class="apl-schematic-hardware" data-seam-id="([^"]+)"/g)];
+   const overlays=[...visible.matchAll(/class="apl-schematic-hardware" data-preview-joint="([^"]+)"/g)];
    assert.ok((g.previewSeams??[]).length>0,shape+' has documented schematic joints');
    assert.equal(overlays.length,g.previewSeams.length,shape+' only actual selected joins get symbols');
    assert.deepEqual(overlays.map(x=>x[1]),g.previewSeamDetails.map(x=>x.id));
