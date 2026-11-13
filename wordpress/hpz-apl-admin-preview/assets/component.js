@@ -67,16 +67,19 @@ for(const [value,title] of [['overview','Gesamtansicht'],['left','Detail vorne l
   const button=element('button','',title);button.type='button';button.dataset.detail=value;button.addEventListener('click',()=>{drawingDetail=value==='overview'?null:value;renderDrawing();});detailOptions.append(button);
 }
 $('large-drawing').before(detailOptions);
- // Display only the existing illustrative L/U part/seam geometry.
- // No unverified dowel, Lamello or connector coordinates are invented.
- const transparentToggle=element('button','apl-transparent-toggle','◫ Durchsicht');
+ // A compact accessible switch in the drawing header, not a stray action
+ // next to "Vergrößern". Symbol shapes are illustrative, not CNC data.
+ const transparentToggle=element('button','apl-transparent-toggle');
  transparentToggle.id='transparent-toggle';
  transparentToggle.type='button';
+ transparentToggle.innerHTML='<svg class="apl-connection-icon" viewBox="0 0 28 22" aria-hidden="true"><path d="M2 11H26" stroke="#8c9fa0" stroke-width="1.5" stroke-dasharray="2.5 2.5"/><ellipse cx="7" cy="11" rx="3.5" ry="1.8" fill="#c4a328" stroke="#a58c25" stroke-width=".7"/><path d="M19 4V18M15.5 4H22.5M15.5 18H22.5" fill="none" stroke="#455154" stroke-width="2" stroke-linecap="round"/></svg><span>Verbindungen</span><span class="apl-connection-switch" aria-hidden="true"></span>';
  transparentToggle.setAttribute('aria-pressed','false');
- transparentToggle.setAttribute('aria-label','Schematische Teilung und Stoßfugen anzeigen');
- $('enlarge').before(transparentToggle);
+ transparentToggle.setAttribute('aria-controls','drawing');
+ transparentToggle.setAttribute('aria-label','Schematische Verbindungen einblenden');
+ transparentToggle.title='Verbindungen schematisch anzeigen';
+ $('preview-material').after(transparentToggle);
  const transparentNote=element('p','apl-transparent-note',
-   'Schematische Teilflächen und Stoßstellen. Dübel und Verbinderpositionen folgen nach Herstellerabgleich.');
+   'Verbindungen schematisch dargestellt. Art, Anzahl und Positionen sind Beispiele, keine Bohr- oder Montageanleitung.');
  transparentNote.id='transparent-note';transparentNote.hidden=true;
  $('drawing').after(transparentNote);
 function sideIcon(side){
@@ -342,7 +345,8 @@ function updateFamilyCopy(){
  view='plan';selectedPart=null;selectedSeam=null;
  transparentToggle.hidden=product==='straight';
  transparentToggle.setAttribute('aria-pressed','false');
- transparentToggle.textContent='◫ Durchsicht';
+ transparentToggle.setAttribute('aria-label','Schematische Verbindungen einblenden');
+ transparentToggle.title='Verbindungen schematisch anzeigen';
  transparentNote.hidden=true;
  $('parts-note').hidden=true;
  const viewTabs=$('view-plan').parentElement;
@@ -554,10 +558,10 @@ function renderSeamChoices(){
    input.addEventListener('blur',()=>{closeInlineEditor();if(shell.dataset.measureEditing==='true')refresh();});
    input.focus({preventScroll:true});input.select();
  }
-function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions&&view==='plan',partsView:view==='parts',transparentView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
+function renderDrawing(){if(!lastGeometry)return;renderPartChoices();renderSeamChoices();const textureUrl=decorImageUrl(decor);const invalidField=shell.dataset.measureInvalid==='true'?invalidMeasureKey:null;const markup=svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions,partsView:view==='parts',transparentView:view==='parts',selectedPart,selectedSeam,textureUrl,unit:'cm',invalidField});$('drawing').innerHTML=namespaceSvg(markup,'main');
   detailOptions.hidden=product!=='straight'||straightSide==='none';
   for(const button of detailOptions.children){const side=button.dataset.detail;button.disabled=side!=='overview'&&straightSide!==side&&straightSide!=='both';button.setAttribute('aria-pressed',String((drawingDetail??'overview')===side));}
-  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:step>=1&&(product==='straight'||view==='plan'),partsView:view==='parts',transparentView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm',invalidField}),'large');
+  if($('drawing-dialog').open)$('large-drawing').innerHTML=namespaceSvg(svg(lastGeometry,active,{decor,showDimensions:step>=1&&showDimensions,partsView:view==='parts',transparentView:view==='parts',selectedPart,selectedSeam,detail:drawingDetail,textureUrl,unit:'cm',invalidField}),'large');
   positionInlineEditor();}
 function summary(config,invalid=false){
   $('summary-shape').textContent=names[product];
@@ -866,7 +870,10 @@ transparentToggle.addEventListener('click',()=>{
   selectedPart=null;selectedSeam=null;
   const isTransparent=view==='parts';
   transparentToggle.setAttribute('aria-pressed',String(isTransparent));
-  transparentToggle.textContent=isTransparent?'◧ Normalansicht':'◫ Durchsicht';
+  transparentToggle.setAttribute('aria-label',isTransparent
+    ?'Schematische Verbindungen ausblenden'
+    :'Schematische Verbindungen einblenden');
+  transparentToggle.title=isTransparent?'Normale Holzansicht anzeigen':'Verbindungen schematisch anzeigen';
   transparentNote.hidden=!isTransparent;
   closeInlineEditor();renderDrawing();
 });
