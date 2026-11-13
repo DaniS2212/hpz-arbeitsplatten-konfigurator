@@ -14,7 +14,7 @@ function example(product,shape){
        :{L1:2000,L2:1700,B1:600,B2:600};
  return normalize({
   schemaVersion:2,inputUnit:'mm',product,geometry:shape,corner:'square',
-  dimensions:dims,material:'APL38',decor:'H1145',edge:'matching-1.5',quantity:1,
+  dimensions:Object.fromEntries(Object.entries(dims).map(([k,v])=>[k,String(v)])),material:'APL38',decor:'H1145',edge:'matching-1.5',quantity:1,
   ...(product==='l'?{lCorner:{side:'none',treatment:null,parameters:{}}}
     :{uCorner:{side:'none',treatment:null,parameters:{}}})
  });
@@ -48,7 +48,7 @@ test('all four L and U joins: normal unchanged, connection view uses only config
 test('straight never draws connector symbols even if view flags are supplied',()=>{
  const c=normalize({
    schemaVersion:2,inputUnit:'mm',product:'straight',geometry:'straight',
-   dimensions:{L1:1899,B1:600},corner:'square',material:'APL38',
+   dimensions:{L1:'1899',B1:'600'},corner:'square',material:'APL38',
    edge:'matching-1.5',decor:'H1145',quantity:1,
    straightCorner:{side:'none',treatment:null,parameters:{}}
  });
