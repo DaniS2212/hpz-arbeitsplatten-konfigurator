@@ -43,7 +43,7 @@ $ctx=[
 ];
 HPZ_APL_WC_Dormant_Hooks_08::configure(
  function($key){return null;},
- function($item,$cart)use($ctx){return $ctx;},
+ function($item,$cart)use(&$ctx){return $ctx;},
  str_repeat('x',64)
 );
 ok(HPZ_APL_WC_Dormant_Hooks_08::registerForSandboxTests(),'sandbox hooks registered');
@@ -62,6 +62,23 @@ HPZ_APL_WC_Dormant_Hooks_08::beforeTotals($cart);
 ok($product->price==='111.00','original product remains unchanged');
 ok($cart->cart_contents['row']['data']->price==='563.025210','V3 price only applied to cart item');
 ok(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)===[],'valid Woo cart passes with ordinary shipping, no supplier proof');
+ok(isset($actions['woocommerce_checkout_process'])
+   &&$actions['woocommerce_checkout_process']===[HPZ_APL_WC_Dormant_Hooks_08::class,'classicCheckoutCheck'],
+   'classic checkout process keeps final gate');
+$ctx['shippingCalculated']=false;$ctx['selectedShippingRateId']='';$ctx['shippingAmountCents']=-1;
+ok(HPZ_APL_WC_Dormant_Hooks_08::cartEntryChecks($cart)===[],
+   'shortcode cart permits signed worktop before customer selects shipping');
+ok(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)!==[],
+   'actual checkout still refuses an unselected shipping rate');
+$notices=[];
+HPZ_APL_WC_Dormant_Hooks_08::classicCartCheck();
+ok($notices===[],'classic cart navigation has no premature shipping error');
+HPZ_APL_WC_Dormant_Hooks_08::classicCheckoutCheck();
+ok(count($notices)>0,'checkout submission still enforces shipping');
+$ctx['shippingCalculated']=true;$ctx['selectedShippingRateId']='shop_rate:1';$ctx['shippingAmountCents']=580;
+$notices=[];
+HPZ_APL_WC_Dormant_Hooks_08::classicCheckoutCheck();
+ok($notices===[],'actual DE checkout with chosen normal rate accepted');
 $metadata=HPZ_APL_WC_Dormant_Hooks_08::cartDisplayData([],$cart->cart_contents['row']);
 ok(count($metadata)>=5,'all relevant configuration data visible in cart');
 $order=new DemoOrderItem();
@@ -77,4 +94,6 @@ ok(count(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart))>0,'incorrect VAT calcu
 $cart->cart_contents['row']['line_subtotal_tax']='106.97';
 $cart->cart_contents['row']['hpz_apl_v08']['signature']=str_repeat('0',64);
 ok(count(HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart))>0,'corrupt signed config blocked at checkout');
+ok(HPZ_APL_WC_Dormant_Hooks_08::cartEntryChecks($cart)!==[],
+   'tampered signed configuration also blocked on classic cart');
 echo "PASS $count simple Woo sandbox integration tests\n";

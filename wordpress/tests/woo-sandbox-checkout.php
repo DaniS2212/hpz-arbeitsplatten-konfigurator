@@ -159,6 +159,22 @@ foreach(['straight','L1','U1'] as $shape){
         $cart=WC()->cart;
         $row=$cart->get_cart()[$cartKey]??null;
         hpzLiveCheck(is_array($row),'real Woo signed cart line '.$shape.'/'.$length);
+        // Regression for live classic [woocommerce_cart]: the chosen
+        // shipping rate may not exist BEFORE the customer enters checkout.
+        if($length===1899){
+            WC()->session->set('chosen_shipping_methods',[]);
+            $entryIssues=$shape==='straight'
+                ?HPZ_APL_WC_Dormant_Hooks_08::cartEntryChecks($cart)
+                :HPZ_APL_WP_LU_Runtime_11::cartEntryChecks($cart);
+            hpzLiveCheck($entryIssues===[],
+                'shortcode cart preflight permits selected config without shipping '.$shape);
+            $strictIssues=$shape==='straight'
+                ?HPZ_APL_WC_Dormant_Hooks_08::finalChecks($cart)
+                :HPZ_APL_WP_LU_Runtime_11::finalChecks($cart);
+            hpzLiveCheck($strictIssues!==[],
+                'checkout final gate still blocks missing Woo rate '.$shape);
+            WC()->session->set('chosen_shipping_methods',[$rateId]);
+        }
         $ctx=HPZ_APL_WP_Woo_Context_09::context($row,$cart);
         hpzLiveCheck($ctx['country']==='DE'&&$ctx['taxVerified']===true,
             'real Woo DE VAT '.$shape.'/'.$length);
@@ -237,4 +253,4 @@ foreach(['straight','L1','U1'] as $shape){
     }
 }
 echo 'PASS '.$GLOBALS['hpzChecks'].
-    " real WooCommerce sandbox assertions; nine configured cart scenarios, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";
+    " real WooCommerce sandbox assertions; nine configured cart scenarios, classic-cart to checkout progression, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";

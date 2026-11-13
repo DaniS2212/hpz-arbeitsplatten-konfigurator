@@ -173,7 +173,9 @@ final class HPZ_APL_WP_LU_Runtime_11
         add_filter('woocommerce_get_cart_item_from_session',[__CLASS__,'fromSession'],60,3);
         add_action('woocommerce_before_calculate_totals',[__CLASS__,'beforeTotals'],60,1);
         add_action('woocommerce_check_cart_items',[__CLASS__,'checkClassicCart'],60);
-        add_action('woocommerce_checkout_process',[__CLASS__,'checkClassicCart'],60);
+        // The shortcode cart may have no confirmed destination/rate yet.
+        // Keep final Woo tax/shipping/price checks for checkout submission.
+        add_action('woocommerce_checkout_process',[__CLASS__,'checkClassicCheckout'],60);
         add_action('woocommerce_store_api_cart_errors',[__CLASS__,'storeCartErrors'],60,2);
         add_action('woocommerce_store_api_checkout_order_processed',[__CLASS__,'storeCheckoutCheck'],60,1);
         add_action('woocommerce_checkout_create_order_line_item',[__CLASS__,'writeOrderItem'],60,4);
@@ -409,7 +411,39 @@ final class HPZ_APL_WP_LU_Runtime_11
         return array_values(array_unique($messages));
     }
 
+    /**
+     * Signed configuration and product gate for CLASSIC cart navigation.
+     * Country, 19% VAT, actual normal Woo rate, totals and coupon policy
+     * are still verified by finalChecks before checkout submission.
+     */
+    public static function cartEntryChecks($cart): array
+    {
+        $messages=array_values(self::$pending);
+        if(!is_object($cart)||!method_exists($cart,'get_cart'))return $messages;
+        foreach($cart->get_cart() as $key=>$row){
+            $id=(int)($row['product_id']??0);
+            if(!self::isTarget($id))continue;
+            try{
+                if(!self::canSell($id))throw new InvalidArgumentException('Verkauf gesperrt.');
+                self::checked($row,(int)($row['quantity']??0));
+                if(!self::validPublishedProduct($row['data']??null,$id))
+                    throw new InvalidArgumentException('Produkt ungueltig.');
+            }catch(Throwable $error){
+                $messages[]='L-/U-Arbeitsplatte: Konfiguration im Warenkorb ungueltig.';
+            }
+        }
+        return array_values(array_unique($messages));
+    }
+
     public static function checkClassicCart(): void
+    {
+        if(!function_exists('WC')||!WC()||!WC()->cart)return;
+        foreach(self::cartEntryChecks(WC()->cart) as $message){
+            if(function_exists('wc_add_notice'))wc_add_notice($message,'error');
+        }
+    }
+
+    public static function checkClassicCheckout(): void
     {
         if(!function_exists('WC')||!WC()||!WC()->cart)return;
         foreach(self::finalChecks(WC()->cart) as $message){
