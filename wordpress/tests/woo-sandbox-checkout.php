@@ -478,7 +478,9 @@ foreach (['L1','U3'] as $shape) {
     $order->set_shipping_postcode('80331');
     $order->add_item($line);
     $order->add_item($shipping);
-    $order->calculate_totals(false);
+    // Match Woo's real order pipeline: recalculate VAT on persisted
+    // product and shipping rows, not merely their untaxed net amounts.
+    $order->calculate_totals(true);
     $order->save();
     $oid=$order->get_id();
     hpzLiveCheck(is_int($oid)&&$oid>0,'CI order persisted through Woo CRUD '.$shape);
@@ -488,7 +490,10 @@ foreach (['L1','U3'] as $shape) {
         &&$stored->get_created_via()==='hpz-ci-only-never-live',
         'CI order has safe pending/test-only state '.$shape);
     hpzLiveCheck((int)round((float)$stored->get_total()*100)===$expectedGross,
-        'saved Woo order total matches cart VAT + ordinary shipping '.$shape);
+        'saved Woo order total matches cart VAT + ordinary shipping '.$shape
+        .' expected='.$expectedGross.' saved='.(int)round((float)$stored->get_total()*100)
+        .' cartTaxes='.(int)round((float)$cart->get_total_tax()*100)
+        .' orderTaxes='.(int)round((float)$stored->get_total_tax()*100));
     $items=array_values($stored->get_items('line_item'));
     hpzLiveCheck(count($items)===1,'exactly one persisted worktop line '.$shape);
     $saved=$items[0];
