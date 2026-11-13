@@ -64,6 +64,9 @@ try{
    // remain printed while L1 is the active dimension.
    await page.evaluate(()=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    // Step 0 intentionally shows silhouette only; the customer sees the
+    // measurement rails in step 1 ("Maße in cm").
+    s.getElementById('next').click();
     s.getElementById('dim-L1').focus();
    });
    const labels=await page.evaluate(()=>{
@@ -88,6 +91,10 @@ try{
      assert.equal(entry.clipped,false,shape+' '+width+'px clipped '+entry.id);
    }
    assert.equal(labels.halo,2,shape+' should show two contrast-enhanced seams');
+   await page.evaluate(()=>{
+    const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
+    s.getElementById('back').click();
+   });
    await page.evaluate(()=>{
     const s=document.querySelector('[data-hpz-apl-preview]').shadowRoot;
     s.getElementById('view-parts').click();
