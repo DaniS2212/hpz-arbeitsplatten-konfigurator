@@ -104,14 +104,14 @@ foreach([1000083,1000080,1000081] as $unsignedId) {
     if(function_exists('wc_clear_notices')) wc_clear_notices();
 }
 $secret=wp_salt('auth').wp_salt('secure_auth');
-function hpzStraightRaw(int $length):array {
+function hpzStraightRaw(int $length,string $decor='W980'):array {
     return [
         'schemaVersion'=>2,'inputUnit'=>'mm','productId'=>1000083,
         'sku'=>'HPZ-APL-GERADE-2026','product'=>'straight','geometry'=>'straight',
         'corner'=>'square','straightCorner'=>[
             'side'=>'none','treatment'=>null,'parameters'=>[]
         ],'dimensions'=>['L1'=>(string)$length,'B1'=>'600'],
-        'material'=>'APL38','decor'=>'W980','edge'=>'matching-1.5','quantity'=>1
+        'material'=>'APL38','decor'=>$decor,'edge'=>'matching-1.5','quantity'=>1
     ];
 }
 function hpzLURaw(string $form,int $length):array {
@@ -137,7 +137,7 @@ foreach(['straight','L1','U1'] as $shape){
     foreach([1899,1900,1901] as $length) {
         hpzResetCart($rateId);
         if($shape==='straight') {
-            $raw=hpzStraightRaw($length);
+            $raw=hpzStraightRaw($length,$length===1899?'H1145':'W980');
             $id=1000083;
             $signed=HPZ_APL_WC_Cart_Bridge_08::issue(
                 $raw,static fn($key)=>null,$secret
@@ -159,6 +159,19 @@ foreach(['straight','L1','U1'] as $shape){
         $cart=WC()->cart;
         $row=$cart->get_cart()[$cartKey]??null;
         hpzLiveCheck(is_array($row),'real Woo signed cart line '.$shape.'/'.$length);
+        if($shape==='straight' && $length===1899){
+            // Reproduce the live report: 189.9x60cm Bardolino Eiche, 38mm,
+            // V3 product gross 670 EUR. The synthetic CI shipping rate is
+            // intentionally independent of the real Flexible Shipping fee.
+            $baseGross=(int)round(
+                ((float)$row['line_subtotal']+(float)$row['line_subtotal_tax'])*100
+            );
+            hpzLiveCheck($baseGross===67000,
+                'live regression Bardolino Eiche 1899x600 gross 670.00');
+            $signedDecor=$row['hpz_apl_v08']['config']['decor']??'';
+            hpzLiveCheck($signedDecor==='H1145',
+                'live regression Bardolino decor code remains signed');
+        }
         // Regression for live classic [woocommerce_cart]: the chosen
         // shipping rate may not exist BEFORE the customer enters checkout.
         if($length===1899){
