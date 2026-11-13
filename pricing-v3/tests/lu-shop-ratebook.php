@@ -117,7 +117,7 @@ $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($normalized,$policy);
 testRate(is_array($proof)&&$proof['supplierNetCents']===69655,'operator price assumption');
 testRate($proof['verifiedPackages']===[]&&$proof['verifiedCutParts']===[],'no fictitious packaging/CNC proofs');
 $key=HPZ_APL_LU_Price_Readiness::configurationKey($normalized);
-$gross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69655,6000,0);
+$gross=HPZ_APL_Price_V3::targetGrossForVerifiedCosts(69655,15000,0);
 $ctx=[
     'country'=>'DE','taxVerified'=>true,'baseTaxRateBasisPoints'=>1900,
     'pricesConfigured'=>true,'shippingCalculated'=>true,
