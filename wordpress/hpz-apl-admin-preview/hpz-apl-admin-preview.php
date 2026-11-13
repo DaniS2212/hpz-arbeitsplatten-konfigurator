@@ -30,6 +30,7 @@ require_once __DIR__.'/includes/lu-price-readiness.php';
 require_once __DIR__.'/includes/lu-shop-ratebook.php';
 require_once __DIR__.'/includes/lu-price-preview.php';
 require_once __DIR__.'/includes/lu-cart-bridge.php';
+require_once __DIR__.'/includes/lu-admin-test.php';
 require_once __DIR__.'/includes/lu-runtime.php';
 // Exact supplier approval UI disabled.
 
@@ -44,6 +45,7 @@ final class HPZ_APL_Admin_Preview {
         // the external 0.9 audited-release constant AND saved operator flag.
         add_action('init', array('HPZ_APL_WP_Straight_Runtime_09','register'), 30);
         add_action('init', array('HPZ_APL_WP_LU_Runtime_11','register'), 31);
+        HPZ_APL_LU_Admin_Test_98::register();
         HPZ_APL_WP_Admin_Supplier_Decor::register();
         HPZ_APL_GitHub_Updater::init();
         // No individual supplier approvals.
@@ -201,7 +203,19 @@ final class HPZ_APL_Admin_Preview {
                 .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_add')).'"'
                 .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_add_'.$id)).'"';
         }
-        $notice=$adminTest?'<p class="hpz-apl-test-notice">Administratoransicht · Bestellung derzeit nicht möglich.</p>':'';
+        // Identical signed cart/quote endpoints, but ONLY for the bound admin
+        // session; product remains draft and checkout-order creation is denied.
+        $adminCart=$adminTest && HPZ_APL_LU_Admin_Test_98::canUse($id);
+        if($adminCart){
+            $priceAttrs=' data-public-sale="true" data-admin-cart-preview="true"'
+                .' data-price-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_quote')).'"'
+                .' data-price-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_quote_'.$id)).'"'
+                .' data-cart-endpoint="'.esc_attr(admin_url('admin-ajax.php?action=hpz_apl_lu_add')).'"'
+                .' data-cart-nonce="'.esc_attr(wp_create_nonce('hpz_apl_lu_add_'.$id)).'"';
+        }
+        $notice=$adminCart
+            ?'<p class="hpz-apl-test-notice"><strong>ADMIN-WARENKORBTEST:</strong> L/U bleiben Entwürfe. Warenkorb und Kasse prüfen, aber Bestellung, Zahlung und Speedmaster sind gesperrt. Der Testzugang endet automatisch.</p>'
+            :($adminTest?'<p class="hpz-apl-test-notice">Administratoransicht · Bestellung derzeit nicht möglich.</p>':'');
         return $css.'<section class="hpz-apl-admin-preview" id="hpz-apl-konfigurator" aria-label="Arbeitsplatte konfigurieren">'.$notice.'<div data-hpz-apl-preview data-product-id="'.esc_attr($id).'" data-decor-id="'.esc_attr($decor['id']).'"'.$priceAttrs.'>Konfigurator wird geladen …</div></section>';
     }
     /**
@@ -294,8 +308,8 @@ final class HPZ_APL_Admin_Preview {
         if (!self::target($product->get_id())) return $allowed;
         if ((int)$product->get_id()===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()
             && HPZ_APL_WP_Straight_Runtime_09::validPublishedProduct($product)) return true;
-        if (HPZ_APL_WP_LU_Runtime_11::canSell((int)$product->get_id())
-            && HPZ_APL_WP_LU_Runtime_11::validPublishedProduct($product,(int)$product->get_id())) return true;
+        if (HPZ_APL_WP_LU_Runtime_11::canCart((int)$product->get_id())
+            && HPZ_APL_WP_LU_Runtime_11::validCartProduct($product,(int)$product->get_id())) return true;
         return false;
     }
     public static function message() { return 'Diese Arbeitsplatte ist noch in Prüfung und kann nicht bestellt werden.'; }
@@ -306,7 +320,7 @@ final class HPZ_APL_Admin_Preview {
         if ((int)$product_id===1000083 && HPZ_APL_WP_Straight_Runtime_09::canSell()) return $passed;
         // Earlier priority-60 L/U signed-cart hook strictly validates raw
         // configurations. This late gate cannot bypass that validation.
-        if (HPZ_APL_WP_LU_Runtime_11::canSell((int)$product_id)) return $passed;
+        if (HPZ_APL_WP_LU_Runtime_11::canCart((int)$product_id)) return $passed;
         wc_add_notice(self::message(), 'error');
         return false;
     }
@@ -316,7 +330,7 @@ final class HPZ_APL_Admin_Preview {
             $id=(int)$item['product_id'];
             if (self::target($id)
                 && !(HPZ_APL_WP_Straight_Runtime_09::canSell() && $id===1000083)
-                && !HPZ_APL_WP_LU_Runtime_11::canSell($id)) return true;
+                && !HPZ_APL_WP_LU_Runtime_11::canCart($id)) return true;
         }
         return false;
     }
@@ -379,6 +393,7 @@ final class HPZ_APL_Admin_Preview {
         echo '<hr><h2>Versand im Checkout</h2>';
         echo '<p>Der konfigurierte WooCommerce-Kundentarif bleibt unverändert. Die internen Bezugskosten von 10 € netto unter 190 cm bzw. 60 € netto ab 190 cm kalkuliert die bestehende Preisengine in den Produktpreis. Hier ist keine zusätzliche Speditionsregel und kein weiterer Speditionszuschlag einzurichten.</p>';
         echo '<p><em>Für die Verkaufsfreigabe dennoch 189,9 / 190,0 / 190,1 cm mit dem echten WooCommerce-Versandtarif im Warenkorb testen; die Höhe des bestehenden Kundentarifs wird nicht durch das Plugin festgelegt.</em></p>';
+        HPZ_APL_LU_Admin_Test_98::renderAdminControls();
 
         echo '</div>';
     }

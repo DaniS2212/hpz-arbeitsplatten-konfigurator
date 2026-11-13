@@ -47,6 +47,25 @@ final class HPZ_APL_WP_LU_Runtime_11
         return self::validPublishedProduct(wc_get_product($id),$id);
     }
 
+    /**
+     * Only L/U drafts in the explicitly activated and short-lived admin
+     * session are allowed to use native Woo CART / checkout navigation.
+     * This does not change canSell(), canRenderPublic() or sale options.
+     */
+    public static function canCart(int $id): bool
+    {
+        return self::canSell($id)
+            || (class_exists('HPZ_APL_LU_Admin_Test_98')
+                && HPZ_APL_LU_Admin_Test_98::canUse($id));
+    }
+
+    public static function validCartProduct($product,int $id): bool
+    {
+        return self::validPublishedProduct($product,$id)
+            || (class_exists('HPZ_APL_LU_Admin_Test_98')
+                && HPZ_APL_LU_Admin_Test_98::validTestProduct($product,$id));
+    }
+
     public static function canRenderPublic($id): bool
     {
         return is_int($id) && self::canSell($id)
@@ -118,7 +137,7 @@ final class HPZ_APL_WP_LU_Runtime_11
             wp_send_json_error(['message'=>'Konfiguration fehlt.'],400);exit;
         }
         $id=$raw['productId'] ?? null;
-        if (!is_int($id) || !self::canSell($id)
+        if (!is_int($id) || !self::canCart($id)
             || !function_exists('wp_verify_nonce')
             || !wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '',$action.'_'.$id)) {
             wp_send_json_error(['message'=>'Bestellfunktion nicht freigegeben.'],403);exit;
@@ -152,20 +171,26 @@ final class HPZ_APL_WP_LU_Runtime_11
         $ctx=HPZ_APL_WP_Woo_Context_09::context($row,$cart);
         $o=self::options();
         $id=(int)($row['product_id']??0);
-        $ctx['manualSupplierHandoffVerified']=
-            self::canSell($id) && ($o['manual_supplier_handoff_verified']??null)===true;
-        $ctx['operatorSaleApproval']=self::canSell($id);
+        // Only for the privileged preview: the admin explicitly agrees that
+        // supplier handoff remains MANUAL and no test order can be submitted.
+        $adminTest=class_exists('HPZ_APL_LU_Admin_Test_98')
+            && HPZ_APL_LU_Admin_Test_98::canUse($id);
+        $ctx['manualSupplierHandoffVerified']=$adminTest
+            || (self::canCart($id) && ($o['manual_supplier_handoff_verified']??null)===true);
+        $ctx['operatorSaleApproval']=$adminTest||self::canCart($id);
         return $ctx;
     }
 
     /** Registers nothing in the active plugin unless audited release gates exist. */
     public static function register(): void
     {
-        if (!self::canSell(1000080)&&!self::canSell(1000081)) return;
+        if (!self::canCart(1000080)&&!self::canCart(1000081)) return;
         add_action('wp_ajax_hpz_apl_lu_quote',[__CLASS__,'publicQuote']);
-        add_action('wp_ajax_nopriv_hpz_apl_lu_quote',[__CLASS__,'publicQuote']);
+        if(self::canCart(1000080)||self::canCart(1000081))
+            add_action('wp_ajax_nopriv_hpz_apl_lu_quote',[__CLASS__,'publicQuote']);
         add_action('wp_ajax_hpz_apl_lu_add',[__CLASS__,'addConfigured']);
-        add_action('wp_ajax_nopriv_hpz_apl_lu_add',[__CLASS__,'addConfigured']);
+        if(self::canCart(1000080)||self::canCart(1000081))
+            add_action('wp_ajax_nopriv_hpz_apl_lu_add',[__CLASS__,'addConfigured']);
         add_filter('woocommerce_add_to_cart_validation',[__CLASS__,'validateClassic'],60,6);
         add_filter('woocommerce_add_cart_item_data',[__CLASS__,'classicData'],60,4);
         add_filter('woocommerce_store_api_add_to_cart_data',[__CLASS__,'storeData'],60,2);
@@ -262,7 +287,7 @@ final class HPZ_APL_WP_LU_Runtime_11
     public static function validateClassic($passed,$productId,$quantity,$variationId=0,$variations=[],$cartData=[])
     {
         if (!self::isTarget($productId)) return $passed;
-        if (!$passed || !self::canSell((int)$productId)) return false;
+        if (!$passed || !self::canCart((int)$productId)) return false;
         try{
             if (is_array($cartData) && isset($cartData[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY])) {
                 self::checked($cartData,(int)$quantity);
@@ -282,7 +307,7 @@ final class HPZ_APL_WP_LU_Runtime_11
     {
         $result=is_array($data)?$data:[];
         if (!self::isTarget($productId)) return $result;
-        if (!self::canSell((int)$productId)) throw new InvalidArgumentException('Bestellung gesperrt.');
+        if (!self::canCart((int)$productId)) throw new InvalidArgumentException('Bestellung gesperrt.');
         if (isset($result[HPZ_APL_WC_LU_Cart_Bridge::ITEM_KEY])) {
             self::checked($result,(int)$quantity);
             return $result;
@@ -296,7 +321,7 @@ final class HPZ_APL_WP_LU_Runtime_11
     {
         if(!is_object($product)||!method_exists($product,'get_id')
             ||!self::isTarget($product->get_id())) return;
-        if(!self::canSell((int)$product->get_id())) throw new InvalidArgumentException('Bestellung gesperrt.');
+        if(!self::canCart((int)$product->get_id())) throw new InvalidArgumentException('Bestellung gesperrt.');
         $raw=self::rawFromStore($request);
         $quantity=$request['quantity'] ?? null;
         if(!is_int($quantity)||$quantity<1)throw new InvalidArgumentException('Menge fehlt.');
@@ -309,7 +334,7 @@ final class HPZ_APL_WP_LU_Runtime_11
         $data=is_array($cartData)?$cartData:[];
         $id=$data['id']??null;
         if(!self::isTarget($id))return $data;
-        if(!self::canSell((int)$id))throw new InvalidArgumentException('Bestellung gesperrt.');
+        if(!self::canCart((int)$id))throw new InvalidArgumentException('Bestellung gesperrt.');
         $qty=$data['quantity']??null;
         if(!is_int($qty)||$qty<1)throw new InvalidArgumentException('Menge fehlt.');
         $raw=self::rawFromStore($request);
@@ -326,7 +351,7 @@ final class HPZ_APL_WP_LU_Runtime_11
         $row=is_array($cartItem)?$cartItem:[];
         if(!self::isTarget($row['product_id']??null))return $row;
         try{
-            if(!self::canSell((int)$row['product_id']))throw new InvalidArgumentException('Verkauf gesperrt.');
+            if(!self::canCart((int)$row['product_id']))throw new InvalidArgumentException('Verkauf gesperrt.');
             self::checked($row,(int)($row['quantity']??0));
             unset(self::$pending['session_'.$cartKey]);
         }catch(Throwable $error){
@@ -342,7 +367,7 @@ final class HPZ_APL_WP_LU_Runtime_11
             if(!self::isTarget($row['product_id']??null))continue;
             try{
                 $id=(int)$row['product_id'];
-                if(!self::canSell($id))throw new InvalidArgumentException('Verkauf gesperrt.');
+                if(!self::canCart($id))throw new InvalidArgumentException('Verkauf gesperrt.');
                 $checked=self::checked($row,(int)($row['quantity']??0));
                 $ctx=self::context($row,$cart);
                 if(($ctx['country']??null)!=='DE'
@@ -352,7 +377,7 @@ final class HPZ_APL_WP_LU_Runtime_11
                     throw new InvalidArgumentException('Woo-Steuern nicht bestätigt.');
                 }
                 $product=$row['data']??null;
-                if(!self::validPublishedProduct($product,$id)
+                if(!self::validCartProduct($product,$id)
                     ||!method_exists($product,'set_price')) {
                     throw new InvalidArgumentException('Woo-Arbeitsplatte nicht bestätigt.');
                 }
@@ -387,7 +412,7 @@ final class HPZ_APL_WP_LU_Runtime_11
         foreach($cart->get_cart() as $key=>$row){
             if(!self::isTarget($row['product_id']??null))continue;
             try{
-                if(!self::canSell((int)$row['product_id']))throw new InvalidArgumentException('Verkauf gesperrt.');
+                if(!self::canCart((int)$row['product_id']))throw new InvalidArgumentException('Verkauf gesperrt.');
                 $ctx=self::context($row,$cart);
                 if(!is_array($ctx))throw new InvalidArgumentException('Woo-Steuer-/Versanddaten fehlen.');
                 $sub=self::cents($row['line_subtotal']??null);
@@ -437,9 +462,9 @@ final class HPZ_APL_WP_LU_Runtime_11
             $id=(int)($row['product_id']??0);
             if(!self::isTarget($id))continue;
             try{
-                if(!self::canSell($id))throw new InvalidArgumentException('Verkauf gesperrt.');
+                if(!self::canCart($id))throw new InvalidArgumentException('Verkauf gesperrt.');
                 self::checked($row,(int)($row['quantity']??0));
-                if(!self::validPublishedProduct($row['data']??null,$id))
+                if(!self::validCartProduct($row['data']??null,$id))
                     throw new InvalidArgumentException('Produkt ungueltig.');
             }catch(Throwable $error){
                 $messages[]='L-/U-Arbeitsplatte: Konfiguration im Warenkorb ungueltig.';
@@ -527,7 +552,7 @@ final class HPZ_APL_WP_LU_Runtime_11
             ||!self::isTarget($product->get_id()))return $allowed;
         $whole=self::wholeQuantity($qty);
         if(!$allowed||$whole===null||!is_array($cartItem)
-            ||!self::canSell((int)$product->get_id())) {
+            ||!self::canCart((int)$product->get_id())) {
             return class_exists('WP_Error')
                 ? new WP_Error('hpz_apl_lu_quantity','L-/U-Menge nicht bestätigt.',['status'=>400]) : false;
         }
@@ -545,7 +570,7 @@ final class HPZ_APL_WP_LU_Runtime_11
         if(!is_array($values)||!self::isTarget($values['product_id']??null))return $allowed;
         $whole=self::wholeQuantity($qty);
         if(!$allowed)return false;
-        if($whole===null||!self::canSell((int)$values['product_id'])){
+        if($whole===null||!self::canCart((int)$values['product_id'])){
             if(function_exists('wc_add_notice'))wc_add_notice(
                 'L-/U-Arbeitsplatte: Bitte eine gültige ganze Stückzahl eingeben.','error');
             return false;
