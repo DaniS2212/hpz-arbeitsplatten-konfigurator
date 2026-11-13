@@ -46,6 +46,7 @@ for(const [source,target] of [
  ['pricing-v3/HPZ_APL_LU_Admin_Price_Preview_13.php','lu-price-preview.php'],
  ['wordpress/checkout-lu/HPZ_APL_WC_LU_Cart_Bridge.php','lu-cart-bridge.php'],
  ['wordpress/checkout-lu/HPZ_APL_WP_LU_Runtime.php','lu-runtime.php'],
+ ['wordpress/checkout-lu/HPZ_APL_WP_LU_Admin_Test.php','lu-admin-test.php'],
  ['wordpress/checkout-v08/HPZ_APL_WC_Cart_Bridge.php','cart-bridge.php'],
  ['wordpress/checkout-v08/HPZ_APL_WC_Dormant_Hooks.php','woo-hooks.php'],
  ['wordpress/sale-launch-090/HPZ_APL_WP_Supplier_Proofs.php','supplier-proofs.php'],
