@@ -142,7 +142,7 @@ try{
      });
      assert.equal(splitState.cart,true,'L must remain unsaleable in illustrated seam view');
      assert.equal(splitState.numbers,illustratedSeams===1?2:3,'preview piece number count');
-     assert.equal(splitState.labels,0,'dimension callouts should be hidden in parts review');
+     assert.ok(splitState.labels>0,'dimension callouts remain visible in customer connection view');
      assert.equal(splitState.selectedParts,0,'seam highlight cannot pretend a single real piece was chosen');
      assert.match(splitState.note,/ungeprüft|unbestätigt|Skizze|Lage/i);
      assert.ok(splitState.overflow<=1,'no mobile overflow while selecting '+seamId);

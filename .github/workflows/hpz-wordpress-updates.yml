@@ -94,6 +94,7 @@ jobs:
           node wordpress/minimal-layout-browser-runner.mjs
           node wordpress/u-corners-browser-runner.mjs
           node wordpress/l-shape-cards-browser-runner.mjs
+          node wordpress/connection-view-browser-runner.mjs
           node wordpress/corner-chooser-parity-browser-runner.mjs
           node wordpress/customer-clarity-browser-runner.mjs
           node wordpress/measurement-combinations-browser-runner.mjs
