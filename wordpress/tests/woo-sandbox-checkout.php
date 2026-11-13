@@ -115,17 +115,26 @@ function hpzStraightRaw(int $length,string $decor='W980'):array {
     ];
 }
 function hpzLURaw(string $form,int $length):array {
-    $l=$form==='L1';
+    $l=$form[0]==='L';
+    if(!in_array($form,['L1','L2','L3','L4','U1','U2','U3','U4'],true))
+        throw new RuntimeException('Unsupported L/U smoke-test geometry');
+    $dims=($l && in_array($form,['L3','L4'],true))
+        ?['L1'=>(string)$length,'L2'=>'2000','B1'=>'600','B2'=>'600',
+            'B3'=>'900','B4'=>'900']
+        :($l
+            ?['L1'=>(string)$length,'L2'=>'1200','B1'=>'600','B2'=>'600']
+            :['L1'=>(string)$length,'L2'=>'1200','L3'=>'1800',
+                'B1'=>'600','B2'=>'600','B3'=>'600']);
+    if($form==='L4')$dims['B5']='600';
     return [
         'schemaVersion'=>2,'inputUnit'=>'mm','productId'=>$l?1000080:1000081,
         'sku'=>$l?'HPZ-APL-L-FORM-2026':'HPZ-APL-U-FORM-2026',
         'product'=>$l?'l':'u','geometry'=>$form,'corner'=>'square',
-        'dimensions'=>$l
-            ?['L1'=>(string)$length,'L2'=>'1200','B1'=>'600','B2'=>'600']
-            :['L1'=>(string)$length,'L2'=>'1200','L3'=>'1800',
-                'B1'=>'600','B2'=>'600','B3'=>'600'],
-        'material'=>'APL38','decor'=>'W980','edge'=>'matching-1.5',
-        'quantity'=>1,
+        'dimensions'=>$dims,
+        // Both material thicknesses and a second decor must pass real Woo.
+        'material'=>in_array($form,['L4','U4'],true)?'APL17.5':'APL38',
+        'decor'=>in_array($form,['L2','U2'],true)?'H1145':'W980',
+        'edge'=>'matching-1.5','quantity'=>1,
         ...($l?['lCorner'=>['side'=>'none','treatment'=>null,'parameters'=>[]]]:[])
     ];
 }
@@ -133,7 +142,9 @@ function hpzResetCart(string $rateId):void {
     WC()->cart->empty_cart(true);
     WC()->session->set('chosen_shipping_methods',[$rateId]);
 }
-foreach(['straight','L1','U1'] as $shape){
+// All eight L/U geometries run through real WooCommerce tax, shipping,
+// signed cart, coupon, quantity and unsaved manufacturing metadata.
+foreach(['straight','L1','L2','L3','L4','U1','U2','U3','U4'] as $shape){
     foreach([1899,1900,1901] as $length) {
         hpzResetCart($rateId);
         if($shape==='straight') {
@@ -144,7 +155,7 @@ foreach(['straight','L1','U1'] as $shape){
             );
         }else {
             $raw=hpzLURaw($shape,$length);
-            $id=$shape==='L1'?1000080:1000081;
+            $id=$shape[0]==='L'?1000080:1000081;
             $normalized=HPZ_APL_LU_Price_Readiness::normalize($raw);
             $proof=HPZ_APL_LU_Shop_Ratebook_12::operatorProof($normalized,$policy);
             hpzLiveCheck(is_array($proof),'test-only L/U operator proof '.$shape.'/'.$length);
@@ -225,6 +236,16 @@ foreach(['straight','L1','U1'] as $shape){
             HPZ_APL_WP_LU_Runtime_11::writeOrderItem($item,$cartKey,$row,null);
             hpzLiveCheck($item->get_meta('Arbeitsplattenform')===$shape,
                 'L/U Woo metadata '.$shape.'/'.$length);
+            $production=$item->get_meta('_hpz_apl_manufacturing_v2');
+            hpzLiveCheck(is_array($production)
+                &&($production['form']??null)===$shape
+                &&($production['dimensionsMm']['L1']??null)===$length
+                &&($production['decorId']??null)===$raw['decor']
+                &&($production['thicknessMm']??null)===($raw['material']==='APL38'?38:17.5),
+                'signed L/U manufacturing details match selected form/size/material/decor '.$shape.'/'.$length);
+            if($shape==='L4')hpzLiveCheck(
+                ($production['dimensionsMm']['B5']??null)===600,
+                'L4 fifth measurement survives Woo order line');
         }
         hpzLiveCheck(is_array($item->get_meta('_hpz_apl_manufacturing_v2')),
             'real Woo product item has manufacturing record '.$shape.'/'.$length);
@@ -376,4 +397,4 @@ foreach(['L1','U1'] as $shape){
 // No WC_Order is saved, no payment is collected and no supplier call is made.
 
 echo 'PASS '.$GLOBALS['hpzChecks'].
-    " real WooCommerce sandbox assertions; nine configured cart scenarios, classic-cart to checkout progression, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";
+    " real WooCommerce sandbox assertions; 27 configured cart scenarios (straight 3, L1-L4 12, U1-U4 12), classic-cart to checkout progression, VAT, ordinary shipping, signed-cart isolation, quantity and L/U coupon checks, unsaved order-line metadata. NO ORDER CREATED.\n";
