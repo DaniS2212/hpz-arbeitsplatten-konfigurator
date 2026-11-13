@@ -101,7 +101,10 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
   const lCornerFocus=active.startsWith('corner-')&&isLPreview;
   const measures=(detail?[]:g.dimensions).map(d=>{
     const field=d.focusKey??d.id;
-    if(lCornerFocus || (d.secondary&&field!==active))return '';
+    // L3/L4 B3/B4 and L4 B5 are essential dimensions, not hover-only
+    // decorations. Their dedicated outer rails keep them visible even when
+    // another dimension is focused; hide only while editing corner cuts.
+    if(lCornerFocus)return '';
     const vertical=d.axis==='vertical'||(d.axis!=='horizontal'&&d.from[0]===d.to[0]);
     // A short corner-cut label sits just below the leg. Put the full B1
     // width dimension farther down to prevent opaque labels masking each other.
@@ -240,7 +243,10 @@ export function svg(g,active='',{decor='W980',showDimensions=true,partsView=fals
       // Customers can see U1–U4 join directions already in Draufsicht.
       // Switching to "Aufteilung" remains optional for selecting a join.
       const highlighted=g.version?.startsWith('speedmaster-u');
-      return '<path class="apl-preview-seam" data-preview-join="'+(highlighted?'u':'other')+'" d="'+d+'" fill="none" stroke="'+(highlighted?'#146178':'#365861')+'" stroke-width="'+(font/(partsView?11:highlighted?13:28))+'" stroke-dasharray="'+(font/(partsView?4:highlighted?5:10))+' '+(font/(partsView?6:highlighted?8:12))+'" opacity="'+(partsView?.82:highlighted?.78:.28)+'"/>';
+      // White underlay makes L seams legible on dark decor while preserving
+      // the same schematic seam coordinates and non-manufacturing status.
+      const halo=highlighted?'':'<path class="apl-preview-seam-halo" d="'+d+'" fill="none" stroke="#fffefa" stroke-width="'+(font/12)+'" stroke-dasharray="'+(font/10)+' '+(font/12)+'" opacity=".92" pointer-events="none"/>';
+      return halo+'<path class="apl-preview-seam" data-preview-join="'+(highlighted?'u':'other')+'" d="'+d+'" fill="none" stroke="'+(highlighted?'#146178':'#365861')+'" stroke-width="'+(font/(partsView?11:highlighted?13:28))+'" stroke-dasharray="'+(font/(partsView?4:highlighted?5:10))+' '+(font/(partsView?6:highlighted?8:12))+'" opacity="'+(partsView?.82:highlighted?.78:.80)+'"/>';
     }
     const selected=meta.id===selectedSeam,color=selected?'#bc7045':'#365861';
     const x=(seam.from[0]+seam.to[0])/2,y=(seam.from[1]+seam.to[1])/2;

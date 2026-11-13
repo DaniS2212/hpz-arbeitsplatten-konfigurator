@@ -29,7 +29,7 @@ test('every L1-L4 basic dimension has a true-length reference segment',()=>{
   }
 });
 
-test('L3 and L4 show B3 horizontal and B4 vertical construction dimensions only on focus',()=>{
+test('L3/L4 keep paired B3/B4 visible and selectable even outside field focus',()=>{
   for(const shape of ['L3','L4']){
     const g=plate(shape).geometry;
     const pair=g.dimensions.filter(d=>d.focusKey==='B3');
@@ -46,7 +46,13 @@ test('L3 and L4 show B3 horizontal and B4 vertical construction dimensions only 
     assert.match(focused,/B3: (90|105) cm/);
     assert.match(focused,/B4: (90|105) cm/);
     const other=svg(g,'L1',{unit:'cm'});
-    assert.doesNotMatch(other,/class="apl-measure" data-field="B3"/);
+    assert.match(other,/data-field="B3" data-active="false"/,
+      shape+' must print paired widths even when L1 is selected');
+    assert.match(other,/B3: (90|105) cm/);
+    assert.match(other,/B4: (90|105) cm/);
+    assert.match(svg(g,'',{unit:'cm'}),/data-measure-id="B4"/);
+    assert.match(other,/apl-preview-seam-halo/,
+      shape+' seam must remain visible on dark decor');
   }
 });
 
@@ -59,6 +65,9 @@ test('L4 B5 does not lie about the measured diagonal separation when screenshot 
   assert.equal(inner,1950);
   assert.equal(d.mm,600);
   assert.equal(d.settingOnly,true,'B5 remains the input, not 636.4mm physical gap');
+  const nonFocused=svg(g,'L1',{unit:'cm'});
+  assert.match(nonFocused,/data-field="B5" data-active="false" data-setting-only="true"/);
+  assert.match(nonFocused,/B5: 60 cm/);
   assert.ok(dist(d.from,d.to)>d.mm);
   const rendered=svg(g,'B5',{unit:'cm'});
   assert.match(rendered,/data-field="B5" data-active="true" data-setting-only="true"/);
